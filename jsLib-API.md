@@ -8,24 +8,22 @@ getNetworks(ownAddress)
 
 ##### return
 ```javascript
-{
-	[ 
-		{
-		  id
-		  name,
-		  currency: {
-		  	symbol,
-		  	shortcode,
-		  	name
-		  },
-		  creditlines_given, // Sum of all creditline_given
-		  creditlines_received, // Sum of all creditline_received
-		  balance,
-		  availableFunds,
-		},
-		...
-	]
-}
+[
+  {
+    id
+    name,
+    currency: {
+      symbol,
+      shortcode,
+      name
+    },
+    creditlines_given, // Sum of all creditline_given
+    creditlines_received, // Sum of all creditline_received
+    balance,
+    availableFunds,
+  },
+  ...
+]
 ```
 
 
@@ -44,21 +42,19 @@ getTrustlines(ownAddress)
 
 ##### return
 ```javascript
-{
-	[ 
-		{
-			id,
-			balance,
-			interest_rate,
-			network,
-			creditline_given,
-			creditline_received,
-			balance_received,
-			balance_given,
-		},
-		...
-	]
-}
+[ 
+  {
+    id,
+    balance,
+    interest_rate,
+    network,
+    creditline_given,
+    creditline_received,
+    balance_received,
+    balance_given,
+  },
+  ...
+]
 ```
 
 ### getTransactions
@@ -76,8 +72,8 @@ getTransactions(ownAddress, filter)
 
 ##### return
 ```javascript
-{
-	[
+[
+  {
 		id,
 		trustline : {
 			id,
@@ -86,11 +82,10 @@ getTransactions(ownAddress, filter)
 		type, // e.g. 'send', 'receive', ... 
 		timestamp,
 		network,
-		subject,
-		
-	],
+		subject
+	},
 	...
-}
+]
 ```
 
 ###send
