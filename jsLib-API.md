@@ -10,18 +10,17 @@ Creates a TLNetwork object which provides all methods
 
 |attribute|type|description|example|
 |---|---|---|---|
-|userAddress|String|Address of user||
-|apiUrl|String|Relay server endpoint to connect to||
-|useWebsocket|Boolean|Flag whether to use Websockets instead of REST (default: false)||
+|host|String|Host of relay server (default: localhost)||
+|port|Number|Port of relay server (default: 5000)||
+|tokenAddress|String|Address of token (default: localhost)||
+|pollInterval|Number|Interval for polling relay server in ms (default: 500)||
+|useWebSockets|Boolean|Flag whether to use web sockets instead of http (default: false)||
 
 ##### Example
 ```javascript
-import TLNetwork from 'trustlines-network'
+import { TLNetwork } from 'trustlines-network'
 
-const config = {
-  userAddress: web3.eth.defaultAccount
-  apiUrl: 'https://'
-}
+const tlNetwork = new TLNetwork()
 ```
 
 ### createAccount

@@ -4,6 +4,7 @@ export class TLNetwork {
     private configuration: Configuration
 
     constructor(config: any = {}) {
-        this.configuration = new Configuration(config.host, config.port, config.useWebSockets)
+        const { host, port, tokenAddress, pollInterval, useWebSockets } = config
+        this.configuration = new Configuration(host, port, tokenAddress, pollInterval, useWebSockets)
     }
 }
