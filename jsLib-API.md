@@ -10,11 +10,11 @@ Creates a TLNetwork object which provides all methods
 
 |attribute|type|description|example|
 |---|---|---|---|
-|host|String|Host of relay server (default: localhost)||
-|port|Number|Port of relay server (default: 5000)||
-|tokenAddress|String|Address of token (default: localhost)||
-|pollInterval|Number|Interval for polling relay server in ms (default: 500)||
-|useWebSockets|Boolean|Flag whether to use web sockets instead of http (default: false)||
+|config.host|String|Host of relay server (default: localhost)||
+|config.port|Number|Port of relay server (default: 5000)||
+|config.tokenAddress|String|Address of token (default: localhost)||
+|config.pollInterval|Number|Interval for polling relay server in ms (default: 500)||
+|config.useWebSockets|Boolean|Flag whether to use web sockets instead of http (default: false)||
 
 ##### Example
 ```javascript
@@ -23,14 +23,17 @@ import { TLNetwork } from 'trustlines-network'
 const tlNetwork = new TLNetwork()
 ```
 
-### createAccount
+### createUser
 ```javascript
-createAccount()
+createUser(username)
 ```
-Creates a new account by creating a private/public key pair
+Creates a new user by generating a private/public key pair
+
+##### Arguments
+
 
 ##### Returns
-`Object` - created account object :
+`Promise <Object, Error>` - created account object :
 
 |attribute|type|description|example|
 |---|---|---|---|
