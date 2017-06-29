@@ -1,9 +1,13 @@
 module.exports = {
     entry: "./src/TLNetwork.ts",
     output: {
-        filename: "TLNetwork.js",
+        filename: "trustlines-network.js",
         path: __dirname + "/dist",
         libraryTarget: "commonjs2"
+    },
+
+    externals: {
+        "eth-lightwallet": "eth-lightwallet"
     },
 
     // Enable sourcemaps for debugging webpack's output.
