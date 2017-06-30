@@ -10,40 +10,74 @@ Creates a TLNetwork object which provides all methods
 
 |attribute|type|description|example|
 |---|---|---|---|
-|host|String|Host of relay server (default: localhost)||
-|port|Number|Port of relay server (default: 5000)||
-|tokenAddress|String|Address of token (default: localhost)||
-|pollInterval|Number|Interval for polling relay server in ms (default: 500)||
-|useWebSockets|Boolean|Flag whether to use web sockets instead of http (default: false)||
+|config.host|String|Host of relay server (default: localhost)||
+|config.port|Number|Port of relay server (default: 5000)||
+|config.tokenAddress|String|Address of token (default: )||
+|config.pollInterval|Number|Interval for polling relay server in ms (default: 500)||
+|config.useWebSockets|Boolean|Flag whether to use web sockets instead of http (default: false)||
 
 ##### Example
 ```javascript
-import { TLNetwork } from 'trustlines-network'
+import { TLNetwork } from "trustlines-network"
 
-const tlNetwork = new TLNetwork()
+const tlNetwork = new TLNetwork({
+    host: "localhost",
+    port: 5000,
+    tokenAddress: "0x61f3a6deebc44c0421f5d8e5a34cf5f21e862b39",
+    pollInterval: 500,
+    useWebSockets: false
+})
 ```
 
-### createAccount
+### createUser
 ```javascript
-createAccount()
+createUser(username)
 ```
-Creates a new account by creating a private/public key pair
+Creates a new user by generating a private/public key pair
+
+##### Arguments
+|argument|type|description|example|
+|---|---|---|---|
+|username|String|Username of user||
 
 ##### Returns
-`Object` - created account object :
+`Promise <Object, Error>` - created account object :
 
 |attribute|type|description|example|
 |---|---|---|---|
-|userAddress|String|Address of user||
-|publicKey|String|||
-|privateKey|String|||
+|username|String|Username||
+|address|String|Public address of created user||
+|keystore|String|serialized eth-lightwallet keystore||
 
 ##### Example
 ```javascript
-asdasd
+createdUser("username").then((createdUser) => {
+    console.log("New user successfully created!", createdUser)
+}).catch((err) => {
+    console.error("Something went wrong...", err)
+})
 ```
 
+### loadUser
+```javascript
+loadUser(serializedKeystore)
+```
+Loads existing user into TLNetwork object
 
+##### Arguments
+|argument|type|description|example|
+|---|---|---|---|
+|serializedKeystore|String|Serialized eth-ligthwallet keystore object||
+
+##### Example
+```javascript
+const serializedKeystore = '{"encSeed":{"encStr":"fdlM/t1VWFVsx6bKVdX4rrhFGJiVKyZbnYWRnLjGBQLM5zkgC73...'
+loadUser(serializedKeystore).then((loadedUser) => {
+    console.log("Existing user successfully loaded!", loadUser)
+}).catch(() => {
+    console.log("Something went wrong...")
+})
+```
 
 ### getNetworks
 

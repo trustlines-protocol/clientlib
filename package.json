@@ -24,5 +24,8 @@
         "mocha": "^3.4.2",
         "source-map-loader": "^0.2.1",
         "typescript": "^2.4.1"
+    },
+    "dependencies": {
+        "eth-lightwallet": "^2.5.6"
     }
 }
