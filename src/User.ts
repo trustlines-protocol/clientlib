@@ -3,8 +3,8 @@ const lightwallet = require("eth-lightwallet")
 export class User {
     public username: string
     public address: string
+    public keystore: any
 
-    private _keystore: any
     private _password = "ts"
 
     public generateKey(): Promise<string> {
@@ -15,33 +15,28 @@ export class User {
                 seedPhrase: secretSeed
             }, (err: any, ks: any) => {
                 if (err) reject(err)
-                this._keystore = ks
+                this.keystore = ks
                 ks.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
                     if (err) reject(err)
-                    this._keystore.generateNewAddress(pwDerivedKey)
-                    const address = this._keystore.getAddresses()[0]
+                    this.keystore.generateNewAddress(pwDerivedKey)
+                    const address = this.keystore.getAddresses()[0]
                     resolve(address)
                 })
             })
         })
     }
 
-    public get keystore() {
-        return this._keystore.serialize()
-    }
-
-    public set keystore(serializedKeystore: string) {
-        this._keystore = lightwallet.keystore.deserialize(serializedKeystore)
-        this.address = this._keystore.getAddresses()[0]
+    public deserializeKeystore(serializedKeystore: string) {
+        return lightwallet.keystore.deserialize(serializedKeystore)
     }
 
     public signTx(rawTx: any): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            this._keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+            this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
                 if (err) {
                     reject(err)
                 } else {
-                    resolve(lightwallet.signing.signTx(this._keystore, pwDerivedKey, rawTx, this.address))
+                    resolve(lightwallet.signing.signTx(this.keystore, pwDerivedKey, rawTx, this.address))
                 }
             })
         })
