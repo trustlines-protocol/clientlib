@@ -19,7 +19,7 @@ export class TLNetwork {
                 const createdUser = {
                     username: this.user.username,
                     address: this.user.address,
-                    keystore: this.user.keystore
+                    keystore: this.user.keystore.serialize()
                 }
                 resolve(createdUser)
             }).catch((err) => {
@@ -28,7 +28,20 @@ export class TLNetwork {
         })
     }
 
-    public loadUser(keystore: string) {
-        this.user.keystore = keystore
+    public loadUser(serializedKeystore: string) {
+        return new Promise((resolve, reject) => {
+            if (serializedKeystore) { // TODO: check if valid keystore
+                this.user.keystore = this.user.deserializeKeystore(serializedKeystore)
+                this.user.address = this.user.keystore.getAddresses()[0]
+                const loadedUser = {
+                    username: this.user.username,
+                    address: this.user.address,
+                    keystore: this.user.keystore.serialize()
+                }
+                resolve(loadedUser)
+            } else {
+                reject(new Error())
+            }
+        })
     }
 }
