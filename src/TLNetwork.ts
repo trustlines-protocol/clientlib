@@ -40,8 +40,12 @@ export class TLNetwork {
                 }
                 resolve(loadedUser)
             } else {
-                reject(new Error())
+                reject(new Error("No valid keystore"))
             }
         })
+    }
+
+    public sendPayment(receiver: string, value: number) {
+        return this.payment.mediatedTransfer(receiver, value)
     }
 }
