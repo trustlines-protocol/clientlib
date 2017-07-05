@@ -1,4 +1,4 @@
-const lightwallet = require("eth-lightwallet")
+import * as lightwallet from "eth-lightwallet"
 
 export class User {
     public username: string
@@ -40,5 +40,10 @@ export class User {
                 }
             })
         })
+    }
+
+    // TODO: define relay api
+    public onboardUser(newUser: string) {
+
     }
 }

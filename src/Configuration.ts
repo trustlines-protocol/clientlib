@@ -9,8 +9,6 @@ export class Configuration {
         public host: string = "localhost",
         // port of REST relay server
         public port: number = 5000,
-        // address of the token
-        public tokenAddress: string = "0x61f3a6deebc44c0421f5d8e5a34cf5f21e862b39",
         // poll interval
         public pollInterval: number = 500,
         // use websockets?
