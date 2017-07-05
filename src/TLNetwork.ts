@@ -1,14 +1,17 @@
-import { Configuration } from './Configuration'
-import { User } from './User'
+import { Configuration } from "./Configuration"
+import { User } from "./User"
+import { Payment } from "./Payment"
 
 export class TLNetwork {
     private configuration: Configuration
     private user: User
+    private payment: Payment
 
     constructor(config: any = {}) {
         const { host, port, tokenAddress, pollInterval, useWebSockets } = config
         this.configuration = new Configuration(host, port, tokenAddress, pollInterval, useWebSockets)
         this.user = new User()
+        this.payment = new Payment(this.configuration, this.user)
     }
 
     public createUser(username: string) {

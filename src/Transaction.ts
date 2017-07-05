@@ -1,7 +1,9 @@
 import { Configuration } from "./Configuration"
 import { User } from "./User"
 
-const lightwallet = require("eth-lightwallet")
+import "isomorphic-fetch"
+import { polyfill } from "es6-promise"
+import * as lightwallet from "eth-lightwallet"
 
 export class Transaction {
 
@@ -24,8 +26,8 @@ export class Transaction {
 
     private getAbi(): Promise<any> {
         return fetch(`${this.config.apiUrl}tokenabi`)
-            .then((res) => res.json())
-            .then((json) => json.abi)
+            .then(res => res.json())
+            .then(json => json.abi)
             .catch(this.handleError)
     }
 
@@ -36,18 +38,17 @@ export class Transaction {
             .catch(this.handleError)
     }
 
-
     public relayTx(data: string): Promise<string> {
         const headers = new Headers({
             "Content-Type": "application/json"
         })
-        return fetch(this.config.apiUrl + "relay", {
+        return fetch(`${this.config.apiUrl}relay`, {
             method: "POST",
             headers,
             body: JSON.stringify({data: "0x" + data})
         }).then((res) => res.json())
         .then((json) => json.tx)
-        .catch(this.handleError);
+        .catch(this.handleError)
     }
 
     private handleError(error: any) {

@@ -3,12 +3,17 @@ module.exports = {
     output: {
         filename: "trustlines-network.js",
         path: __dirname + "/dist",
-        libraryTarget: "commonjs2"
+        libraryTarget: "umd"
     },
 
-    externals: {
-        "eth-lightwallet": "eth-lightwallet"
-    },
+    externals: [
+        "eth-lightwallet",
+        "rxjs",
+        "reconnecting-websocket",
+        "isomorphic-fetch",
+        "@types/isomorphic-fetch",
+        "es6-promise"
+    ],
 
     // Enable sourcemaps for debugging webpack's output.
     devtool: "source-map",
