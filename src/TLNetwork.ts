@@ -4,6 +4,9 @@ import { Transaction } from "./Transaction"
 import { Payment } from "./Payment"
 import { Trustline } from "./Trustline"
 import { CurrencyNetwork } from "./CurrencyNetwork"
+import { ObservableHelper } from "./ObservableHelper"
+
+import { Observable } from "rxjs/Observable"
 
 export class TLNetwork {
 
@@ -13,6 +16,7 @@ export class TLNetwork {
     public payment: Payment
     public trustline: Trustline
     public currencyNetwork: CurrencyNetwork
+    public observableHelper: ObservableHelper
     public networks: string[]
     public defaultNetwork: string
 
@@ -24,9 +28,10 @@ export class TLNetwork {
         this.payment = new Payment(this)
         this.trustline = new Trustline(this)
         this.currencyNetwork = new CurrencyNetwork(this)
+        this.observableHelper = new ObservableHelper()
     }
 
-    public createUser(username: string) {
+    public createUser(username: string): Promise<object> {
         this.user.username = username
         return new Promise((resolve, reject) => {
             this.user.generateKey().then((address) => {
@@ -66,5 +71,10 @@ export class TLNetwork {
 
     public sendPayment(receiver: string, value: number) {
         return this.payment.mediatedTransfer(receiver, value)
+    }
+
+    public getEvents(block: number): Observable<any> {
+        const pollEventsUrl = `tokens/${this.defaultNetwork}/users/0x${this.user.address}/block/${block}/events`
+        return this.observableHelper.createObservable(this.configuration, pollEventsUrl)
     }
 }

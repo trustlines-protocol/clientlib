@@ -1,4 +1,7 @@
 import { Observable } from "rxjs/Observable"
+import { TimerObservable } from "rxjs/observable/TimerObservable"
+import "rxjs/add/operator/mergeMap"
+import "rxjs/add/operator/map"
 import { Observer } from "rxjs/Observer"
 
 import { Configuration } from "./Configuration"
@@ -6,13 +9,12 @@ import { Configuration } from "./Configuration"
 const ReconnectingWebSocket = require("reconnecting-websocket")
 
 export class ObservableHelper {
-    constructor(
-        private config: Configuration,
-        private url: string
-    ) {
-        if (config.useWebSockets && "WebSocket" in window) {
+
+    public createObservable(config: Configuration, url: string): Observable<any> {
+        const { useWebSockets, apiUrl, wsApiUrl, pollInterval } = config
+        if (useWebSockets && "WebSocket" in window) {
             return Observable.create((observer: Observer<any>) => {
-                let ws = new ReconnectingWebSocket(`${config.wsApiUrl}${url}`)
+                let ws = new ReconnectingWebSocket(`${wsApiUrl}${url}`)
                 ws.onmessage = (e: MessageEvent) => {
                     const json = JSON.parse(e.data)
                     observer.next(json)
@@ -25,12 +27,13 @@ export class ObservableHelper {
                 }
             })
         } else {
-            let observable = Observable.create((observer: Observer<any>) => {
-                fetch(`${config.apiUrl}${url}`)
-                .then((response) => response.json())
-                .then((json) => observer.next(json))
-            }).interval(config.pollInterval)
-            return observable
+            return TimerObservable.create(0, pollInterval)
+                .mergeMap(() =>
+                    fetch(`${apiUrl}${url}`)
+                    .then(res => res.json())
+                    .catch(err => new Error("Could not get events"))
+                )
         }
     }
+
 }
