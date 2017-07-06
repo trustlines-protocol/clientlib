@@ -1,4 +1,4 @@
-import * as lightwallet from "eth-lightwallet"
+declare let lightwallet: any
 
 export class User {
     public username: string

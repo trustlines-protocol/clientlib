@@ -1,6 +1,6 @@
-import * as lightwallet from "eth-lightwallet"
-
 import { TLNetwork } from "./TLNetwork"
+
+declare let lightwallet: any
 
 export class Payment {
 
