@@ -33,7 +33,7 @@ export class Trustline {
 
     public getAll(): Promise<string[]> {
         const { configuration, transaction, user, defaultNetwork } = this.tlNetwork
-        return fetch(`${configuration.apiUrl}tokens/${defaultNetwork}users/0x${user.address}accounts/`)
+        return fetch(`${configuration.apiUrl}tokens/${defaultNetwork}users/0x${user.address}/accounts/`)
           .then(res => res.json())
           .then(json => json.accounts)
     }
