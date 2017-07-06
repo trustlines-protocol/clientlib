@@ -9,8 +9,6 @@ module.exports = {
     externals: [
         "eth-lightwallet",
         "rxjs",
-        "reconnecting-websocket",
-        "isomorphic-fetch",
         "@types/isomorphic-fetch",
         "es6-promise"
     ],
