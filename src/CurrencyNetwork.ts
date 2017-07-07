@@ -1,8 +1,5 @@
 import { TLNetwork } from "./TLNetwork"
 
-import "isomorphic-fetch"
-import { polyfill } from "es6-promise"
-
 export class CurrencyNetwork {
 
     constructor(private tlNetwork: TLNetwork) {}

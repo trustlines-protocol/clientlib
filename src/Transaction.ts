@@ -1,8 +1,5 @@
 import { TLNetwork } from "./TLNetwork"
 
-import "isomorphic-fetch"
-import { polyfill } from "es6-promise"
-
 declare let lightwallet: any
 
 export class Transaction {

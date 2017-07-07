@@ -1,9 +1,6 @@
 import { ObservableHelper } from "./ObservableHelper"
 import { TLNetwork } from "./TLNetwork"
 
-import "isomorphic-fetch"
-import { polyfill } from "es6-promise"
-
 export class Trustline {
 
     constructor(private tlNetwork: TLNetwork) {}
