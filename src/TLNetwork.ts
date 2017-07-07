@@ -4,6 +4,7 @@ import { Transaction } from "./Transaction"
 import { Payment } from "./Payment"
 import { Trustline } from "./Trustline"
 import { CurrencyNetwork } from "./CurrencyNetwork"
+import { Contact } from "./Contact"
 import { ObservableHelper } from "./ObservableHelper"
 
 import { Observable } from "rxjs/Observable"
@@ -16,6 +17,7 @@ export class TLNetwork {
     public payment: Payment
     public trustline: Trustline
     public currencyNetwork: CurrencyNetwork
+    public contact: Contact
     public observableHelper: ObservableHelper
     public networks: string[]
     public defaultNetwork: string
@@ -28,6 +30,7 @@ export class TLNetwork {
         this.payment = new Payment(this)
         this.trustline = new Trustline(this)
         this.currencyNetwork = new CurrencyNetwork(this)
+        this.contact = new Contact(this)
         this.observableHelper = new ObservableHelper()
     }
 
