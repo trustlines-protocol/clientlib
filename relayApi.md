@@ -106,16 +106,17 @@ Returns a list of trustlines a user has in a currency network (similar to `GET t
 ### Response
 ```javascript
 {
-    trustlines: [
-        {
-            addressB: '0xb33f5gaac...', // address of user B
-            balanceAB: 100, // balance of trustline from POV of user A
-            creditLineAB: 500, // credit line given by A
-            creditLineBA: 600, // credit line received from B
+    trustlines: {
+        '0xb33f5gaac...': { // address of user B
+            balance: 100, // balance of trustline from POV of user A
+            given: 500, // credit line given by A
+            leftGiven: 400 // given - balance
+            received: 600, // credit line received from B
+            leftReceived: 700 // received + balance
             interestRate: 0.1
         },
         ...
-    ]
+    }
 }
 ```
 
