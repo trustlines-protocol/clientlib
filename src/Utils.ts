@@ -8,7 +8,7 @@ import { Configuration } from "./Configuration"
 
 const ReconnectingWebSocket = require("reconnecting-websocket")
 
-export class ObservableHelper {
+export class Utils {
 
     public createObservable(config: Configuration, url: string): Observable<any> {
         const { useWebSockets, apiUrl, wsApiUrl, pollInterval } = config
@@ -34,6 +34,13 @@ export class ObservableHelper {
                     .catch(err => new Error("Could not get events"))
                 )
         }
+    }
+
+    public fetchUrl(url: string): Promise<any> {
+        return fetch(url)
+            .then(response => response.json())
+            .then(json => json)
+            .catch(error => Promise.reject(error.json().message || error))
     }
 
 }

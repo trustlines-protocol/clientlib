@@ -1,4 +1,4 @@
-import { ObservableHelper } from "./ObservableHelper"
+import { Utils } from "./Utils"
 import { TLNetwork } from "./TLNetwork"
 
 export class Trustline {

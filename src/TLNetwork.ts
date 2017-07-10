@@ -5,7 +5,7 @@ import { Payment } from "./Payment"
 import { Trustline } from "./Trustline"
 import { CurrencyNetwork } from "./CurrencyNetwork"
 import { Contact } from "./Contact"
-import { ObservableHelper } from "./ObservableHelper"
+import { Utils } from "./Utils"
 
 import { Observable } from "rxjs/Observable"
 
@@ -18,7 +18,7 @@ export class TLNetwork {
     public trustline: Trustline
     public currencyNetwork: CurrencyNetwork
     public contact: Contact
-    public observableHelper: ObservableHelper
+    public utils: Utils
     public networks: string[]
     public defaultNetwork: string
 
@@ -31,7 +31,7 @@ export class TLNetwork {
         this.trustline = new Trustline(this)
         this.currencyNetwork = new CurrencyNetwork(this)
         this.contact = new Contact(this)
-        this.observableHelper = new ObservableHelper()
+        this.utils = new Utils()
     }
 
     public createUser(username: string): Promise<object> {
@@ -51,7 +51,7 @@ export class TLNetwork {
         })
     }
 
-    public loadUser(serializedKeystore: string) {
+    public loadUser(serializedKeystore: string, defaultNetwork?: string) {
         return new Promise((resolve, reject) => {
             if (serializedKeystore) { // TODO: check if valid keystore
                 this.user.keystore = this.user.deserializeKeystore(serializedKeystore)
@@ -61,9 +61,13 @@ export class TLNetwork {
                     address: this.user.address,
                     keystore: this.user.keystore.serialize()
                 }
-                this.currencyNetwork.getNetworks().then((networks) => {
+                this.currencyNetwork.getAll().then((networks) => {
                     this.networks = networks
-                    this.defaultNetwork = networks[0]
+                    if (defaultNetwork) {
+                        this.defaultNetwork = defaultNetwork
+                    } else {
+                        this.defaultNetwork = networks[0]
+                    }
                     resolve(loadedUser)
                 })
             } else {
@@ -78,6 +82,6 @@ export class TLNetwork {
 
     public getEvents(block: number): Observable<any> {
         const pollEventsUrl = `tokens/${this.defaultNetwork}/users/0x${this.user.address}/block/${block}/events`
-        return this.observableHelper.createObservable(this.configuration, pollEventsUrl)
+        return this.utils.createObservable(this.configuration, pollEventsUrl)
     }
 }

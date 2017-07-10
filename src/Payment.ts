@@ -25,15 +25,9 @@ export class Payment {
     }
 
     public getPath(accountA: string, accountB: string, value: number): Promise<string[]> {
-        const { configuration, defaultNetwork } = this.tlNetwork
-        return fetch(`${configuration.apiUrl}tokens/${defaultNetwork}/users/0x${accountA}/path/0x${accountB}/value/${value}`)
-            .then((response) => response.json())
-            .then((json) => json.path as string[])
-            .catch(this.handleError)
-    }
-
-    private handleError(error: any) {
-        return Promise.reject(error.json().message || error);
+        const { configuration, defaultNetwork, utils } = this.tlNetwork
+        const url = `${configuration.apiUrl}tokens/${defaultNetwork}/users/0x${accountA}/path/0x${accountB}/value/${value}`
+        return utils.fetchUrl(url)
     }
 
 }
