@@ -26,4 +26,9 @@ export class Trustline {
         const { user, utils, currencyNetwork } = this
         return utils.fetchUrl(`networks/${currencyNetwork.defaultNetwork}/users/0x${user.address}/trustlines`)
     }
+
+    public get(userAddressB: string): Promise<object> {
+        const { user, utils, currencyNetwork } = this
+        return utils.fetchUrl(`networks/${currencyNetwork.defaultNetwork}/users/0x${user.address}/trustlines/${userAddressB}`)
+    }
 }
