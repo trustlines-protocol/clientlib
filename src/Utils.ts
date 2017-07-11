@@ -10,6 +10,8 @@ const ReconnectingWebSocket = require("reconnecting-websocket")
 
 export class Utils {
 
+    constructor(private configuration: Configuration) {}
+
     public createObservable(config: Configuration, url: string): Observable<any> {
         const { useWebSockets, apiUrl, wsApiUrl, pollInterval } = config
         if (useWebSockets && "WebSocket" in window) {
@@ -36,8 +38,9 @@ export class Utils {
         }
     }
 
-    public fetchUrl(url: string): Promise<any> {
-        return fetch(url)
+    public fetchUrl(url: string, options?: object): Promise<any> {
+        const { apiUrl } = this.configuration
+        return fetch(`${apiUrl}${url}`, options)
             .then(response => response.json())
             .then(json => json)
             .catch(error => Promise.reject(error.json().message || error))

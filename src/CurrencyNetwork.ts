@@ -1,17 +1,18 @@
-import { TLNetwork } from "./TLNetwork"
+import { Utils } from "./Utils"
 
 export class CurrencyNetwork {
 
-    constructor(private tlNetwork: TLNetwork) {}
+    public defaultNetwork: string
+    public networks: string[]
 
-    public getAll(): Promise<string[]> {
-        const { configuration, utils } = this.tlNetwork
-        return utils.fetchUrl(`${configuration.apiUrl}tokens`)
+    constructor(private utils: Utils) {}
+
+    public getAll(): Promise<any[]> {
+        return this.utils.fetchUrl(`networks`)
     }
 
     public getNetworkInfo(address: string): Promise<any> {
-        const { configuration, utils } = this.tlNetwork
-        return utils.fetchUrl(`${configuration.apiUrl}tokens/${address}`)
+        return this.utils.fetchUrl(`networks/${address}`)
     }
 
 }

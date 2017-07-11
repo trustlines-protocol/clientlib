@@ -19,19 +19,17 @@ export class TLNetwork {
     public currencyNetwork: CurrencyNetwork
     public contact: Contact
     public utils: Utils
-    public networks: string[]
-    public defaultNetwork: string
 
     constructor(config: any = {}) {
         const { host, port, tokenAddress, pollInterval, useWebSockets } = config
         this.configuration = new Configuration(host, port, pollInterval, useWebSockets)
         this.user = new User()
-        this.transaction = new Transaction(this)
-        this.payment = new Payment(this)
+        this.utils = new Utils(this.configuration)
+        this.currencyNetwork = new CurrencyNetwork(this.utils)
+        this.transaction = new Transaction(this.user, this.utils, this.currencyNetwork)
+        this.payment = new Payment(this.user, this.utils, this.transaction, this.currencyNetwork)
         this.trustline = new Trustline(this)
-        this.currencyNetwork = new CurrencyNetwork(this)
         this.contact = new Contact(this)
-        this.utils = new Utils()
     }
 
     public createUser(username: string): Promise<object> {
@@ -61,12 +59,12 @@ export class TLNetwork {
                     address: this.user.address,
                     keystore: this.user.keystore.serialize()
                 }
-                this.currencyNetwork.getAll().then((networks) => {
-                    this.networks = networks
+                this.currencyNetwork.getAll().then(networks => {
+                    this.currencyNetwork.networks = networks
                     if (defaultNetwork) {
-                        this.defaultNetwork = defaultNetwork
+                        this.currencyNetwork.defaultNetwork = defaultNetwork
                     } else {
-                        this.defaultNetwork = networks[0]
+                        this.currencyNetwork.defaultNetwork = networks[0].address
                     }
                     resolve(loadedUser)
                 })
@@ -76,12 +74,8 @@ export class TLNetwork {
         })
     }
 
-    public sendPayment(receiver: string, value: number) {
-        return this.payment.mediatedTransfer(receiver, value)
-    }
-
     public getEvents(block: number): Observable<any> {
-        const pollEventsUrl = `tokens/${this.defaultNetwork}/users/0x${this.user.address}/block/${block}/events`
+        const pollEventsUrl = `tokens/${this.currencyNetwork.defaultNetwork}/users/0x${this.user.address}/block/${block}/events`
         return this.utils.createObservable(this.configuration, pollEventsUrl)
     }
 }
