@@ -6,6 +6,7 @@ import { Trustline } from "./Trustline"
 import { CurrencyNetwork } from "./CurrencyNetwork"
 import { Contact } from "./Contact"
 import { Utils } from "./Utils"
+import { Event } from "./Event"
 
 import { Observable } from "rxjs/Observable"
 
@@ -19,6 +20,7 @@ export class TLNetwork {
     public currencyNetwork: CurrencyNetwork
     public contact: Contact
     public utils: Utils
+    public event: Event
 
     constructor(config: any = {}) {
         const { host, port, tokenAddress, pollInterval, useWebSockets } = config
@@ -26,6 +28,7 @@ export class TLNetwork {
         this.user = new User()
         this.utils = new Utils(this.configuration)
         this.currencyNetwork = new CurrencyNetwork(this.utils)
+        this.event = new Event(this.utils, this.currencyNetwork, this.user)
         this.transaction = new Transaction(this.user, this.utils, this.currencyNetwork)
         this.trustline = new Trustline(this.user, this.utils, this.transaction, this.currencyNetwork)
         this.payment = new Payment(this.user, this.utils, this.transaction, this.currencyNetwork)
@@ -72,10 +75,5 @@ export class TLNetwork {
                 reject(new Error("No valid keystore"))
             }
         })
-    }
-
-    public getEvents(block: number): Observable<any> {
-        const pollEventsUrl = `tokens/${this.currencyNetwork.defaultNetwork}/users/0x${this.user.address}/block/${block}/events`
-        return this.utils.createObservable(this.configuration, pollEventsUrl)
     }
 }

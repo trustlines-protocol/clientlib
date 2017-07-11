@@ -12,8 +12,8 @@ export class Utils {
 
     constructor(private configuration: Configuration) {}
 
-    public createObservable(config: Configuration, url: string): Observable<any> {
-        const { useWebSockets, apiUrl, wsApiUrl, pollInterval } = config
+    public createObservable(url: string): Observable<any> {
+        const { useWebSockets, apiUrl, wsApiUrl, pollInterval } = this.configuration
         if (useWebSockets && "WebSocket" in window) {
             return Observable.create((observer: Observer<any>) => {
                 let ws = new ReconnectingWebSocket(`${wsApiUrl}${url}`)
@@ -44,6 +44,19 @@ export class Utils {
             .then(response => response.json())
             .then(json => json)
             .catch(error => Promise.reject(error.json().message || error))
+    }
+
+    public buildUrl(baseUrl: string, validParameters: string[], parameters?: any): string {
+        if (!parameters || typeof parameters !== "object") {
+            return baseUrl
+        }
+        for (let key in parameters) {
+            if (parameters[key] && validParameters.indexOf(key) !== -1) {
+                baseUrl += (baseUrl.indexOf("?") === -1) ? "?" : "&"
+                baseUrl += `${key}=${parameters[key]}`
+            }
+        }
+        return baseUrl
     }
 
 }
