@@ -11,8 +11,16 @@ export class CurrencyNetwork {
         return this.utils.fetchUrl(`networks`)
     }
 
-    public getNetworkInfo(address: string): Promise<any> {
+    public getInfo(address: string): Promise<object> {
         return this.utils.fetchUrl(`networks/${address}`)
+    }
+
+    public getUsers(networkAddress: string): Promise<object[]> {
+        return this.utils.fetchUrl(`networks/${networkAddress}/users`)
+    }
+
+    public getUserOverview(networkAddress: string, userAddress: string): Promise<object> {
+        return this.utils.fetchUrl(`networks/${networkAddress}/users/${userAddress}`)
     }
 
 }
