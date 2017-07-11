@@ -27,12 +27,12 @@ export class TLNetwork {
         this.utils = new Utils(this.configuration)
         this.currencyNetwork = new CurrencyNetwork(this.utils)
         this.transaction = new Transaction(this.user, this.utils, this.currencyNetwork)
+        this.trustline = new Trustline(this.user, this.utils, this.transaction, this.currencyNetwork)
         this.payment = new Payment(this.user, this.utils, this.transaction, this.currencyNetwork)
-        this.trustline = new Trustline(this)
         this.contact = new Contact(this)
     }
 
-    public createUser(username: string): Promise<object> {
+    public createUser(username: string, defaultNetwork?: string): Promise<object> {
         this.user.username = username
         return new Promise((resolve, reject) => {
             this.user.generateKey().then((address) => {
@@ -49,7 +49,7 @@ export class TLNetwork {
         })
     }
 
-    public loadUser(serializedKeystore: string, defaultNetwork?: string) {
+    public loadUser(serializedKeystore: string, defaultNetwork?: string): Promise<object> {
         return new Promise((resolve, reject) => {
             if (serializedKeystore) { // TODO: check if valid keystore
                 this.user.keystore = this.user.deserializeKeystore(serializedKeystore)

@@ -1,24 +1,29 @@
 import { Utils } from "./Utils"
-import { TLNetwork } from "./TLNetwork"
+import { User } from "./User"
+import { Transaction } from "./Transaction"
+import { CurrencyNetwork } from "./CurrencyNetwork"
 
 export class Trustline {
 
-    constructor(private tlNetwork: TLNetwork) {}
+    constructor(
+        private user: User,
+        private utils: Utils,
+        private transaction: Transaction,
+        private currencyNetwork: CurrencyNetwork
+    ) {}
 
     public prepareUpdate(debtor: string, value: number): Promise<string> {
-        const { transaction, user } = this.tlNetwork
+        const { transaction, user } = this
         return transaction.prepareTransaction("updateCreditline", [`0x${debtor}`, value])
     }
 
     public prepareAccept(creditor: string) {
-        const { transaction, user } = this.tlNetwork
+        const { transaction, user } = this
         return transaction.prepareTransaction("acceptCreditline", [`0x${creditor}`])
     }
 
-    public getAll(): Promise<string[]> {
-        const { configuration, transaction, user, currencyNetwork } = this.tlNetwork
-        return fetch(`${configuration.apiUrl}networks/${currencyNetwork.defaultNetwork}/users/0x${user.address}/trustlines`)
-          .then(res => res.json())
-          .then(json => json.accounts)
+    public getAll(): Promise<object[]> {
+        const { user, utils, currencyNetwork } = this
+        return utils.fetchUrl(`networks/${currencyNetwork.defaultNetwork}/users/0x${user.address}/trustlines`)
     }
 }
