@@ -27,7 +27,7 @@ export class TLNetwork {
         this.configuration = new Configuration(host, port, pollInterval, useWebSockets)
         this.user = new User()
         this.utils = new Utils(this.configuration)
-        this.currencyNetwork = new CurrencyNetwork(this.utils)
+        this.currencyNetwork = new CurrencyNetwork(this.user, this.utils)
         this.event = new Event(this.utils, this.currencyNetwork, this.user)
         this.contact = new Contact(this.currencyNetwork, this.user, this.utils)
         this.transaction = new Transaction(this.user, this.utils, this.currencyNetwork)
