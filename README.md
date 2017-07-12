@@ -1,6 +1,12 @@
 # trustlines network clientlib
 
-## Getting started
-`npm build` - Compile typescript in es5 and build library in `/dist/TLNetwork.js`
+Compiling and bundling follows this setup: http://marcobotto.com/compiling-and-bundling-typescript-libraries-with-webpack/
 
-`npm test` - Run mocha tests
+## Library structure
+```
+_bundles/       // UMD bundles
+lib/            // ES5(commonjs) + source + .d.ts
+lib-esm/        // ES5(esmodule) + source + .d.ts
+package.json
+README.md
+```
