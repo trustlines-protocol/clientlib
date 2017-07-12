@@ -1,0 +1,506 @@
+{
+  "networks": [
+    {
+      "address": "0xa1499ad3a013a80701d77e1124b766e4074065fd",
+      "name": "Euro",
+      "abbreviation": "EUR",
+      "symbol": "€"
+    },
+    {
+      "address": "0xb1499ad3a013a80701d77e1124b766e4074065fd",
+      "name": "US-Dollar",
+      "abbreviation": "USD",
+      "symbol": "$"
+    },
+    {
+      "address": "0xc1499ad3a013a80701d77e1124b766e4074065fd",
+      "name": "BeerCoin",
+      "abbreviation": "BC",
+      "symbol": "B"
+    }
+  ],
+  "networks-detail":
+  {
+    "address": "0xa1499ad3a013a80701d77e1124b766e4074065fd",
+    "name": "Euro",
+    "abbreviation": "EUR",
+    "symbol": "€",
+    "numUsers": 1000,
+    "interestsAllowed": true,
+    "maxCreditlines": "100000"
+  },
+  "users-in-network": [
+    "0xaFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+    "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+    "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+    "0xdFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+    "0xeFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F"
+  ],
+  "network-overview-in-user-context": {
+    "name": "Euro",
+    "abbreviation": "EUR",
+    "symbol": "€",
+    "balance": "1000",
+    "creditLinesGiven": "2000",
+    "creditLinesReceived": "3000",
+    "numTrustlines": 10
+  },
+  "contacts": [
+    "0xaFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+    "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+    "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+    "0xdFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+    "0xeFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F"
+  ],
+  "get-trustlines": [
+    {
+      "addressB": "0xaFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "balance": "100",
+      "given": "500",
+      "leftGiven": "400",
+      "received": "600",
+      "leftReceived": "700",
+      "interestRate": "0.11"
+    },
+    {
+      "addressB": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "balance": "100",
+      "given": "500",
+      "leftGiven": "400",
+      "received": "600",
+      "leftReceived": "700",
+      "interestRate": "0.11"
+    },
+    {
+      "addressB": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "balance": "100",
+      "given": "500",
+      "leftGiven": "400",
+      "received": "600",
+      "leftReceived": "700",
+      "interestRate": "0.11"
+    },
+    {
+      "addressB": "0xdFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "balance": "100",
+      "given": "500",
+      "leftGiven": "400",
+      "received": "600",
+      "leftReceived": "700",
+      "interestRate": "0.11"
+    }
+  ],
+  "get-trustlines-detail": {
+    "balance": "100",
+    "given": "500",
+    "received": "600",
+    "interestRate": "0.12"
+  },
+  "get-total-spendable": {
+    "spendable": "123456"
+  },
+  "get-spendable-to-user": {
+    "spendable": "2000"
+  },
+  "get-path": {
+    "path": [
+      "0xaFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F"
+    ],
+    "fees": "0.1245"
+  },
+  "get-tx-infos": {
+    "gasPrice": "0.000000022061831512",
+    "gasLimit": 1000000,
+    "value": 0,
+    "nonce": 10,
+    "gas": 21001
+  },
+  "relay": {
+    "success": 1
+  },
+  "events": [
+    {
+      "blockNumber": 1,
+      "event": {
+        "type": "CreditlineUpdateRequest",
+        "creditor": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "debtor": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "value": "100"
+      }
+    },
+    {
+      "blockNumber": 2,
+      "event": {
+        "type": "CreditlineUpdateRequest",
+        "creditor": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "debtor": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "value": "100"
+      }
+    },
+    {
+      "blockNumber": 3,
+      "event": {
+        "type": "CreditlineUpdate",
+        "creditor": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "debtor": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "value": "100"
+      }
+    },
+    {
+      "blockNumber": 4,
+      "event": {
+        "type": "CreditlineUpdate",
+        "creditor": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "debtor": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "value": "100"
+      }
+    },
+    {
+      "blockNumber": 5,
+      "event": {
+        "type": "Transfer",
+        "from": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "to": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "value": "1000"
+      }
+    },
+    {
+      "blockNumber": 6,
+      "event": {
+        "type": "Transfer",
+        "from": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "to": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+        "value": "1009"
+      }
+    }
+  ],
+  "tokenabi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_A",
+          "type": "address"
+        },
+        {
+          "name": "_B",
+          "type": "address"
+        }
+      ],
+      "name": "trustline",
+      "outputs": [
+        {
+          "name": "creditlineAB",
+          "type": "int256"
+        },
+        {
+          "name": "creditlineBA",
+          "type": "int256"
+        },
+        {
+          "name": "balanceAB",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "name": "supply",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_user",
+          "type": "address"
+        }
+      ],
+      "name": "friends",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_spender",
+          "type": "address"
+        },
+        {
+          "name": "_receiver",
+          "type": "address"
+        }
+      ],
+      "name": "spendableTo",
+      "outputs": [
+        {
+          "name": "remaining",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        },
+        {
+          "name": "_path",
+          "type": "address[]"
+        }
+      ],
+      "name": "mediatedTransfer",
+      "outputs": [
+        {
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_spender",
+          "type": "address"
+        }
+      ],
+      "name": "spendable",
+      "outputs": [
+        {
+          "name": "spendable",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_debtor",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateCreditline",
+      "outputs": [
+        {
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "users",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "tokenName",
+          "type": "string"
+        },
+        {
+          "name": "tokenSymbol",
+          "type": "string"
+        },
+        {
+          "name": "decimalUnits",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_creditor",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_debtor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "CreditlineUpdate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_value",
+          "type": "int256"
+        }
+      ],
+      "name": "BalanceUpdate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    }
+  ]
+}

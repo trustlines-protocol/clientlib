@@ -1,0 +1,24 @@
+{
+  "/networks/:address": "/networks-detail",
+
+  "/networks/:address/users": "/users-in-network",
+  "/networks/:address/users/:userAddress": "/network-overview-in-user-context",
+
+  "/networks/:address/users/:userAddress/contacts": "/contacts",
+
+  "/networks/:address/users/:userAddress/trustlines": "/get-trustlines",
+  "/networks/:address/users/:userAddress/trustlines/:userAddressB": "/get-trustlines-detail",
+
+  "/networks/:address/users/:userAddress/spendables": "/get-total-spendable",
+  "/networks/:address/users/:userAddress/spendables/:userAddress": "/get-spendable-to-user",
+
+  "/networks/:address/users/:userAddress/path/:userAddress": "/get-path",
+
+  "/networks/:address/users/:address/events": "/events",
+  "/networks/:address/users/:address/events\\?type=:type": "/events?event.type=:type",
+  "/networks/:address/users/:address/events\\?fromBlock=:from": "/events?blockNumber_gte=:from",
+  "/networks/:address/users/:address/events\\?toBlock=:to": "/events?blockNumber_lte=:to",
+
+  "/txinfos/:address": "/get-tx-infos"
+
+}
