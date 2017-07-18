@@ -1,18 +1,13 @@
 import { User } from "./User"
 import { Utils } from "./Utils"
-import { CurrencyNetwork } from "./CurrencyNetwork"
 
 declare let lightwallet: any
 
 export class Transaction {
 
-    constructor(
-        private user: User,
-        private utils: Utils,
-        private currencyNetwork: CurrencyNetwork) {
-    }
+    constructor(private user: User, private utils: Utils) {}
 
-    public prepareTransaction(functionName: string, parameters: any[]): Promise<any> {
+    public prepare(networkAddress: string, functionName: string, parameters: any[]): Promise<any> {
         return Promise.all([this.getAbi(), this.getTxInfos(this.user.address)])
             .then(([abi, txinfos]) => {
                 const txOptions = {
@@ -20,7 +15,7 @@ export class Transaction {
                     gasLimit: 1000000,
                     value: 0,
                     nonce: txinfos.nonce,
-                    to: this.currencyNetwork.defaultNetwork,
+                    to: networkAddress,
                 }
                 const txObj = {
                     rawTx: lightwallet.txutils.functionTx(abi, functionName, parameters , txOptions),
@@ -32,7 +27,7 @@ export class Transaction {
             })
     }
 
-    public confirmTransaction(rawTx: string): Promise<string> {
+    public confirm(rawTx: string): Promise<string> {
         return this.user.signTx(rawTx).then(signedTx => this.relayTx(signedTx))
     }
 
