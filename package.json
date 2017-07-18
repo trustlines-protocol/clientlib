@@ -21,20 +21,20 @@
   "devDependencies": {
     "chai": "^4.0.2",
     "json-server": "^0.11.2",
-    "mocha": "^3.4.2"
-  },
-  "dependencies": {
+    "mocha": "^3.4.2",
     "@types/isomorphic-fetch": "0.0.34",
     "@types/node": "^8.0.4",
     "awesome-typescript-loader": "^3.1.3",
     "es6-promise": "^4.1.1",
-    "eth-lightwallet": "^2.5.6",
     "isomorphic-fetch": "^2.2.1",
     "reconnecting-websocket": "^3.0.7",
-    "rxjs": "^5.4.1",
     "tslint": "^5.5.0",
     "tslint-config-standard": "^6.0.1",
     "typescript": "^2.4.1",
     "webpack": "^2.7.0"
+  },
+  "dependencies": {
+    "eth-lightwallet": "^2.5.6",
+    "rxjs": "^5.4.1"
   }
 }
