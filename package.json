@@ -4,7 +4,9 @@
     "description": "Client libraray for trustlines network",
     "main": "dist/TLNetwork.js",
     "scripts": {
-        "build": "tsc && tsc -m es6 --outDir lib-esm && webpack"
+        "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
+        "lint": "tslint -c tslint.json './src/**'",
+        "lint-fix": "tslint -c tslint.json --fix ./src/**"
     },
     "repository": {
         "type": "git",
@@ -30,6 +32,8 @@
         "isomorphic-fetch": "^2.2.1",
         "reconnecting-websocket": "^3.0.7",
         "rxjs": "^5.4.1",
+        "tslint": "^5.5.0",
+        "tslint-config-standard": "^6.0.1",
         "typescript": "^2.4.1",
         "webpack": "^2.7.0"
     }
