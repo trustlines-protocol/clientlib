@@ -1,13 +1,65 @@
-declare let lightwallet: any
+import lightwallet from 'eth-lightwallet'
 
 export class User {
-  public username: string
+
   public address: string
+  public proxyAddress: string
   public keystore: any
 
   private _password = 'ts'
 
-  public generateKey (): Promise<string> {
+  public create (): Promise<object> {
+    return new Promise((resolve, reject) => {
+      this.generateKey().then((address) => {
+        this.address = address
+        this.proxyAddress = '0xb33f...' // TODO implement
+        const createdUser = {
+          address: this.address,
+          proxyAddress: this.proxyAddress,
+          keystore: this.keystore.serialize()
+        }
+        resolve(createdUser)
+      }).catch((err) => {
+        reject(err)
+      })
+    })
+  }
+
+  public load (serializedKeystore: string): Promise<object> {
+    return new Promise((resolve, reject) => {
+      if (serializedKeystore) { // TODO: check if valid keystore
+        this.keystore = this.deserializeKeystore(serializedKeystore)
+        this.address = this.keystore.getAddresses()[ 0 ]
+        this.proxyAddress = '0xb33f..' // TODO implement
+        const loadedUser = {
+          address: this.address,
+          proxyAddress: this.proxyAddress,
+          keystore: this.keystore.serialize()
+        }
+        resolve(loadedUser)
+      } else {
+        reject(new Error('No valid keystore'))
+      }
+    })
+  }
+
+  public signTx (rawTx: any): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(lightwallet.signing.signTx(this.keystore, pwDerivedKey, rawTx, this.address))
+        }
+      })
+    })
+  }
+
+  public onboardUser (newUser: string) {
+    // TODO: define relay api
+  }
+
+  private generateKey (): Promise<string> {
     return new Promise((resolve, reject) => {
       let secretSeed = lightwallet.keystore.generateRandomSeed()
       lightwallet.keystore.createVault({
@@ -26,23 +78,7 @@ export class User {
     })
   }
 
-  public deserializeKeystore (serializedKeystore: string) {
+  private deserializeKeystore (serializedKeystore: string) {
     return lightwallet.keystore.deserialize(serializedKeystore)
-  }
-
-  public signTx (rawTx: any): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(lightwallet.signing.signTx(this.keystore, pwDerivedKey, rawTx, this.address))
-        }
-      })
-    })
-  }
-
-  public onboardUser (newUser: string) {
-    // TODO: define relay api
   }
 }

@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
+		module.exports = factory(require("eth-lightwallet"));
 	else if(typeof define === 'function' && define.amd)
-		define("TLNetwork", [], factory);
+		define("TLNetwork", ["eth-lightwallet"], factory);
 	else if(typeof exports === 'object')
-		exports["TLNetwork"] = factory();
+		exports["TLNetwork"] = factory(require("eth-lightwallet"));
 	else
-		root["TLNetwork"] = factory();
-})(this, function() {
+		root["TLNetwork"] = factory(root["eth-lightwallet"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_45__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 45);
+/******/ 	return __webpack_require__(__webpack_require__.s = 46);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -961,57 +961,13 @@ var TLNetwork = (function () {
         this.configuration = new Configuration_1.Configuration(host, port, pollInterval, useWebSockets);
         this.user = new User_1.User();
         this.utils = new Utils_1.Utils(this.configuration);
-        this.currencyNetwork = new CurrencyNetwork_1.CurrencyNetwork(this.user, this.utils);
-        this.event = new Event_1.Event(this.utils, this.currencyNetwork, this.user);
-        this.contact = new Contact_1.Contact(this.currencyNetwork, this.user, this.utils);
-        this.transaction = new Transaction_1.Transaction(this.user, this.utils, this.currencyNetwork);
-        this.trustline = new Trustline_1.Trustline(this.user, this.utils, this.transaction, this.currencyNetwork);
-        this.payment = new Payment_1.Payment(this.user, this.utils, this.transaction, this.currencyNetwork);
+        this.currencyNetwork = new CurrencyNetwork_1.CurrencyNetwork(this.utils);
+        this.event = new Event_1.Event(this.user, this.utils);
+        this.contact = new Contact_1.Contact(this.user, this.utils);
+        this.transaction = new Transaction_1.Transaction(this.user, this.utils);
+        this.trustline = new Trustline_1.Trustline(this.user, this.utils, this.transaction);
+        this.payment = new Payment_1.Payment(this.user, this.utils, this.transaction);
     }
-    TLNetwork.prototype.createUser = function (username, defaultNetwork) {
-        var _this = this;
-        this.user.username = username;
-        return new Promise(function (resolve, reject) {
-            _this.user.generateKey().then(function (address) {
-                _this.user.address = address;
-                var createdUser = {
-                    username: _this.user.username,
-                    address: _this.user.address,
-                    keystore: _this.user.keystore.serialize()
-                };
-                resolve(createdUser);
-            }).catch(function (err) {
-                reject(err);
-            });
-        });
-    };
-    TLNetwork.prototype.loadUser = function (serializedKeystore, defaultNetwork) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            if (serializedKeystore) {
-                _this.user.keystore = _this.user.deserializeKeystore(serializedKeystore);
-                _this.user.address = _this.user.keystore.getAddresses()[0];
-                var loadedUser_1 = {
-                    username: _this.user.username,
-                    address: _this.user.address,
-                    keystore: _this.user.keystore.serialize()
-                };
-                _this.currencyNetwork.getAll().then(function (networks) {
-                    _this.currencyNetwork.networks = networks;
-                    if (defaultNetwork) {
-                        _this.currencyNetwork.defaultNetwork = defaultNetwork;
-                    }
-                    else {
-                        _this.currencyNetwork.defaultNetwork = networks[0].address;
-                    }
-                    resolve(loadedUser_1);
-                });
-            }
-            else {
-                reject(new Error("No valid keystore"));
-            }
-        });
-    };
     return TLNetwork;
 }());
 exports.TLNetwork = TLNetwork;
@@ -1025,8 +981,7 @@ exports.TLNetwork = TLNetwork;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Configuration = (function () {
-    function Configuration(
-        // host of the REST relay server
+    function Configuration(// host of the REST relay server
         host, 
         // port of REST relay server
         port, 
@@ -1034,7 +989,7 @@ var Configuration = (function () {
         pollInterval, 
         // use websockets?
         useWebSockets) {
-        if (host === void 0) { host = "localhost"; }
+        if (host === void 0) { host = 'localhost'; }
         if (port === void 0) { port = 5000; }
         if (pollInterval === void 0) { pollInterval = 500; }
         if (useWebSockets === void 0) { useWebSockets = false; }
@@ -1042,8 +997,8 @@ var Configuration = (function () {
         this.port = port;
         this.pollInterval = pollInterval;
         this.useWebSockets = useWebSockets;
-        this.apiUrl = "http://" + this.host + ":" + this.port + "/";
-        this.wsApiUrl = "ws://" + this.host + ":" + this.port + "/";
+        this.apiUrl = "http://" + this.host + ":" + this.port + "/api/";
+        this.wsApiUrl = "ws://" + this.host + ":" + this.port + "/api/";
     }
     return Configuration;
 }());
@@ -1058,14 +1013,13 @@ exports.Configuration = Configuration;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Contact = (function () {
-    function Contact(currencyNetwork, user, utils) {
-        this.currencyNetwork = currencyNetwork;
+    function Contact(user, utils) {
         this.user = user;
         this.utils = utils;
     }
-    Contact.prototype.getAll = function () {
-        var _a = this, user = _a.user, utils = _a.utils, currencyNetwork = _a.currencyNetwork;
-        var url = "networks/" + currencyNetwork.defaultNetwork + "/users/0x" + user.address + "/contacts";
+    Contact.prototype.getAll = function (networkAddress) {
+        var _a = this, user = _a.user, utils = _a.utils;
+        var url = "networks/" + networkAddress + "/users/0x" + user.proxyAddress + "/contacts";
         return utils.fetchUrl(url);
     };
     return Contact;
@@ -1081,25 +1035,20 @@ exports.Contact = Contact;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var CurrencyNetwork = (function () {
-    function CurrencyNetwork(user, utils) {
-        this.user = user;
+    function CurrencyNetwork(utils) {
         this.utils = utils;
     }
     CurrencyNetwork.prototype.getAll = function () {
         return this.utils.fetchUrl("networks");
     };
     CurrencyNetwork.prototype.getInfo = function (networkAddress) {
-        var address = (networkAddress) ? networkAddress : this.defaultNetwork;
-        return this.utils.fetchUrl("networks/" + address);
+        return this.utils.fetchUrl("networks/" + networkAddress);
     };
     CurrencyNetwork.prototype.getUsers = function (networkAddress) {
-        var address = (networkAddress) ? networkAddress : this.defaultNetwork;
         return this.utils.fetchUrl("networks/" + networkAddress + "/users");
     };
     CurrencyNetwork.prototype.getUserOverview = function (networkAddress, userAddress) {
-        var network = (networkAddress) ? networkAddress : this.defaultNetwork;
-        var user = (userAddress) ? userAddress : this.user.address;
-        return this.utils.fetchUrl("networks/" + network + "/users/0x" + user);
+        return this.utils.fetchUrl("networks/" + networkAddress + "/users/0x" + userAddress);
     };
     return CurrencyNetwork;
 }());
@@ -1114,21 +1063,20 @@ exports.CurrencyNetwork = CurrencyNetwork;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Event = (function () {
-    function Event(utils, currencyNetwork, user) {
-        this.utils = utils;
-        this.currencyNetwork = currencyNetwork;
+    function Event(user, utils) {
         this.user = user;
-        this.validParameters = ["type", "fromBlock", "toBlock"];
+        this.utils = utils;
+        this.validParameters = ['type', 'fromBlock', 'toBlock'];
     }
-    Event.prototype.eventObservable = function (filter) {
-        var _a = this, currencyNetwork = _a.currencyNetwork, user = _a.user, utils = _a.utils, validParameters = _a.validParameters;
-        var baseUrl = "networks/" + currencyNetwork.defaultNetwork + "/users/0x" + user.address + "/events";
+    Event.prototype.eventObservable = function (networkAddress, filter) {
+        var _a = this, user = _a.user, utils = _a.utils, validParameters = _a.validParameters;
+        var baseUrl = "networks/" + networkAddress + "/users/0x" + user.proxyAddress + "/events";
         var parameterUrl = utils.buildUrl(baseUrl, validParameters, filter);
         return utils.createObservable(parameterUrl);
     };
-    Event.prototype.get = function (filter) {
-        var _a = this, currencyNetwork = _a.currencyNetwork, user = _a.user, utils = _a.utils, validParameters = _a.validParameters;
-        var baseUrl = "networks/" + currencyNetwork.defaultNetwork + "/users/0x" + user.address + "/events";
+    Event.prototype.get = function (networkAddress, filter) {
+        var _a = this, user = _a.user, utils = _a.utils, validParameters = _a.validParameters;
+        var baseUrl = "networks/" + networkAddress + "/users/0x" + user.proxyAddress + "/events";
         var parameterUrl = utils.buildUrl(baseUrl, validParameters, filter);
         return utils.fetchUrl(parameterUrl);
     };
@@ -1145,26 +1093,25 @@ exports.Event = Event;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Payment = (function () {
-    function Payment(user, utils, transaction, currencyNetwork) {
+    function Payment(user, utils, transaction) {
         this.user = user;
         this.utils = utils;
         this.transaction = transaction;
-        this.currencyNetwork = currencyNetwork;
     }
-    Payment.prototype.prepareTransfer = function (receiver, value) {
+    Payment.prototype.prepare = function (networkAddress, receiver, value) {
         var _this = this;
-        return this.getPath(this.user.address, receiver, value)
+        return this.getPath(networkAddress, this.user.address, receiver, value)
             .then(function (response) {
             if (response.path.length > 0) {
-                return _this.transaction.prepareTransaction("mediatedTransfer", ["0x" + receiver, value, response.path.slice(1)]);
+                return _this.transaction.prepare(networkAddress, 'mediatedTransfer', ['0x' + receiver, value, response.path.slice(1)]);
             }
             else {
-                return Promise.reject("Could not find a path with enough capacity");
+                return Promise.reject('Could not find a path with enough capacity');
             }
         });
     };
-    Payment.prototype.getPath = function (accountA, accountB, value) {
-        var url = "networks/" + this.currencyNetwork.defaultNetwork + "/users/0x" + accountA + "/path/0x" + accountB;
+    Payment.prototype.getPath = function (network, accountA, accountB, value) {
+        var url = "networks/" + network + "/users/0x" + accountA + "/path/0x" + accountB;
         return this.utils.fetchUrl(url);
     };
     return Payment;
@@ -1180,13 +1127,11 @@ exports.Payment = Payment;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Transaction = (function () {
-    function Transaction(user, utils, currencyNetwork) {
+    function Transaction(user, utils) {
         this.user = user;
         this.utils = utils;
-        this.currencyNetwork = currencyNetwork;
     }
-    Transaction.prototype.prepareTransaction = function (functionName, parameters) {
-        var _this = this;
+    Transaction.prototype.prepare = function (networkAddress, functionName, parameters) {
         return Promise.all([this.getAbi(), this.getTxInfos(this.user.address)])
             .then(function (_a) {
             var abi = _a[0], txinfos = _a[1];
@@ -1195,7 +1140,7 @@ var Transaction = (function () {
                 gasLimit: 1000000,
                 value: 0,
                 nonce: txinfos.nonce,
-                to: _this.currencyNetwork.defaultNetwork,
+                to: networkAddress
             };
             var txObj = {
                 rawTx: lightwallet.txutils.functionTx(abi, functionName, parameters, txOptions),
@@ -1206,7 +1151,7 @@ var Transaction = (function () {
             return txObj;
         });
     };
-    Transaction.prototype.confirmTransaction = function (rawTx) {
+    Transaction.prototype.confirm = function (rawTx) {
         var _this = this;
         return this.user.signTx(rawTx).then(function (signedTx) { return _this.relayTx(signedTx); });
     };
@@ -1217,16 +1162,15 @@ var Transaction = (function () {
         return this.utils.fetchUrl("txinfos/0x" + address);
     };
     Transaction.prototype.relayTx = function (data) {
-        // const headers = new Headers({
-        //     "Content-Type": "application/json"
-        // })
-        // const options = {
-        //     method: "POST",
-        //     headers,
-        //     body: JSON.stringify({data: "0x" + data})
-        // }
-        // return this.utils.fetchUrl("relay", options)
-        return this.utils.fetchUrl("relay");
+        var headers = new Headers({
+            'Content-Type': 'application/json'
+        });
+        var options = {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ data: '0x' + data })
+        };
+        return this.utils.fetchUrl('relay', options);
     };
     Transaction.prototype.handleError = function (error) {
         return Promise.reject(error.json().message || error);
@@ -1244,27 +1188,26 @@ exports.Transaction = Transaction;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Trustline = (function () {
-    function Trustline(user, utils, transaction, currencyNetwork) {
+    function Trustline(user, utils, transaction) {
         this.user = user;
         this.utils = utils;
         this.transaction = transaction;
-        this.currencyNetwork = currencyNetwork;
     }
-    Trustline.prototype.prepareUpdate = function (debtor, value) {
+    Trustline.prototype.prepareUpdate = function (network, debtor, value) {
         var _a = this, transaction = _a.transaction, user = _a.user;
-        return transaction.prepareTransaction("updateCreditline", ["0x" + debtor, value]);
+        return transaction.prepare(network, 'updateCreditline', ["0x" + debtor, value]);
     };
-    Trustline.prototype.prepareAccept = function (creditor) {
+    Trustline.prototype.prepareAccept = function (network, creditor) {
         var _a = this, transaction = _a.transaction, user = _a.user;
-        return transaction.prepareTransaction("acceptCreditline", ["0x" + creditor]);
+        return transaction.prepare(network, 'acceptCreditline', ["0x" + creditor]);
     };
-    Trustline.prototype.getAll = function () {
-        var _a = this, user = _a.user, utils = _a.utils, currencyNetwork = _a.currencyNetwork;
-        return utils.fetchUrl("networks/" + currencyNetwork.defaultNetwork + "/users/0x" + user.address + "/trustlines");
+    Trustline.prototype.getAll = function (networkAddress) {
+        var _a = this, user = _a.user, utils = _a.utils;
+        return utils.fetchUrl("networks/" + networkAddress + "/users/0x" + user.proxyAddress + "/trustlines");
     };
-    Trustline.prototype.get = function (userAddressB) {
-        var _a = this, user = _a.user, utils = _a.utils, currencyNetwork = _a.currencyNetwork;
-        return utils.fetchUrl("networks/" + currencyNetwork.defaultNetwork + "/users/0x" + user.address + "/trustlines/" + userAddressB);
+    Trustline.prototype.get = function (networkAddress, userAddressB) {
+        var _a = this, user = _a.user, utils = _a.utils;
+        return utils.fetchUrl("networks/" + networkAddress + "/users/0x" + user.proxyAddress + "/trustlines/" + userAddressB);
     };
     return Trustline;
 }());
@@ -1278,15 +1221,68 @@ exports.Trustline = Trustline;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var eth_lightwallet_1 = __webpack_require__(45);
 var User = (function () {
     function User() {
-        this._password = "ts";
+        this._password = 'ts';
     }
+    User.prototype.create = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.generateKey().then(function (address) {
+                _this.address = address;
+                _this.proxyAddress = '0xb33f...'; // TODO implement
+                var createdUser = {
+                    address: _this.address,
+                    proxyAddress: _this.proxyAddress,
+                    keystore: _this.keystore.serialize()
+                };
+                resolve(createdUser);
+            }).catch(function (err) {
+                reject(err);
+            });
+        });
+    };
+    User.prototype.load = function (serializedKeystore) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            if (serializedKeystore) {
+                _this.keystore = _this.deserializeKeystore(serializedKeystore);
+                _this.address = _this.keystore.getAddresses()[0];
+                _this.proxyAddress = '0xb33f..'; // TODO implement
+                var loadedUser = {
+                    address: _this.address,
+                    proxyAddress: _this.proxyAddress,
+                    keystore: _this.keystore.serialize()
+                };
+                resolve(loadedUser);
+            }
+            else {
+                reject(new Error('No valid keystore'));
+            }
+        });
+    };
+    User.prototype.signTx = function (rawTx) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.keystore.keyFromPassword(_this._password, function (err, pwDerivedKey) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(eth_lightwallet_1.default.signing.signTx(_this.keystore, pwDerivedKey, rawTx, _this.address));
+                }
+            });
+        });
+    };
+    User.prototype.onboardUser = function (newUser) {
+        // TODO: define relay api
+    };
     User.prototype.generateKey = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            var secretSeed = lightwallet.keystore.generateRandomSeed();
-            lightwallet.keystore.createVault({
+            var secretSeed = eth_lightwallet_1.default.keystore.generateRandomSeed();
+            eth_lightwallet_1.default.keystore.createVault({
                 password: _this._password,
                 seedPhrase: secretSeed
             }, function (err, ks) {
@@ -1304,23 +1300,7 @@ var User = (function () {
         });
     };
     User.prototype.deserializeKeystore = function (serializedKeystore) {
-        return lightwallet.keystore.deserialize(serializedKeystore);
-    };
-    User.prototype.signTx = function (rawTx) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.keystore.keyFromPassword(_this._password, function (err, pwDerivedKey) {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(lightwallet.signing.signTx(_this.keystore, pwDerivedKey, rawTx, _this.address));
-                }
-            });
-        });
-    };
-    // TODO: define relay api
-    User.prototype.onboardUser = function (newUser) {
+        return eth_lightwallet_1.default.keystore.deserialize(serializedKeystore);
     };
     return User;
 }());
@@ -1345,7 +1325,7 @@ var Utils = (function () {
     }
     Utils.prototype.createObservable = function (url) {
         var _a = this.configuration, useWebSockets = _a.useWebSockets, apiUrl = _a.apiUrl, wsApiUrl = _a.wsApiUrl, pollInterval = _a.pollInterval;
-        if (useWebSockets && "WebSocket" in window) {
+        if (useWebSockets && 'WebSocket' in window) {
             return Observable_1.Observable.create(function (observer) {
                 var ws = new ReconnectingWebSocket("" + wsApiUrl + url);
                 ws.onmessage = function (e) {
@@ -1353,10 +1333,10 @@ var Utils = (function () {
                     observer.next(json);
                 };
                 ws.onerror = function (e) {
-                    console.error("An web socket error occured");
+                    console.error('An web socket error occured');
                 };
                 return function () {
-                    ws.close(1000, "", { keepClosed: true });
+                    ws.close(1000, '', { keepClosed: true });
                 };
             });
         }
@@ -1365,7 +1345,7 @@ var Utils = (function () {
                 .mergeMap(function () {
                 return fetch("" + apiUrl + url)
                     .then(function (res) { return res.json(); })
-                    .catch(function (err) { return new Error("Could not get events"); });
+                    .catch(function (err) { return new Error("Could not get events: " + err.message); });
             });
         }
     };
@@ -1377,12 +1357,12 @@ var Utils = (function () {
             .catch(function (error) { return Promise.reject(error.json().message || error); });
     };
     Utils.prototype.buildUrl = function (baseUrl, validParameters, parameters) {
-        if (!parameters || typeof parameters !== "object") {
+        if (!parameters || typeof parameters !== 'object') {
             return baseUrl;
         }
         for (var key in parameters) {
             if (parameters[key] && validParameters.indexOf(key) !== -1) {
-                baseUrl += (baseUrl.indexOf("?") === -1) ? "?" : "&";
+                baseUrl += (baseUrl.indexOf('?') === -1) ? '?' : '&';
                 baseUrl += key + "=" + parameters[key];
             }
         }
@@ -2758,6 +2738,12 @@ module.exports = g;
 
 /***/ }),
 /* 45 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_45__;
+
+/***/ }),
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(11);
