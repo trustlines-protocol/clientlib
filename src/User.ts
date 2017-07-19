@@ -1,4 +1,5 @@
 import lightwallet from 'eth-lightwallet'
+import { bufferToHex, generateAddress } from 'ethereumjs-util'
 
 export class User {
 
@@ -12,7 +13,7 @@ export class User {
     return new Promise((resolve, reject) => {
       this.generateKey().then((address) => {
         this.address = address
-        this.proxyAddress = '0xb33f...' // TODO implement
+        this.proxyAddress = this.computeProxyAddress(address)
         const createdUser = {
           address: this.address,
           proxyAddress: this.proxyAddress,
@@ -28,9 +29,9 @@ export class User {
   public load (serializedKeystore: string): Promise<object> {
     return new Promise((resolve, reject) => {
       if (serializedKeystore) { // TODO: check if valid keystore
-        this.keystore = this.deserializeKeystore(serializedKeystore)
+        this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
         this.address = this.keystore.getAddresses()[ 0 ]
-        this.proxyAddress = '0xb33f..' // TODO implement
+        this.proxyAddress = this.computeProxyAddress(this.address)
         const loadedUser = {
           address: this.address,
           proxyAddress: this.proxyAddress,
@@ -53,6 +54,11 @@ export class User {
         }
       })
     })
+  }
+
+  private computeProxyAddress (address: string): string {
+    let proxyAddress = bufferToHex(generateAddress(`0x${address}`, 0))
+    return proxyAddress.substr(2, proxyAddress.length)
   }
 
   public onboardUser (newUser: string) {
@@ -78,7 +84,4 @@ export class User {
     })
   }
 
-  private deserializeKeystore (serializedKeystore: string) {
-    return lightwallet.keystore.deserialize(serializedKeystore)
-  }
 }
