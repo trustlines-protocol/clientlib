@@ -37,7 +37,7 @@ export class Transaction {
   }
 
   private getTxInfos (address: string): Promise<any> {
-    return this.utils.fetchUrl(`txinfos/0x${address}`)
+    return this.utils.fetchUrl(`txinfos/${address}`)
   }
 
   private relayTx (data: string): Promise<string> {
@@ -47,7 +47,7 @@ export class Transaction {
     const options = {
       method: 'POST',
       headers,
-      body: JSON.stringify({ data: '0x' + data })
+      body: JSON.stringify({ data: `0x${data}` })
     }
     return this.utils.fetchUrl('relay', options)
   }

@@ -16,7 +16,7 @@ export class Payment {
           return this.transaction.prepare(
             networkAddress,
             'mediatedTransfer',
-            [ '0x' + receiver, value, response.path.slice(1) ]
+            [ receiver, value, response.path.slice(1) ]
           )
         } else {
           return Promise.reject<string>('Could not find a path with enough capacity')
@@ -25,7 +25,7 @@ export class Payment {
   }
 
   public getPath (network: string, accountA: string, accountB: string, value: number): Promise<any> {
-    const url = `networks/${network}/users/0x${accountA}/path/0x${accountB}`
+    const url = `networks/${network}/users/${accountA}/path/${accountB}`
     return this.utils.fetchUrl(url)
   }
 

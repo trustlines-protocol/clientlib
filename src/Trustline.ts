@@ -11,21 +11,21 @@ export class Trustline {
 
   public prepareUpdate (network: string, debtor: string, value: number): Promise<string> {
     const { transaction, user } = this
-    return transaction.prepare(network, 'updateCreditline', [ `0x${debtor}`, value ])
+    return transaction.prepare(network, 'updateCreditline', [ debtor, value ])
   }
 
   public prepareAccept (network: string, creditor: string): Promise<string> {
     const { transaction, user } = this
-    return transaction.prepare(network, 'acceptCreditline', [ `0x${creditor}` ])
+    return transaction.prepare(network, 'acceptCreditline', [ creditor ])
   }
 
   public getAll (networkAddress: string): Promise<object[]> {
     const { user, utils } = this
-    return utils.fetchUrl(`networks/${networkAddress}/users/0x${user.proxyAddress}/trustlines`)
+    return utils.fetchUrl(`networks/${networkAddress}/users/${user.proxyAddress}/trustlines`)
   }
 
   public get (networkAddress: string, userAddressB: string): Promise<object> {
     const { user, utils } = this
-    return utils.fetchUrl(`networks/${networkAddress}/users/0x${user.proxyAddress}/trustlines/${userAddressB}`)
+    return utils.fetchUrl(`networks/${networkAddress}/users/${user.proxyAddress}/trustlines/${userAddressB}`)
   }
 }

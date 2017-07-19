@@ -12,7 +12,7 @@ export class User {
   public create (): Promise<object> {
     return new Promise((resolve, reject) => {
       this.generateKey().then((address) => {
-        this.address = address
+        this.address = `0x${address}`
         this.proxyAddress = this.computeProxyAddress(address)
         const createdUser = {
           address: this.address,
@@ -30,7 +30,7 @@ export class User {
     return new Promise((resolve, reject) => {
       if (serializedKeystore) { // TODO: check if valid keystore
         this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
-        this.address = this.keystore.getAddresses()[ 0 ]
+        this.address = `0x${this.keystore.getAddresses()[ 0 ]}`
         this.proxyAddress = this.computeProxyAddress(this.address)
         const loadedUser = {
           address: this.address,
@@ -57,8 +57,7 @@ export class User {
   }
 
   private computeProxyAddress (address: string): string {
-    let proxyAddress = bufferToHex(generateAddress(`0x${address}`, 0))
-    return proxyAddress.substr(2, proxyAddress.length)
+    return bufferToHex(generateAddress(address, 0))
   }
 
   public onboardUser (newUser: string) {
