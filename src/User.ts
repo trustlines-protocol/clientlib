@@ -1,5 +1,5 @@
 import lightwallet from 'eth-lightwallet'
-import { bufferToHex, generateAddress } from 'ethereumjs-util'
+import * as ethUtils from 'ethereumjs-util'
 
 export class User {
 
@@ -56,12 +56,33 @@ export class User {
     })
   }
 
-  private computeProxyAddress (address: string): string {
-    return bufferToHex(generateAddress(address, 0))
+  public createOnboardingMsg (network: string, creditline: number, acceptance: number) {
+    const data = {network, creditline, acceptance}
+    this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+      if (err) {
+        console.error(err)
+        return
+      }
+      const hash = ethUtils.bufferToHex(ethUtils.sha3(JSON.stringify(data)))
+      const signature = lightwallet.signing.signMsgHash(this.keystore, pwDerivedKey, hash, this.address)
+      return { data, signature: lightwallet.signing.concatSig(signature)}
+    })
   }
 
-  public onboardUser (newUser: string) {
-    // TODO: define relay api
+  public checkOnboardingMsg (ext: string, data: object, signature: string): boolean {
+    const r = ethUtils.toBuffer(signature.slice(0, 66))
+    const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
+    const v = ethUtils.bufferToInt(ethUtils.toBuffer(`0x${signature.slice(130, 132)}`))
+    const m = ethUtils.sha3(JSON.stringify(data))
+    const pub = ethUtils.ecrecover(m, v, r, s)
+    const adr = `0x${ethUtils.pubToAddress(pub).toString('hex')}`
+    console.log('Externally owned account: ', ext)
+    console.log('Recovered from signature: ', adr)
+    return ext === adr
+  }
+
+  private computeProxyAddress (address: string): string {
+    return ethUtils.bufferToHex(ethUtils.generateAddress(address, 0))
   }
 
   private generateKey (): Promise<string> {
