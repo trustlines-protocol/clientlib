@@ -5,7 +5,7 @@ import { Transaction } from './Transaction'
 
 export class Payment {
 
-  private validParameters =  [ 'fromBlock', 'toBlock' ]
+  private validParameters = [ 'fromBlock', 'toBlock' ]
 
   constructor (private event: Event,
                private user: User,
