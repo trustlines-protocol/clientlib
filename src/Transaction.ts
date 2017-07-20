@@ -12,17 +12,15 @@ export class Transaction {
     return Promise.all([ this.getAbi(), this.getTxInfos(this.user.address) ])
       .then(([ abi, txinfos ]) => {
         const txOptions = {
-          gasPrice: txinfos.gasPrice,
-          gasLimit: 1000000,
+          gasPrice: txinfos.gasPrice, // TODO let user set gas price
+          gasLimit: 1000000, // TODO let user set gas limit
           value: 0,
           nonce: txinfos.nonce,
           to: networkAddress
         }
         const txObj = {
           rawTx: lightwallet.txutils.functionTx(abi, functionName, parameters, txOptions),
-          gasPrice: txinfos.gasPrice,
-          nonce: txinfos.nonce,
-          gas: 200000
+          ethFees: 200000 * txOptions.gasPrice // TODO set gas dynamically according to method
         }
         return txObj
       })

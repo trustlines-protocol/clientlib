@@ -21,7 +21,7 @@ export class Payment {
             networkAddress,
             'mediatedTransfer',
             [ receiver, value, response.path.slice(1) ]
-          )
+          ).then(txObject => Object.assign(txObject, response))
         } else {
           return Promise.reject<string>('Could not find a path with enough capacity')
         }

@@ -108,7 +108,7 @@
       "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
       "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F"
     ],
-    "fees": "0.1245"
+    "tlFees": "0.1245"
   },
   "get-tx-infos": {
     "gasPrice": "0.000000022061831512",
