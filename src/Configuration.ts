@@ -4,15 +4,21 @@ export class Configuration {
   // url of websocket api
   public wsApiUrl: string
 
-  constructor (// host of the REST relay server
+  constructor (// protocol of the REST relay server
+    public protocol: string = 'http',
+    // port of REST relay server
     public host: string = 'localhost',
     // port of REST relay server
     public port: number = 5000,
+    // path of REST relay server, if set should end with trailing slash
+    public path: string = '',
     // poll interval
     public pollInterval: number = 500,
     // use websockets?
-    public useWebSockets: boolean = false) {
-    this.apiUrl = `http://${this.host}:${this.port}/api/`
-    this.wsApiUrl = `ws://${this.host}:${this.port}/api/`
+    public useWebSockets: boolean = false,
+    // protocol of the REST relay server
+    public wsProtocol: string = 'ws') {
+    this.apiUrl = `${this.protocol}://${this.host}:${this.port}/${this.path}`
+    this.wsApiUrl = `${this.wsProtocol}://${this.host}:${this.port}/${this.path}`
   }
 }

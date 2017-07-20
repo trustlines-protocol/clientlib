@@ -36,6 +36,7 @@
   "dependencies": {
     "eth-lightwallet": "^2.5.6",
     "ethereumjs-util": "^5.1.2",
+    "bitcore-lib": "bitpay/bitcore-lib",
     "rxjs": "^5.4.1"
   }
 }
