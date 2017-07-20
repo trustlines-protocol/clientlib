@@ -36,6 +36,7 @@ export class Payment {
   public get (network: string, filter?: object): Promise<object> {
     const mergedFilter = Object.assign({type: 'Transfer'}, filter)
     return this.event.get(network, mergedFilter)
+      .then(transfers => transfers.map(t => Object.assign({}, {blockNumber: t.blockNumber}, t.event)))
   }
 
 }

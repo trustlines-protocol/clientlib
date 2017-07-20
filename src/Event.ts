@@ -17,7 +17,7 @@ export class Event {
     return utils.createObservable(parameterUrl)
   }
 
-  public get (networkAddress: string, filter?: object): Promise<object[]> {
+  public get (networkAddress: string, filter?: object): Promise<any[]> {
     const { user, utils, validParameters } = this
     const baseUrl = `networks/${networkAddress}/users/${user.proxyAddress}/events`
     const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)

@@ -34,10 +34,12 @@ export class Trustline {
   public getRequests (networkAddress: string, filter?: object): Promise<object> {
     const mergedFilter = Object.assign({type: 'CreditlineUpdateRequest'}, filter)
     return this.event.get(networkAddress, mergedFilter)
+      .then(requests => requests.map(r => Object.assign({}, {blockNumber: r.blockNumber}, r.event)))
   }
 
   public getUpdates (networkAddress: string, filter?: object): Promise<object> {
     const mergedFilter = Object.assign({type: 'CreditlineUpdate'}, filter)
     return this.event.get(networkAddress, mergedFilter)
+      .then(updates => updates.map(u => Object.assign({}, {blockNumber: u.blockNumber}, u.event)))
   }
 }
