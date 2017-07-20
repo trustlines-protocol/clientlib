@@ -13,14 +13,15 @@ $ json-server ./test/mockRelayAPI.json --routes ./test/routes.json
 The relay server will run on `http://localhost:3000` per default
 
 ### Import bundle
-```javascript
+```html
 // directly include bundle in HTML
 <html>
   <body>
     <script src="../_bundles/trustlines-network.min.js"></script>
   </body>
 </html>
-
+```
+```javascript
 // OR using es6 import
 import { TLNetwork } from "../_bundles/trustlines-network"
 
@@ -38,43 +39,38 @@ const tlNetwork = new TLNetwork(config)
 ```
 
 ### Create new user
-`TLNetwork.createUser(username, defaultNetwork)`
-
-#### Parameters
-- `username` - name of new user
-- `defaultNetwork` - address of default currency network
+`TLNetwork.user.create()`
 
 #### Returns
 `Promise<Object>`
-- `username` - name of new user
-- `address` - ethereum address of new user
+- `address` - address of externally owned account
+- `proxyAddress` - address of proxy contract (precomputed)
 - `keystore` - stringified [eth-lightwallet]() keystore object `IMPORTANT: has to be stored locally on client`
 
 #### Example
 ```javascript
-tlNetwork.createdUser('NewUsername', '0xaed123ffee42f2...').then(newUser => {
+tlNetwork.user.create('username').then(newUser => {
     console.log('New user created: ', newUser)
 })
 ```
 
 ### Load existing user
-`TLNetwork.loadUser(serializedKeystore, defaultNetwork)`
+`TLNetwork.user.load(serializedKeystore)`
 
 #### Parameters
 - `serializedKeystore` - stringified [eth-lightwallet]() key store object
-- `defaultNetwork` - default currency network address
 
 #### Returns
 `Promise<Object>`
-- `username` - name of loaded user
-- `address` - ethereum address of loaded user
+- `address` - address of externally owned account
+- `proxyAddress` - address of proxy contract (precomputed)
 - `keystore` - stringified [eth-lightwallet]() keystore object
 
 #### Example
 ```javascript
 const keystore = '{"encSeed":{"encStr":"fdlM/t...,[...],"nonce":"mWCUhPdymK4VrR52a2ZHSibjXZcuclSh"},"salt":"njcNILd2XXQpF9ki4YzSiAfVPUzQu89WKlkI7F4/eXA=","version":2}'
 
-tlNetwork.loadUser(keystore, '0xaed123ffee42f2...').then(loadedUser => {
+tlNetwork.user.load(keystore).then(loadedUser => {
     console.log('Existing user loaded: ', loadedUser)
 })
 ```
@@ -160,7 +156,10 @@ tlNetwork.currencyNetwork.getUserOverview('0xabc123bb...', '0xb33f33...').then(o
 ```
 
 ### Get trustlines of user in currency network
-`TLNetwork.trustline.getAll()`
+`TLNetwork.trustline.getAll(networkAddress)`
+
+#### Parameters
+- `networkAddress` - address of currency network
 
 #### Returns
 `Promise<object[]>`
@@ -174,13 +173,13 @@ tlNetwork.currencyNetwork.getUserOverview('0xabc123bb...', '0xb33f33...').then(o
 
 #### Example
 ```javascript
-tlNetwork.trustline.getAll().then(trustlines => {
-    console.log('Trustlines of loaded user in default currency network: ', trustlines)
+tlNetwork.trustline.getAll('0xabc123bb...').then(trustlines => {
+    console.log('Trustlines of loaded user in currency network: ', trustlines)
 })
 ```
 
 ### Get specific trustline
-`TLNetwork.trustline.get(addressB)`
+`TLNetwork.trustline.get(networkAddress, addressB)`
 
 #### Parameters
 - `addressB` - address of counterparty
@@ -197,8 +196,54 @@ tlNetwork.trustline.getAll().then(trustlines => {
 
 #### Example
 ```javascript
-tlNetwork.trustline.get('0xabc123bb...').then(trustline => {
-    console.log('Trustline of loaded user in default currency network to user 0xabc123bb...: ', trustline)
+tlNetwork.trustline.get('0xabc123bb...', '0xabc123bb...').then(trustline => {
+    console.log('Trustline of loaded user in currency network to user 0xabc123bb...: ', trustline)
+})
+```
+
+### Get trustline requests
+`TLNetwork.trustline.getRequests(networkAddress, filter)`
+
+#### Parameters
+- `networkAddress` - address of currency network
+- `filter` (optional) - { fromBlock: number, toBlock: number }
+
+#### Returns
+`Promise<object[]>`
+- `blockNumber` - number of block
+- `creditor` - proxy address of creditor
+- `debtor` - proxy address of debtor
+- `type` - type of event 'CreditlineUpdateRequest'
+- `value` - value of credit line
+
+#### Example
+```javascript
+const filter = { fromBlock: 1, toBlock: 10 }
+tlNetwork.trustline.getRequests('0xabc123bb...', filter).then(requests => {
+    console.log('Trustline requests: ', requests)
+})
+```
+
+### Get trustline updates
+`TLNetwork.trustline.getUpdates(networkAddress, filter)`
+
+#### Parameters
+- `networkAddress` - address of currency network
+- `filter` (optional) - { fromBlock: number, toBlock: number }
+
+#### Returns
+`Promise<object[]>`
+- `blockNumber` - number of block
+- `creditor` - proxy address of creditor
+- `debtor` - proxy address of debtor
+- `type` - type of event 'CreditlineUpdateRequest'
+- `value` - updated value of credit line
+
+#### Example
+```javascript
+const filter = { fromBlock: 1, toBlock: 10 }
+tlNetwork.trustline.getUpdates('0xabc123bb...', filter).then(updates => {
+    console.log('Trustline updates: ', updates)
 })
 ```
 
@@ -208,7 +253,31 @@ tlNetwork.trustline.get('0xabc123bb...').then(trustline => {
 ### Prepare credit line accept
 `TLNetwork.trustline.prepareAccept`
 
-###
+### Get transfers
+`TLNetwork.payment.get(networkAddress, filter)`
+
+#### Parameters
+- `networkAddress` - address of currency network
+- `filter` (optional) - { fromBlock: number, toBlock: number }
+
+#### Returns
+`Promise<object[]>`
+- `blockNumber` - number of block
+- `from` - proxy address of sender of transfer
+- `to` - proxy address of receiver of transfer
+- `type` - type of event 'Transfer'
+- `value` - value of transfer
+
+#### Example
+```javascript
+const filter = { fromBlock: 1, toBlock: 10 }
+tlNetwork.payment.get('0xabc123bb...', filter).then(transfers => {
+    console.log('Trustline transfers: ', transfers)
+})
+```
+
+### Prepare transfers
+`TLNetwork.payment.prepare`
 
 ## Compiling and building
 Compiling and bundling follows this setup: http://marcobotto.com/compiling-and-bundling-typescript-libraries-with-webpack/
