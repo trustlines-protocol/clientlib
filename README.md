@@ -12,18 +12,18 @@ $ json-server ./test/mockRelayAPI.json --routes ./test/routes.json
 ```
 The relay server will run on `http://localhost:3000` per default
 
-### Import bundle
+### Import bundle in HTML
 ```html
-// directly include bundle in HTML
 <html>
   <body>
     <script src="../_bundles/trustlines-network.min.js"></script>
   </body>
 </html>
 ```
+
+### Import using ES6
 ```javascript
-// OR using es6 import
-import { TLNetwork } from "../_bundles/trustlines-network"
+import { TLNetwork } from "trustlines-network"
 
 ```
 
@@ -31,9 +31,13 @@ import { TLNetwork } from "../_bundles/trustlines-network"
 ### Initialization
 ```javascript
 const config = {
-    host: "localhost",
-    port: 3000,
-    useWebSockets: false
+  protocol: 'http',
+  host: 'localhost',
+  port: 3000,
+  path: 'api/',
+  pollInterval: 500,
+  useWebSockets: false,
+  wsProtocol: 'ws'
 }
 const tlNetwork = new TLNetwork(config)
 ```
@@ -49,8 +53,8 @@ const tlNetwork = new TLNetwork(config)
 
 #### Example
 ```javascript
-tlNetwork.user.create('username').then(newUser => {
-    console.log('New user created: ', newUser)
+tlNetwork.user.create().then(newUser => {
+  console.log('New user created: ', newUser)
 })
 ```
 
@@ -93,10 +97,10 @@ tlNetwork.currencyNetwork.getAll().then(networks => {
 ```
 
 ### Get detailed information of currency network
-`TLNetwork.currencyNetwork.getInfo(address)`
+`TLNetwork.currencyNetwork.getInfo(networkAddress)`
 
 #### Parameters
-- `address` - address of currency network
+- `networkAddress` - address of currency network
 
 #### Returns
 `Promise<object>`
@@ -110,24 +114,24 @@ tlNetwork.currencyNetwork.getAll().then(networks => {
 #### Example
 ```javascript
 tlNetwork.currencyNetwork.getInfo('0xabc123bb...').then(network => {
-    console.log('Detailed network information: ', network)
+  console.log('Detailed network information: ', network)
 })
 ```
 
-### Get all user addresses in currency network
-`TLNetwork.currencyNetwork.getUsers(address)`
+### Get all proxy addresses of users in currency network
+`TLNetwork.currencyNetwork.getUsers(networkAddress)`
 
 #### Parameters
-- `address` - address of currency network
+- `networkAddress` - address of currency network
 
 #### Returns
 `Promise<string[]>`
-- `string` - ethereum addresses of users in a currency network
+- `string` - proxy addresses of users in a currency network
 
 #### Example
 ```javascript
 tlNetwork.currencyNetwork.getUsers('0xabc123bb...').then(addresses => {
-    console.log('Addresses of users in network 0xabc123bb...', addresses )
+    console.log('Proxy addresses of users in network 0xabc123bb...', addresses )
 })
 ```
 
@@ -174,7 +178,7 @@ tlNetwork.currencyNetwork.getUserOverview('0xabc123bb...', '0xb33f33...').then(o
 #### Example
 ```javascript
 tlNetwork.trustline.getAll('0xabc123bb...').then(trustlines => {
-    console.log('Trustlines of loaded user in currency network: ', trustlines)
+    console.log('Trustlines of loaded user in currency network 0xabc123bb...: ', trustlines)
 })
 ```
 
@@ -182,6 +186,7 @@ tlNetwork.trustline.getAll('0xabc123bb...').then(trustlines => {
 `TLNetwork.trustline.get(networkAddress, addressB)`
 
 #### Parameters
+- `networkAddress` - address of currency network
 - `addressB` - address of counterparty
 
 #### Returns
@@ -196,8 +201,8 @@ tlNetwork.trustline.getAll('0xabc123bb...').then(trustlines => {
 
 #### Example
 ```javascript
-tlNetwork.trustline.get('0xabc123bb...', '0xabc123bb...').then(trustline => {
-    console.log('Trustline of loaded user in currency network to user 0xabc123bb...: ', trustline)
+tlNetwork.trustline.get('0xccccc...', '0xbbbbbb...').then(trustline => {
+    console.log('Trustline of loaded user in currency network 0xccccc... to user 0xbbbbb...: ', trustline)
 })
 ```
 
@@ -247,11 +252,40 @@ tlNetwork.trustline.getUpdates('0xabc123bb...', filter).then(updates => {
 })
 ```
 
-### Prepare credit line update
-`TLNetwork.trustline.prepareUpdate`
+### Prepare trustline update
+`TLNetwork.trustline.prepareUpdate(network, debtor, value)`
 
-### Prepare credit line accept
-`TLNetwork.trustline.prepareAccept`
+#### Parameters
+- `network` - address of currency network
+- `debtor` - proxy address of debtor
+- `value` - new value credit line
+
+#### Returns
+`Promise<object>`
+- `ethFees` - estimated ETH transaction fees
+- `rawTx` - RLP-encoded hex string defining the transaction
+
+### Prepare trustline accept
+`TLNetwork.trustline.prepareAccept(network, creditor)`
+
+#### Parameters
+- `network` - address of currency network
+- `creditor` - proxy address of creditor
+
+#### Returns
+`Promise<object>`
+- `ethFees` - estimated ETH transaction fees
+- `rawTx` - RLP-encoded hex string defining the transaction
+
+### Confirm trustline accept/update
+`TLNetwork.trustline.confirm(rawTx)`
+
+#### Parameters
+- `rawTx` - RLP-encoded hex string defining the transaction
+
+#### Returns
+`Promise<object>`
+- `txId` - transaction hash
 
 ### Get transfers
 `TLNetwork.payment.get(networkAddress, filter)`
@@ -276,8 +310,60 @@ tlNetwork.payment.get('0xabc123bb...', filter).then(transfers => {
 })
 ```
 
-### Prepare transfers
-`TLNetwork.payment.prepare`
+### Prepare transfer
+`TLNetwork.payment.prepare(network, receiver, value)`
+
+#### Parameters
+- `network` - address of currency network
+- `receiver` - proxy address of receiver
+- `value` - amount to transfer
+
+#### Returns
+`Promise<object>`
+- `ethFees` - estimated ETH transaction fees
+- `path` - path for transfer
+- `tlFees` - estimated TL fees for transfer
+- `rawTx` - RLP-encoded hex string defining the transaction
+
+### Confirm prepared transfer
+`TLNetwork.payment.confirm(rawTx)`
+
+#### Parameters
+- `rawTx` - RLP-encoded hex string defining the transaction
+
+#### Returns
+`Promise<object>`
+- `txId` - transaction hash
+
+### Get events
+`TLNetwork.event.get(network, filter)`
+
+#### Parameters
+- `network` - address of currency network
+- `filter` (optional) - { type, fromBlock, toBlock }
+
+#### Returns
+`Promise<object[]>`
+- `blockNumber`
+- `event`
+
+### Create event Observable
+`TLNetwork.event.createObservable(network, filter)`
+
+#### Parameters
+- `network` - address of currency network
+- `filter` (optional) - { type, fromBlock, toBlock }
+
+#### Returns
+`Observable`
+
+#### Example
+```javascript
+const subscription = tlNetwork.createObservable('0xb33f33...').subscribe(events => console.log('Events: ', events))
+
+// to unsubscribe from Observable
+subscription.unsubscribe()
+```
 
 ## Compiling and building
 Compiling and bundling follows this setup: http://marcobotto.com/compiling-and-bundling-typescript-libraries-with-webpack/
