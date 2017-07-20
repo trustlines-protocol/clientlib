@@ -1,10 +1,12 @@
+import { Event } from './Event'
 import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
 
 export class Trustline {
 
-  constructor (private user: User,
+  constructor (private event: Event,
+               private user: User,
                private utils: Utils,
                private transaction: Transaction) {
   }
@@ -27,5 +29,15 @@ export class Trustline {
   public get (networkAddress: string, userAddressB: string): Promise<object> {
     const { user, utils } = this
     return utils.fetchUrl(`networks/${networkAddress}/users/${user.proxyAddress}/trustlines/${userAddressB}`)
+  }
+
+  public getRequests (networkAddress: string, filter?: object): Promise<object> {
+    const mergedFilter = Object.assign({type: 'CreditlineUpdateRequest'}, filter)
+    return this.event.get(networkAddress, mergedFilter)
+  }
+
+  public getUpdates (networkAddress: string, filter?: object): Promise<object> {
+    const mergedFilter = Object.assign({type: 'CreditlineUpdate'}, filter)
+    return this.event.get(networkAddress, mergedFilter)
   }
 }

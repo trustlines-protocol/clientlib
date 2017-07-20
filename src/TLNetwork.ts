@@ -30,8 +30,8 @@ export class TLNetwork {
     this.event = new Event(this.user, this.utils)
     this.contact = new Contact(this.user, this.utils)
     this.transaction = new Transaction(this.user, this.utils)
-    this.trustline = new Trustline(this.user, this.utils, this.transaction)
-    this.payment = new Payment(this.user, this.utils, this.transaction)
+    this.trustline = new Trustline(this.event, this.user, this.utils, this.transaction)
+    this.payment = new Payment(this.event, this.user, this.utils, this.transaction)
   }
 
 }

@@ -1,10 +1,14 @@
+import { Event } from './Event'
 import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
 
 export class Payment {
 
-  constructor (private user: User,
+  private validParameters =  [ 'fromBlock', 'toBlock' ]
+
+  constructor (private event: Event,
+               private user: User,
                private utils: Utils,
                private transaction: Transaction) {
   }
@@ -27,6 +31,11 @@ export class Payment {
   public getPath (network: string, accountA: string, accountB: string, value: number): Promise<any> {
     const url = `networks/${network}/users/${accountA}/path/${accountB}`
     return this.utils.fetchUrl(url)
+  }
+
+  public get (network: string, filter?: object): Promise<object> {
+    const mergedFilter = Object.assign({type: 'Transfer'}, filter)
+    return this.event.get(network, mergedFilter)
   }
 
 }
