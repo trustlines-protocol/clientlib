@@ -21,6 +21,10 @@ export class Trustline {
     return transaction.prepare(network, 'acceptCreditline', [ creditor ])
   }
 
+  public confirm (rawTx: string): Promise<string> {
+    return this.transaction.confirm(rawTx)
+  }
+
   public getAll (networkAddress: string): Promise<object[]> {
     const { user, utils } = this
     return utils.fetchUrl(`networks/${networkAddress}/users/${user.proxyAddress}/trustlines`)

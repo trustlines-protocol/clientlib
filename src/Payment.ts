@@ -39,4 +39,8 @@ export class Payment {
       .then(transfers => transfers.map(t => Object.assign({}, {blockNumber: t.blockNumber}, t.event)))
   }
 
+  public confirm (rawTx: string): Promise<string> {
+    return this.transaction.confirm(rawTx)
+  }
+
 }
