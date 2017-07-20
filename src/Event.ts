@@ -10,7 +10,7 @@ export class Event {
   constructor (private user: User, private utils: Utils) {
   }
 
-  public eventObservable (networkAddress: string, filter?: object): Observable<any> {
+  public createObservable (networkAddress: string, filter?: object): Observable<any> {
     const { user, utils, validParameters } = this
     const baseUrl = `networks/${networkAddress}/users/${user.proxyAddress}/events`
     const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)
