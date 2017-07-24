@@ -63,7 +63,8 @@ export class User {
     })
   }
 
-  public createOnboardingMsg (username: string): Promise<object> {
+  public createOnboardingMsg (username: string, serializedKeystore?: string): Promise<object> {
+    if (serializedKeystore) this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
     return new Promise<any>((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) reject(err)
