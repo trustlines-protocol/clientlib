@@ -80,14 +80,15 @@ tlNetwork.user.load(keystore).then(loadedUser => {
 ```
 
 ### Create onboarding message
-`TLNetwork.user.createOnboardingMsg(username)`
+`TLNetwork.user.createOnboardingMsg(username, keystore)`
 
 #### Parameters
 - `username` - name of user who wants to get onboarded
+- `keystore` - stringified keystore object
 
 #### Returns
 `Promise<Object>`
-- `message`
+- `message`:
  - `address` - address of externally owned account
  - `proxyAddress` - address of proxy contract (precomputed with `nonce = 0`)
  - `pubKey` - public key of user
