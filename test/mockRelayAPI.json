@@ -1,4 +1,7 @@
 {
+  "get-balances": {
+    "balance": "0.1112344"
+  },
   "networks": [
     {
       "address": "0xa1499ad3a013a80701d77e1124b766e4074065fd",

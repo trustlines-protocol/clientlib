@@ -1,4 +1,6 @@
 {
+  "/balances/:eoaAddress": "/get-balances",
+
   "/networks/:address": "/networks-detail",
 
   "/networks/:address/users": "/users-in-network",

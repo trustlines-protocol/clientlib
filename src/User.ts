@@ -12,6 +12,9 @@ export class User {
   private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
   private _encPath = 'm/44\'/60\'/0\'/1' // path for encryption keys
 
+  constructor (private utils: Utils) {
+  }
+
   public create (): Promise<object> {
     return new Promise((resolve, reject) => {
       this.generateKeys().then((keys) => {
@@ -91,6 +94,10 @@ export class User {
     console.log('Externally owned account: ', message.address)
     console.log('Recovered from signature: ', adr)
     return message.address === adr
+  }
+
+  public getBalance (): Promise<any> {
+    return this.utils.fetchUrl(`balances/${this.address}`)
   }
 
   private computeProxyAddress (address: string): string {
