@@ -66,20 +66,21 @@ export class User {
     })
   }
 
-  public createOnboardingMsg (username: string, serializedKeystore?: string): Promise<object> {
-    if (serializedKeystore) this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
+  public createOnboardingMsg (username: string, serializedKeystore: string): Promise<object> {
     return new Promise<any>((resolve, reject) => {
-      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) reject(err)
-        const message = {
-          address: this.address,
-          proxyAddress: this.proxyAddress,
-          pubKey: this.pubKey,
-          username
-        }
-        const hash = ethUtils.bufferToHex(ethUtils.sha3(JSON.stringify(message)))
-        const signature = lightwallet.signing.signMsgHash(this.keystore, pwDerivedKey, hash, this.address)
-        return resolve({ message, signature: lightwallet.signing.concatSig(signature) })
+      this.load(serializedKeystore).then(loadedUser => {
+        this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+          if (err) reject(err)
+          const message = {
+            address: this.address,
+            proxyAddress: this.proxyAddress,
+            pubKey: this.pubKey,
+            username
+          }
+          const hash = ethUtils.bufferToHex(ethUtils.sha3(JSON.stringify(message)))
+          const signature = lightwallet.signing.signMsgHash(this.keystore, pwDerivedKey, hash, this.address)
+          return resolve({ message, signature: lightwallet.signing.concatSig(signature) })
+        })
       })
     })
   }
