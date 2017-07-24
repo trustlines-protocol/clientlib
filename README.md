@@ -79,6 +79,31 @@ tlNetwork.user.load(keystore).then(loadedUser => {
 })
 ```
 
+### Create onboarding message
+`TLNetwork.user.createOnboardingMsg(username)`
+
+#### Parameters
+- `username` - name of user who wants to get onboarded
+
+#### Returns
+`Promise<Object>`
+- `message`
+ - `address` - address of externally owned account
+ - `proxyAddress` - address of proxy contract (precomputed with `nonce = 0`)
+ - `pubKey` - public key of user
+ - `username` - username
+- `signature` - hex string of signature
+
+### Verify signed onboarding message
+`TLNetwork.user.checkOnboardingMsg(message, signature)`
+
+#### Parameters
+- `message` - onboarding message as JSON
+- `signature` - hex string of signature
+
+#### Returns
+`boolean`
+
 ### Get all registered currency networks
 `TLNetwork.currencyNetwork.getAll()`
 
