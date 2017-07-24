@@ -1,4 +1,5 @@
 import lightwallet from 'eth-lightwallet'
+import { Utils } from './Utils'
 import * as ethUtils from 'ethereumjs-util'
 
 export class User {
