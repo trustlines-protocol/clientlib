@@ -116,7 +116,6 @@ export class User {
     return this.utils.createObservable(`balances/${this.address}`)
   }
 
-
   private checkOnboardingMsg (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))
     const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
