@@ -1,6 +1,10 @@
 import lightwallet from 'eth-lightwallet'
 import { Utils } from './Utils'
+import { Transaction } from './Transaction'
+
 import * as ethUtils from 'ethereumjs-util'
+import { Observable } from 'rxjs/Observable'
+
 
 export class User {
 
@@ -13,7 +17,7 @@ export class User {
   private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
   private _encPath = 'm/44\'/60\'/0\'/1' // path for encryption keys
 
-  constructor (private utils: Utils) {
+  constructor (private transaction: Transaction, private utils: Utils) {
   }
 
   public create (): Promise<object> {
@@ -98,8 +102,18 @@ export class User {
     return message.address === adr
   }
 
+  public deployProxyContract (networkAddress: string): Promise<any> {
+    return this.transaction.prepareProxy(this.address, networkAddress)
+      .then(contract => this.signTx(contract.tx))
+      .then(signedTx => this.transaction.relayTx(signedTx))
+  }
+
   public getBalance (): Promise<any> {
     return this.utils.fetchUrl(`balances/${this.address}`)
+  }
+
+  public balanceObservable (): Observable<any> {
+    return this.utils.createObservable(`balances/${this.address}`)
   }
 
   private computeProxyAddress (address: string): string {

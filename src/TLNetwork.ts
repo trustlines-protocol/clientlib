@@ -25,11 +25,11 @@ export class TLNetwork {
     const { protocol, host, port, path,tokenAddress, pollInterval, useWebSockets, wsProtocol } = config
     this.configuration = new Configuration(protocol, host, port, path, pollInterval, useWebSockets, wsProtocol)
     this.utils = new Utils(this.configuration)
-    this.user = new User(this.utils)
+    this.transaction = new Transaction(this.utils)
     this.currencyNetwork = new CurrencyNetwork(this.utils)
+    this.user = new User(this.transaction, this.utils)
     this.event = new Event(this.user, this.utils)
     this.contact = new Contact(this.user, this.utils)
-    this.transaction = new Transaction(this.user, this.utils)
     this.trustline = new Trustline(this.event, this.user, this.utils, this.transaction)
     this.payment = new Payment(this.event, this.user, this.utils, this.transaction)
   }

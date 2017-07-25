@@ -1,4 +1,3 @@
-import { User } from './User'
 import { Utils } from './Utils'
 
 export class CurrencyNetwork {

@@ -18,6 +18,7 @@ export class Payment {
       .then((response) => {
         if (response.path.length > 0) {
           return this.transaction.prepare(
+            this.user.proxyAddress,
             networkAddress,
             'mediatedTransfer',
             [ receiver, value, response.path.slice(1) ]
@@ -40,7 +41,7 @@ export class Payment {
   }
 
   public confirm (rawTx: string): Promise<string> {
-    return this.transaction.confirm(rawTx)
+    return this.user.signTx(rawTx).then(signedTx => this.transaction.relayTx(signedTx))
   }
 
 }
