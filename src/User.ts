@@ -78,7 +78,6 @@ export class User {
           if (err) reject(err)
           const message = {
             address: this.address,
-            proxyAddress: this.proxyAddress,
             pubKey: this.pubKey,
             username
           }
@@ -90,16 +89,17 @@ export class User {
     })
   }
 
-  public checkOnboardingMsg (message: any, signature: string): boolean {
-    const r = ethUtils.toBuffer(signature.slice(0, 66))
-    const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
-    const v = ethUtils.bufferToInt(ethUtils.toBuffer(`0x${signature.slice(130, 132)}`))
-    const m = ethUtils.sha3(JSON.stringify(message))
-    const pub = ethUtils.ecrecover(m, v, r, s)
-    const adr = `0x${ethUtils.pubToAddress(pub).toString('hex')}`
-    console.log('Externally owned account: ', message.address)
-    console.log('Recovered from signature: ', adr)
-    return message.address === adr
+  public prepOnboarding (network: string, onboardingMsg: any, signature: string): Promise<object> {
+    if (!this.checkOnboardingMsg(onboardingMsg, signature)) {
+      return Promise.reject('Invalid onboarding message. Signature does not match message.')
+    }
+    const proxyAddress = this.computeProxyAddress(onboardingMsg.address)
+    return this.transaction.prepare(this.address, network, 'onboard', [ proxyAddress ])
+  }
+
+  public confirmOnboarding (rawTx: string): Promise<any> {
+    return this.signTx(rawTx)
+      .then(signedTx => this.transaction.relayTx(signedTx))
   }
 
   public deployProxyContract (networkAddress: string): Promise<any> {
@@ -114,6 +114,19 @@ export class User {
 
   public balanceObservable (): Observable<any> {
     return this.utils.createObservable(`balances/${this.address}`)
+  }
+
+
+  private checkOnboardingMsg (message: any, signature: string): boolean {
+    const r = ethUtils.toBuffer(signature.slice(0, 66))
+    const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
+    const v = ethUtils.bufferToInt(ethUtils.toBuffer(`0x${signature.slice(130, 132)}`))
+    const m = ethUtils.sha3(JSON.stringify(message))
+    const pub = ethUtils.ecrecover(m, v, r, s)
+    const adr = `0x${ethUtils.pubToAddress(pub).toString('hex')}`
+    console.log('Externally owned account: ', message.address)
+    console.log('Recovered from signature: ', adr)
+    return message.address === adr
   }
 
   private computeProxyAddress (address: string): string {
