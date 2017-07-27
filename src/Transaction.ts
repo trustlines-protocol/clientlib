@@ -1,6 +1,7 @@
 import { Utils } from './Utils'
 
 declare let lightwallet: any
+import * as ethUtils from 'ethereumjs-util'
 
 export class Transaction {
 
@@ -57,7 +58,9 @@ export class Transaction {
       headers,
       body: JSON.stringify({ data: `0x${data}` })
     }
-    return this.utils.fetchUrl('relay', options)
+    return this.utils.fetchUrl('relay', options).then(() => {
+      return {txId: ethUtils.rlphash(data)}
+    })
   }
 
   private getAbi (contractName: string): Promise<any> {
