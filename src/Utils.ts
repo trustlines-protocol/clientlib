@@ -60,4 +60,10 @@ export class Utils {
     return baseUrl
   }
 
+  public createLink (pre: string, parameters: any[]): string {
+    const base = `http://trustlines.network/v1/${pre}/`
+    const link = parameters.reduce((result, param) => `${result}/${param}`)
+    return base + link
+  }
+
 }
