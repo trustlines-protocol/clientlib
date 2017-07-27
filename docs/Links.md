@@ -5,19 +5,20 @@ To trigger a trustlines process from outside of the app there are several links,
 ### onboarding
 
 ```
-/onboarding/[username]/[pubkey]
- 
+/onboarding/[username]/[address]/[pubkey]
+
 [username]  name of the user to be onboarded
-[pubkey]    public key of the user to be onboarded 
-```  
+[address]   externally owned address of the user to be onboarded
+[pubkey]    public key of the user to be onboarded
+```
 
 ### payment request
 
 ```
 /paymentrequest/[network]/[address]/[amount]/[subject]
- 
+
 [network]   address of the network the transfer will be issued in
-[address]   proxy address that will receive the transfer 
+[address]   proxy address that will receive the transfer
 [amount]    amount that will be transfered in the currency of the network
 [subject]   subject of the transfer
 ```
@@ -26,7 +27,7 @@ To trigger a trustlines process from outside of the app there are several links,
 
 ```
 /contact/[address]/[username]
- 
-[address]   address that will receive the transfer 
-[username]  proposition of a username 
+
+[address]   address that will receive the transfer
+[username]  proposition of a username
 ```
