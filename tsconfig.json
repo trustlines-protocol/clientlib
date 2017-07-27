@@ -10,7 +10,8 @@
         "forceConsistentCasingInFileNames": true,
         "sourceMap": true,
         "declaration": true,
-        "jsx": "react"
+        "jsx": "react",
+        "allowJs": true
     },
     "include": [
         "./src/TLNetwork.ts"

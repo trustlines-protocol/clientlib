@@ -15,21 +15,20 @@ export class Transaction {
     functionName: string,
     parameters: any[]
   ): Promise<any> {
-    return Promise.all([ this.getAbi(contractName), this.getTxInfos(userAddress) ])
-      .then(([ abi, txinfos ]) => {
-        const txOptions = {
-          gasPrice: txinfos.gasPrice, // TODO let user set gas price
-          gasLimit: 1000000, // TODO let user set gas limit
-          value: 0,
-          nonce: txinfos.nonce,
-          to: contractAddress
-        }
-        const txObj = {
-          rawTx: lightwallet.txutils.functionTx(abi, functionName, parameters, txOptions),
-          ethFees: 200000 * txOptions.gasPrice // TODO set gas dynamically according to method
-        }
-        return txObj
-      })
+    return this.getTxInfos(userAddress).then(txinfos => {
+      const txOptions = {
+        gasPrice: txinfos.gasPrice, // TODO let user set gas price
+        gasLimit: 1000000, // TODO let user set gas limit
+        value: 0,
+        nonce: txinfos.nonce,
+        to: contractAddress
+      }
+      const txObj = {
+        rawTx: lightwallet.txutils.functionTx(ABI[contractName], functionName, parameters, txOptions),
+        ethFees: 200000 * txOptions.gasPrice // TODO set gas dynamically according to method
+      }
+      return txObj
+    })
   }
 
   public prepValueTx (from: string, to: string, value: number): Promise<any> {
@@ -61,11 +60,6 @@ export class Transaction {
     return this.utils.fetchUrl('relay', options).then(() => {
       return {txId: ethUtils.rlphash(data)}
     })
-  }
-
-  private getAbi (contractName: string): Promise<any> {
-    // TODO fetch from local json
-    return this.utils.fetchUrl(`tokenabi/${contractName}`)
   }
 
   private getTxInfos (address: string): Promise<any> {

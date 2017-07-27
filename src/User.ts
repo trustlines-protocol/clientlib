@@ -82,7 +82,7 @@ export class User {
 
   public prepOnboarding (newUserAddress: any): Promise<object> {
     return Promise.all([
-      this.prepProxy(newUserAddress),
+      this.prepProxy(newUserAddress, newUserAddress, newUserAddress), // TODO replace with actual parameters
       this.transaction.prepValueTx(
         this.address, // address of onboarder
         newUserAddress, // address of new user who gets onboarded
@@ -93,13 +93,13 @@ export class User {
     })
   }
 
-  public prepProxy (proxyOwner: string): Promise<any> {
+  public prepProxy (destination: string, userKey: string, recoveryKey: string): Promise<any> {
     return this.transaction.prepFuncTx(
       this.address,
-      '0x...', // TODO IdentityFactoryContract address
-      'IdentityFactory', // TODO replace with actual contract name
-      'CreateProxy', // TODO replace with actual function name
-      [ proxyOwner ]
+      '0xf8e191d2cd72ff35cb8f012685a29b31996614ea', // TODO replace with actual contract address
+      'IdentityFactoryWithRecovery',
+      'CreateProxyWithControllerAndRecoveryKey',
+      [ destination, userKey, recoveryKey, 0, 0 ] // TODO replace with actual parameters
     )
   }
 
@@ -124,7 +124,7 @@ export class User {
     return this.utils.createObservable(`balances0/${this.address}`)
   }
 
-  private checkOnboardingMsg (message: any, signature: string): boolean {
+  private verifySignature (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))
     const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
     const v = ethUtils.bufferToInt(ethUtils.toBuffer(`0x${signature.slice(130, 132)}`))
