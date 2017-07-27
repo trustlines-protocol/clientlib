@@ -95,6 +95,14 @@ export class User {
     }
     const proxyAddress = this.computeProxyAddress(onboardingMsg.address)
     return this.transaction.prepare(this.address, network, 'onboard', [ proxyAddress ])
+  public prepProxy (proxyOwner: string): Promise<any> {
+    return this.transaction.prepFuncTx(
+      this.address,
+      '0x...', // TODO IdentityFactoryContract address
+      'IdentityFactory', // TODO replace with actual contract name
+      'CreateProxy', // TODO replace with actual function name
+      [ proxyOwner ]
+    )
   }
 
   public confirmOnboarding (rawTx: string): Promise<any> {

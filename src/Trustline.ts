@@ -13,12 +13,24 @@ export class Trustline {
 
   public prepareUpdate (network: string, debtor: string, value: number): Promise<string> {
     const { transaction, user } = this
-    return transaction.prepare(user.proxyAddress, network, 'updateCreditline', [ debtor, value ])
+    return transaction.prepFuncTx(
+      user.proxyAddress,
+      network,
+      'CurrencyNetwork',
+      'updateCreditline',
+      [ debtor, value ]
+    )
   }
 
   public prepareAccept (network: string, creditor: string): Promise<string> {
     const { transaction, user } = this
-    return transaction.prepare(user.proxyAddress, network, 'acceptCreditline', [ creditor ])
+    return transaction.prepFuncTx(
+      user.proxyAddress,
+      network,
+      'CurrencyNetwork',
+      'acceptCreditline',
+      [ creditor ]
+    )
   }
 
   public confirm (rawTx: string): Promise<string> {

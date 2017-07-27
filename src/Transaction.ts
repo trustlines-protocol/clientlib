@@ -7,15 +7,21 @@ export class Transaction {
   constructor (private utils: Utils) {
   }
 
-  public prepare (userAddress: string, networkAddress: string, functionName: string, parameters: any[]): Promise<any> {
-    return Promise.all([ this.getAbi(), this.getTxInfos(userAddress) ])
+  public prepFuncTx (
+    userAddress: string,
+    contractAddress: string,
+    contractName: string,
+    functionName: string,
+    parameters: any[]
+  ): Promise<any> {
+    return Promise.all([ this.getAbi(contractName), this.getTxInfos(userAddress) ])
       .then(([ abi, txinfos ]) => {
         const txOptions = {
           gasPrice: txinfos.gasPrice, // TODO let user set gas price
           gasLimit: 1000000, // TODO let user set gas limit
           value: 0,
           nonce: txinfos.nonce,
-          to: networkAddress
+          to: contractAddress
         }
         const txObj = {
           rawTx: lightwallet.txutils.functionTx(abi, functionName, parameters, txOptions),
@@ -52,8 +58,9 @@ export class Transaction {
     return this.utils.fetchUrl('relay', options)
   }
 
-  private getAbi (): Promise<any> {
-    return this.utils.fetchUrl(`tokenabi`)
+  private getAbi (contractName: string): Promise<any> {
+    // TODO fetch from local json
+    return this.utils.fetchUrl(`tokenabi/${contractName}`)
   }
 
   private getTxInfos (address: string): Promise<any> {
