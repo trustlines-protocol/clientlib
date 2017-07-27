@@ -124,6 +124,38 @@ export class User {
     return this.utils.createObservable(`balances0/${this.address}`)
   }
 
+  public encrypt (msg: string, theirPubKey: string): Promise<any> {
+    return new Promise ((resolve, reject) => {
+      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+        if (err) reject(err)
+        resolve(lightwallet.encryption.multiEncryptString(
+          this.keystore,
+          pwDerivedKey,
+          msg,
+          this.pubKey,
+          [ theirPubKey ],
+          this._encPath
+        ))
+      })
+    })
+  }
+
+  public decrypt (encMsg: any, theirPubKey: string): Promise<any> {
+    return new Promise ((resolve, reject) => {
+      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+        if (err) reject(err)
+        resolve(lightwallet.encryption.multiDecryptString(
+          this.keystore,
+          pwDerivedKey,
+          encMsg,
+          theirPubKey,
+          this.pubKey,
+          this._encPath
+        ))
+      })
+    })
+  }
+
   private verifySignature (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))
     const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
