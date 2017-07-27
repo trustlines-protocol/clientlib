@@ -1,4 +1,4 @@
-##Events
+## Events
 
 One event entity has properties:
 
@@ -14,7 +14,7 @@ One event entity has properties:
 }
 ```
 
-###Eventtypes
+### Eventtypes
 
 * transfer
 * creditlineUpdate
