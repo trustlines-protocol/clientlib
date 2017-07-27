@@ -2,6 +2,7 @@ import { Utils } from './Utils'
 
 declare let lightwallet: any
 import * as ethUtils from 'ethereumjs-util'
+const ABI = require('../abis.json')
 
 export class Transaction {
 
