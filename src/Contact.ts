@@ -12,4 +12,11 @@ export class Contact {
     return utils.fetchUrl(url)
   }
 
+  public createLink (address: string, username: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const params = [ address, username ]
+      resolve(this.utils.createLink('contact', params))
+    })
+  }
+
 }
