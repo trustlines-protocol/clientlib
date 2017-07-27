@@ -45,4 +45,11 @@ export class Payment {
     return this.user.signTx(rawTx).then(signedTx => this.transaction.relayTx(signedTx))
   }
 
+  public createRequest (network: string, amount: number, subject: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const params = [ network, this.user.proxyAddress , amount, subject ]
+      resolve(this.utils.createLink('paymentrequest', params))
+    })
+  }
+
 }
