@@ -1,5 +1,6 @@
 {
-  "get-balances": {
+  "get-ext-user": {
+    "proxy": "0xf8e191d2cd72ff35cb8f012685a29b31996614ea",
     "balance": "0.1112344"
   },
   "networks": [

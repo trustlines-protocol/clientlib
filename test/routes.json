@@ -1,5 +1,5 @@
 {
-  "/balances/:eoaAddress": "/get-balances",
+  "/users/:address": "/get-ext-user",
 
   "/networks/:address": "/networks-detail",
 
@@ -21,6 +21,8 @@
   "/networks/:address/users/:address/events\\?fromBlock=:from": "/events?blockNumber_gte=:from",
   "/networks/:address/users/:address/events\\?toBlock=:to": "/events?blockNumber_lte=:to",
 
-  "/txinfos/:address": "/get-tx-infos"
+  "/txinfos/:address": "/get-tx-infos",
+
+  "/tokenabi/:contract": "/tokenabi"
 
 }

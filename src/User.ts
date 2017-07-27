@@ -117,11 +117,11 @@ export class User {
   }
 
   public getBalance (): Promise<any> {
-    return this.utils.fetchUrl(`balances/${this.address}`)
+    return this.utils.fetchUrl(`users/${this.address}`).then(user => user.balance)
   }
 
   public balanceObservable (): Observable<any> {
-    return this.utils.createObservable(`balances/${this.address}`)
+    return this.utils.createObservable(`users/${this.address}`)
   }
 
   private checkOnboardingMsg (message: any, signature: string): boolean {
