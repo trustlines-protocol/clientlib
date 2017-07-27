@@ -82,27 +82,49 @@ tlNetwork.user.load(keystore).then(loadedUser => {
 ### Create onboarding message
 `TLNetwork.user.createOnboardingMsg(username, keystore)`
 
+Called from a new user who wants to *get onboarded*
+
 #### Parameters
 - `username` - name of user who wants to get onboarded
-- `keystore` - stringified keystore object
+- `keystore` - serialized keystore object
+
+#### Returns
+`Promise<string>`
+- `http://trustlines.network/v1/:username/:adress/:pubKey`
+- `username` - name of new user who wants to get onboarded
+- `address` - ethereum address of new user
+- `pubKey` - public key of new user to encrypt messages
+
+### Prepare onboarding
+`TLNetwork.user.prepOnboarding(newUserAddress)`
+
+Called from a user who *onboards* another user to *prepare* transactions for relay
+
+#### Parameters
+- `newUserAddress` - address of new user who wants to get onboarded
 
 #### Returns
 `Promise<Object>`
- - `message.address` - address of externally owned account
- - `message.proxyAddress` - address of proxy contract (precomputed with `nonce = 0`)
- - `message.pubKey` - public key of user
- - `message.username` - username
-- `signature` - hex string of signature
+- `proxyTx` - tx object of proxy contract creation
+- `proxyTx.rawTx` - hex string of proxy contract creation transaction
+- `proxyTx.ethFees` - eth transaction fees
+- `valueTx` - tx object of onboarding eth transfer transaction
+- `valueTx.rawTx` - hex string of eth transfer transaction
+- `valueTx.ethFees` - eth transaction fees
 
-### Verify signed onboarding message
-`TLNetwork.user.checkOnboardingMsg(message, signature)`
+### Confirm onboarding
+`TLNetwork.user.confirmOnboarding(rawProxyTx, rawValueTx)`
+
+Called from an user who *onboards* another user
 
 #### Parameters
-- `message` - onboarding message as JSON
-- `signature` - hex string of signature
+- `rawProxyTx` - hex string of proxy contract creation transaction
+- `rawValueTx` - hex string of eth transfer transaction
 
 #### Returns
-`boolean`
+`Promise<Object>`
+- `proxyTxId` - id of proxy contract creation transaction
+- `valueTxId` - id of eth transfer transaction
 
 ### Get all registered currency networks
 `TLNetwork.currencyNetwork.getAll()`
