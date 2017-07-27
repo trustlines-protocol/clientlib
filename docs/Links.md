@@ -17,7 +17,7 @@ To trigger a trustlines process from outside of the app there are several links,
 /paymentrequest/[network]/[address]/[amount]/[subject]
  
 [network]   address of the network the transfer will be issued in
-[address]   address that will receive the transfer 
+[address]   proxy address that will receive the transfer 
 [amount]    amount that will be transfered in the currency of the network
 [subject]   subject of the transfer
 ```
