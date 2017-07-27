@@ -74,8 +74,8 @@ export class User {
   public createOnboardingMsg (username: string, serializedKeystore: string): Promise<object> {
     return new Promise<any>((resolve, reject) => {
       this.load(serializedKeystore).then(() => {
-        const base = 'http://trustlines.network/v1'
-        resolve(`${base}/onboardingrequest/${username}/${this.address}/${this.pubKey}`)
+        const params = [ username, this.address, this.pubKey ]
+        resolve(this.utils.createLink('onboarding', params))
       })
     })
   }
