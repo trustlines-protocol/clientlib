@@ -86,7 +86,7 @@ export class User {
       this.transaction.prepValueTx(
         this.address, // address of onboarder
         newUserAddress, // address of new user who gets onboarded
-        100000, // TODO fetch default onboarding amount of eth
+        100000 // TODO fetch default onboarding amount of eth
       )
     ]).then(([ proxyTx, valueTx ]) => {
       return { proxyTx, valueTx }
@@ -107,8 +107,11 @@ export class User {
     return Promise.all([
       this.signTx(proxyTx).then(signedTx => this.transaction.relayTx(signedTx)),
       this.signTx(valueTx).then(signedTx => this.transaction.relayTx(signedTx))
-    ]).then(([ proxyTxId, valueTxId ]) => {
-      return { proxyTxId, valueTxId }
+    ]).then(([ proxyTx, valueTx ]) => {
+      return {
+        proxyTxId: proxyTx.txId,
+        valueTxId: valueTx.txId
+      }
     })
   }
 
@@ -121,7 +124,7 @@ export class User {
   }
 
   public balanceObservable (): Observable<any> {
-    return this.utils.createObservable(`balances0/${this.address}`)
+    return this.utils.createObservable(`balances/${this.address}`)
   }
 
   public encrypt (msg: string, theirPubKey: string): Promise<any> {
