@@ -17,9 +17,10 @@ export class Payment {
     return this.getPath(networkAddress, this.user.address, receiver, value)
       .then((response) => {
         if (response.path.length > 0) {
-          return this.transaction.prepare(
+          return this.transaction.prepFuncTx(
             this.user.proxyAddress,
             networkAddress,
+            'CurrencyNetwork',
             'mediatedTransfer',
             [ receiver, value, response.path.slice(1) ]
           ).then(txObject => Object.assign(txObject, response))
