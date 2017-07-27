@@ -113,15 +113,15 @@ export class User {
   }
 
   public getProxyAddress (): Promise<string> {
-    return this.utils.fetchUrl(`users/${this.address}`).then(user => user.proxy)
+    return this.utils.fetchUrl(`proxys/${this.address}`)
   }
 
   public getBalance (): Promise<any> {
-    return this.utils.fetchUrl(`users/${this.address}`).then(user => user.balance)
+    return this.utils.fetchUrl(`balances/${this.address}`)
   }
 
   public balanceObservable (): Observable<any> {
-    return this.utils.createObservable(`users/${this.address}`)
+    return this.utils.createObservable(`balances0/${this.address}`)
   }
 
   private checkOnboardingMsg (message: any, signature: string): boolean {

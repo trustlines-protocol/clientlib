@@ -1,5 +1,7 @@
 {
-  "/users/:address": "/get-ext-user",
+  "/proxys/:address": "/get-proxy-address",
+
+  "/balances/:address": "/get-balance",
 
   "/networks/:address": "/networks-detail",
 
