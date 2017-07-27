@@ -58,7 +58,9 @@ export class Transaction {
       body: JSON.stringify({ data: `0x${data}` })
     }
     return this.utils.fetchUrl('relay', options).then(() => {
-      return {txId: ethUtils.rlphash(data)}
+      return {
+        txId: ethUtils.bufferToHex(ethUtils.rlphash(data))
+      }
     })
   }
 
