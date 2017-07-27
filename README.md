@@ -423,3 +423,9 @@ lib-esm/        // ES5(esmodule) + source + .d.ts
 package.json
 README.md
 ```
+
+
+Other docs:
+
+* [Events](./docs/Events.md)
+* [Links](./docs/Links.md)
