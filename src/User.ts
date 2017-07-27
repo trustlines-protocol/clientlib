@@ -73,28 +73,26 @@ export class User {
 
   public createOnboardingMsg (username: string, serializedKeystore: string): Promise<object> {
     return new Promise<any>((resolve, reject) => {
-      this.load(serializedKeystore).then(loadedUser => {
-        this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-          if (err) reject(err)
-          const message = {
-            address: this.address,
-            pubKey: this.pubKey,
-            username
-          }
-          const hash = ethUtils.bufferToHex(ethUtils.sha3(JSON.stringify(message)))
-          const signature = lightwallet.signing.signMsgHash(this.keystore, pwDerivedKey, hash, this.address)
-          return resolve({ message, signature: lightwallet.signing.concatSig(signature) })
-        })
+      this.load(serializedKeystore).then(() => {
+        const base = 'http://trustlines.network/v1'
+        resolve(`${base}/onboardingrequest/${username}/${this.address}/${this.pubKey}`)
       })
     })
   }
 
-  public prepOnboarding (network: string, onboardingMsg: any, signature: string): Promise<object> {
-    if (!this.checkOnboardingMsg(onboardingMsg, signature)) {
-      return Promise.reject('Invalid onboarding message. Signature does not match message.')
-    }
-    const proxyAddress = this.computeProxyAddress(onboardingMsg.address)
-    return this.transaction.prepare(this.address, network, 'onboard', [ proxyAddress ])
+  public prepOnboarding (newUserAddress: any): Promise<object> {
+    return Promise.all([
+      this.prepProxy(newUserAddress),
+      this.transaction.prepValueTx(
+        this.address, // address of onboarder
+        newUserAddress, // address of new user who gets onboarded
+        100000, // TODO fetch default onboarding amount of eth
+      )
+    ]).then(([ proxyTx, valueTx ]) => {
+      return { proxyTx, valueTx }
+    })
+  }
+
   public prepProxy (proxyOwner: string): Promise<any> {
     return this.transaction.prepFuncTx(
       this.address,
@@ -105,15 +103,17 @@ export class User {
     )
   }
 
-  public confirmOnboarding (rawTx: string): Promise<any> {
-    return this.signTx(rawTx)
-      .then(signedTx => this.transaction.relayTx(signedTx))
+  public confirmOnboarding (proxyTx: string, valueTx: string): Promise<any> {
+    return Promise.all([
+      this.signTx(proxyTx).then(signedTx => this.transaction.relayTx(signedTx)),
+      this.signTx(valueTx).then(signedTx => this.transaction.relayTx(signedTx))
+    ]).then(([ proxyTxId, valueTxId ]) => {
+      return { proxyTxId, valueTxId }
+    })
   }
 
-  public deployProxyContract (networkAddress: string): Promise<any> {
-    return this.transaction.prepareProxy(this.address, networkAddress)
-      .then(contract => this.signTx(contract.tx))
-      .then(signedTx => this.transaction.relayTx(signedTx))
+  public getProxyAddress (): Promise<string> {
+    return this.utils.fetchUrl(`users/${this.address}`).then(user => user.proxy)
   }
 
   public getBalance (): Promise<any> {
