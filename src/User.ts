@@ -157,6 +157,14 @@ export class User {
     })
   }
 
+  public showSeed (): Promise<string> {
+    return new Promise ((resolve, reject) => {
+      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+        if (err) reject(err)
+        resolve(this.keystore.getSeed(pwDerivedKey))
+      })
+    })
+  }
   private verifySignature (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))
     const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
