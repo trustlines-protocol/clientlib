@@ -44,7 +44,7 @@ export class Utils {
     return fetch(`${apiUrl}${url}`, options)
       .then(response => response.json())
       .then(json => json)
-      .catch(error => Promise.reject(error.json().message || error))
+      .catch(error => Promise.reject(error.message || error))
   }
 
   public buildUrl (baseUrl: string, validParameters: string[], parameters?: any): string {
