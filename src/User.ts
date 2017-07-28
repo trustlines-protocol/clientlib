@@ -73,7 +73,7 @@ export class User {
     return new Promise<any>((resolve, reject) => {
       this.load(serializedKeystore).then(() => {
         const params = [ username, this.address, this.pubKey ]
-        resolve(this.utils.createLink('onboarding', params))
+        resolve(this.utils.createLink('onboardingrequest', params))
       })
     })
   }

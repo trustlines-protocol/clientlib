@@ -2,10 +2,10 @@
 
 To trigger a trustlines process from outside of the app there are several links, that should find a corresponding route in the app. These links also represent the content of the corrensponding QRCodes
 
-### onboarding
+### onboarding request
 
 ```
-/onboarding/[username]/[address]/[pubkey]
+/onboardingrequest/[username]/[address]/[pubkey]
 
 [username]  name of the user to be onboarded
 [address]   externally owned address of the user to be onboarded
