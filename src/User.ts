@@ -165,6 +165,25 @@ export class User {
       })
     })
   }
+
+  public recoverFromSeed (seed: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.generateKeys(seed).then(keys => {
+        this.address = `0x${keys.address}`
+        this.pubKey = keys.pubKey
+        this.getProxyAddress().then(res => {
+          this.proxyAddress = res.proxyAddress
+          resolve({
+            address: this.address,
+            proxyAddress: this.proxyAddress,
+            pubKey: this.pubKey,
+            keystore: this.keystore.serialize()
+          })
+        })
+      }).catch(err => reject(err))
+    })
+  }
+
   private verifySignature (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))
     const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
@@ -177,16 +196,12 @@ export class User {
     return message.address === adr
   }
 
-  private computeProxyAddress (address: string): string {
-    return ethUtils.bufferToHex(ethUtils.generateAddress(address, 0))
-  }
-
-  private generateKeys (): Promise<any> {
+  private generateKeys (seed?: string): Promise<any> {
     return new Promise((resolve, reject) => {
       let secretSeed = lightwallet.keystore.generateRandomSeed()
       lightwallet.keystore.createVault({
         password: this._password,
-        seedPhrase: secretSeed,
+        seedPhrase: (seed) ? seed : secretSeed,
         hdPathString: this._signingPath
       }, (err: any, ks: any) => {
         if (err) reject(err)
