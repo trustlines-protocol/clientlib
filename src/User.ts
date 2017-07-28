@@ -22,9 +22,8 @@ export class User {
 
   public create (): Promise<object> {
     return new Promise((resolve, reject) => {
-      this.generateKeys().then((keys) => {
+      this.generateKeys().then(keys => {
         this.address = `0x${keys.address}`
-        this.proxyAddress = this.computeProxyAddress(keys.address)
         this.pubKey = keys.pubKey
         const createdUser = {
           address: this.address,
@@ -44,15 +43,16 @@ export class User {
       if (serializedKeystore) { // TODO: check if valid keystore
         this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
         this.address = `0x${this.keystore.getAddresses()[ 0 ]}`
-        this.proxyAddress = this.computeProxyAddress(this.address)
         this.pubKey = this.keystore.getPubKeys(this._encPath)[ 0 ]
-        const loadedUser = {
-          address: this.address,
-          proxyAddress: this.proxyAddress,
-          pubKey: this.pubKey,
-          keystore: this.keystore.serialize()
-        }
-        resolve(loadedUser)
+        this.getProxyAddress().then(res => {
+          this.proxyAddress = res.proxyAddress
+          resolve({
+            address: this.address,
+            proxyAddress: this.proxyAddress,
+            pubKey: this.pubKey,
+            keystore: this.keystore.serialize()
+          })
+        })
       } else {
         reject(new Error('No valid keystore'))
       }
@@ -115,7 +115,7 @@ export class User {
     })
   }
 
-  public getProxyAddress (): Promise<string> {
+  public getProxyAddress (): Promise<any> {
     return this.utils.fetchUrl(`proxys/${this.address}`)
   }
 
