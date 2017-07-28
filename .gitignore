@@ -1,7 +1,5 @@
 node_modules
 lib
-#lib-esm
-lib-esm/*.map
-lib-esm/*.d.ts
+lib-esm
 
 .idea

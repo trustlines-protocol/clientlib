@@ -5,6 +5,7 @@
   "main": "dist/TLNetwork.js",
   "scripts": {
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
+    "build:esm": "tsc -m es6 --outDir lib-esm",
     "lint": "tslint -c tslint.json './src/**'",
     "lint-fix": "tslint -c tslint.json --fix ./src/**"
   },
