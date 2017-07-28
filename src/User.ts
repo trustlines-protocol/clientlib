@@ -32,9 +32,7 @@ export class User {
           keystore: this.keystore.serialize()
         }
         resolve(createdUser)
-      }).catch((err) => {
-        reject(err)
-      })
+      }).catch(err => reject(err))
     })
   }
 
