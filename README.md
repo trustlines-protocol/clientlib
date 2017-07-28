@@ -27,8 +27,7 @@ import { TLNetwork } from "trustlines-network"
 
 ```
 
-## How to use
-### Initialization
+## Initialization
 ```javascript
 const config = {
   protocol: 'http',
@@ -42,14 +41,16 @@ const config = {
 const tlNetwork = new TLNetwork(config)
 ```
 
+## User
+
 ### Create new user
 `TLNetwork.user.create()`
 
 #### Returns
 `Promise<Object>`
 - `address` - address of externally owned account
-- `proxyAddress` - address of proxy contract (precomputed)
-- `keystore` - stringified [eth-lightwallet]() keystore object `IMPORTANT: has to be stored locally on client`
+- `pubKey` - public key
+- `keystore` - serialized [eth-lightwallet]() keystore object `IMPORTANT: has to be stored locally on client`
 
 #### Example
 ```javascript
@@ -67,8 +68,9 @@ tlNetwork.user.create().then(newUser => {
 #### Returns
 `Promise<Object>`
 - `address` - address of externally owned account
-- `proxyAddress` - address of proxy contract (precomputed)
-- `keystore` - stringified [eth-lightwallet]() keystore object
+- `pubKey` - public key of user
+- `proxyAddress` - address of proxy contract
+- `keystore` - serialized [eth-lightwallet]() keystore object
 
 #### Example
 ```javascript
@@ -86,7 +88,7 @@ Called from a new user who wants to *get onboarded*
 
 #### Parameters
 - `username` - name of user who wants to get onboarded
-- `keystore` - serialized keystore object
+- `keystore` - serialized [eth-lightwallet]() keystore object
 
 #### Returns
 `Promise<string>`
@@ -125,6 +127,27 @@ Called from an user who *onboards* another user
 `Promise<Object>`
 - `proxyTxId` - id of proxy contract creation transaction
 - `valueTxId` - id of eth transfer transaction
+
+### Recover user from seed
+`TLNetwork.user.recoverFromSeed(seed)`
+
+#### Parameters
+- `seed` - 12 word seed string
+
+#### Returns
+`Promise<Object>`
+- `address` - address of recovered externally owned account
+- `pubKey` - public key of recovered user
+- `proxyAddress` - address of proxy contract
+- `keystore` - serialized [eth-lightwallet]() keystore object
+
+### Reveal seed words
+`TLNetwork.user.showSeed()`
+
+#### Returns
+`Promise<string>` - 12 word seed string
+
+## Currency Network
 
 ### Get all registered currency networks
 `TLNetwork.currencyNetwork.getAll()`
@@ -205,6 +228,8 @@ tlNetwork.currencyNetwork.getUserOverview('0xabc123bb...', '0xb33f33...').then(o
     console.log('Overview for user 0xb33f33... in currency network 0xabc123bb...', overview)
 })
 ```
+
+## Trustline
 
 ### Get trustlines of user in currency network
 `TLNetwork.trustline.getAll(networkAddress)`
@@ -334,6 +359,8 @@ tlNetwork.trustline.getUpdates('0xabc123bb...', filter).then(updates => {
 `Promise<object>`
 - `txId` - transaction hash
 
+## Payment
+
 ### Get transfers
 `TLNetwork.payment.get(networkAddress, filter)`
 
@@ -381,6 +408,8 @@ tlNetwork.payment.get('0xabc123bb...', filter).then(transfers => {
 #### Returns
 `Promise<object>`
 - `txId` - transaction hash
+
+## Events
 
 ### Get events
 `TLNetwork.event.get(network, filter)`
