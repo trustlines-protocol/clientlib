@@ -10,7 +10,8 @@ One event entity has properties:
   eventtype,      // one on the eventtypes defined below
   address,        // (proxy?)address of the counter party
   direction,      // send | receive 
-  status          // e.g. pending | done ... 
+  status,         // e.g. pending | done ... 
+  amount
 }
 ```
 
