@@ -8,9 +8,10 @@ One event entity has properties:
   timestamp,      // unix timestamp
   subject,        // (optional)
   eventtype,      // one on the eventtypes defined below
-  address,        // network address of the counter party
+  address,        // (proxy?)address of the counter party
   direction,      // send | receive 
-  status          // e.g. pending | done ... 
+  status,         // e.g. pending | done ... 
+  amount
 }
 ```
 
