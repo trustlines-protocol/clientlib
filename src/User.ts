@@ -184,6 +184,13 @@ export class User {
     })
   }
 
+  public createLink (username: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const params = [ this.proxyAddress, username ]
+      resolve(this.utils.createLink('contact', params))
+    })
+  }
+
   private verifySignature (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))
     const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
