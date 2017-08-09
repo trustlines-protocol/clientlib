@@ -31,3 +31,14 @@ To trigger a trustlines process from outside of the app there are several links,
 [address]   address that will receive the transfer
 [username]  proposition of a username
 ```
+
+### cheques
+
+```
+/cheque/[network]/[amount]/[signature]/([address])
+
+[network]   address of the network the transfer will be issued in
+[amount]    amount that will be transfered in the currency of the network
+[signature] the issuers signature
+[address]   optional: the receivers address
+```
