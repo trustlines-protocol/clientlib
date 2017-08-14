@@ -49,329 +49,900 @@
   ],
   "CurrencyNetwork": [
     {
-      "constant": true,
-      "inputs": [
+      "constant":true,
+      "inputs":[
         {
-          "name": "_A",
-          "type": "address"
+          "name":"_owner",
+          "type":"address"
         },
         {
-          "name": "_B",
-          "type": "address"
+          "name":"_spender",
+          "type":"address"
         }
       ],
-      "name": "trustline",
-      "outputs": [
+      "name":"getCreditline",
+      "outputs":[
         {
-          "name": "creditlineAB",
-          "type": "int256"
+          "name":"creditline",
+          "type":"uint256"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_A",
+          "type":"address"
         },
         {
-          "name": "creditlineBA",
-          "type": "int256"
+          "name":"_B",
+          "type":"address"
+        }
+      ],
+      "name":"trustline",
+      "outputs":[
+        {
+          "name":"creditlineAB",
+          "type":"int256"
         },
         {
-          "name": "balanceAB",
-          "type": "int256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "name",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "totalSupply",
-      "outputs": [
-        {
-          "name": "supply",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_user",
-          "type": "address"
-        }
-      ],
-      "name": "friends",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address[]"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "_spender",
-          "type": "address"
+          "name":"creditlineBA",
+          "type":"int256"
         },
         {
-          "name": "_receiver",
-          "type": "address"
+          "name":"balanceAB",
+          "type":"int256"
         }
       ],
-      "name": "spendableTo",
-      "outputs": [
-        {
-          "name": "remaining",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
+      "payable":false,
+      "type":"function"
     },
     {
-      "constant": true,
-      "inputs": [],
-      "name": "decimals",
-      "outputs": [
+      "constant":true,
+      "inputs":[
+
+      ],
+      "name":"getUsers",
+      "outputs":[
         {
-          "name": "",
-          "type": "uint8"
+          "name":"",
+          "type":"address[]"
         }
       ],
-      "payable": false,
-      "type": "function"
+      "payable":false,
+      "type":"function"
     },
     {
-      "constant": false,
-      "inputs": [
+      "constant":true,
+      "inputs":[
+
+      ],
+      "name":"name",
+      "outputs":[
         {
-          "name": "_to",
-          "type": "address"
-        },
-        {
-          "name": "_value",
-          "type": "uint256"
-        },
-        {
-          "name": "_path",
-          "type": "address[]"
+          "name":"",
+          "type":"bytes32"
         }
       ],
-      "name": "mediatedTransfer",
-      "outputs": [
-        {
-          "name": "success",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "type": "function"
+      "payable":false,
+      "type":"function"
     },
     {
-      "constant": true,
-      "inputs": [
+      "constant":false,
+      "inputs":[
         {
-          "name": "_owner",
-          "type": "address"
+          "name":"_debtor",
+          "type":"address"
+        },
+        {
+          "name":"_ir",
+          "type":"uint16"
         }
       ],
-      "name": "balanceOf",
-      "outputs": [
+      "name":"updateInterestRate",
+      "outputs":[
         {
-          "name": "",
-          "type": "uint256"
+          "name":"success",
+          "type":"bool"
         }
       ],
-      "payable": false,
-      "type": "function"
+      "payable":false,
+      "type":"function"
     },
     {
-      "constant": true,
-      "inputs": [],
-      "name": "symbol",
-      "outputs": [
+      "constant":false,
+      "inputs":[
         {
-          "name": "",
-          "type": "string"
+          "name":"_spender",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint256"
         }
       ],
-      "payable": false,
-      "type": "function"
+      "name":"approve",
+      "outputs":[
+
+      ],
+      "payable":false,
+      "type":"function"
     },
     {
-      "constant": true,
-      "inputs": [
+      "constant":false,
+      "inputs":[
         {
-          "name": "_spender",
-          "type": "address"
+          "name":"_debtor",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint32"
         }
       ],
-      "name": "spendable",
-      "outputs": [
-        {
-          "name": "spendable",
-          "type": "uint256"
-        }
+      "name":"updateCreditline",
+      "outputs":[
+
       ],
-      "payable": false,
-      "type": "function"
+      "payable":false,
+      "type":"function"
     },
     {
-      "constant": false,
-      "inputs": [
+      "constant":true,
+      "inputs":[
         {
-          "name": "_to",
-          "type": "address"
+          "name":"_A",
+          "type":"address"
         },
         {
-          "name": "_value",
-          "type": "uint256"
+          "name":"_B",
+          "type":"address"
         }
       ],
-      "name": "transfer",
-      "outputs": [
+      "name":"getInterestRate",
+      "outputs":[
         {
-          "name": "success",
-          "type": "bool"
+          "name":"",
+          "type":"uint16"
         }
       ],
-      "payable": false,
-      "type": "function"
+      "payable":false,
+      "type":"function"
     },
     {
-      "constant": false,
-      "inputs": [
+      "constant":true,
+      "inputs":[
+
+      ],
+      "name":"totalSupply",
+      "outputs":[
         {
-          "name": "_debtor",
-          "type": "address"
-        },
-        {
-          "name": "_value",
-          "type": "uint256"
+          "name":"supply",
+          "type":"uint256"
         }
       ],
-      "name": "updateCreditline",
-      "outputs": [
-        {
-          "name": "success",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "type": "function"
+      "payable":false,
+      "type":"function"
     },
     {
-      "constant": true,
-      "inputs": [],
-      "name": "users",
-      "outputs": [
+      "constant":false,
+      "inputs":[
         {
-          "name": "",
-          "type": "address[]"
+          "name":"_from",
+          "type":"address"
+        },
+        {
+          "name":"_to",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint256"
         }
       ],
-      "payable": false,
-      "type": "function"
+      "name":"transferFrom",
+      "outputs":[
+
+      ],
+      "payable":false,
+      "type":"function"
     },
     {
-      "inputs": [
+      "constant":false,
+      "inputs":[
         {
-          "name": "tokenName",
-          "type": "string"
+          "name":"_from",
+          "type":"address"
         },
         {
-          "name": "tokenSymbol",
-          "type": "string"
+          "name":"_to",
+          "type":"address"
         },
         {
-          "name": "decimalUnits",
-          "type": "uint8"
+          "name":"_value",
+          "type":"uint32"
+        },
+        {
+          "name":"_maxFee",
+          "type":"uint16"
+        },
+        {
+          "name":"_path",
+          "type":"address[]"
         }
       ],
-      "payable": false,
-      "type": "constructor"
+      "name":"prepareFrom",
+      "outputs":[
+
+      ],
+      "payable":false,
+      "type":"function"
     },
     {
-      "anonymous": false,
-      "inputs": [
+      "constant":true,
+      "inputs":[
         {
-          "indexed": true,
-          "name": "_creditor",
-          "type": "address"
+          "name":"_spender",
+          "type":"address"
         },
         {
-          "indexed": true,
-          "name": "_debtor",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "_value",
-          "type": "uint256"
+          "name":"_receiver",
+          "type":"address"
         }
       ],
-      "name": "CreditlineUpdate",
-      "type": "event"
+      "name":"spendableTo",
+      "outputs":[
+        {
+          "name":"remaining",
+          "type":"uint256"
+        }
+      ],
+      "payable":false,
+      "type":"function"
     },
     {
-      "anonymous": false,
-      "inputs": [
+      "constant":false,
+      "inputs":[
         {
-          "indexed": true,
-          "name": "_from",
-          "type": "address"
+          "name":"_from",
+          "type":"address"
         },
         {
-          "indexed": true,
-          "name": "_to",
-          "type": "address"
+          "name":"_to",
+          "type":"address"
         },
         {
-          "indexed": false,
-          "name": "_value",
-          "type": "int256"
+          "name":"_value",
+          "type":"uint32"
         }
       ],
-      "name": "BalanceUpdate",
-      "type": "event"
+      "name":"mediatedTransfer",
+      "outputs":[
+        {
+          "name":"success",
+          "type":"bool"
+        }
+      ],
+      "payable":false,
+      "type":"function"
     },
     {
-      "anonymous": false,
-      "inputs": [
+      "constant":true,
+      "inputs":[
+
+      ],
+      "name":"decimals",
+      "outputs":[
         {
-          "indexed": true,
-          "name": "_from",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "_to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "_value",
-          "type": "uint256"
+          "name":"",
+          "type":"uint8"
         }
       ],
-      "name": "Transfer",
-      "type": "event"
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_sender",
+          "type":"address"
+        },
+        {
+          "name":"_receiver",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint32"
+        }
+      ],
+      "name":"deductedTransferFees",
+      "outputs":[
+        {
+          "name":"fees",
+          "type":"uint16"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_user",
+          "type":"address"
+        }
+      ],
+      "name":"getFriends",
+      "outputs":[
+        {
+          "name":"",
+          "type":"address[]"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_value",
+          "type":"uint32"
+        }
+      ],
+      "name":"capacityFee",
+      "outputs":[
+        {
+          "name":"fees",
+          "type":"uint16"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_owner",
+          "type":"address"
+        }
+      ],
+      "name":"balanceOf",
+      "outputs":[
+        {
+          "name":"",
+          "type":"uint256"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_sender",
+          "type":"address"
+        },
+        {
+          "name":"_receiver",
+          "type":"address"
+        },
+        {
+          "name":"_mtime",
+          "type":"uint16"
+        }
+      ],
+      "name":"occurredInterest",
+      "outputs":[
+        {
+          "name":"",
+          "type":"int256"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+
+      ],
+      "name":"symbol",
+      "outputs":[
+        {
+          "name":"",
+          "type":"bytes3"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_from",
+          "type":"address"
+        },
+        {
+          "name":"_to",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint32"
+        },
+        {
+          "name":"_expiresOn",
+          "type":"uint16"
+        }
+      ],
+      "name":"shaOfValue",
+      "outputs":[
+        {
+          "name":"data",
+          "type":"bytes32"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_spender",
+          "type":"address"
+        }
+      ],
+      "name":"spendable",
+      "outputs":[
+        {
+          "name":"spendable",
+          "type":"uint256"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":false,
+      "inputs":[
+        {
+          "name":"_to",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint256"
+        }
+      ],
+      "name":"transfer",
+      "outputs":[
+
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+
+      ],
+      "name":"calculateMtime",
+      "outputs":[
+        {
+          "name":"mtime",
+          "type":"uint16"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_A",
+          "type":"address"
+        },
+        {
+          "name":"_B",
+          "type":"address"
+        }
+      ],
+      "name":"getFeesOutstanding",
+      "outputs":[
+        {
+          "name":"fees",
+          "type":"int256"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":false,
+      "inputs":[
+        {
+          "name":"_creditor",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint32"
+        }
+      ],
+      "name":"acceptCreditline",
+      "outputs":[
+        {
+          "name":"success",
+          "type":"bool"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_A",
+          "type":"address"
+        },
+        {
+          "name":"_B",
+          "type":"address"
+        }
+      ],
+      "name":"getBalance",
+      "outputs":[
+        {
+          "name":"balance",
+          "type":"int256"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":false,
+      "inputs":[
+        {
+          "name":"_to",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint32"
+        }
+      ],
+      "name":"mediatedTransfer",
+      "outputs":[
+        {
+          "name":"success",
+          "type":"bool"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_owner",
+          "type":"address"
+        },
+        {
+          "name":"_spender",
+          "type":"address"
+        }
+      ],
+      "name":"allowance",
+      "outputs":[
+        {
+          "name":"",
+          "type":"uint256"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":false,
+      "inputs":[
+        {
+          "name":"_from",
+          "type":"address"
+        },
+        {
+          "name":"_to",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint32"
+        },
+        {
+          "name":"_expiresOn",
+          "type":"uint16"
+        },
+        {
+          "name":"_signature",
+          "type":"bytes"
+        }
+      ],
+      "name":"cashCheque",
+      "outputs":[
+        {
+          "name":"success",
+          "type":"bool"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":false,
+      "inputs":[
+        {
+          "name":"_to",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint32"
+        },
+        {
+          "name":"_maxFee",
+          "type":"uint16"
+        },
+        {
+          "name":"_path",
+          "type":"address[]"
+        }
+      ],
+      "name":"prepare",
+      "outputs":[
+
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_A",
+          "type":"address"
+        },
+        {
+          "name":"_B",
+          "type":"address"
+        },
+        {
+          "name":"_value",
+          "type":"uint32"
+        }
+      ],
+      "name":"imbalanceFee",
+      "outputs":[
+        {
+          "name":"fees",
+          "type":"uint16"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "constant":true,
+      "inputs":[
+        {
+          "name":"_A",
+          "type":"address"
+        },
+        {
+          "name":"_B",
+          "type":"address"
+        }
+      ],
+      "name":"getAccount",
+      "outputs":[
+        {
+          "name":"",
+          "type":"int256"
+        },
+        {
+          "name":"",
+          "type":"int256"
+        },
+        {
+          "name":"",
+          "type":"int256"
+        },
+        {
+          "name":"",
+          "type":"int256"
+        },
+        {
+          "name":"",
+          "type":"int256"
+        },
+        {
+          "name":"",
+          "type":"int256"
+        },
+        {
+          "name":"",
+          "type":"int256"
+        },
+        {
+          "name":"",
+          "type":"int256"
+        }
+      ],
+      "payable":false,
+      "type":"function"
+    },
+    {
+      "inputs":[
+        {
+          "name":"_tokenName",
+          "type":"bytes32"
+        },
+        {
+          "name":"_tokenSymbol",
+          "type":"bytes3"
+        },
+        {
+          "name":"_eternalStorage",
+          "type":"address"
+        }
+      ],
+      "payable":false,
+      "type":"constructor"
+    },
+    {
+      "anonymous":false,
+      "inputs":[
+        {
+          "indexed":false,
+          "name":"_owner",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_spender",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_value",
+          "type":"uint256"
+        }
+      ],
+      "name":"Approval",
+      "type":"event"
+    },
+    {
+      "anonymous":false,
+      "inputs":[
+        {
+          "indexed":false,
+          "name":"_from",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_to",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_value",
+          "type":"uint256"
+        }
+      ],
+      "name":"Transfer",
+      "type":"event"
+    },
+    {
+      "anonymous":false,
+      "inputs":[
+        {
+          "indexed":false,
+          "name":"_creditor",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_debtor",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_value",
+          "type":"uint32"
+        }
+      ],
+      "name":"CreditlineUpdateRequest",
+      "type":"event"
+    },
+    {
+      "anonymous":false,
+      "inputs":[
+        {
+          "indexed":false,
+          "name":"_creditor",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_debtor",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_value",
+          "type":"uint32"
+        }
+      ],
+      "name":"CreditlineUpdate",
+      "type":"event"
+    },
+    {
+      "anonymous":false,
+      "inputs":[
+        {
+          "indexed":false,
+          "name":"_sender",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_receiver",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_value",
+          "type":"uint32"
+        }
+      ],
+      "name":"PathPrepared",
+      "type":"event"
+    },
+    {
+      "anonymous":false,
+      "inputs":[
+        {
+          "indexed":false,
+          "name":"_from",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_to",
+          "type":"address"
+        },
+        {
+          "indexed":false,
+          "name":"_value",
+          "type":"int256"
+        }
+      ],
+      "name":"BalanceUpdate",
+      "type":"event"
     }
   ]
 }
