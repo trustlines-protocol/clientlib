@@ -64,4 +64,21 @@ export class Payment {
       return this.utils.createLink('cheque', params)
     })
   }
+
+  public prepCashCheque (
+    network: string,
+    value: number,
+    expiresOn: number,
+    to: string,
+    signature: string
+  ): Promise<any> {
+    return this.transaction.prepFuncTx(
+      this.user.proxyAddress,
+      network,
+      'CurrencyNetwork',
+      'cashCheque',
+      [ this.user.proxyAddress, to, value, expiresOn, signature ]
+    )
+  }
+
 }
