@@ -35,10 +35,11 @@ To trigger a trustlines process from outside of the app there are several links,
 ### cheques
 
 ```
-/cheque/[network]/[amount]/[signature]/([address])
+/cheque/[network]/[amount]/[expiresOn]/[signature]/([address])
 
 [network]   address of the network the transfer will be issued in
 [amount]    amount that will be transfered in the currency of the network
+[expiresOn] days til expiration of cheque
 [signature] the issuers signature
 [address]   optional: the receivers address
 ```
