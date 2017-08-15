@@ -5,9 +5,7 @@ import { Transaction } from './Transaction'
 import * as ethUtils from 'ethereumjs-util'
 import { Observable } from 'rxjs/Observable'
 
-
 export class User {
-
   public address: string
   public proxyAddress: string
   public pubKey: string
@@ -126,25 +124,37 @@ export class User {
   }
 
   public encrypt (msg: string, theirPubKey: string): Promise<any> {
-    return new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) reject(err)
-        resolve(lightwallet.encryption.multiEncryptString(
-          this.keystore,
-          pwDerivedKey,
-          msg,
-          this.pubKey,
-          [ theirPubKey ],
-          this._encPath
-        ))
+        if (err) {
+          reject(err)
+          return false
+        }
+        try {
+          const encrypted = lightwallet.encryption.multiEncryptString(
+            this.keystore,
+            pwDerivedKey,
+            msg,
+            this.pubKey,
+            [ theirPubKey ],
+            this._encPath
+          )
+          resolve(encrypted)
+        } catch (err) {
+          console.log(err)
+          reject(err)
+        }
       })
     })
   }
 
   public decrypt (encMsg: any, theirPubKey: string): Promise<any> {
-    return new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) reject(err)
+        if (err) {
+          reject(err)
+          return false
+        }
         resolve(lightwallet.encryption.multiDecryptString(
           this.keystore,
           pwDerivedKey,
@@ -158,9 +168,12 @@ export class User {
   }
 
   public showSeed (): Promise<string> {
-    return new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) reject(err)
+        if (err) {
+          reject(err)
+          return false
+        }
         resolve(this.keystore.getSeed(pwDerivedKey))
       })
     })
@@ -211,12 +224,18 @@ export class User {
         seedPhrase: (seed) ? seed : secretSeed,
         hdPathString: this._signingPath
       }, (err: any, ks: any) => {
-        if (err) reject(err)
+        if (err) {
+          reject(err)
+          return false
+        }
         this.keystore = ks
         ks.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
           if (err) reject(err)
           this.keystore.generateNewAddress(pwDerivedKey)
-          this.keystore.addHdDerivationPath(this._encPath, pwDerivedKey, {curve: 'curve25519', purpose: 'asymEncrypt'})
+          this.keystore.addHdDerivationPath(this._encPath, pwDerivedKey, {
+            curve: 'curve25519',
+            purpose: 'asymEncrypt'
+          })
           this.keystore.generateNewEncryptionKeys(pwDerivedKey, 1, this._encPath)
           const address = this.keystore.getAddresses()[ 0 ]
           const pubKey = this.keystore.getPubKeys(this._encPath)[ 0 ]
