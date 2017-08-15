@@ -79,4 +79,12 @@ export class Payment {
     )
   }
 
+  public getCashedCheques (network: string, filter?: object): Promise<any> {
+    const mergedFilter = Object.assign({ type: 'ChequeCashed' }, filter)
+    return this.event.get(network, mergedFilter)
+      .then(transfers =>
+        transfers.map(t =>
+          Object.assign({}, { blockNumber: t.blockNumber }, t.event)))
+  }
+
 }
