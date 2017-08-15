@@ -22,8 +22,8 @@ export class TLNetwork {
   public event: Event
 
   constructor (config: any = {}) {
-    const { protocol, host, port, path,tokenAddress, pollInterval, useWebSockets, wsProtocol } = config
-    this.configuration = new Configuration(protocol, host, port, path, pollInterval, useWebSockets, wsProtocol)
+    const { protocol, host, port, path, tokenAddress, pollInterval, useMultiple, useWebSockets, wsProtocol } = config
+    this.configuration = new Configuration(protocol, host, port, path, pollInterval, useMultiple, useWebSockets, wsProtocol)
     this.utils = new Utils(this.configuration)
     this.transaction = new Transaction(this.utils)
     this.currencyNetwork = new CurrencyNetwork(this.utils)

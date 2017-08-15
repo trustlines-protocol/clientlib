@@ -10,6 +10,8 @@ const ReconnectingWebSocket = require('reconnecting-websocket')
 
 export class Utils {
 
+  private counter = -1
+
   constructor (private configuration: Configuration) {
   }
 
@@ -40,8 +42,8 @@ export class Utils {
   }
 
   public fetchUrl (url: string, options?: object): Promise<any> {
-    const { apiUrl } = this.configuration
-    return fetch(`${apiUrl}${url}`, options)
+    const { apiUrl, useMultiple, whitelist } = this.configuration
+    return fetch(`${(useMultiple) ? this.roundRobin(whitelist) : apiUrl}${url}`, options)
       .then(response => response.json())
       .then(json => json)
       .catch(error => Promise.reject(error.message || error))
@@ -64,6 +66,11 @@ export class Utils {
     const base = `http://trustlines.network/v1/${pre}/`
     const link = parameters.reduce((result, param) => `${result}/${param}`)
     return base + link
+  }
+
+  private roundRobin (list: string[]): string {
+    this.counter++
+    return `${list[this.counter % list.length]}/`
   }
 
 }

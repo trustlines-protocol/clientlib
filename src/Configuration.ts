@@ -3,6 +3,13 @@ export class Configuration {
   public apiUrl: string
   // url of websocket api
   public wsApiUrl: string
+  // whitelist of relay servers
+  public whitelist = [
+    'http://localhost:5000',
+    'http://localhost:5001',
+    'http://localhost:5002',
+    'http://localhost:5003'
+  ]
 
   constructor (// protocol of the REST relay server
     public protocol: string = 'http',
@@ -14,6 +21,8 @@ export class Configuration {
     public path: string = '',
     // poll interval
     public pollInterval: number = 500,
+    // use multiple relay servers?
+    public useMultiple: boolean = false,
     // use websockets?
     public useWebSockets: boolean = false,
     // protocol of the REST relay server
