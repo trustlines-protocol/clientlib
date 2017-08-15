@@ -36,9 +36,9 @@ export class Payment {
   }
 
   public get (network: string, filter?: object): Promise<object> {
-    const mergedFilter = Object.assign({type: 'Transfer'}, filter)
+    const mergedFilter = Object.assign({ type: 'Transfer' }, filter)
     return this.event.get(network, mergedFilter)
-      .then(transfers => transfers.map(t => Object.assign({}, {blockNumber: t.blockNumber}, t.event)))
+      .then(transfers => transfers.map(t => Object.assign({}, { blockNumber: t.blockNumber }, t.event)))
   }
 
   public confirm (rawTx: string): Promise<string> {
@@ -47,31 +47,29 @@ export class Payment {
 
   public createRequest (network: string, amount: number, subject: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const params = [ network, this.user.proxyAddress , amount, subject ]
+      const params = [ network, this.user.proxyAddress, amount, subject ]
       resolve(this.utils.createLink('paymentrequest', params))
     })
   }
 
-  public issueCheque (
-    network: string,
-    value: number,
-    expiresOn: number,
-    to: string // TODO receiver address optional?
+  public issueCheque (network: string,
+                      value: number,
+                      expiresOn: number,
+                      to: string // TODO receiver address optional?
   ): Promise<any> {
     const msg = this.user.proxyAddress + to + value + expiresOn
     return this.user.signMsg(msg).then(signature => {
-      const params = [ network, value, expiresOn, signature, to ]
+      const params = [ network, value, expiresOn, signature ]
+      if (to) { params.push(to) }
       return this.utils.createLink('cheque', params)
     })
   }
 
-  public prepCashCheque (
-    network: string,
-    value: number,
-    expiresOn: number,
-    to: string,
-    signature: string
-  ): Promise<any> {
+  public prepCashCheque (network: string,
+                         value: number,
+                         expiresOn: number,
+                         to: string,
+                         signature: string): Promise<any> {
     return this.transaction.prepFuncTx(
       this.user.proxyAddress,
       network,
