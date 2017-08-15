@@ -52,4 +52,33 @@ export class Payment {
     })
   }
 
+  public issueCheque (
+    network: string,
+    value: number,
+    expiresOn: number,
+    to: string // TODO receiver address optional?
+  ): Promise<any> {
+    const msg = this.user.proxyAddress + to + value + expiresOn
+    return this.user.signMsg(msg).then(signature => {
+      const params = [ network, value, expiresOn, signature, to ]
+      return this.utils.createLink('cheque', params)
+    })
+  }
+
+  public prepCashCheque (
+    network: string,
+    value: number,
+    expiresOn: number,
+    to: string,
+    signature: string
+  ): Promise<any> {
+    return this.transaction.prepFuncTx(
+      this.user.proxyAddress,
+      network,
+      'CurrencyNetwork',
+      'cashCheque',
+      [ this.user.proxyAddress, to, value, expiresOn, signature ]
+    )
+  }
+
 }

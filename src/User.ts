@@ -67,6 +67,19 @@ export class User {
     })
   }
 
+  public signMsg (rawMsg: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+        if (err) {
+          reject(err)
+        } else {
+          const signature = lightwallet.signing.signMsg(this.keystore, pwDerivedKey, rawMsg, this.address)
+          resolve(lightwallet.signing.concatSig(signature))
+        }
+      })
+    })
+  }
+
   public createOnboardingMsg (username: string, serializedKeystore: string): Promise<object> {
     return new Promise<any>((resolve, reject) => {
       this.load(serializedKeystore).then(() => {
