@@ -2,8 +2,8 @@ import { Utils } from './Utils'
 import lightwallet from 'eth-lightwallet'
 import * as ethUtils from 'ethereumjs-util'
 
-// declare let lightwallet: any
-const ABI = require('../abis.json')
+declare let lightwallet: any
+const CONTRACTS = require('../contracts.json')
 
 export class Transaction {
 
@@ -26,7 +26,7 @@ export class Transaction {
         to: contractAddress
       }
       const txObj = {
-        rawTx: lightwallet.txutils.functionTx(ABI[contractName], functionName, parameters, txOptions),
+        rawTx: lightwallet.txutils.functionTx(CONTRACTS[contractName].abi, functionName, parameters, txOptions),
         ethFees: 200000 * txOptions.gasPrice // TODO set gas dynamically according to method
       }
       return txObj
