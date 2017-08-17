@@ -50,18 +50,18 @@ export class Transaction {
       })
   }
 
-  public relayTx (data: string): Promise<any> {
+  public relayTx (rawTx: string): Promise<any> {
     const headers = new Headers({
       'Content-Type': 'application/json'
     })
     const options = {
       method: 'POST',
       headers,
-      body: JSON.stringify({ data: `0x${data}` })
+      body: JSON.stringify({ rawTransaction: `0x${rawTx}` })
     }
     return this.utils.fetchUrl('relay', options).then(() => {
       return {
-        txId: ethUtils.bufferToHex(ethUtils.rlphash(data))
+        txId: ethUtils.bufferToHex(ethUtils.rlphash(rawTx))
       }
     })
   }
