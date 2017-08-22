@@ -61,9 +61,13 @@ export class Transaction {
     }
     return this.utils.fetchUrl('relay', options).then(() => {
       return {
-        txId: ethUtils.bufferToHex(ethUtils.rlphash(rawTx))
+        txId: ethUtils.bufferToHex(ethUtils.rlphash(rawTx)) // FIXME retuns wrong tx id
       }
     })
+  }
+
+  public getBlockNumber (): Promise<any> {
+    return this.utils.fetchUrl('blocknumber')
   }
 
   private getTxInfos (address: string): Promise<any> {
