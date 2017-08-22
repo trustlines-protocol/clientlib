@@ -22,14 +22,14 @@ export class Trustline {
     )
   }
 
-  public prepareAccept (network: string, creditor: string): Promise<string> {
+  public prepareAccept (network: string, creditor: string, value: number): Promise<string> {
     const { transaction, user } = this
     return transaction.prepFuncTx(
       user.proxyAddress,
       network,
       'CurrencyNetwork',
       'acceptCreditline',
-      [ creditor ]
+      [ creditor, value ]
     )
   }
 
