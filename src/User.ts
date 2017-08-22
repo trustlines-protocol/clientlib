@@ -125,7 +125,11 @@ export class User {
   }
 
   public getProxyAddress (): Promise<any> {
-    return this.utils.fetchUrl(`proxys/${this.address}`)
+    // return this.utils.fetchUrl(`proxys/${this.address}`)
+    // FIXME: proxy address same as externally owned address for testing
+    return new Promise((resolve, reject) => {
+      resolve({ 'proxyAddress': this.address })
+    })
   }
 
   public getBalance (): Promise<any> {
