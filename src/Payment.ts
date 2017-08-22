@@ -14,35 +14,78 @@ export class Payment {
   }
 
   public prepare (networkAddress: string, receiver: string, value: number): Promise<any> {
-    return this.getPath(networkAddress, this.user.address, receiver, value)
-      .then((response) => {
+    return new Promise((resolve, reject) => {
+      this.getPath(networkAddress, this.user.address, receiver, value)
+      .then(response => {
         if (response.path.length > 0) {
-          return this.transaction.prepFuncTx(
-            this.user.proxyAddress,
-            networkAddress,
-            'CurrencyNetwork',
-            'mediatedTransfer',
-            [ receiver, value, response.path.slice(1) ]
-          ).then(txObject => Object.assign(txObject, response))
+          Promise.all([
+            this.transaction.prepFuncTx(
+              this.user.proxyAddress,
+              networkAddress,
+              'CurrencyNetwork',
+              'prepare',
+              [ receiver, response.maxFee, response.path.slice(1) ]
+            ),
+            this.transaction.prepFuncTx(
+              this.user.proxyAddress,
+              networkAddress,
+              'CurrencyNetwork',
+              'transfer',
+              [ receiver, value, response.maxFee, response.path.slice(1) ],
+              true // TODO used to get right nonce
+            )
+          ]).then(txs => {
+            resolve({
+              rawPrepTx: txs[0].rawTx,
+              rawTransferTx: txs[1].rawTx,
+              ethFees: txs[0].ethFees + txs[1].ethFees,
+              maxFee: response.maxFee,
+              path: response.path
+            })
+          })
         } else {
-          return Promise.reject<string>('Could not find a path with enough capacity')
+          reject('Could not find a path with enough capacity')
         }
       })
+    })
   }
 
   public getPath (network: string, accountA: string, accountB: string, value: number): Promise<any> {
-    const url = `networks/${network}/users/${accountA}/path/${accountB}`
+    const url = `networks/${network}/users/${accountA}/path/${accountB}/${value}`
     return this.utils.fetchUrl(url)
   }
 
   public get (network: string, filter?: object): Promise<object> {
     const mergedFilter = Object.assign({ type: 'Transfer' }, filter)
     return this.event.get(network, mergedFilter)
-      .then(transfers => transfers.map(t => Object.assign({}, { blockNumber: t.blockNumber }, t.event)))
   }
 
-  public confirm (rawTx: string): Promise<string> {
-    return this.user.signTx(rawTx).then(signedTx => this.transaction.relayTx(signedTx))
+  public confirm (network: string, receiver: string, rawPrepTx: string, rawTransTx: string): Promise<string> {
+    return this.user.signTx(rawPrepTx).then(signedTx =>
+      this.transaction.relayTx(signedTx)).then(() =>
+      this.transaction.getBlockNumber()).then(res =>
+        this.checkPathPrepared(network, receiver, rawTransTx, res.blocknumber))
+  }
+
+  private checkPathPrepared (
+    network: string,
+    receiver: string,
+    transferTx: string,
+    blockNumber: number
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const sub = this.event.createObservable(network, {type: 'PathPrepared', fromBlock: blockNumber - 5}).subscribe(events => {
+        if (events.length > 0) {
+          const latest = events[events.length - 1]
+          if ((latest.blockNumber >= blockNumber) && (latest._receiver === receiver)) {
+            sub.unsubscribe()
+            this.user.signTx(transferTx).then(signedTx =>
+              this.transaction.relayTx(signedTx)
+            ).then((txId) => resolve(txId))
+          }
+        }
+      })
+    })
   }
 
   public createRequest (network: string, amount: number, subject: string): Promise<string> {
@@ -77,6 +120,10 @@ export class Payment {
       'cashCheque',
       [ this.user.proxyAddress, to, value, expiresOn, signature ]
     )
+  }
+
+  public confirmCashCheque (rawTx: any): Promise<string> {
+    return this.user.signTx(rawTx).then(signedTx => this.transaction.relayTx(signedTx))
   }
 
   public getCashedCheques (network: string, filter?: object): Promise<any> {

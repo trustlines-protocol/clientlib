@@ -15,14 +15,15 @@ export class Transaction {
     contractAddress: string,
     contractName: string,
     functionName: string,
-    parameters: any[]
+    parameters: any[],
+    multi = false // TODO come up with more elegant way
   ): Promise<any> {
     return this.getTxInfos(userAddress).then(txinfos => {
       const txOptions = {
         gasPrice: txinfos.gasPrice, // TODO let user set gas price
-        gasLimit: 1000000, // TODO let user set gas limit
+        gasLimit: 2000000, // TODO let user set gas limit
         value: 0,
-        nonce: txinfos.nonce,
+        nonce: (!multi) ? txinfos.nonce : txinfos.nonce + 1,
         to: contractAddress
       }
       const txObj = {
