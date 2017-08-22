@@ -192,6 +192,18 @@ export class User {
     })
   }
 
+  public exportPrivateKey (): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+        if (err) {
+          reject(err)
+          return false
+        }
+        resolve(this.keystore.exportPrivateKey(this.address, pwDerivedKey))
+      })
+    })
+  }
+
   public recoverFromSeed (seed: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.generateKeys(seed).then(keys => {
