@@ -71,8 +71,8 @@ export class Transaction {
     return this.utils.fetchUrl('blocknumber')
   }
 
-  private getTxInfos (address: string): Promise<any> {
-    return this.utils.fetchUrl(`txinfos/${address}`)
+  private getTxInfos (userAddress: string): Promise<any> {
+    return this.utils.fetchUrl(`users/${userAddress}/txinfos`)
   }
 
   private handleError (error: any) {
