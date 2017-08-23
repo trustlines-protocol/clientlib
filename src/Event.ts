@@ -24,4 +24,11 @@ export class Event {
     return utils.fetchUrl(parameterUrl)
   }
 
+  public getAll (filter?: object): Promise<any[]> {
+    const { user, utils, validParameters } = this
+    const baseUrl = `users/${user.proxyAddress}/events`
+    const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)
+    return utils.fetchUrl(parameterUrl)
+  }
+
 }
