@@ -2,7 +2,6 @@ import { Utils } from './Utils'
 import lightwallet from 'eth-lightwallet'
 import * as ethUtils from 'ethereumjs-util'
 
-declare let lightwallet: any
 const CONTRACTS = require('../contracts.json')
 
 export class Transaction {
