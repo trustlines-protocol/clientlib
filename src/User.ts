@@ -139,7 +139,6 @@ export class User {
   public balanceObservable (): Observable<any> {
     return this.utils.createObservable(`users/${this.address}/balance`)
   }
-  }
 
   public encrypt (msg: string, theirPubKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
