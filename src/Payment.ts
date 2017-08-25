@@ -18,27 +18,16 @@ export class Payment {
       this.getPath(networkAddress, this.user.address, receiver, value)
       .then(response => {
         if (response.path.length > 0) {
-          Promise.all([
-            this.transaction.prepFuncTx(
-              this.user.proxyAddress,
-              networkAddress,
-              'CurrencyNetwork',
-              'prepare',
-              [ receiver, response.maxFee, response.path.slice(1) ]
-            ),
-            this.transaction.prepFuncTx(
-              this.user.proxyAddress,
-              networkAddress,
-              'CurrencyNetwork',
-              'transfer',
-              [ receiver, value, response.maxFee, response.path.slice(1) ],
-              true // TODO used to get right nonce
-            )
-          ]).then(txs => {
+          this.transaction.prepFuncTx(
+            this.user.proxyAddress,
+            networkAddress,
+            'CurrencyNetwork',
+            'transfer',
+            [ receiver, value, response.maxFee, response.path.slice(1) ]
+          ).then(tx => {
             resolve({
-              rawPrepTx: txs[0].rawTx,
-              rawTransferTx: txs[1].rawTx,
-              ethFees: txs[0].ethFees + txs[1].ethFees,
+              rawTx: tx.rawTx,
+              ethFees: tx.ethFees,
               maxFee: response.maxFee,
               path: response.path
             })
@@ -60,32 +49,8 @@ export class Payment {
     return this.event.get(network, mergedFilter)
   }
 
-  public confirm (network: string, receiver: string, rawPrepTx: string, rawTransTx: string): Promise<string> {
-    return this.user.signTx(rawPrepTx).then(signedTx =>
-      this.transaction.relayTx(signedTx)).then(() =>
-      this.transaction.getBlockNumber()).then(res =>
-        this.checkPathPrepared(network, receiver, rawTransTx, res.blocknumber))
-  }
-
-  private checkPathPrepared (
-    network: string,
-    receiver: string,
-    transferTx: string,
-    blockNumber: number
-  ): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const sub = this.event.createObservable(network, {type: 'PathPrepared', fromBlock: blockNumber - 5}).subscribe(events => {
-        if (events.length > 0) {
-          const latest = events[events.length - 1]
-          if ((latest.blockNumber >= blockNumber) && (latest._receiver === receiver)) {
-            sub.unsubscribe()
-            this.user.signTx(transferTx).then(signedTx =>
-              this.transaction.relayTx(signedTx)
-            ).then((txId) => resolve(txId))
-          }
-        }
-      })
-    })
+  public confirm (rawTx): Promise<string> {
+    return this.user.signTx(rawTx).then(signedTx => this.transaction.relayTx(signedTx))
   }
 
   public createRequest (network: string, amount: number, subject: string): Promise<string> {
