@@ -13,9 +13,9 @@ export class Payment {
                private transaction: Transaction) {
   }
 
-  public prepare (networkAddress: string, receiver: string, value: number): Promise<any> {
+  public prepare (networkAddress: string, receiver: string, value: number, pathOptions: any = {}): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.getPath(networkAddress, this.user.address, receiver, value)
+      this.getPath(networkAddress, this.user.address, receiver, value, pathOptions)
       .then(response => {
         if (response.path.length > 0) {
           this.transaction.prepFuncTx(
@@ -27,8 +27,8 @@ export class Payment {
           ).then(tx => {
             resolve({
               rawTx: tx.rawTx,
-              ethFees: tx.ethFees,
-              maxFee: response.maxFee,
+              ethFee: tx.gasPrice * response.estimatedGas,
+              maxFee: response.fees,
               path: response.path
             })
           })
@@ -39,9 +39,22 @@ export class Payment {
     })
   }
 
-  public getPath (network: string, accountA: string, accountB: string, value: number): Promise<any> {
-    const url = `networks/${network}/users/${accountA}/path/${accountB}/${value}`
-    return this.utils.fetchUrl(url)
+  public getPath (network: string, accountA: string, accountB: string, value: number, pathOptions: any = {}): Promise<any> {
+    const { maxFees, maxHops } = pathOptions
+    const data = {
+      'from': accountA,
+      'to': accountB,
+      'value': value
+    }
+    if (maxFees) data['maxFees'] = maxFees
+    if (maxHops) data['maxHops'] = maxHops
+    const options = {
+      method: 'POST',
+      headers: new Headers({'Content-Type': 'application/json'}),
+      body: JSON.stringify(data)
+    }
+    const url = `networks/${network}/path-info`
+    return this.utils.fetchUrl(url, options)
   }
 
   public get (network: string, filter?: object): Promise<object> {
