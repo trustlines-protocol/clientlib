@@ -233,6 +233,15 @@ export class User {
     })
   }
 
+  public requestEth (): Promise<string> {
+    const options = {
+      method: 'POST',
+      headers: new Headers({'Content-Type': 'application/json'}),
+      body: JSON.stringify({'address': this.address})
+    }
+    return this.utils.fetchUrl('request-ether', options)
+  }
+
   private verifySignature (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))
     const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
