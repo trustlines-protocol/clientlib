@@ -214,13 +214,11 @@ tlNetwork.currencyNetwork.getUsers('0xabc123bb...').then(addresses => {
 
 #### Returns
 `Promise<object>`
-- `name` - name of currency network
-- `abbreviation`
-- `symbol`
 - `balance` - sum over balances of all trustlines user has in currency network
-- `creditLinesGiven` - sum of all credit lines given by user in currency network
-- `creditLinesReceived` - sum of all credit lines received by user in currency network
-- `numTrustlines` - number of trustlines user has in currency network
+- `given` - sum of all credit lines given by user in currency network
+- `received` - sum of all credit lines received by user in currency network
+- `leftGiven` - given - balance
+- `leftReceived` - received + balance
 
 #### Example
 ```javascript
@@ -239,13 +237,13 @@ tlNetwork.currencyNetwork.getUserOverview('0xabc123bb...', '0xb33f33...').then(o
 
 #### Returns
 `Promise<object[]>`
-- `addressB` - address of counterparty
+- `address` - address of counterparty
 - `balance` - balance of trustline from view of requestor
 - `given` - credit line given by requestor
 - `leftGiven` - given - balance
 - `received` - credit line received
 - `leftReceived` - received + balance
-- `interestRate` - interest rate of trustline
+- `interestRate` - interest rate of trustline // TODO
 
 #### Example
 ```javascript
@@ -255,21 +253,21 @@ tlNetwork.trustline.getAll('0xabc123bb...').then(trustlines => {
 ```
 
 ### Get specific trustline
-`TLNetwork.trustline.get(networkAddress, addressB)`
+`TLNetwork.trustline.get(networkAddress, userAddress)`
 
 #### Parameters
 - `networkAddress` - address of currency network
-- `addressB` - address of counterparty
+- `userAddress` - address of counterparty
 
 #### Returns
 `Promise<object>`
-- `addressB` - address of counterparty
+- `address` - address of counterparty
 - `balance` - balance of trustline from view of requestor
 - `given` - credit line given by requestor
 - `leftGiven` - given - balance
 - `received` - credit line received
 - `leftReceived` - received + balance
-- `interestRate` - interest rate of trustline
+- `interestRate` - interest rate of trustline // TODO
 
 #### Example
 ```javascript
@@ -288,10 +286,14 @@ tlNetwork.trustline.get('0xccccc...', '0xbbbbbb...').then(trustline => {
 #### Returns
 `Promise<object[]>`
 - `blockNumber` - number of block
-- `creditor` - proxy address of creditor
-- `debtor` - proxy address of debtor
-- `type` - type of event 'CreditlineUpdateRequest'
-- `value` - value of credit line
+- `address` - proxy address of counterparty
+- `amount` - amount of proposed creditline
+- `direction` - `sent` or `received`
+- `networkAddress` - address of currency network
+- `status` - `sent` | `pending` | `confirmed`
+- `timestamp` - unix timestamp
+- `transactionId` - transaction hash of event
+- `type` - `CreditlineUpdateRequest`
 
 #### Example
 ```javascript
@@ -311,10 +313,14 @@ tlNetwork.trustline.getRequests('0xabc123bb...', filter).then(requests => {
 #### Returns
 `Promise<object[]>`
 - `blockNumber` - number of block
-- `creditor` - proxy address of creditor
-- `debtor` - proxy address of debtor
-- `type` - type of event 'CreditlineUpdateRequest'
-- `value` - updated value of credit line
+- `address` - proxy address of counterparty
+- `amount` - amount of proposed creditline
+- `direction` - `sent` or `received`
+- `networkAddress` - address of currency network
+- `status` - `sent` | `pending` | `confirmed`
+- `timestamp` - unix timestamp
+- `transactionId` - transaction hash of event
+- `type` - `CreditlineUpdate`
 
 #### Example
 ```javascript
@@ -368,13 +374,16 @@ tlNetwork.trustline.getUpdates('0xabc123bb...', filter).then(updates => {
 - `networkAddress` - address of currency network
 - `filter` (optional) - { fromBlock: number, toBlock: number }
 
-#### Returns
 `Promise<object[]>`
 - `blockNumber` - number of block
-- `from` - proxy address of sender of transfer
-- `to` - proxy address of receiver of transfer
-- `type` - type of event 'Transfer'
-- `value` - value of transfer
+- `address` - proxy address of counterparty
+- `amount` - amount of proposed creditline
+- `direction` - `sent` or `received`
+- `networkAddress` - address of currency network
+- `status` - `sent` | `pending` | `confirmed`
+- `timestamp` - unix timestamp
+- `transactionId` - transaction hash of event
+- `type` - `Transfer`
 
 #### Example
 ```javascript
@@ -420,8 +429,15 @@ tlNetwork.payment.get('0xabc123bb...', filter).then(transfers => {
 
 #### Returns
 `Promise<object[]>`
-- `blockNumber`
-- `event`
+- `blockNumber` - number of block
+- `address` - proxy address of counterparty
+- `amount` - amount of proposed creditline
+- `direction` - `sent` or `received`
+- `networkAddress` - address of currency network
+- `status` - `sent` | `pending` | `confirmed`
+- `timestamp` - unix timestamp
+- `transactionId` - transaction hash of event
+- `type` - `CreditlineUpdateRequest` | `CreditlineUpdate` | `Transfer` | `ChequeCashed`
 
 ### Create event Observable
 `TLNetwork.event.createObservable(network, filter)`

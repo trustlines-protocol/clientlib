@@ -7,17 +7,17 @@ One event entity has properties:
   transactionId,  // transaction id on the blockchain, optional since transaction might be pending
   timestamp,      // unix timestamp
   subject,        // (optional)
-  eventtype,      // one on the eventtypes defined below
+  type,           // one on the event types defined below
   address,        // (proxy?)address of the counter party
-  direction,      // send | receive 
-  status,         // e.g. pending | done ... 
+  direction,      // sent | received
+  status,         // sent | pending | confirmed
   amount
 }
 ```
 
-### Eventtypes
+### Event Types
 
-* transfer
-* creditlineUpdate
-* creditlineUpdateRequest
-* order
+* Transfer
+* CreditlineUpdate
+* CreditlineUpdateRequest
+* ChequeCashed
