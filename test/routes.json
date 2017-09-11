@@ -1,7 +1,7 @@
 {
   "/proxys/:address": "/get-proxy-address",
 
-  "/balances/:address": "/get-balance",
+  "/users/:address/balance": "/get-balance",
 
   "/networks/:address": "/networks-detail",
 
@@ -23,7 +23,7 @@
   "/networks/:address/users/:address/events\\?fromBlock=:from": "/events?blockNumber_gte=:from",
   "/networks/:address/users/:address/events\\?toBlock=:to": "/events?blockNumber_lte=:to",
 
-  "/txinfos/:address": "/get-tx-infos",
+  "/users/txinfos/:address": "/get-tx-infos",
 
   "/tokenabi/:contract": "/tokenabi"
 

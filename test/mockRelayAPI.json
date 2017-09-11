@@ -9,20 +9,17 @@
     {
       "address": "0xa1499ad3a013a80701d77e1124b766e4074065fd",
       "name": "Euro",
-      "abbreviation": "EUR",
-      "symbol": "€"
+      "abbreviation": "EUR"
     },
     {
       "address": "0xb1499ad3a013a80701d77e1124b766e4074065fd",
       "name": "US-Dollar",
-      "abbreviation": "USD",
-      "symbol": "$"
+      "abbreviation": "USD"
     },
     {
       "address": "0xc1499ad3a013a80701d77e1124b766e4074065fd",
       "name": "BeerCoin",
-      "abbreviation": "BC",
-      "symbol": "B"
+      "abbreviation": "BC"
     }
   ],
   "networks-detail":
@@ -30,10 +27,8 @@
     "address": "0xa1499ad3a013a80701d77e1124b766e4074065fd",
     "name": "Euro",
     "abbreviation": "EUR",
-    "symbol": "€",
     "numUsers": 1000,
-    "interestsAllowed": true,
-    "maxCreditlines": "100000"
+    "decimals": 6
   },
   "users-in-network": [
     "0xaFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
@@ -43,13 +38,11 @@
     "0xeFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F"
   ],
   "network-overview-in-user-context": {
-    "name": "Euro",
-    "abbreviation": "EUR",
-    "symbol": "€",
     "balance": "1000",
-    "creditLinesGiven": "2000",
-    "creditLinesReceived": "3000",
-    "numTrustlines": 10
+    "given": "2000",
+    "received": "3000",
+    "leftGiven": "1000",
+    "leftReceived": "4000"
   },
   "contacts": [
     "0xaFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
@@ -60,7 +53,7 @@
   ],
   "get-trustlines": [
     {
-      "addressB": "0xaFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "address": "0xaFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
       "balance": "100",
       "given": "500",
       "leftGiven": "400",
@@ -69,7 +62,7 @@
       "interestRate": "0.11"
     },
     {
-      "addressB": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "address": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
       "balance": "100",
       "given": "500",
       "leftGiven": "400",
@@ -78,7 +71,7 @@
       "interestRate": "0.11"
     },
     {
-      "addressB": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "address": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
       "balance": "100",
       "given": "500",
       "leftGiven": "400",
@@ -87,7 +80,7 @@
       "interestRate": "0.11"
     },
     {
-      "addressB": "0xdFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
+      "address": "0xdFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
       "balance": "100",
       "given": "500",
       "leftGiven": "400",
@@ -97,6 +90,7 @@
     }
   ],
   "get-trustlines-detail": {
+    "address": "0xdFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
     "balance": "100",
     "given": "500",
     "received": "600",
@@ -114,7 +108,8 @@
       "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
       "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F"
     ],
-    "tlFees": "0.1245"
+    "estimatedGas": 100000,
+    "fees": "0.1245"
   },
   "get-tx-infos": {
     "gasPrice": "0.000000022061831512",
@@ -129,85 +124,81 @@
   "events": [
     {
       "blockNumber": 1,
-      "event": {
-        "type": "CreditlineUpdateRequest",
-        "creditor": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "debtor": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "value": "100"
-      }
+      "type": "CreditlineUpdateRequest",
+      "transactionId": "0x23417cb41b4ee949861e18233067190848540e1db32cf276c2467a28d2a65b21",
+      "networkAddress": "0x16d394d1bc663cd61238841ea411f81f29b23146",
+      "status": "confirmed",
+      "timestamp": 1504796515,
+      "amount": "100",
+      "direction": "sent",
+      "address": "0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18"
     },
     {
       "blockNumber": 2,
-      "event": {
-        "type": "CreditlineUpdateRequest",
-        "creditor": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "debtor": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "value": "100"
-      }
+      "type": "CreditlineUpdate",
+      "transactionId": "0x33417cb41b4ee949861e18233067190848540e1db32cf276c2467a28d2a65b21",
+      "networkAddress": "0x16d394d1bc663cd61238841ea411f81f29b23146",
+      "status": "confirmed",
+      "timestamp": 1504796400,
+      "amount": "100",
+      "direction": "received",
+      "address": "0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18"
     },
     {
       "blockNumber": 3,
-      "event": {
-        "type": "CreditlineUpdate",
-        "creditor": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "debtor": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "value": "100"
-      }
+      "type": "CreditlineUpdateRequest",
+      "transactionId": "0x43417cb41b4ee949861e18233067190848540e1db32cf276c2467a28d2a65b21",
+      "networkAddress": "0x16d394d1bc663cd61238841ea411f81f29b23146",
+      "status": "confirmed",
+      "timestamp": 1504796515,
+      "amount": "100",
+      "direction": "received",
+      "address": "0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18"
     },
     {
       "blockNumber": 4,
-      "event": {
-        "type": "CreditlineUpdate",
-        "creditor": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "debtor": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "value": "100"
-      }
+      "type": "CreditlineUpdate",
+      "transactionId": "0x53417cb41b4ee949861e18233067190848540e1db32cf276c2467a28d2a65b21",
+      "networkAddress": "0x16d394d1bc663cd61238841ea411f81f29b23146",
+      "status": "confirmed",
+      "timestamp": 1504796515,
+      "amount": "100",
+      "direction": "sent",
+      "address": "0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18"
     },
     {
       "blockNumber": 5,
-      "event": {
-        "type": "Transfer",
-        "from": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "to": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "value": "1000"
-      }
+      "type": "Transfer",
+      "transactionId": "0x63417cb41b4ee949861e18233067190848540e1db32cf276c2467a28d2a65b21",
+      "networkAddress": "0x16d394d1bc663cd61238841ea411f81f29b23146",
+      "status": "confirmed",
+      "timestamp": 1504796515,
+      "amount": "12",
+      "direction": "sent",
+      "address": "0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18"
     },
     {
       "blockNumber": 6,
-      "event": {
-        "type": "Transfer",
-        "from": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "to": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "value": "1009"
-      }
+      "type": "Transfer",
+      "transactionId": "0x23417cb41b4ee949861e18233067190848540e1db32cf276c2467a28d2a65b21",
+      "networkAddress": "0x16d394d1bc663cd61238841ea411f81f29b23146",
+      "status": "confirmed",
+      "timestamp": 1504796515,
+      "amount": "100",
+      "direction": "received",
+      "address": "0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18"
     },
     {
       "blockNumber": 7,
-      "event": {
-        "type": "ChequeCashed",
-        "from": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "to": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "value": "100"
-      }
+      "type": "Transfer",
+      "transactionId": "0x23417cb41b4ee949861e18233067190848540e1db32cf276c2467a28d2a65b21",
+      "networkAddress": "0x16d394d1bc663cd61238841ea411f81f29b23146",
+      "status": "confirmed",
+      "timestamp": 1504896515,
+      "amount": "100",
+      "direction": "sent",
+      "address": "0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18"
     },
-    {
-      "blockNumber": 8,
-      "event": {
-        "type": "ChequeCashed",
-        "from": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "to": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "value": "43.99"
-      }
-    },
-    {
-      "blockNumber": 9,
-      "event": {
-        "type": "ChequeCashed",
-        "from": "0xbFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "to": "0xcFe9d70Ce11F6b70F55fA706ECF6dE40F5d1988F",
-        "value": "124.99"
-      }
-    }
   ],
   "tokenabi": [
     {
