@@ -59,11 +59,7 @@ export class Transaction {
       headers,
       body: JSON.stringify({ rawTransaction: `0x${rawTx}` })
     }
-    return this.utils.fetchUrl('relay', options).then(() => {
-      return {
-        txId: ethUtils.bufferToHex(ethUtils.rlphash(rawTx)) // FIXME retuns wrong tx id
-      }
-    })
+    return this.utils.fetchUrl('relay', options)
   }
 
   public getBlockNumber (): Promise<any> {
