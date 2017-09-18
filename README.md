@@ -157,7 +157,6 @@ Called from an user who *onboards* another user
 - `address` - address of currency network
 - `name` - name of currency network
 - `abbreviation` - abbreviation of currency (i.e. EUR, USD)
-- `symbol` - symbol of currency
 
 #### Example
 ```javascript
@@ -177,9 +176,7 @@ tlNetwork.currencyNetwork.getAll().then(networks => {
 - `address` - address of currency network
 - `name` - name of currency network
 - `abbreviation` - abbreviation of currency (i.e. EUR, USD)
-- `symbol` - symbol of currency
 - `numUsers` - number of users in currency network
-- `// more information of currency network`
 
 #### Example
 ```javascript
@@ -226,6 +223,17 @@ tlNetwork.currencyNetwork.getUserOverview('0xabc123bb...', '0xb33f33...').then(o
     console.log('Overview for user 0xb33f33... in currency network 0xabc123bb...', overview)
 })
 ```
+
+### Get contacts of user
+Returns a list of addresses a user has trustlines with
+
+`TLNetwork.contact.getAll(networkAddress)`
+
+#### Parameters
+- `networkAddress` - address of currency network
+
+#### Returns
+`Array<string[]>` - addresses of contacts
 
 ## Trustline
 
