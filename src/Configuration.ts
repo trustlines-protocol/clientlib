@@ -9,7 +9,7 @@ export class Configuration {
     // port of REST relay server
     public host: string = 'localhost',
     // port of REST relay server
-    public port: number = 5000,
+    public port: number = 80,
     // path of REST relay server, if set should end with trailing slash
     public path: string = '',
     // poll interval
@@ -18,7 +18,7 @@ export class Configuration {
     public useWebSockets: boolean = false,
     // protocol of the REST relay server
     public wsProtocol: string = 'ws') {
-    this.apiUrl = `${this.protocol}://${this.host}:${this.port}/${this.path}`
-    this.wsApiUrl = `${this.wsProtocol}://${this.host}:${this.port}/${this.path}`
+      this.apiUrl = `${this.protocol}://${this.host}${(this.port === 80) ? '' : ':' + this.port}/${this.path}`
+      this.wsApiUrl = `${this.wsProtocol}://${this.host}:${this.port}/${this.path}`
   }
 }
