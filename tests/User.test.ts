@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import 'mocha'
 import { config, keystore1 } from './Fixtures'
 
-describe('User Class', () => {
+describe('User', () => {
 
   const tlNetwork = new TLNetwork(config)
   let newUser
