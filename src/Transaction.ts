@@ -1,5 +1,6 @@
 import { Utils } from './Utils'
-import lightwallet from 'eth-lightwallet'
+import * as lightwallet from 'eth-lightwallet'
+// declare let lightwallet
 import * as ethUtils from 'ethereumjs-util'
 
 const CONTRACTS = require('../contracts.json')

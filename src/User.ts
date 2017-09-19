@@ -1,7 +1,8 @@
-import lightwallet from 'eth-lightwallet'
 import { Utils } from './Utils'
 import { Transaction } from './Transaction'
 
+import * as lightwallet from 'eth-lightwallet'
+// declare let lightwallet
 import * as ethUtils from 'ethereumjs-util'
 import { Observable } from 'rxjs/Observable'
 
@@ -25,7 +26,7 @@ export class User {
         this.pubKey = keys.pubKey
         const createdUser = {
           address: this.address,
-          proxyAddress: this.proxyAddress,
+          proxyAddress: this.address, // NOTE: proxyAddress = address til proxy contracts are implemented
           pubKey: this.pubKey,
           keystore: this.keystore.serialize()
         }
@@ -40,8 +41,8 @@ export class User {
         this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
         this.address = `0x${this.keystore.getAddresses()[ 0 ]}`
         this.pubKey = this.keystore.getPubKeys(this._encPath)[ 0 ]
-        this.getProxyAddress().then(res => {
-          this.proxyAddress = res.proxyAddress
+        this.getProxyAddress().then(proxyAddress => {
+          this.proxyAddress = proxyAddress
           resolve({
             address: this.address,
             proxyAddress: this.proxyAddress,
@@ -80,7 +81,7 @@ export class User {
     })
   }
 
-  public createOnboardingMsg (username: string, serializedKeystore: string): Promise<object> {
+  public createOnboardingMsg (username: string, serializedKeystore: string): Promise<string> {
     return new Promise<any>((resolve, reject) => {
       this.load(serializedKeystore).then(() => {
         const params = [ username, this.address, this.pubKey ]
@@ -128,7 +129,7 @@ export class User {
     // return this.utils.fetchUrl(`proxys/${this.address}`)
     // FIXME: proxy address same as externally owned address for testing
     return new Promise((resolve, reject) => {
-      resolve({ 'proxyAddress': this.address })
+      resolve(this.address)
     })
   }
 
@@ -213,8 +214,8 @@ export class User {
       this.generateKeys(seed).then(keys => {
         this.address = `0x${keys.address}`
         this.pubKey = keys.pubKey
-        this.getProxyAddress().then(res => {
-          this.proxyAddress = res.proxyAddress
+        this.getProxyAddress().then(proxyAddress => {
+          this.proxyAddress = proxyAddress
           resolve({
             address: this.address,
             proxyAddress: this.proxyAddress,
@@ -233,6 +234,7 @@ export class User {
     })
   }
 
+  // NOTE: instead of onboarding for PoC
   public requestEth (): Promise<string> {
     const options = {
       method: 'POST',
