@@ -11,7 +11,7 @@ export class Trustline {
                private transaction: Transaction) {
   }
 
-  public prepareUpdate (network: string, debtor: string, value: number): Promise<string> {
+  public prepareUpdate (network: string, debtor: string, value: number): Promise<any> {
     const { transaction, user } = this
     return transaction.prepFuncTx(
       user.proxyAddress,
@@ -22,7 +22,7 @@ export class Trustline {
     )
   }
 
-  public prepareAccept (network: string, creditor: string, value: number): Promise<string> {
+  public prepareAccept (network: string, creditor: string, value: number): Promise<any> {
     const { transaction, user } = this
     return transaction.prepFuncTx(
       user.proxyAddress,
@@ -37,22 +37,22 @@ export class Trustline {
     return this.user.signTx(rawTx).then(signedTx => this.transaction.relayTx(signedTx))
   }
 
-  public getAll (networkAddress: string): Promise<object[]> {
+  public getAll (networkAddress: string): Promise<any[]> {
     const { user, utils } = this
     return utils.fetchUrl(`networks/${networkAddress}/users/${user.proxyAddress}/trustlines`)
   }
 
-  public get (networkAddress: string, userAddressB: string): Promise<object> {
+  public get (networkAddress: string, userAddressB: string): Promise<any> {
     const { user, utils } = this
     return utils.fetchUrl(`networks/${networkAddress}/users/${user.proxyAddress}/trustlines/${userAddressB}`)
   }
 
-  public getRequests (networkAddress: string, filter?: object): Promise<object> {
+  public getRequests (networkAddress: string, filter?: object): Promise<any> {
     const mergedFilter = Object.assign({type: 'CreditlineUpdateRequest'}, filter)
     return this.event.get(networkAddress, mergedFilter)
   }
 
-  public getUpdates (networkAddress: string, filter?: object): Promise<object> {
+  public getUpdates (networkAddress: string, filter?: object): Promise<any> {
     const mergedFilter = Object.assign({type: 'CreditlineUpdate'}, filter)
     return this.event.get(networkAddress, mergedFilter)
   }

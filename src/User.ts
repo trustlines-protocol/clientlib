@@ -35,7 +35,7 @@ export class User {
     })
   }
 
-  public load (serializedKeystore: string): Promise<object> {
+  public load (serializedKeystore: string): Promise<any> {
     return new Promise((resolve, reject) => {
       if (serializedKeystore) { // TODO: check if valid keystore
         this.keystore = lightwallet.keystore.deserialize(serializedKeystore)

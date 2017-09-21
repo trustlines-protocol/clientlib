@@ -27,7 +27,7 @@ export class Transaction {
       }
       const txObj = {
         rawTx: lightwallet.txutils.functionTx(CONTRACTS[contractName].abi, functionName, parameters, txOptions),
-        ethFees: 200000 * txOptions.gasPrice, // TODO set gas dynamically according to method
+        ethFee: 200000 * txOptions.gasPrice, // TODO set gas dynamically according to method
         gasPrice: txinfos.gasPrice
       }
       return txObj
@@ -46,7 +46,7 @@ export class Transaction {
         }
         return {
           rawTx: lightwallet.txutils.valueTx(txOptions),
-          ethFees: 21000 * txOptions.gasPrice
+          ethFee: 21000 * txOptions.gasPrice
         }
       })
   }
