@@ -19,7 +19,6 @@ describe('CurrencyNetwork', () => {
 
   it('should return detailed information of specific currency network', done => {
     currencyNetwork.getInfo(allNetworks[0].address).then(network => {
-      console.log(network.address.length)
       expect(network).to.be.an('object')
       expect(network.abbreviation).to.be.a('string').and.to.have.length.within(1, 3)
       expect(network.numUsers).to.be.a('number')
@@ -48,7 +47,6 @@ describe('CurrencyNetwork', () => {
         expect(leftReceived).to.equal(received + balance)
         done()
       })
-    }
-  )
+  })
 
 })
