@@ -1,7 +1,7 @@
 import { TLNetwork } from '../src/TLNetwork'
 import { expect } from 'chai'
 import 'mocha'
-import { config, keystore1 } from './Fixtures'
+import { config, keystore1, user1 } from './Fixtures'
 
 describe('User', () => {
 
@@ -22,8 +22,8 @@ describe('User', () => {
   it('should load existing user/keystore', done => {
     tlNetwork.user.load(keystore1).then(loadedUser => {
       expect(loadedUser).to.be.an('object')
-      expect(loadedUser).to.have.property('address')
-      expect(loadedUser).to.have.property('proxyAddress')
+      expect(loadedUser.address).to.equal(user1.address)
+      expect(loadedUser.proxyAddress).to.equal(user1.proxyAddress)
       expect(loadedUser).to.have.property('keystore')
       done()
     })
@@ -37,8 +37,8 @@ describe('User', () => {
       expect(splitLink[3]).to.equal('v1') // base url
       expect(splitLink[4]).to.equal('onboardingrequest') // link type
       expect(splitLink[5]).to.equal('testuser') // username
-      expect(splitLink[6]).to.equal('0xf8e191d2cd72ff35cb8f012685a29b31996614ea') // externally owned account address
-      expect(splitLink[7]).to.equal('ac00e064896b56904b2cc7da3ba4a77a12abb0c2d0734620febed448e648e77f') // public key
+      expect(splitLink[6]).to.equal(user1.address) // externally owned account address
+      expect(splitLink[7]).to.equal(user1.pubKey) // public key
       done()
     })
   })
@@ -108,8 +108,8 @@ describe('User', () => {
     tlNetwork.user.load(keystore1)
       .then(() => tlNetwork.user.recoverFromSeed('mesh park casual casino sorry giraffe half shrug wool anger chef amateur'))
       .then(recoveredUser => {
-        expect(recoveredUser.address).to.equal('0xf8e191d2cd72ff35cb8f012685a29b31996614ea')
-        expect(recoveredUser.pubKey).to.equal('ac00e064896b56904b2cc7da3ba4a77a12abb0c2d0734620febed448e648e77f')
+        expect(recoveredUser.address).to.equal(user1.address)
+        expect(recoveredUser.pubKey).to.equal(user1.pubKey)
         expect(recoveredUser.keystore).to.be.a('string')
         done()
       })
@@ -125,7 +125,7 @@ describe('User', () => {
         expect(splitLink[2]).to.equal('trustlines.network') // base url
         expect(splitLink[3]).to.equal('v1') // base url
         expect(splitLink[4]).to.equal('contact') // link type
-        expect(splitLink[5]).to.equal('0xf8e191d2cd72ff35cb8f012685a29b31996614ea') // proxyAddress
+        expect(splitLink[5]).to.equal(user1.proxyAddress) // proxyAddress
         expect(splitLink[6]).to.equal('testuser') // username
         done()
       })
@@ -141,15 +141,15 @@ describe('User', () => {
       })
   })
 
-  // it('new user should receive eth', done => {
-  //   tlNetwork.user.load(newUser.keystore)
-  //     .then(() => tlNetwork.user.requestEth())
-  //     .then(() => tlNetwork.user.getBalance())
-  //     .then(balance => {
-  //       expect(balance).to.equal('1')
-  //       done()
-  //     })
-  // })
+  it('new user should receive eth', done => {
+    tlNetwork.user.load(newUser.keystore)
+      .then(() => tlNetwork.user.requestEth())
+      .then(() => tlNetwork.user.getBalance())
+      .then(balance => {
+        expect(balance).to.equal('1')
+        done()
+      })
+  })
 
 
 })
