@@ -42,7 +42,13 @@ export class Utils {
   public fetchUrl (url: string, options?: object): Promise<any> {
     const { apiUrl } = this.configuration
     return fetch(`${apiUrl}${url}`, options)
-      .then(response => response.json())
+      .then(response => {
+        if (response.status !== 200) {
+          response.json().then(json => Promise.reject(json.message))
+        } else {
+          return response.json()
+        }
+      })
       .then(json => json)
       .catch(error => Promise.reject(error.message || error))
   }
