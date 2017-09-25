@@ -16,26 +16,29 @@ export class Payment {
   public prepare (networkAddress: string, receiver: string, value: number, pathOptions: any = {}): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getPath(networkAddress, this.user.address, receiver, value, pathOptions)
-      .then(response => {
-        if (response.path.length > 0) {
-          this.transaction.prepFuncTx(
-            this.user.proxyAddress,
-            networkAddress,
-            'CurrencyNetwork',
-            'transfer',
-            [ receiver, value, response.maxFee, response.path.slice(1) ]
-          ).then(tx => {
-            resolve({
-              rawTx: tx.rawTx,
-              ethFee: tx.gasPrice * response.estimatedGas,
-              maxFee: response.fees,
-              path: response.path
+        .then(response => {
+          if (response.path.length > 0) {
+            this.transaction.prepFuncTx(
+              this.user.proxyAddress,
+              networkAddress,
+              'CurrencyNetwork',
+              'transfer',
+              [ receiver, value, response.maxFee, response.path.slice(1) ]
+            ).then(tx => {
+              resolve({
+                rawTx: tx.rawTx,
+                ethFee: tx.gasPrice * response.estimatedGas,
+                maxFee: response.fees,
+                path: response.path
+              })
             })
-          })
-        } else {
-          reject('Could not find a path with enough capacity')
-        }
-      })
+          } else {
+            reject('Could not find a path with enough capacity')
+          }
+        })
+        .catch(error => {
+          reject(`There was an error while finding a path: ${error}`)
+        })
     })
   }
 
@@ -46,11 +49,11 @@ export class Payment {
       'to': accountB,
       'value': value
     }
-    if (maxFees) data['maxFees'] = maxFees
-    if (maxHops) data['maxHops'] = maxHops
+    if (maxFees) data[ 'maxFees' ] = maxFees
+    if (maxHops) data[ 'maxHops' ] = maxHops
     const options = {
       method: 'POST',
-      headers: new Headers({'Content-Type': 'application/json'}),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data)
     }
     const url = `networks/${network}/path-info`
@@ -110,6 +113,9 @@ export class Payment {
       .then(transfers =>
         transfers.map(t =>
           Object.assign({}, { blockNumber: t.blockNumber }, t.event)))
+      .catch(error => {
+        return Promise.reject(error)
+      })
   }
 
 }

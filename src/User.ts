@@ -100,6 +100,8 @@ export class User {
       )
     ]).then(([ proxyTx, valueTx ]) => {
       return { proxyTx, valueTx }
+    }).catch(error => {
+      return Promise.reject(error)
     })
   }
 
@@ -122,6 +124,8 @@ export class User {
         proxyTxId: proxyTx.txId,
         valueTxId: valueTx.txId
       }
+    }).catch(error => {
+      return Promise.reject(error)
     })
   }
 
@@ -238,8 +242,8 @@ export class User {
   public requestEth (): Promise<string> {
     const options = {
       method: 'POST',
-      headers: new Headers({'Content-Type': 'application/json'}),
-      body: JSON.stringify({'address': this.address})
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ 'address': this.address })
     }
     return this.utils.fetchUrl('request-ether', options)
   }

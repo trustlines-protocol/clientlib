@@ -6,6 +6,8 @@ import { Observer } from 'rxjs/Observer'
 
 import { Configuration } from './Configuration'
 
+declare var __DEV__
+
 const ReconnectingWebSocket = require('reconnecting-websocket')
 
 export class Utils {
@@ -41,10 +43,15 @@ export class Utils {
 
   public fetchUrl (url: string, options?: object): Promise<any> {
     const { apiUrl } = this.configuration
+    if (__DEV__) {
+      console.log(`${apiUrl}${url}`, options)
+    }
     return fetch(`${apiUrl}${url}`, options)
       .then(response => {
         if (response.status !== 200) {
-          response.json().then(json => Promise.reject(json.message))
+          return response.json().then(json =>
+            Promise.reject(json.message)
+          )
         } else {
           return response.json()
         }

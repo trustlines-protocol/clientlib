@@ -10,28 +10,30 @@ export class Transaction {
   constructor (private utils: Utils) {
   }
 
-  public prepFuncTx (
-    userAddress: string,
-    contractAddress: string,
-    contractName: string,
-    functionName: string,
-    parameters: any[]
-  ): Promise<any> {
-    return this.getTxInfos(userAddress).then(txinfos => {
-      const txOptions = {
-        gasPrice: txinfos.gasPrice, // TODO let user set gas price
-        gasLimit: 2000000, // TODO let user set gas limit
-        value: 0,
-        nonce: txinfos.nonce,
-        to: contractAddress
-      }
-      const txObj = {
-        rawTx: lightwallet.txutils.functionTx(CONTRACTS[contractName].abi, functionName, parameters, txOptions),
-        ethFee: 200000 * txOptions.gasPrice, // TODO set gas dynamically according to method
-        gasPrice: txinfos.gasPrice
-      }
-      return txObj
-    })
+  public prepFuncTx (userAddress: string,
+                     contractAddress: string,
+                     contractName: string,
+                     functionName: string,
+                     parameters: any[]): Promise<any> {
+    return this.getTxInfos(userAddress)
+      .then(txinfos => {
+        const txOptions = {
+          gasPrice: txinfos.gasPrice, // TODO let user set gas price
+          gasLimit: 2000000, // TODO let user set gas limit
+          value: 0,
+          nonce: txinfos.nonce,
+          to: contractAddress
+        }
+        const txObj = {
+          rawTx: lightwallet.txutils.functionTx(CONTRACTS[ contractName ].abi, functionName, parameters, txOptions),
+          ethFee: 200000 * txOptions.gasPrice, // TODO set gas dynamically according to method
+          gasPrice: txinfos.gasPrice
+        }
+        return txObj
+      })
+      .catch(error => {
+        return Promise.reject(error)
+      })
   }
 
   public prepValueTx (from: string, to: string, value: number): Promise<any> {
@@ -48,6 +50,9 @@ export class Transaction {
           rawTx: lightwallet.txutils.valueTx(txOptions),
           ethFee: 21000 * txOptions.gasPrice
         }
+      })
+      .catch(error => {
+        return Promise.reject(error)
       })
   }
 
