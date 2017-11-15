@@ -14,7 +14,7 @@ export class Trustline {
   public prepareUpdate (network: string, debtor: string, value: number): Promise<any> {
     const { transaction, user } = this
     return transaction.prepFuncTx(
-      user.proxyAddress,
+      user.address,
       network,
       'CurrencyNetwork',
       'updateCreditline',
@@ -25,7 +25,7 @@ export class Trustline {
   public prepareAccept (network: string, creditor: string, value: number): Promise<any> {
     const { transaction, user } = this
     return transaction.prepFuncTx(
-      user.proxyAddress,
+      user.address,
       network,
       'CurrencyNetwork',
       'acceptCreditline',
@@ -39,12 +39,12 @@ export class Trustline {
 
   public getAll (networkAddress: string): Promise<any[]> {
     const { user, utils } = this
-    return utils.fetchUrl(`networks/${networkAddress}/users/${user.proxyAddress}/trustlines`)
+    return utils.fetchUrl(`networks/${networkAddress}/users/${user.address}/trustlines`)
   }
 
   public get (networkAddress: string, userAddressB: string): Promise<any> {
     const { user, utils } = this
-    return utils.fetchUrl(`networks/${networkAddress}/users/${user.proxyAddress}/trustlines/${userAddressB}`)
+    return utils.fetchUrl(`networks/${networkAddress}/users/${user.address}/trustlines/${userAddressB}`)
   }
 
   public getRequests (networkAddress: string, filter?: object): Promise<any> {

@@ -8,7 +8,6 @@ import { Observable } from 'rxjs/Observable'
 
 export class User {
   public address: string
-  public proxyAddress: string
   public pubKey: string
   public keystore: any
 
@@ -26,7 +25,6 @@ export class User {
         this.pubKey = keys.pubKey
         const createdUser = {
           address: this.address,
-          proxyAddress: this.address, // NOTE: proxyAddress = address til proxy contracts are implemented
           pubKey: this.pubKey,
           keystore: this.keystore.serialize()
         }
@@ -41,14 +39,10 @@ export class User {
         this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
         this.address = `0x${this.keystore.getAddresses()[ 0 ]}`
         this.pubKey = this.keystore.getPubKeys(this._encPath)[ 0 ]
-        this.getProxyAddress().then(proxyAddress => {
-          this.proxyAddress = proxyAddress
-          resolve({
-            address: this.address,
-            proxyAddress: this.proxyAddress,
-            pubKey: this.pubKey,
-            keystore: this.keystore.serialize()
-          })
+        resolve({
+          address: this.address,
+          pubKey: this.pubKey,
+          keystore: this.keystore.serialize()
         })
       } else {
         reject(new Error('No valid keystore'))
@@ -218,14 +212,10 @@ export class User {
       this.generateKeys(seed).then(keys => {
         this.address = `0x${keys.address}`
         this.pubKey = keys.pubKey
-        this.getProxyAddress().then(proxyAddress => {
-          this.proxyAddress = proxyAddress
-          resolve({
-            address: this.address,
-            proxyAddress: this.proxyAddress,
-            pubKey: this.pubKey,
-            keystore: this.keystore.serialize()
-          })
+        resolve({
+          address: this.address,
+          pubKey: this.pubKey,
+          keystore: this.keystore.serialize()
         })
       }).catch(err => reject(err))
     })
@@ -233,7 +223,7 @@ export class User {
 
   public createLink (username: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const params = [ this.proxyAddress, username ]
+      const params = [ this.address, username ]
       resolve(this.utils.createLink('contact', params))
     })
   }

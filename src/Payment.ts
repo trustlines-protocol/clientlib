@@ -19,7 +19,7 @@ export class Payment {
         .then(response => {
           if (response.path.length > 0) {
             this.transaction.prepFuncTx(
-              this.user.proxyAddress,
+              this.user.address,
               networkAddress,
               'CurrencyNetwork',
               'transfer',
@@ -71,7 +71,7 @@ export class Payment {
 
   public createRequest (network: string, amount: number, subject: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const params = [ network, this.user.proxyAddress, amount, subject ]
+      const params = [ network, this.user.address, amount, subject ]
       resolve(this.utils.createLink('paymentrequest', params))
     })
   }
@@ -81,7 +81,7 @@ export class Payment {
                       expiresOn: number,
                       to: string // TODO receiver address optional?
   ): Promise<any> {
-    const msg = this.user.proxyAddress + to + value + expiresOn
+    const msg = this.user.address + to + value + expiresOn
     return this.user.signMsg(msg).then(signature => {
       const params = [ network, value, expiresOn, signature ]
       if (to) { params.push(to) }
@@ -95,11 +95,11 @@ export class Payment {
                          to: string,
                          signature: string): Promise<any> {
     return this.transaction.prepFuncTx(
-      this.user.proxyAddress,
+      this.user.address,
       network,
       'CurrencyNetwork',
       'cashCheque',
-      [ this.user.proxyAddress, to, value, expiresOn, signature ]
+      [ this.user.address, to, value, expiresOn, signature ]
     )
   }
 

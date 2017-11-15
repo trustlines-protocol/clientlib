@@ -12,21 +12,21 @@ export class Event {
 
   public createObservable (networkAddress: string, filter?: object): Observable<any> {
     const { user, utils, validParameters } = this
-    const baseUrl = `networks/${networkAddress}/users/${user.proxyAddress}/events`
+    const baseUrl = `networks/${networkAddress}/users/${user.address}/events`
     const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)
     return utils.createObservable(parameterUrl)
   }
 
   public get (networkAddress: string, filter?: object): Promise<any[]> {
     const { user, utils, validParameters } = this
-    const baseUrl = `networks/${networkAddress}/users/${user.proxyAddress}/events`
+    const baseUrl = `networks/${networkAddress}/users/${user.address}/events`
     const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)
     return utils.fetchUrl(parameterUrl)
   }
 
   public getAll (filter?: object): Promise<any[]> {
     const { user, utils, validParameters } = this
-    const baseUrl = `users/${user.proxyAddress}/events`
+    const baseUrl = `users/${user.address}/events`
     const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)
     return utils.fetchUrl(parameterUrl)
   }

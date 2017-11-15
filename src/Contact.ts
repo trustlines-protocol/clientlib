@@ -8,7 +8,7 @@ export class Contact {
 
   public getAll (networkAddress: string): Promise<string[]> {
     const { user, utils } = this
-    const url = `networks/${networkAddress}/users/${user.proxyAddress}/contacts`
+    const url = `networks/${networkAddress}/users/${user.address}/contacts`
     return utils.fetchUrl(url)
   }
 
