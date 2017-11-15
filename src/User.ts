@@ -85,50 +85,19 @@ export class User {
   }
 
   public prepOnboarding (newUserAddress: any): Promise<object> {
-    return Promise.all([
-      this.prepProxy(newUserAddress, newUserAddress, newUserAddress), // TODO replace with actual parameters
-      this.transaction.prepValueTx(
-        this.address, // address of onboarder
-        newUserAddress, // address of new user who gets onboarded
-        100000 // TODO fetch default onboarding amount of eth
-      )
-    ]).then(([ proxyTx, valueTx ]) => {
-      return { proxyTx, valueTx }
-    }).catch(error => {
-      return Promise.reject(error)
-    })
+    return this.transaction.prepValueTx(
+      this.address, // address of onboarder
+      newUserAddress, // address of new user who gets onboarded
+      100000 // TODO fetch default onboarding amount of eth
+    ).then(tx => tx)
+    .catch(error => Promise.reject(error))
   }
 
-  public prepProxy (destination: string, userKey: string, recoveryKey: string): Promise<any> {
-    return this.transaction.prepFuncTx(
-      this.address,
-      '0xf8e191d2cd72ff35cb8f012685a29b31996614ea', // TODO replace with actual contract address
-      'IdentityFactoryWithRecovery',
-      'CreateProxyWithControllerAndRecoveryKey',
-      [ destination, userKey, recoveryKey, 0, 0 ] // TODO replace with actual parameters
-    )
-  }
-
-  public confirmOnboarding (proxyTx: string, valueTx: string): Promise<any> {
-    return Promise.all([
-      this.signTx(proxyTx).then(signedTx => this.transaction.relayTx(signedTx)),
-      this.signTx(valueTx).then(signedTx => this.transaction.relayTx(signedTx))
-    ]).then(([ proxyTx, valueTx ]) => {
-      return {
-        proxyTxId: proxyTx.txId,
-        valueTxId: valueTx.txId
-      }
-    }).catch(error => {
-      return Promise.reject(error)
-    })
-  }
-
-  public getProxyAddress (): Promise<any> {
-    // return this.utils.fetchUrl(`proxys/${this.address}`)
-    // FIXME: proxy address same as externally owned address for testing
-    return new Promise((resolve, reject) => {
-      resolve(this.address)
-    })
+  public confirmOnboarding (valueTx: string): Promise<any> {
+    return this.signTx(valueTx)
+      .then(signedTx => this.transaction.relayTx(signedTx))
+      .then(txId => ({ txId }))
+      .catch(error => Promise.reject(error))
   }
 
   public getBalance (): Promise<any> {
