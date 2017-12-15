@@ -6,7 +6,7 @@ import { Observer } from 'rxjs/Observer'
 
 import { Configuration } from './Configuration'
 
-declare var __DEV__
+let __DEV__
 
 const ReconnectingWebSocket = require('reconnecting-websocket')
 

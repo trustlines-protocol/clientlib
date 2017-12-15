@@ -13,7 +13,6 @@ describe('User', () => {
       newUser = createdUser
       expect(createdUser).to.be.an('object')
       expect(createdUser).to.have.property('address')
-      expect(createdUser).to.have.property('proxyAddress')
       expect(createdUser).to.have.property('keystore')
       done()
     })
@@ -23,7 +22,6 @@ describe('User', () => {
     tlNetwork.user.load(keystore1).then(loadedUser => {
       expect(loadedUser).to.be.an('object')
       expect(loadedUser.address).to.equal(user1.address)
-      expect(loadedUser.proxyAddress).to.equal(user1.proxyAddress)
       expect(loadedUser).to.have.property('keystore')
       done()
     })
@@ -52,13 +50,6 @@ describe('User', () => {
   // it('should confirm onboarding', done => {
   //   done()
   // })
-
-  it('should return address of proxy contract', done => {
-    tlNetwork.user.getProxyAddress().then(proxyAddress => {
-      expect(proxyAddress).to.be.a('string')
-      done()
-    })
-  })
 
   it('should return 0 balance for newly created user', done => {
     tlNetwork.user.load(newUser.keystore)
@@ -125,7 +116,6 @@ describe('User', () => {
         expect(splitLink[2]).to.equal('trustlines.network') // base url
         expect(splitLink[3]).to.equal('v1') // base url
         expect(splitLink[4]).to.equal('contact') // link type
-        expect(splitLink[5]).to.equal(user1.proxyAddress) // proxyAddress
         expect(splitLink[6]).to.equal('testuser') // username
         done()
       })
