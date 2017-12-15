@@ -35,18 +35,18 @@ export class User {
 
   public load (serializedKeystore: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (serializedKeystore) { // TODO: check if valid keystore
-        this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
-        this.address = `0x${this.keystore.getAddresses()[ 0 ]}`
-        this.pubKey = this.keystore.getPubKeys(this._encPath)[ 0 ]
-        resolve({
-          address: this.address,
-          pubKey: this.pubKey,
-          keystore: this.keystore.serialize()
+      this.setKeystore(serializedKeystore)
+        .then(() => {
+          this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+            if (err) reject(err)
+            this.pubKey = lightwallet.encryption.addressToPublicEncKey(this.keystore, pwDerivedKey, this.address)
+            resolve({
+              address: this.address,
+              pubKey: this.pubKey,
+              keystore: this.keystore.serialize()
+            })
+          })
         })
-      } else {
-        reject(new Error('No valid keystore'))
-      }
     })
   }
 
@@ -179,7 +179,7 @@ export class User {
   public recoverFromSeed (seed: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.generateKeys(seed).then(keys => {
-        this.address = `0x${keys.address}`
+        this.address = keys.address
         this.pubKey = keys.pubKey
         resolve({
           address: this.address,
@@ -235,16 +235,29 @@ export class User {
         ks.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
           if (err) reject(err)
           this.keystore.generateNewAddress(pwDerivedKey)
-          this.keystore.addHdDerivationPath(this._encPath, pwDerivedKey, {
-            curve: 'curve25519',
-            purpose: 'asymEncrypt'
-          })
-          this.keystore.generateNewEncryptionKeys(pwDerivedKey, 1, this._encPath)
           const address = this.keystore.getAddresses()[ 0 ]
-          const pubKey = this.keystore.getPubKeys(this._encPath)[ 0 ]
+          const pubKey = lightwallet.encryption.addressToPublicEncKey(this.keystore, pwDerivedKey, address)
           resolve({ address, pubKey })
         })
       })
+    })
+  }
+
+  private setKeystore (serializedKeystore: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let parsed = JSON.parse(serializedKeystore)
+      if (parsed.version === 3) {
+        this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
+        this.address = this.keystore.getAddresses()[ 0 ]
+        resolve()
+      } else {
+        delete parsed.ksData['m/44\'/60\'/0\'/1']
+        lightwallet.upgrade.upgradeOldSerialized(JSON.stringify(parsed), this._password, (err, newSerialized) => {
+          this.keystore = lightwallet.keystore.deserialize(newSerialized)
+          this.address = this.keystore.getAddresses()[ 0 ]
+          resolve()
+        })
+      }
     })
   }
 
