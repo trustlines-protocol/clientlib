@@ -7,7 +7,7 @@ install:
 script:
   - npm run build
   - npm run lint
-  - .travis/run_e2e_tests.sh
+  - ./.travis/run_e2e_tests.sh
 branches:
   only:
   - master
