@@ -18,7 +18,7 @@ describe('TLNetwork', () => {
       host: '192.168.0.59',
       port: 5000,
       path: 'api/v1/',
-      pollInterval: 100,
+      pollInterval: 100
     })
     expect(tlNetwork).to.be.an('object')
     expect(tlNetwork.configuration.pollInterval).to.equal(100)

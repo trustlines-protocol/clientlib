@@ -18,7 +18,7 @@ export class Configuration {
     public useWebSockets: boolean = false,
     // protocol of the REST relay server
     public wsProtocol: string = 'ws') {
-      this.apiUrl = `${this.protocol}://${this.host}${(this.port === 80) ? '' : ':' + this.port}/${this.path}`
-      this.wsApiUrl = `${this.wsProtocol}://${this.host}:${this.port}/${this.path}`
+    this.apiUrl = `${this.protocol}://${this.host}${(this.port === 80) ? '' : ':' + this.port}/${this.path}`
+    this.wsApiUrl = `${this.wsProtocol}://${this.host}:${this.port}/${this.path}`
   }
 }

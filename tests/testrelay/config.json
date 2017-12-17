@@ -1,0 +1,10 @@
+{
+  "rpc":
+  {
+    "host": "node",
+    "port": 8545,
+    "ssl": false
+  },
+  "syncInterval": 300,
+  "updateNetworksInterval": 5
+}

@@ -1,7 +1,7 @@
 import { TLNetwork } from '../src/TLNetwork'
 import { expect } from 'chai'
 import 'mocha'
-import { config, keystore1, keystore2, networkAddress } from './Fixtures'
+import { config, keystore1, keystore2 } from './Fixtures'
 
 declare let Promise: any
 
@@ -9,7 +9,17 @@ describe('Trustline', () => {
 
   const tl1 = new TLNetwork(config)
   const tl2 = new TLNetwork(config)
-  let user1, user2, rawTx
+  let user1
+  let user2
+  let rawTx
+  let networkAddress
+
+  before( (done) => {
+    tl1.currencyNetwork.getAll().then(results => {
+      networkAddress = results[0].address
+      done()
+    })
+  })
 
   it('should prepare creditline update', done => {
     Promise.all([tl1.user.load(keystore1), tl2.user.load(keystore2)])

@@ -59,7 +59,7 @@ describe('User', () => {
         expect(balance).to.equal('0')
         done()
       })
-    }
+  }
   )
 
   it('should return balance for existing user', done => {
@@ -70,7 +70,7 @@ describe('User', () => {
         expect(parseFloat(balance)).to.be.above(0)
         done()
       })
-    }
+  }
   )
 
   // TODO
@@ -92,7 +92,7 @@ describe('User', () => {
         expect(seed).to.equal('mesh park casual casino sorry giraffe half shrug wool anger chef amateur')
         done()
       })
-    }
+  }
   )
 
   it('should recover from seed words', done => {
@@ -104,7 +104,7 @@ describe('User', () => {
         expect(recoveredUser.keystore).to.be.a('string')
         done()
       })
-    }
+  }
   )
 
   it('should create a contact link', done => {
@@ -119,7 +119,7 @@ describe('User', () => {
         expect(splitLink[6]).to.equal('testuser') // username
         done()
       })
-    }
+  }
   )
 
   it('should not send eth to existing user', done => {
@@ -140,6 +140,5 @@ describe('User', () => {
         done()
       })
   })
-
 
 })

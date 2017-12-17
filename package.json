@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
     "build:esm": "tsc -m es6 --outDir lib-esm",
-    "lint": "tslint -c tslint.json './src/**'",
-    "lint-fix": "tslint -c tslint.json --fix ./src/**",
+    "lint": "tslint -c tslint.json ./src/**/**.ts ./tests/**/**.ts",
+    "lint-fix": "tslint -c tslint.json --fix ./src/**/**.ts ./tests/**/**.ts",
     "test": "mocha --require isomorphic-fetch -r ts-node/register tests/**/**.test.ts"
   },
   "repository": {
