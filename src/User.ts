@@ -253,6 +253,10 @@ export class User {
       } else {
         delete parsed.ksData['m/44\'/60\'/0\'/1']
         lightwallet.upgrade.upgradeOldSerialized(JSON.stringify(parsed), this._password, (err, newSerialized) => {
+          if (err) {
+            reject(err)
+            return false
+          }
           this.keystore = lightwallet.keystore.deserialize(newSerialized)
           this.address = this.keystore.getAddresses()[ 0 ]
           resolve()
