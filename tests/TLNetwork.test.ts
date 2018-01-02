@@ -4,7 +4,7 @@ import 'mocha'
 
 describe('TLNetwork', () => {
 
-  it('shoult load default configuration', () => {
+  it('should load default configuration', () => {
     const tlNetwork = new TLNetwork()
     expect(tlNetwork).to.be.an('object')
     expect(tlNetwork.configuration.pollInterval).to.equal(500)
