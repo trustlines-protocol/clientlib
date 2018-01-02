@@ -82,4 +82,9 @@ export class Utils {
     return base + link
   }
 
+  public checkAddress (address: string): boolean {
+    return /^(0x)?[0-9a-f]{40}$/i.test(address)
+    // TODO also use checksum address
+  }
+
 }
