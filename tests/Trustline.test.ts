@@ -7,6 +7,7 @@ import { config, keystore1, keystore2 } from './Fixtures'
 declare let Promise: any
 
 describe('Trustline', () => {
+
   chai.use(chaiAsPromised)
 
   const { expect } = chai
