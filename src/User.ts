@@ -21,7 +21,7 @@ export class User {
   public create (): Promise<object> {
     return new Promise((resolve, reject) => {
       this.generateKeys().then(keys => {
-        this.address = `0x${keys.address}`
+        this.address = keys.address
         this.pubKey = keys.pubKey
         const createdUser = {
           address: this.address,
