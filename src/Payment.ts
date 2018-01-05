@@ -60,7 +60,7 @@ export class Payment {
     return this.utils.fetchUrl(url, options)
   }
 
-  public get (network: string, filter?: object): Promise<object> {
+  public get (network: string, filter?: object): Promise<Array<any>> {
     const mergedFilter = Object.assign({ type: 'Transfer' }, filter)
     return this.event.get(network, mergedFilter)
   }
