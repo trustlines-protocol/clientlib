@@ -23,24 +23,27 @@ describe('e2e', () => {
         })
     })
 
-    it('should return 0 balance for newly created user', () => {
-      expect(tlNew.user.getBalance()).to.eventually.equal('0')
+    describe('#getBalance()', () => {
+      it('should return 0 balance for newly created user', () => {
+        expect(tlNew.user.getBalance()).to.eventually.equal('0')
+      })
+
+      it('should return balance for existing user', () => {
+        expect(tlExisting.user.getBalance()).to.eventually.equal('1')
+      })
     })
 
-    it('should return balance for existing user', () => {
-      expect(tlExisting.user.getBalance()).to.eventually.equal('1')
-    })
+    describe('#requestEth()', () => {
+      it('should not send eth to existing user', () => {
+        expect(tlExisting.user.requestEth()).to.eventually.equal(null)
+      })
 
-    it('should not send eth to existing user', () => {
-      expect(tlExisting.user.requestEth()).to.eventually.equal(null)
+      it('should send eth to new user', () => {
+        expect(tlNew.user.requestEth()).to.eventually.not.equal(null)
+        setTimeout(() => {
+          expect(tlNew.user.getBalance()).to.eventually.equal('1')
+        }, 500)
+      })
     })
-
-    it('should send eth to new user', () => {
-      expect(tlNew.user.requestEth()).to.eventually.not.equal(null)
-      setTimeout(() => {
-        expect(tlNew.user.getBalance()).to.eventually.equal('1')
-      }, 500)
-    })
-
   })
 })
