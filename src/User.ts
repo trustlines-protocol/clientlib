@@ -61,7 +61,12 @@ export class User {
         if (err) {
           reject(err)
         } else {
-          resolve(lightwallet.signing.signTx(this.keystore, pwDerivedKey, rawTx, this.address))
+          resolve(lightwallet.signing.signTx(
+            this.keystore,
+            pwDerivedKey,
+            rawTx,
+            this.address.toLowerCase() // NOTE eth-lightwallet does not handle checksum addresses
+          ))
         }
       })
     })
@@ -73,7 +78,12 @@ export class User {
         if (err) {
           reject(err)
         } else {
-          const signature = lightwallet.signing.signMsg(this.keystore, pwDerivedKey, rawMsg, this.address)
+          const signature = lightwallet.signing.signMsg(
+            this.keystore,
+            pwDerivedKey,
+            rawMsg,
+            this.address.toLowerCase()
+          )
           resolve(lightwallet.signing.concatSig(signature))
         }
       })
@@ -125,7 +135,7 @@ export class User {
             this.keystore,
             pwDerivedKey,
             msg,
-            this.address,
+            this.address.toLowerCase(),
             [ theirPubKey ]
           )
           resolve(encrypted)
@@ -149,7 +159,7 @@ export class User {
           pwDerivedKey,
           encMsg,
           theirPubKey,
-          this.address
+          this.address.toLowerCase()
         ))
       })
     })
