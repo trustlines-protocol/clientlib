@@ -36,6 +36,12 @@ describe('integration', () => {
       })
     })
 
+    describe('#exportPrivateKey()', () => {
+      it('should show private key of user', () => {
+        expect(tlExisting.user.exportPrivateKey()).to.eventually.be.a('string')
+      })
+    })
+
     describe('#showSeed()', () => {
       it('should show seed of loaded user', () => {
         expect(tlExisting.user.showSeed()).to.eventually
@@ -55,14 +61,22 @@ describe('integration', () => {
       })
     })
 
-    // TODO
-    // it('should encrypt a message', done => {
-    //   done()
-    // })
+    describe('#encrypt()', () => {
+      it('should return encryption object', () => {
+        expect(tlNew.user.encrypt('hello world!', existingUser.pubKey))
+          .to.eventually.have.keys('version', 'asymAlg', 'hdIndex', 'encPrivKeys')
+      })
+    })
 
-    // TODO
-    // it('should decrypt a message', done => {
-    //   done()
-    // })
+    describe('#decrypt()', () => {
+      it('should decrypt message', () => {
+        const message = 'hello world!'
+        tlNew.user.encrypt(message, existingUser.pubKey)
+          .then(encrypt => {
+            expect(tlExisting.user.decrypt(encrypt, newUser.pubKey))
+              .to.eventually.equal('hello world!')
+          })
+      })
+    })
   })
 })
