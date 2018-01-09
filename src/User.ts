@@ -13,7 +13,6 @@ export class User {
 
   private _password = 'ts'
   private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
-  private _encPath = 'm/44\'/60\'/0\'/1' // path for encryption keys
 
   constructor (private transaction: Transaction, private utils: Utils) {
   }
@@ -121,8 +120,7 @@ export class User {
             pwDerivedKey,
             msg,
             this.pubKey,
-            [ theirPubKey ],
-            this._encPath
+            [ theirPubKey ]
           )
           resolve(encrypted)
         } catch (err) {
@@ -145,8 +143,7 @@ export class User {
           pwDerivedKey,
           encMsg,
           theirPubKey,
-          this.pubKey,
-          this._encPath
+          this.pubKey
         ))
       })
     })
