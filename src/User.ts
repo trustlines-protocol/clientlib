@@ -20,7 +20,7 @@ export class User {
   public create (): Promise<object> {
     return new Promise((resolve, reject) => {
       this.generateKeys().then(keys => {
-        this.address = keys.address
+        this.address = ethUtils.toChecksumAddress(keys.address)
         this.pubKey = keys.pubKey
         const createdUser = {
           address: this.address,
@@ -37,8 +37,14 @@ export class User {
       this.setKeystore(serializedKeystore)
         .then(() => {
           this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-            if (err) reject(err)
-            this.pubKey = lightwallet.encryption.addressToPublicEncKey(this.keystore, pwDerivedKey, this.address)
+            if (err) {
+              reject(err)
+            }
+            this.pubKey = lightwallet.encryption.addressToPublicEncKey(
+              this.keystore,
+              pwDerivedKey,
+              this.address.toLowerCase() // NOTE eth-lightwallet can't handle checksummed address
+            )
             resolve({
               address: this.address,
               pubKey: this.pubKey,
@@ -168,7 +174,7 @@ export class User {
           reject(err)
           return false
         }
-        resolve(this.keystore.exportPrivateKey(this.address, pwDerivedKey))
+        resolve(this.keystore.exportPrivateKey(this.address.toLowerCase(), pwDerivedKey))
       })
     })
   }
@@ -176,7 +182,7 @@ export class User {
   public recoverFromSeed (seed: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.generateKeys(seed).then(keys => {
-        this.address = keys.address
+        this.address = ethUtils.toChecksumAddress(keys.address)
         this.pubKey = keys.pubKey
         resolve({
           address: this.address,
@@ -221,7 +227,7 @@ export class User {
       let secretSeed = lightwallet.keystore.generateRandomSeed()
       lightwallet.keystore.createVault({
         password: this._password,
-        seedPhrase: (seed) ? seed : secretSeed,
+        seedPhrase: seed || secretSeed,
         hdPathString: this._signingPath
       }, (err: any, ks: any) => {
         if (err) {
@@ -230,10 +236,16 @@ export class User {
         }
         this.keystore = ks
         ks.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-          if (err) reject(err)
+          if (err) {
+            reject(err)
+          }
           this.keystore.generateNewAddress(pwDerivedKey)
           const address = this.keystore.getAddresses()[ 0 ]
-          const pubKey = lightwallet.encryption.addressToPublicEncKey(this.keystore, pwDerivedKey, address)
+          const pubKey = lightwallet.encryption.addressToPublicEncKey(
+            this.keystore,
+            pwDerivedKey,
+            address
+          )
           resolve({ address, pubKey })
         })
       })
@@ -245,7 +257,7 @@ export class User {
       let parsed = JSON.parse(serializedKeystore)
       if (parsed.version === 3) {
         this.keystore = lightwallet.keystore.deserialize(serializedKeystore)
-        this.address = this.keystore.getAddresses()[ 0 ]
+        this.address = ethUtils.toChecksumAddress(this.keystore.getAddresses()[ 0 ])
         resolve()
       } else {
         delete parsed.ksData['m/44\'/60\'/0\'/1']
@@ -255,7 +267,7 @@ export class User {
             return false
           }
           this.keystore = lightwallet.keystore.deserialize(newSerialized)
-          this.address = this.keystore.getAddresses()[ 0 ]
+          this.address = ethUtils.toChecksumAddress(this.keystore.getAddresses()[ 0 ])
           resolve()
         })
       }
