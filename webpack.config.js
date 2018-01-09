@@ -22,7 +22,8 @@ module.exports = {
         "eth-lightwallet",
         "rxjs",
         "@types/isomorphic-fetch",
-        "es6-promise"
+        "es6-promise",
+        "ethereumjs-util"
     ],
 
     // Enable sourcemaps for debugging webpack's output.
