@@ -13,7 +13,6 @@ export class User {
 
   private _password = 'ts'
   private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
-  private _encPath = 'm/44\'/60\'/0\'/1' // path for encryption keys
 
   constructor (private transaction: Transaction, private utils: Utils) {
   }
@@ -120,9 +119,8 @@ export class User {
             this.keystore,
             pwDerivedKey,
             msg,
-            this.pubKey,
-            [ theirPubKey ],
-            this._encPath
+            this.address,
+            [ theirPubKey ]
           )
           resolve(encrypted)
         } catch (err) {
@@ -145,8 +143,7 @@ export class User {
           pwDerivedKey,
           encMsg,
           theirPubKey,
-          this.pubKey,
-          this._encPath
+          this.address
         ))
       })
     })
@@ -253,6 +250,10 @@ export class User {
       } else {
         delete parsed.ksData['m/44\'/60\'/0\'/1']
         lightwallet.upgrade.upgradeOldSerialized(JSON.stringify(parsed), this._password, (err, newSerialized) => {
+          if (err) {
+            reject(err)
+            return false
+          }
           this.keystore = lightwallet.keystore.deserialize(newSerialized)
           this.address = this.keystore.getAddresses()[ 0 ]
           resolve()

@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - "7"
+install:
+  - npm install
+  - cd tests/testrelay && docker-compose build
+script:
+  - npm run build
+  - npm run lint
+  - ../../.travis/run_e2e_tests.sh
+branches:
+  only:
+  - master
+  - develop
+services:
+  - docker
+cache:
+  directories:
+    - "node_modules"
