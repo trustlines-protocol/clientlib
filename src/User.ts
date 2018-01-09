@@ -119,7 +119,7 @@ export class User {
             this.keystore,
             pwDerivedKey,
             msg,
-            this.pubKey,
+            this.address,
             [ theirPubKey ]
           )
           resolve(encrypted)
@@ -143,7 +143,7 @@ export class User {
           pwDerivedKey,
           encMsg,
           theirPubKey,
-          this.pubKey
+          this.address
         ))
       })
     })
