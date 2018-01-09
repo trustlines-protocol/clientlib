@@ -81,10 +81,4 @@ export class Utils {
     const link = parameters.reduce((result, param) => `${result}/${param}`)
     return base + link
   }
-
-  public checkAddress (address: string): boolean {
-    return /^(0x)?[0-9a-f]{40}$/i.test(address)
-    // TODO also use checksum address
-  }
-
 }

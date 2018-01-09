@@ -1,3 +1,4 @@
+import * as ethUtils from 'ethereumjs-util'
 import { Utils } from './Utils'
 
 export class CurrencyNetwork {
@@ -10,21 +11,21 @@ export class CurrencyNetwork {
   }
 
   public getInfo (networkAddress: string): Promise<any> {
-    if (!this.utils.checkAddress(networkAddress)) {
+    if (!ethUtils.isValidAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return this.utils.fetchUrl(`networks/${networkAddress}`)
   }
 
   public getUsers (networkAddress: string): Promise<string[]> {
-    if (!this.utils.checkAddress(networkAddress)) {
+    if (!ethUtils.isValidAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return this.utils.fetchUrl(`networks/${networkAddress}/users`)
   }
 
   public getUserOverview (networkAddress: string, userAddress: string): Promise<any> {
-    if (!this.utils.checkAddress(networkAddress)) {
+    if (!ethUtils.isValidAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return this.utils.fetchUrl(`networks/${networkAddress}/users/${userAddress}`)
