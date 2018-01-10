@@ -15,33 +15,40 @@ export class Payment {
                private currencyNetwork: CurrencyNetwork) {
   }
 
-  public prepare (networkAddress: string, receiver: string, value: number, pathOptions: any = {}): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.getPath(networkAddress, this.user.address, receiver, value, pathOptions)
-        .then(response => {
-          if (response.path.length > 0) {
-            this.transaction.prepFuncTx(
-              this.user.address,
-              networkAddress,
-              'CurrencyNetwork',
-              'transfer',
-              [ receiver, value, response.maxFee, response.path.slice(1) ]
-            ).then(tx => {
-              resolve({
-                rawTx: tx.rawTx,
-                ethFee: tx.gasPrice * response.estimatedGas,
-                maxFee: response.fees,
-                path: response.path
-              })
-            })
-          } else {
-            reject('Could not find a path with enough capacity')
-          }
-        })
-        .catch(error => {
-          reject(`There was an error while finding a path: ${error}`)
-        })
-    })
+  public prepare (
+    networkAddress: string,
+    receiver: string,
+    value: number,
+    decimals: any = {},
+    pathOptions?: any
+  ): Promise<any> {
+    const { user, currencyNetwork, transaction, utils } = this
+    if (typeof decimals === 'object') {
+      pathOptions = decimals
+    }
+    return currencyNetwork.getDecimals(networkAddress, decimals)
+      .then(dec => {
+        return this.getPath(networkAddress, user.address, receiver, value, dec, pathOptions)
+          .then(({ path, maxFees, estimatedGas }) => {
+            return path.length > 0
+              ? transaction.prepFuncTx(
+                  user.address,
+                  networkAddress,
+                  'CurrencyNetwork',
+                  'transfer',
+                  [ receiver, utils.calcRaw(value, dec), utils.calcRaw(maxFees, dec), path.slice(1) ]
+                ).then(({ rawTx, gasPrice }) => ({
+                  rawTx,
+                  path,
+                  maxFees,
+                  ethFees: gasPrice * estimatedGas
+                }))
+              : Promise.reject('Could not find a path with enough capacity')
+          })
+      })
+      .catch(error => {
+        Promise.reject(`There was an error while finding a path: ${error}`)
+      })
   }
 
   public getPath (
