@@ -53,22 +53,56 @@ export class Trustline {
   }
 
   public getAll (networkAddress: string): Promise<any[]> {
-    const { user, utils } = this
-    return utils.fetchUrl(`networks/${networkAddress}/users/${user.address}/trustlines`)
+    const { user, utils, currencyNetwork } = this
+    return Promise.all([
+      utils.fetchUrl(`networks/${networkAddress}/users/${user.address}/trustlines`),
+      currencyNetwork.getDecimals(networkAddress)
+    ]).then(([ trustlines, decimals ]) => trustlines.map(t => ({
+      ...t,
+      balance: utils.formatAmount(t.balance, decimals),
+      given: utils.formatAmount(t.given, decimals),
+      leftGiven: utils.formatAmount(t.leftGiven, decimals),
+      leftReceived: utils.formatAmount(t.leftReceived, decimals),
+      received: utils.formatAmount(t.received, decimals)
+    })))
   }
 
   public get (networkAddress: string, userAddressB: string): Promise<any> {
-    const { user, utils } = this
-    return utils.fetchUrl(`networks/${networkAddress}/users/${user.address}/trustlines/${userAddressB}`)
+    const { user, utils, currencyNetwork } = this
+    return Promise.all([
+      utils.fetchUrl(`networks/${networkAddress}/users/${user.address}/trustlines/${userAddressB}`),
+      currencyNetwork.getDecimals(networkAddress)
+    ]).then(([ trustline, decimals ]) => ({
+      ...trustline,
+      balance: utils.formatAmount(trustline.balance, decimals),
+      given: utils.formatAmount(trustline.given, decimals),
+      leftGiven: utils.formatAmount(trustline.leftGiven, decimals),
+      leftReceived: utils.formatAmount(trustline.leftReceived, decimals),
+      received: utils.formatAmount(trustline.received, decimals)
+    }))
   }
 
   public getRequests (networkAddress: string, filter?: object): Promise<any> {
+    const { currencyNetwork, utils } = this
     const mergedFilter = Object.assign({type: 'CreditlineUpdateRequest'}, filter)
-    return this.event.get(networkAddress, mergedFilter)
+    return Promise.all([
+      this.event.get(networkAddress, mergedFilter),
+      currencyNetwork.getDecimals(networkAddress)
+    ]).then(([ requests, decimals ]) => requests.map(r => ({
+      ...r,
+      amount: utils.formatAmount(r.amount, decimals)
+    })))
   }
 
   public getUpdates (networkAddress: string, filter?: object): Promise<any> {
+    const { currencyNetwork, utils } = this
     const mergedFilter = Object.assign({type: 'CreditlineUpdate'}, filter)
-    return this.event.get(networkAddress, mergedFilter)
+    return Promise.all([
+      this.event.get(networkAddress, mergedFilter),
+      currencyNetwork.getDecimals(networkAddress)
+    ]).then(([ updates, decimals ]) => updates.map(u => ({
+      ...u,
+      amount: utils.formatAmount(u.amount, decimals)
+    })))
   }
 }
