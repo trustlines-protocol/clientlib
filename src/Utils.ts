@@ -3,6 +3,7 @@ import { TimerObservable } from 'rxjs/observable/TimerObservable'
 import 'rxjs/add/operator/mergeMap'
 import 'rxjs/add/operator/map'
 import { Observer } from 'rxjs/Observer'
+import { BigNumber } from 'bignumber.js'
 
 import { Configuration } from './Configuration'
 
@@ -87,12 +88,14 @@ export class Utils {
     // TODO also use checksum address
   }
 
-  public calcRaw (value: number, decimals: number): number {
-    return value * Math.pow(10, decimals)
+  public calcRaw (value: number, decimals: number): any {
+    const x = new BigNumber(value)
+    return x.times(Math.pow(10, decimals)).toNumber()
   }
 
-  public calcValue (raw: number, decimals: number): number {
-    return raw / Math.pow(10, decimals)
+  public calcValue (raw: number, decimals: number): any {
+    const x = new BigNumber(raw)
+    return x.div(Math.pow(10, decimals)).toNumber()
   }
 
   public formatAmount (raw: number, decimals: number): object {
