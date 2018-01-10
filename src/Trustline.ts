@@ -13,30 +13,43 @@ export class Trustline {
                private currencyNetwork: CurrencyNetwork) {
   }
 
-  public prepareUpdate (network: string, debtor: string, value: number): Promise<any> {
-    const { transaction, user } = this
-    return transaction.prepFuncTx(
-      user.address,
-      network,
-      'CurrencyNetwork',
-      'updateCreditline',
-      [ debtor, value ]
-    )
+  public prepareUpdate (
+    network: string,
+    debtor: string,
+    value: number,
+    decimals?: number
+  ): Promise<any> {
+    const { currencyNetwork, transaction, user, utils } = this
+    return currencyNetwork.getDecimals(network, decimals)
+      .then(dec => transaction.prepFuncTx(
+        user.address,
+        network,
+        'CurrencyNetwork',
+        'updateCreditline',
+        [ debtor, utils.calcRaw(value, dec) ]
+      ))
   }
 
-  public prepareAccept (network: string, creditor: string, value: number): Promise<any> {
-    const { transaction, user } = this
-    return transaction.prepFuncTx(
-      user.address,
-      network,
-      'CurrencyNetwork',
-      'acceptCreditline',
-      [ creditor, value ]
-    )
+  public prepareAccept (
+    network: string,
+    creditor: string,
+    value: number,
+    decimals?: number
+  ): Promise<any> {
+    const { currencyNetwork, transaction, user, utils } = this
+    return currencyNetwork.getDecimals(network, decimals)
+      .then(dec => transaction.prepFuncTx(
+        user.address,
+        network,
+        'CurrencyNetwork',
+        'acceptCreditline',
+        [ creditor, utils.calcRaw(value, dec) ]
+      ))
   }
 
   public confirm (rawTx: string): Promise<string> {
-    return this.user.signTx(rawTx).then(signedTx => this.transaction.relayTx(signedTx))
+    return this.user.signTx(rawTx)
+      .then(signedTx => this.transaction.relayTx(signedTx))
   }
 
   public getAll (networkAddress: string): Promise<any[]> {
