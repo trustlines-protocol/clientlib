@@ -69,5 +69,12 @@ describe('e2e', () => {
       })
     })
 
+    describe('#getDecimals()', () => {
+      it('should return decimals from relay server', () => {
+        expect(currencyNetwork.getDecimals(networks[0].address))
+          .to.eventually.be.a('number')
+      })
+    })
+
   })
 })
