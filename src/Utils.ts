@@ -87,4 +87,19 @@ export class Utils {
     // TODO also use checksum address
   }
 
+  public calcRaw (value: number, decimals: number): number {
+    return value * Math.pow(10, decimals)
+  }
+
+  public calcValue (raw: number, decimals: number): number {
+    return raw / Math.pow(10, decimals)
+  }
+
+  public formatAmount (raw: number, decimals: number): object {
+    return {
+      decimals,
+      raw,
+      value: this.calcValue(raw, decimals)
+    }
+  }
 }
