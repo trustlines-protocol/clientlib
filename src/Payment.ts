@@ -2,6 +2,7 @@ import { Event } from './Event'
 import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
+import { CurrencyNetwork } from './CurrencyNetwork'
 
 export class Payment {
 
@@ -10,7 +11,8 @@ export class Payment {
   constructor (private event: Event,
                private user: User,
                private utils: Utils,
-               private transaction: Transaction) {
+               private transaction: Transaction,
+               private currencyNetwork: CurrencyNetwork) {
   }
 
   public prepare (networkAddress: string, receiver: string, value: number, pathOptions: any = {}): Promise<any> {

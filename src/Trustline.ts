@@ -2,13 +2,15 @@ import { Event } from './Event'
 import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
+import { CurrencyNetwork } from './CurrencyNetwork'
 
 export class Trustline {
 
   constructor (private event: Event,
                private user: User,
                private utils: Utils,
-               private transaction: Transaction) {
+               private transaction: Transaction,
+               private currencyNetwork: CurrencyNetwork) {
   }
 
   public prepareUpdate (network: string, debtor: string, value: number): Promise<any> {
