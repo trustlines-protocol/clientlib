@@ -35,7 +35,7 @@ export class CurrencyNetwork {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return Promise.resolve(
-      decimals ||
+      ((typeof decimals === 'number') && decimals) ||
       // TODO replace with list of known currency network in clientlib
       this.utils.fetchUrl(`networks/${networkAddress}`)
         .then(network => network.decimals)

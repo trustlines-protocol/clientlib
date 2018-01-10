@@ -53,10 +53,10 @@ describe('e2e', () => {
 
     describe('#getPath()', () => {
       it('should return path', done => {
-        tl1.payment.getPath(networkAddress, user1.address, user2.address, 100)
+        tl1.payment.getPath(networkAddress, user1.address, user2.address, 1.5)
           .then(pathObj => {
             expect(pathObj.estimatedGas).to.not.equal(0)
-            expect(pathObj.fees).to.not.equal(0)
+            expect(pathObj.maxFees).to.not.equal(0)
             expect(pathObj.path).to.not.equal([])
             done()
           })
@@ -75,14 +75,14 @@ describe('e2e', () => {
 
     describe('#prepare()', () => {
       it('should prepare tx for transfer', () => {
-        expect(tl1.payment.prepare(networkAddress, user2.address, 100))
-          .to.eventually.have.keys('rawTx', 'ethFee', 'maxFee', 'path')
+        expect(tl1.payment.prepare(networkAddress, user2.address, 2.25))
+          .to.eventually.have.keys('rawTx', 'ethFees', 'maxFees', 'path')
       })
     })
 
     describe('#confirm()', () => {
       it('should confirm transfer', done => {
-        tl1.payment.prepare(networkAddress, user2.address, 10)
+        tl1.payment.prepare(networkAddress, user2.address, 1.12)
           .then(({ rawTx }) => tl1.payment.confirm(rawTx))
           .then(txId => {
             expect(txId).to.be.a('string')
