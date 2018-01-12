@@ -66,7 +66,7 @@ describe('e2e', () => {
         tl1.payment.getPath(networkAddress, user1.address, user2.address, 1000)
           .then(pathObj => {
             expect(pathObj.estimatedGas).to.equal(0)
-            expect(pathObj.fees).to.equal(0)
+            expect(pathObj.maxFees).to.equal(0)
             expect(pathObj.path).to.deep.equal([])
             done()
           })
@@ -93,13 +93,17 @@ describe('e2e', () => {
 
     describe('#get()', () => {
       before(done => {
-        tl1.payment.prepare(networkAddress, user2.address, 15)
+        tl1.payment.prepare(networkAddress, user2.address, 1.5)
           .then(({ rawTx }) => tl1.payment.confirm(rawTx))
           .then(() => setTimeout(() => done(), 500))
       })
 
-      it('should return all transfers', () => {
-        expect(tl1.payment.get(networkAddress)).to.eventually.be.an('array')
+      it('should return all transfers', done => {
+        tl1.payment.get(networkAddress)
+          .then(transfers => {
+            expect(transfers).to.be.an('array')
+            done()
+          })
       })
 
       it('should return latest transfer', done => {
@@ -107,7 +111,7 @@ describe('e2e', () => {
           .then(transfers => {
             const latestTransfer = transfers[transfers.length - 1]
             expect(latestTransfer.address).to.be.a('string')
-            expect(latestTransfer.amount).to.equal(15)
+            expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
             expect(latestTransfer.blockNumber).to.be.a('number')
             expect(latestTransfer.direction).to.equal('sent')
             expect(latestTransfer.networkAddress).to.be.a('string')

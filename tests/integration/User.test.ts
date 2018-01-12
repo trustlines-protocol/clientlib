@@ -64,7 +64,7 @@ describe('integration', () => {
     describe('#encrypt()', () => {
       it('should return encryption object', () => {
         expect(tlNew.user.encrypt('hello world!', existingUser.pubKey))
-          .to.eventually.have.keys('version', 'asymAlg', 'hdIndex', 'encPrivKeys')
+          .to.eventually.be.an('object')
       })
     })
 
