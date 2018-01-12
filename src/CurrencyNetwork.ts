@@ -11,21 +11,21 @@ export class CurrencyNetwork {
   }
 
   public getInfo (networkAddress: string): Promise<any> {
-    if (!ethUtils.isValidAddress(networkAddress)) {
+    if (!ethUtils.isValidChecksumAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return this.utils.fetchUrl(`networks/${networkAddress}`)
   }
 
   public getUsers (networkAddress: string): Promise<string[]> {
-    if (!ethUtils.isValidAddress(networkAddress)) {
+    if (!ethUtils.isValidChecksumAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return this.utils.fetchUrl(`networks/${networkAddress}/users`)
   }
 
   public getUserOverview (networkAddress: string, userAddress: string): Promise<any> {
-    if (!ethUtils.isValidAddress(networkAddress)) {
+    if (!ethUtils.isValidChecksumAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return this.utils.fetchUrl(`networks/${networkAddress}/users/${userAddress}`)
