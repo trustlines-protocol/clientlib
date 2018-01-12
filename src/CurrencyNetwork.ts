@@ -42,7 +42,7 @@ export class CurrencyNetwork {
   }
 
   public getDecimals (networkAddress: string, decimals?: number): Promise<any> {
-    if (!this.utils.checkAddress(networkAddress)) {
+    if (!ethUtils.isValidChecksumAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return Promise.resolve(
