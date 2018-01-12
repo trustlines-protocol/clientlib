@@ -4,7 +4,7 @@ import { TLNetwork } from '../../src/TLNetwork'
 import { config } from '../Fixtures'
 
 describe('unit', () => {
-  describe.only('Utils', () => {
+  describe('Utils', () => {
     const { expect } = chai
     const tl = new TLNetwork(config)
 
