@@ -98,7 +98,7 @@ export class Utils {
     return x.div(Math.pow(10, decimals)).toNumber()
   }
 
-  public formatAmount (raw: number, decimals: number): object {
+  public formatAmount (raw: number, decimals: number): any {
     return {
       decimals,
       raw,
