@@ -24,12 +24,5 @@ describe('unit', () => {
           .to.eventually.be.rejectedWith('0x123 is not a valid address.')
       })
     })
-
-    describe('#getDecimals()', () => {
-      it('should return decimals', () => {
-        expect(currencyNetwork.getDecimals(networks[0].address, 2))
-          .to.eventually.equal(2)
-      })
-    })
   })
 })

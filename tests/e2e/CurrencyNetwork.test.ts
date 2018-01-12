@@ -74,7 +74,11 @@ describe('e2e', () => {
         expect(currencyNetwork.getDecimals(networks[0].address))
           .to.eventually.be.a('number')
       })
-    })
 
+      it('should return decimals', () => {
+        expect(currencyNetwork.getDecimals(networks[0].address, 2))
+          .to.eventually.equal(2)
+      })
+    })
   })
 })
