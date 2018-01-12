@@ -53,7 +53,7 @@ describe('e2e', () => {
       })
     })
 
-    describe.only('#getUserOverview()', () => {
+    describe('#getUserOverview()', () => {
       it('should return overview of user in currency network context', done => {
         currencyNetwork.getUserOverview(networks[0].address, '0xf8e191d2cd72ff35cb8f012685a29b31996614ea')
           .then(overview => {
