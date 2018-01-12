@@ -4,6 +4,7 @@ import 'rxjs/add/operator/mergeMap'
 import 'rxjs/add/operator/map'
 import { Observer } from 'rxjs/Observer'
 import { BigNumber } from 'bignumber.js'
+import * as ethUtils from 'ethereumjs-util'
 
 import { Configuration } from './Configuration'
 
