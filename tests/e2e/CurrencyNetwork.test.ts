@@ -53,17 +53,17 @@ describe('e2e', () => {
       })
     })
 
-    describe('#getUserOverview()', () => {
+    describe.only('#getUserOverview()', () => {
       it('should return overview of user in currency network context', done => {
         currencyNetwork.getUserOverview(networks[0].address, '0xf8e191d2cd72ff35cb8f012685a29b31996614ea')
           .then(overview => {
             const { balance, given, received, leftGiven, leftReceived } = overview
             expect(overview).to.have.all.keys('balance', 'given', 'received', 'leftGiven', 'leftReceived')
-            expect(balance).to.be.a('number')
-            expect(given).to.be.a('number')
-            expect(received).to.be.a('number')
-            expect(leftGiven).to.equal(given - balance)
-            expect(leftReceived).to.equal(received + balance)
+            expect(balance).to.have.all.keys('decimals', 'raw', 'value')
+            expect(given).to.have.all.keys('decimals', 'raw', 'value')
+            expect(received).to.have.all.keys('decimals', 'raw', 'value')
+            expect(leftGiven).to.have.all.keys('decimals', 'raw', 'value')
+            expect(leftReceived).to.have.all.keys('decimals', 'raw', 'value')
             done()
           })
       })
