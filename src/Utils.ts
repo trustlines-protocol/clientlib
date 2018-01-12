@@ -100,4 +100,8 @@ export class Utils {
       value: this.calcValue(raw, decimals)
     }
   }
+
+  public checkAddress (address: string): boolean {
+    return ethUtils.isValidChecksumAddress(address)
+  }
 }
