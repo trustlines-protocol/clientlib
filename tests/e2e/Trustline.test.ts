@@ -62,8 +62,8 @@ describe('e2e', () => {
       it('should return latest request', done => {
         tl1.trustline.getRequests(networkAddress).then(requests => {
           const latestRequest = requests[requests.length - 1]
-          expect(latestRequest.address).to.equal(user2.address)
-          expect(latestRequest.amount).to.equal(1500)
+          expect(latestRequest.address.toLowerCase()).to.equal(user2.address.toLowerCase())
+          expect(latestRequest.amount).to.have.keys('raw', 'value', 'decimals')
           expect(latestRequest.blockNumber).to.be.a('number')
           expect(latestRequest.direction).to.equal('sent')
           expect(latestRequest.networkAddress).to.equal(networkAddress)
@@ -117,8 +117,8 @@ describe('e2e', () => {
             setTimeout(() => {
               tl2.trustline.getUpdates(networkAddress).then(updates => {
                 const latestUpdate = updates[updates.length - 1]
-                expect(latestUpdate.address).to.equal(user1.address)
-                expect(latestUpdate.amount).to.equal(1500)
+                expect(latestUpdate.address.toLowerCase()).to.equal(user1.address.toLowerCase())
+                expect(latestUpdate.amount).to.have.keys('raw', 'value', 'decimals')
                 expect(latestUpdate.blockNumber).to.be.a('number')
                 expect(latestUpdate.direction).to.equal('received')
                 expect(latestUpdate.networkAddress).to.equal(networkAddress)

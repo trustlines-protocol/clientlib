@@ -7,23 +7,21 @@ import { config, keystore1, user1 } from '../Fixtures'
 describe('unit', () => {
   describe('User', () => {
     const { expect } = chai
-    const tlNew = new TLNetwork(config)
-    const tlExisting = new TLNetwork(config)
-    let newUser
+    const tl1 = new TLNetwork(config)
+    const tl2 = new TLNetwork(config)
     let existingUser
 
     before(done => {
-      Promise.all([tlNew.user.create(), tlExisting.user.load(keystore1)])
-        .then(users => {
-          newUser = users[0]
-          existingUser = users[1]
+      tl1.user.load(keystore1)
+        .then(user => {
+          existingUser = user
           done()
         })
     })
 
     describe('#createOnboardingMsg()', () => {
       it('should create onboarding message', done => {
-        tlExisting.user.createOnboardingMsg('testuser', keystore1).then(link => {
+        tl2.user.createOnboardingMsg('testuser', keystore1).then(link => {
           const splitLink = link.split('/')
           expect(splitLink[0]).to.equal('http:') // base url
           expect(splitLink[2]).to.equal('trustlines.network') // base url
@@ -39,7 +37,7 @@ describe('unit', () => {
 
     describe('#createLink()', () => {
       it('should create a contact link', done => {
-        tlExisting.user.createLink('testuser')
+        tl1.user.createLink('testuser')
           .then(link => {
             const splitLink = link.split('/')
             expect(splitLink[0]).to.equal('http:') // base url

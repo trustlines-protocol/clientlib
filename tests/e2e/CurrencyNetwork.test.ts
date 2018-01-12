@@ -59,15 +59,26 @@ describe('e2e', () => {
           .then(overview => {
             const { balance, given, received, leftGiven, leftReceived } = overview
             expect(overview).to.have.all.keys('balance', 'given', 'received', 'leftGiven', 'leftReceived')
-            expect(balance).to.be.a('number')
-            expect(given).to.be.a('number')
-            expect(received).to.be.a('number')
-            expect(leftGiven).to.equal(given - balance)
-            expect(leftReceived).to.equal(received + balance)
+            expect(balance).to.have.all.keys('decimals', 'raw', 'value')
+            expect(given).to.have.all.keys('decimals', 'raw', 'value')
+            expect(received).to.have.all.keys('decimals', 'raw', 'value')
+            expect(leftGiven).to.have.all.keys('decimals', 'raw', 'value')
+            expect(leftReceived).to.have.all.keys('decimals', 'raw', 'value')
             done()
           })
       })
     })
 
+    describe('#getDecimals()', () => {
+      it('should return decimals from relay server', () => {
+        expect(currencyNetwork.getDecimals(networks[0].address))
+          .to.eventually.be.a('number')
+      })
+
+      it('should return decimals', () => {
+        expect(currencyNetwork.getDecimals(networks[0].address, 2))
+          .to.eventually.equal(2)
+      })
+    })
   })
 })
