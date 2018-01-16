@@ -1,4 +1,3 @@
-import * as ethUtils from 'ethereumjs-util'
 import { Utils } from './Utils'
 
 export class CurrencyNetwork {
@@ -11,21 +10,21 @@ export class CurrencyNetwork {
   }
 
   public getInfo (networkAddress: string): Promise<any> {
-    if (!ethUtils.isValidChecksumAddress(networkAddress)) {
+    if (!this.utils.checkAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return this.utils.fetchUrl(`networks/${networkAddress}`)
   }
 
   public getUsers (networkAddress: string): Promise<string[]> {
-    if (!ethUtils.isValidChecksumAddress(networkAddress)) {
+    if (!this.utils.checkAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return this.utils.fetchUrl(`networks/${networkAddress}/users`)
   }
 
   public getUserOverview (networkAddress: string, userAddress: string): Promise<any> {
-    if (!ethUtils.isValidChecksumAddress(networkAddress)) {
+    if (!this.utils.checkAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return Promise.all([
@@ -42,7 +41,7 @@ export class CurrencyNetwork {
   }
 
   public getDecimals (networkAddress: string, decimals?: number): Promise<any> {
-    if (!ethUtils.isValidChecksumAddress(networkAddress)) {
+    if (!this.utils.checkAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
     return Promise.resolve(
