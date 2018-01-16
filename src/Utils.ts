@@ -103,6 +103,10 @@ export class Utils {
   }
 
   public checkAddress (address: string): boolean {
-    return ethUtils.isValidChecksumAddress(address)
+    if (/[A-Z]/.test(address)) {
+      return ethUtils.isValidChecksumAddress(address)
+    } else {
+      return ethUtils.isValidAddress(address)
+    }
   }
 }
