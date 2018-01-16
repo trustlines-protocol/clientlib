@@ -17,7 +17,7 @@ export const user1 = {
 }
 
 export const user2 = {
-  address: '0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18',
-  proxyAddress: '0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18',
+  address: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
+  proxyAddress: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
   keystore: keystore2
 }
