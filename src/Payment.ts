@@ -20,7 +20,7 @@ export class Payment {
     receiver: string,
     value: number,
     decimals: any = {},
-    pathOptions?: any
+    pathOptions: any = {}
   ): Promise<any> {
     const { user, currencyNetwork, transaction, utils } = this
     if (typeof decimals === 'object') {
@@ -55,7 +55,7 @@ export class Payment {
     accountB: string,
     value: number,
     decimals: any = {},
-    pathOptions?: any
+    pathOptions: any = {}
   ): Promise<any> {
     const { utils, currencyNetwork } = this
     const url = `networks/${network}/path-info`
