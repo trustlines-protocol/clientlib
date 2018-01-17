@@ -62,7 +62,6 @@ describe('e2e', () => {
       it('should return latest request', done => {
         tl1.trustline.getRequests(networkAddress).then(requests => {
           const latestRequest = requests[requests.length - 1]
-          console.log(latestRequest.address)
           expect(latestRequest.address).to.equal(user2.address)
           expect(latestRequest.amount).to.have.keys('raw', 'value', 'decimals')
           expect(latestRequest.blockNumber).to.be.a('number')
