@@ -10,14 +10,14 @@ export const config = {
 }
 
 export const user1 = {
-  address: '0xf8e191d2cd72ff35cb8f012685a29b31996614ea',
-  proxyAddress: '0xf8e191d2cd72ff35cb8f012685a29b31996614ea',
+  address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  proxyAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
   keystore: keystore1,
   pubKey: 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472'
 }
 
 export const user2 = {
-  address: '0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18',
-  proxyAddress: '0xce2d6f8bc55a61428d32947bc9bc7f2de1640b18',
+  address: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
+  proxyAddress: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
   keystore: keystore2
 }

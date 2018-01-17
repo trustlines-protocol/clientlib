@@ -62,11 +62,12 @@ describe('e2e', () => {
       it('should return latest request', done => {
         tl1.trustline.getRequests(networkAddress).then(requests => {
           const latestRequest = requests[requests.length - 1]
-          expect(latestRequest.address.toLowerCase()).to.equal(user2.address.toLowerCase())
+          console.log(latestRequest.address)
+          expect(latestRequest.address).to.equal(user2.address)
           expect(latestRequest.amount).to.have.keys('raw', 'value', 'decimals')
           expect(latestRequest.blockNumber).to.be.a('number')
           expect(latestRequest.direction).to.equal('sent')
-          expect(latestRequest.networkAddress.toLowerCase()).to.equal(networkAddress.toLowerCase())
+          expect(latestRequest.networkAddress).to.equal(networkAddress)
           expect(latestRequest.status).to.be.a('string')
           expect(latestRequest.timestamp).to.be.a('number')
           expect(latestRequest.transactionId).to.equal(txId)
@@ -117,11 +118,11 @@ describe('e2e', () => {
             setTimeout(() => {
               tl2.trustline.getUpdates(networkAddress).then(updates => {
                 const latestUpdate = updates[updates.length - 1]
-                expect(latestUpdate.address.toLowerCase()).to.equal(user1.address.toLowerCase())
+                expect(latestUpdate.address).to.equal(user1.address)
                 expect(latestUpdate.amount).to.have.keys('raw', 'value', 'decimals')
                 expect(latestUpdate.blockNumber).to.be.a('number')
                 expect(latestUpdate.direction).to.equal('received')
-                expect(latestUpdate.networkAddress.toLowerCase()).to.equal(networkAddress.toLowerCase())
+                expect(latestUpdate.networkAddress).to.equal(networkAddress)
                 expect(latestUpdate.status).to.be.a('string')
                 expect(latestUpdate.timestamp).to.be.a('number')
                 expect(latestUpdate.transactionId).to.equal(txId)

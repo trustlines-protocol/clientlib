@@ -22,7 +22,7 @@ export class Transaction {
           gasLimit: 2000000, // TODO let user set gas limit
           value: 0,
           nonce: txinfos.nonce,
-          to: contractAddress
+          to: contractAddress.toLowerCase()
         }
         const txObj = {
           rawTx: lightwallet.txutils.functionTx(CONTRACTS[ contractName ].abi, functionName, parameters, txOptions),
@@ -44,7 +44,7 @@ export class Transaction {
           gasLimit: 1000000, // TODO let user set gas limit
           value,
           nonce: txinfos.nonce,
-          to
+          to: to.toLowerCase()
         }
         return {
           rawTx: lightwallet.txutils.valueTx(txOptions),

@@ -4,6 +4,7 @@ import 'rxjs/add/operator/mergeMap'
 import 'rxjs/add/operator/map'
 import { Observer } from 'rxjs/Observer'
 import { BigNumber } from 'bignumber.js'
+import * as ethUtils from 'ethereumjs-util'
 
 import { Configuration } from './Configuration'
 
@@ -83,11 +84,6 @@ export class Utils {
     return base + link
   }
 
-  public checkAddress (address: string): boolean {
-    return /^(0x)?[0-9a-f]{40}$/i.test(address)
-    // TODO also use checksum address
-  }
-
   public calcRaw (value: number, decimals: number): any {
     const x = new BigNumber(value)
     return x.times(Math.pow(10, decimals)).toNumber()
@@ -103,6 +99,14 @@ export class Utils {
       decimals,
       raw,
       value: this.calcValue(raw, decimals)
+    }
+  }
+
+  public checkAddress (address: string): boolean {
+    if (/[A-Z]/.test(address)) {
+      return ethUtils.isValidChecksumAddress(address)
+    } else {
+      return ethUtils.isValidAddress(address)
     }
   }
 }
