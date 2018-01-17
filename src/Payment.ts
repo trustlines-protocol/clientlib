@@ -91,16 +91,9 @@ export class Payment {
       })
   }
 
-  public get (network: string, filter?: object): Promise<any> {
-    const { event, currencyNetwork, utils } = this
+  public get (networkAddress: string, filter?: object): Promise<any> {
     const mergedFilter = Object.assign({ type: 'Transfer' }, filter)
-    return Promise.all([
-      this.event.get(network, mergedFilter),
-      currencyNetwork.getDecimals(network)
-    ]).then(([ transfers, decimals ]) => transfers.map(t => ({
-      ...t,
-      amount: utils.formatAmount(t.amount, decimals)
-    })))
+    return this.event.get(networkAddress, mergedFilter)
   }
 
   public confirm (rawTx): Promise<string> {

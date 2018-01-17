@@ -83,26 +83,12 @@ export class Trustline {
   }
 
   public getRequests (networkAddress: string, filter?: object): Promise<any> {
-    const { currencyNetwork, utils } = this
     const mergedFilter = Object.assign({type: 'CreditlineUpdateRequest'}, filter)
-    return Promise.all([
-      this.event.get(networkAddress, mergedFilter),
-      currencyNetwork.getDecimals(networkAddress)
-    ]).then(([ requests, decimals ]) => requests.map(r => ({
-      ...r,
-      amount: utils.formatAmount(r.amount, decimals)
-    })))
+    return this.event.get(networkAddress, mergedFilter)
   }
 
   public getUpdates (networkAddress: string, filter?: object): Promise<any> {
-    const { currencyNetwork, utils } = this
     const mergedFilter = Object.assign({type: 'CreditlineUpdate'}, filter)
-    return Promise.all([
-      this.event.get(networkAddress, mergedFilter),
-      currencyNetwork.getDecimals(networkAddress)
-    ]).then(([ updates, decimals ]) => updates.map(u => ({
-      ...u,
-      amount: utils.formatAmount(u.amount, decimals)
-    })))
+    return this.event.get(networkAddress, mergedFilter)
   }
 }
