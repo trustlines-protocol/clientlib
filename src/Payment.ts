@@ -46,9 +46,7 @@ export class Payment {
               : Promise.reject('Could not find a path with enough capacity')
           })
       })
-      .catch(error => {
-        Promise.reject(`There was an error while finding a path: ${error}`)
-      })
+      .catch(e => Promise.reject(`There was an error while finding a path: ${e}`))
   }
 
   public getPath (
@@ -88,6 +86,7 @@ export class Payment {
           path,
           maxFees: utils.calcValue(fees, dec)
         }))
+        .catch(e => Promise.reject(e))
       })
   }
 

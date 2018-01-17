@@ -78,6 +78,11 @@ describe('e2e', () => {
         expect(tl1.payment.prepare(networkAddress, user2.address, 2.25))
           .to.eventually.have.keys('rawTx', 'ethFees', 'maxFees', 'path')
       })
+
+      it('should not prepare tx for transfer', () => {
+        expect(tl1.payment.prepare(networkAddress, user2.address, 2000))
+          .to.eventually.throw()
+      })
     })
 
     describe('#confirm()', () => {
