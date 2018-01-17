@@ -9,7 +9,7 @@
     "lint": "tslint -c tslint.json ./src/**/**.ts ./tests/**/**.ts",
     "lint-fix": "tslint -c tslint.json --fix ./src/**/**.ts ./tests/**/**.ts",
     "test": "mocha --timeout 5000 --require isomorphic-fetch -r ts-node/register tests/**/**.test.ts",
-    "test:e2e": "mocha --timeout 5000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
+    "test:e2e": "mocha --timeout 10000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
     "test:integration": "mocha --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
     "test:unit": "mocha --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts"
   },

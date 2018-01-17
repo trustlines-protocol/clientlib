@@ -21,7 +21,6 @@ export class Event {
   public get (networkAddress: string, filter?: object): Promise<any[]> {
     const { user, utils, validParameters } = this
     const baseUrl = `networks/${networkAddress}/users/${user.address}/events`
-    console.log(baseUrl)
     const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)
     return Promise.all([
       utils.fetchUrl(parameterUrl),
