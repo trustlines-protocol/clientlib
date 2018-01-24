@@ -41,7 +41,7 @@ describe('e2e', () => {
       it('should send eth to new user', () => {
         expect(tlNew.user.requestEth()).to.eventually.not.equal(null)
         setTimeout(() => {
-          expect(tlNew.user.getBalance()).to.eventually.equal('1')
+          expect(tlNew.user.getBalance()).to.eventually.not.equal('0')
         }, 500)
       })
     })

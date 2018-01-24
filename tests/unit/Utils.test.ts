@@ -20,13 +20,27 @@ describe('unit', () => {
       })
     })
 
-    describe('formatAmount()', () => {
+    describe('#formatAmount()', () => {
       const amount = tl.utils.formatAmount(123, 2)
       it('should return amount object', () => {
         expect(amount).to.have.keys('decimals', 'raw', 'value')
         expect(amount.decimals).to.equal(2)
         expect(amount.raw).to.equal(123)
         expect(amount.value).to.equal(1.23)
+      })
+    })
+
+    describe('#convertEthToWei()', () => {
+      it('should return 1 eth in wei', () => {
+        expect(tl.utils.convertEthToWei(1)).to.equal(1000000000000000000)
+      })
+
+      it('should return 0.123456789 eth in wei', () => {
+        expect(tl.utils.convertEthToWei(0.123456789)).to.equal(123456789000000000)
+      })
+
+      it('should return 1 wei', () => {
+        expect(tl.utils.convertEthToWei(0.000000000000000001)).to.equal(1)
       })
     })
 

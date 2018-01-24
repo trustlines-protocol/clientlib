@@ -109,4 +109,10 @@ export class Utils {
       return ethUtils.isValidAddress(address)
     }
   }
+
+  public convertEthToWei (value: number): number {
+    const eth = new BigNumber(value)
+    const wei = new BigNumber(1000000000000000000)
+    return eth.times(wei).toNumber()
+  }
 }
