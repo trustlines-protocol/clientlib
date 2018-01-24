@@ -74,19 +74,19 @@ describe('e2e', () => {
     })
 
     describe('#prepare()', () => {
-      it('should prepare tx for transfer', () => {
+      it('should prepare tx for trustline transfer', () => {
         expect(tl1.payment.prepare(networkAddress, user2.address, 2.25))
           .to.eventually.have.keys('rawTx', 'ethFees', 'maxFees', 'path')
       })
 
-      it('should not prepare tx for transfer', () => {
+      it('should not prepare tx for trustline transfer', () => {
         expect(tl1.payment.prepare(networkAddress, user2.address, 2000))
           .to.eventually.throw()
       })
     })
 
     describe('#confirm()', () => {
-      it('should confirm transfer', done => {
+      it('should confirm trustline transfer', done => {
         tl1.payment.prepare(networkAddress, user2.address, 1.12)
           .then(({ rawTx }) => tl1.payment.confirm(rawTx))
           .then(txId => {
@@ -124,6 +124,24 @@ describe('e2e', () => {
             expect(latestTransfer.timestamp).to.be.a('number')
             expect(latestTransfer.transactionId).to.be.a('string')
             expect(latestTransfer.type).to.equal('Transfer')
+            done()
+          })
+      })
+    })
+
+    describe('#prepareEth()', () => {
+      it('should prepare tx for eth transfer', () => {
+        expect(tl1.payment.prepareEth(user2.address, 0.05))
+          .to.eventually.have.keys('rawTx', 'ethFees')
+      })
+    })
+
+    describe('#confirm()', () => {
+      it('should confirm eth transfer', done => {
+        tl1.payment.prepareEth(user2.address, 0.01)
+          .then(({ rawTx }) => tl1.payment.confirm(rawTx))
+          .then(txId => {
+            expect(txId).to.be.a('string')
             done()
           })
       })
