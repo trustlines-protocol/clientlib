@@ -103,7 +103,7 @@ export class User {
     return this.transaction.prepValueTx(
       this.address, // address of onboarder
       newUserAddress, // address of new user who gets onboarded
-      100000 // TODO fetch default onboarding amount of eth
+      0.01 // TODO fetch default onboarding amount of eth
     ).then(tx => tx)
     .catch(error => Promise.reject(error))
   }
