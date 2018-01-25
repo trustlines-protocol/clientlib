@@ -148,4 +148,9 @@ export class Payment {
       })
   }
 
+  public prepareEth (to: string, value: number, options?: object): Promise<any> {
+    return this.transaction.prepValueTx(this.user.address, to, value, options)
+      .catch(error => Promise.reject(error))
+  }
+
 }

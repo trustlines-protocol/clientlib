@@ -30,7 +30,7 @@ describe('e2e', () => {
     describe('#prepareUpdate()', () => {
       it('should prepare request tx', () => {
         expect(tl1.trustline.prepareUpdate(networkAddress, user2.address, 1300))
-          .to.eventually.have.keys('rawTx', 'ethFee', 'gasPrice')
+          .to.eventually.have.keys('rawTx', 'ethFees', 'gasPrice')
       })
     })
 
@@ -83,7 +83,7 @@ describe('e2e', () => {
     describe('#prepareAccept()', () => {
       it('should prepare accept tx', () => {
         expect(tl2.trustline.prepareAccept(networkAddress, user1.address, 1250))
-          .to.eventually.have.keys('rawTx', 'ethFee', 'gasPrice')
+          .to.eventually.have.keys('rawTx', 'ethFees', 'gasPrice')
       })
     })
 

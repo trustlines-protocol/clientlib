@@ -26,7 +26,7 @@ export class Transaction {
         }
         const txObj = {
           rawTx: lightwallet.txutils.functionTx(CONTRACTS[ contractName ].abi, functionName, parameters, txOptions),
-          ethFee: 200000 * txOptions.gasPrice, // TODO set gas dynamically according to method
+          ethFees: 200000 * txOptions.gasPrice, // TODO set gas dynamically according to method
           gasPrice: txinfos.gasPrice
         }
         return txObj
@@ -36,24 +36,28 @@ export class Transaction {
       })
   }
 
-  public prepValueTx (from: string, to: string, value: number): Promise<any> {
+  public prepValueTx (
+    from: string,
+    to: string,
+    value: number,
+    options: any = {}
+  ): Promise<any> {
+    const { gasPrice, gasLimit } = options
     return this.getTxInfos(from)
       .then(txinfos => {
         const txOptions = {
-          gasPrice: txinfos.gasPrice, // TODO let user set gas price
-          gasLimit: 1000000, // TODO let user set gas limit
-          value,
+          gasPrice: gasPrice || txinfos.gasPrice,
+          gasLimit: gasLimit || 1000000,
+          value: this.utils.convertEthToWei(value),
           nonce: txinfos.nonce,
           to: to.toLowerCase()
         }
         return {
           rawTx: lightwallet.txutils.valueTx(txOptions),
-          ethFee: 21000 * txOptions.gasPrice
+          ethFees: 21000 * txOptions.gasPrice
         }
       })
-      .catch(error => {
-        return Promise.reject(error)
-      })
+      .catch(error => Promise.reject(error))
   }
 
   public relayTx (rawTx: string): Promise<any> {
