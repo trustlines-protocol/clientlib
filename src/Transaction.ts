@@ -14,7 +14,8 @@ export class Transaction {
                      contractAddress: string,
                      contractName: string,
                      functionName: string,
-                     parameters: any[]): Promise<any> {
+                     parameters: any[],
+                     estimatedGas?: number): Promise<any> {
     return this.getTxInfos(userAddress)
       .then(txinfos => {
         const txOptions = {
@@ -26,7 +27,7 @@ export class Transaction {
         }
         const txObj = {
           rawTx: lightwallet.txutils.functionTx(CONTRACTS[ contractName ].abi, functionName, parameters, txOptions),
-          ethFees: 200000 * txOptions.gasPrice, // TODO set gas dynamically according to method
+          ethFees: (estimatedGas ? estimatedGas * 1.2 : 2000000) * txOptions.gasPrice,
           gasPrice: txinfos.gasPrice
         }
         return txObj
