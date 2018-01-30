@@ -45,24 +45,24 @@ export class Utils {
 
   public fetchUrl (url: string, options?: object): Promise<any> {
     const { apiUrl } = this.configuration
-    if (__DEV__) {
-      console.log(`Request: ${apiUrl}${url}`, options)
-    }
-    return fetch(`${apiUrl}${url}`, options)
+    const completeUrl = `${apiUrl}${url}`
+    return fetch(completeUrl, options)
       .then(response => {
-        if (__DEV__) {
-          console.log(`Response: ${apiUrl}${url}`, response)
-        }
         if (response.status !== 200) {
           return response.json().then(json =>
-            Promise.reject(json.message)
+            Promise.reject(new Error('Status ' + response.status + ': ' + json.message))
           )
         } else {
           return response.json()
         }
       })
-      .then(json => json)
-      .catch(error => Promise.reject(error.message || error))
+      .then(json => {
+        return json
+      })
+      .catch(error => {
+        const message = 'There was an error fetching ' + completeUrl + ' | ' + (error && error.message)
+        return Promise.reject(new Error(message))
+      })
   }
 
   public buildUrl (baseUrl: string, validParameters: string[], parameters?: any): string {
@@ -81,7 +81,7 @@ export class Utils {
   public createLink (pre: string, parameters: any[]): string {
     const base = `http://trustlines.network/v1/${pre}/`
     const link = parameters.reduce((result, param) => `${result}/${param}`)
-    return base + link
+    return `${base}${link}`
   }
 
   public calcRaw (value: number, decimals: number): any {
