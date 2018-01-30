@@ -26,8 +26,12 @@ export class Transaction {
           to: contractAddress.toLowerCase()
         }
         const txObj = {
-          rawTx: lightwallet.txutils.functionTx(CONTRACTS[ contractName ].abi, functionName, parameters, txOptions),
-          ethFees: (estimatedGas ? estimatedGas * 1.2 : 2000000) * txOptions.gasPrice,
+          rawTx: lightwallet.txutils.functionTx(
+            CONTRACTS[ contractName ].abi, functionName, parameters, txOptions
+          ),
+          ethFees: this.utils.formatAmount(
+            (estimatedGas ? estimatedGas * 1.2 : 2000000) * txOptions.gasPrice, 18
+          ),
           gasPrice: txinfos.gasPrice
         }
         return txObj
@@ -55,7 +59,7 @@ export class Transaction {
         }
         return {
           rawTx: lightwallet.txutils.valueTx(txOptions),
-          ethFees: 21000 * txOptions.gasPrice
+          ethFees: this.utils.formatAmount(21000 * txOptions.gasPrice, 18)
         }
       })
       .catch(error => Promise.reject(error))

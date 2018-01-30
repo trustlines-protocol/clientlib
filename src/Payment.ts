@@ -42,7 +42,7 @@ export class Payment {
                   rawTx,
                   path,
                   maxFees,
-                  ethFees
+                  ethFees: utils.formatAmount(ethFees, 18)
                 }))
               : Promise.reject('Could not find a path with enough capacity')
           })
@@ -85,7 +85,7 @@ export class Payment {
         .then(({ estimatedGas, fees, path }) => ({
           estimatedGas,
           path,
-          maxFees: utils.calcValue(fees, dec)
+          maxFees: utils.formatAmount(fees, dec)
         }))
         .catch(e => Promise.reject(e))
       })
