@@ -36,13 +36,13 @@ export class Payment {
                   networkAddress,
                   'CurrencyNetwork',
                   'transfer',
-                  [ receiver, utils.calcRaw(value, dec), utils.calcRaw(maxFees, dec), path.slice(1) ],
+                  [ receiver, utils.calcRaw(value, dec), maxFees.raw, path.slice(1) ],
                   estimatedGas
                 ).then(({ rawTx, gasPrice, ethFees }) => ({
                   rawTx,
                   path,
                   maxFees,
-                  ethFees: utils.formatAmount(ethFees, 18)
+                  ethFees
                 }))
               : Promise.reject('Could not find a path with enough capacity')
           })
