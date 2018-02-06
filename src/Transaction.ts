@@ -16,17 +16,19 @@ export class Transaction {
   constructor (private utils: Utils) {
   }
 
-  public prepFuncTx (userAddress: string,
-                     contractAddress: string,
-                     contractName: string,
-                     functionName: string,
-                     parameters: any[],
-                     estimatedGas?: number): Promise<any> {
+  public prepFuncTx (
+    userAddress: string,
+    contractAddress: string,
+    contractName: string,
+    functionName: string,
+    parameters: any[],
+    { gasPrice, gasLimit, estimatedGas }: TxOptions = {}
+  ): Promise<any> {
     return this.getTxInfos(userAddress)
       .then(txinfos => {
         const txOptions = {
-          gasPrice: txinfos.gasPrice, // TODO let user set gas price
-          gasLimit: 2000000, // TODO let user set gas limit
+          gasPrice: gasPrice || txinfos.gasPrice,
+          gasLimit: gasLimit || 2000000,
           value: 0,
           nonce: txinfos.nonce,
           to: contractAddress.toLowerCase()
