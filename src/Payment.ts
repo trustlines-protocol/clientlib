@@ -24,34 +24,32 @@ export class Payment {
   }
 
   public prepare (
-    networkAddress: string,
-    receiver: string,
+    network: string,
+    to: string,
     value: number,
-    decimals: any = {},
-    pathOptions: any = {}
+    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: Options = {}
   ): Promise<any> {
     const { user, currencyNetwork, transaction, utils } = this
-    if (typeof decimals === 'object') {
-      pathOptions = decimals
-    }
-    return currencyNetwork.getDecimals(networkAddress, decimals)
+    return currencyNetwork.getDecimals(network, decimals)
       .then(dec => {
-        return this.getPath(networkAddress, user.address, receiver, value, dec, pathOptions)
+        return this.getPath(network, user.address, to, value, {
+          decimals: dec, maximumHops, maximumFees, gasPrice, gasLimit
+        })
           .then(({ path, maxFees, estimatedGas }) => {
             return path.length > 0
               ? transaction.prepFuncTx(
-                  user.address,
-                  networkAddress,
-                  'CurrencyNetwork',
-                  'transfer',
-                  [ receiver, utils.calcRaw(value, dec), maxFees.raw, path.slice(1) ],
-                  estimatedGas
-                ).then(({ rawTx, gasPrice, ethFees }) => ({
-                  rawTx,
-                  path,
-                  maxFees,
-                  ethFees
-                }))
+                user.address,
+                network,
+                'CurrencyNetwork',
+                'transfer',
+                [ to, utils.calcRaw(value, dec), maxFees.raw, path.slice(1) ],
+                { gasPrice, gasLimit, estimatedGas }
+              ).then(({ rawTx, gasPrice, ethFees }) => ({
+                rawTx,
+                path,
+                maxFees,
+                ethFees
+              }))
               : Promise.reject('Could not find a path with enough capacity')
           })
       })
