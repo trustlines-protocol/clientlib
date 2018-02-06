@@ -4,6 +4,14 @@ import { User } from './User'
 import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
 
+interface Options {
+  decimals?: number,
+  maximumHops?: number,
+  maximumFees?: number,
+  gasPrice?: number,
+  gasLimit?: number
+}
+
 export class Payment {
 
   private validParameters = [ 'fromBlock', 'toBlock' ]
@@ -50,32 +58,38 @@ export class Payment {
       .catch(e => Promise.reject(`There was an error while finding a path: ${e}`))
   }
 
+  public prepareEth (
+    to: string,
+    value: number,
+    { gasPrice, gasLimit }: Options = {}
+  ): Promise<any> {
+    const { transaction, user, utils } = this
+    const rawValue = utils.convertEthToWei(value)
+    return transaction.prepValueTx(user.address, to, rawValue, { gasPrice, gasLimit })
+      .catch(error => Promise.reject(error))
+  }
+
   public getPath (
     network: string,
     accountA: string,
     accountB: string,
     value: number,
-    decimals: any = {},
-    pathOptions: any = {}
+    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: Options = {}
   ): Promise<any> {
     const { utils, currencyNetwork } = this
     const url = `networks/${network}/path-info`
-    if (typeof decimals === 'object') {
-      pathOptions = decimals
-    }
     return currencyNetwork.getDecimals(network, decimals)
       .then(dec => {
-        const { maxFees, maxHops } = pathOptions
         const data = {
           from: accountA,
           to: accountB,
           value: utils.calcRaw(value, dec)
         }
-        if (maxFees) {
-          data['maxFees'] = maxFees
+        if (maximumFees) {
+          data['maxFees'] = maximumFees
         }
-        if (maxHops) {
-          data['maxHops'] = maxHops
+        if (maximumHops) {
+          data['maxHops'] = maximumHops
         }
         return utils.fetchUrl(url, {
           method: 'POST',
@@ -148,10 +162,4 @@ export class Payment {
         return Promise.reject(error)
       })
   }
-
-  public prepareEth (to: string, value: number, options?: object): Promise<any> {
-    return this.transaction.prepValueTx(this.user.address, to, value, options)
-      .catch(error => Promise.reject(error))
-  }
-
 }
