@@ -5,6 +5,12 @@ import * as ethUtils from 'ethereumjs-util'
 
 const CONTRACTS = require('../contracts.json')
 
+interface TxOptions {
+  gasPrice?: number,
+  gasLimit?: number,
+  estimatedGas?: number
+}
+
 export class Transaction {
 
   constructor (private utils: Utils) {
@@ -44,16 +50,15 @@ export class Transaction {
   public prepValueTx (
     from: string,
     to: string,
-    value: number,
-    options: any = {}
+    rawValue: number,
+    { gasPrice, gasLimit }: TxOptions = {}
   ): Promise<any> {
-    const { gasPrice, gasLimit } = options
     return this.getTxInfos(from)
       .then(txinfos => {
         const txOptions = {
           gasPrice: gasPrice || txinfos.gasPrice,
           gasLimit: gasLimit || 1000000,
-          value: this.utils.convertEthToWei(value),
+          rawValue,
           nonce: txinfos.nonce,
           to: to.toLowerCase()
         }
