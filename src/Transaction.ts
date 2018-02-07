@@ -1,15 +1,11 @@
 import { Utils } from './Utils'
+import { TxOptions } from './typings'
+
 import * as lightwallet from 'eth-lightwallet'
 // declare let lightwallet
 import * as ethUtils from 'ethereumjs-util'
 
 const CONTRACTS = require('../contracts.json')
-
-interface TxOptions {
-  gasPrice?: number,
-  gasLimit?: number,
-  estimatedGas?: number
-}
 
 export class Transaction {
 

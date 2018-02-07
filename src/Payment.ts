@@ -3,14 +3,7 @@ import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
-
-interface Options {
-  decimals?: number,
-  maximumHops?: number,
-  maximumFees?: number,
-  gasPrice?: number,
-  gasLimit?: number
-}
+import { PaymentOptions } from './typings'
 
 export class Payment {
 
@@ -27,7 +20,7 @@ export class Payment {
     network: string,
     to: string,
     value: number,
-    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: Options = {}
+    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { user, currencyNetwork, transaction, utils } = this
     return currencyNetwork.getDecimals(network, decimals)
@@ -59,7 +52,7 @@ export class Payment {
   public prepareEth (
     to: string,
     value: number,
-    { gasPrice, gasLimit }: Options = {}
+    { gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { transaction, user, utils } = this
     const rawValue = utils.convertEthToWei(value)
@@ -72,7 +65,7 @@ export class Payment {
     accountA: string,
     accountB: string,
     value: number,
-    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: Options = {}
+    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { utils, currencyNetwork } = this
     const url = `networks/${network}/path-info`
