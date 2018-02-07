@@ -1,14 +1,9 @@
 import { Utils } from './Utils'
 import { User } from './User'
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { EventFilterOptions } from './typings'
 
 import { Observable } from 'rxjs/Observable'
-
-interface EventFilterOptions {
-  type?: string,
-  fromBlock?: number,
-  toBlock?: number
-}
 
 export class Event {
   constructor (private user: User, private utils: Utils, private currencyNetwork: CurrencyNetwork) {
