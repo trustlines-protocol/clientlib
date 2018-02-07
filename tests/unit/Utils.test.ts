@@ -44,16 +44,29 @@ describe('unit', () => {
       })
     })
 
-    // TODO
-    // describe('#buildUrl()', () => {
-    //   it('should build an url', () => {
-    //   })
-    // })
-    //
-    // TODO
-    // describe('#createLink()', () => {
-    //   it('should create a link', () => {
-    //   })
-    // })
+    describe('#buildUrl()', () => {
+      it('should return base url', () => {
+        const base = 'http://trustlines.network/v1'
+        expect(tl.utils.buildUrl(base)).to.equal('http://trustlines.network/v1')
+      })
+
+      it('should return query url with encoded params', () => {
+        const base = '/path'
+        const params = {
+          key1: 'value1',
+          key2: ' ',
+          key3: '?'
+        }
+        const queryUrl = '/path?key1=value1&key2=%20&key3=%3F'
+        expect(tl.utils.buildUrl(base, params)).to.equal(queryUrl)
+      })
+
+      it('should return url with encoded path', () => {
+        const base = 'http://trustlines.network/v1'
+        const url = 'http://trustlines.network/v1/contact/0x00/username%20with%20spaces'
+        expect(tl.utils.buildUrl(base, ['contact', '0x00', 'username with spaces']))
+          .to.equal(url)
+      })
+    })
   })
 })
