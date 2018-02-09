@@ -80,6 +80,11 @@ export class Utils {
     return baseUrl
   }
 
+  public createLink (params: any[]): string {
+    const base = 'http://trustlines.network/v1'
+    return this.buildUrl(base, params)
+  }
+
   public calcRaw (value: number, decimals: number): any {
     const x = new BigNumber(value)
     return x.times(Math.pow(10, decimals)).toNumber()
