@@ -14,8 +14,8 @@ export class Contact {
 
   public createLink (address: string, username: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const base = 'http://trustlines.network/v1'
-      resolve(this.utils.buildUrl(base, ['contact', address, username]))
+      const params = ['contact', address, username]
+      resolve(this.utils.createLink(params))
     })
   }
 

@@ -93,9 +93,8 @@ export class User {
   public createOnboardingMsg (username: string, serializedKeystore: string): Promise<string> {
     return new Promise<any>((resolve, reject) => {
       this.load(serializedKeystore).then(() => {
-        const base = 'http://trustlines.network/v1'
         const params = [ 'onboardingrequest', username, this.address, this.pubKey ]
-        resolve(this.utils.buildUrl(base, params))
+        resolve(this.utils.createLink(params))
       })
     })
   }
@@ -206,9 +205,8 @@ export class User {
 
   public createLink (username: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const base = 'http://trustlines.network/v1'
       const params = ['contact', this.address, username]
-      resolve(this.utils.buildUrl(base, params))
+      resolve(this.utils.createLink(params))
     })
   }
 
