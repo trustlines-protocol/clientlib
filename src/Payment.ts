@@ -112,8 +112,8 @@ export class Payment {
                       to: string // TODO receiver address optional?
   ): Promise<any> {
     const msg = this.user.address + to + value + expiresOn
-    return this.user.signMsg(msg).then(signature => {
-      const params = [ network, value, expiresOn, signature ]
+    return this.user.signMsg(msg).then(({ concatSig }) => {
+      const params = [ network, value, expiresOn, concatSig ]
       if (to) { params.push(to) }
       return this.utils.createLink('cheque', params)
     })

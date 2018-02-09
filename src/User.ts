@@ -72,8 +72,8 @@ export class User {
     })
   }
 
-  public signMsg (rawMsg: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
+  public signMsg (rawMsg: string): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           reject(err)
@@ -84,7 +84,14 @@ export class User {
             rawMsg,
             this.address.toLowerCase()
           )
-          resolve(lightwallet.signing.concatSig(signature))
+          resolve({
+            ecSignature: {
+              r: ethUtils.bufferToHex(signature.r),
+              s: ethUtils.bufferToHex(signature.s),
+              v: signature.v
+            },
+            concatSig: lightwallet.signing.concatSig(signature)
+          })
         }
       })
     })
