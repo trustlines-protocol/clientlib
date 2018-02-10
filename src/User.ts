@@ -93,8 +93,8 @@ export class User {
   public createOnboardingMsg (username: string, serializedKeystore: string): Promise<string> {
     return new Promise<any>((resolve, reject) => {
       this.load(serializedKeystore).then(() => {
-        const params = [ username, this.address, this.pubKey ]
-        resolve(this.utils.createLink('onboardingrequest', params))
+        const params = [ 'onboardingrequest', username, this.address, this.pubKey ]
+        resolve(this.utils.createLink(params))
       })
     })
   }
@@ -205,8 +205,8 @@ export class User {
 
   public createLink (username: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const params = [ this.address, username ]
-      resolve(this.utils.createLink('contact', params))
+      const params = ['contact', this.address, username]
+      resolve(this.utils.createLink(params))
     })
   }
 

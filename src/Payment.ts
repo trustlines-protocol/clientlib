@@ -102,8 +102,8 @@ export class Payment {
 
   public createRequest (network: string, amount: number, subject: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const params = [ network, this.user.address, amount, subject ]
-      resolve(this.utils.createLink('paymentrequest', params))
+      const params = [ 'paymentrequest', network, this.user.address, amount, subject ]
+      resolve(this.utils.createLink(params))
     })
   }
 
@@ -114,9 +114,11 @@ export class Payment {
   ): Promise<any> {
     const msg = this.user.address + to + value + expiresOn
     return this.user.signMsg(msg).then(signature => {
-      const params = [ network, value, expiresOn, signature ]
-      if (to) { params.push(to) }
-      return this.utils.createLink('cheque', params)
+      const params = [ 'cheque', network, value, expiresOn, signature ]
+      if (to) {
+        params.push(to)
+      }
+      return this.utils.createLink(params)
     })
   }
 
