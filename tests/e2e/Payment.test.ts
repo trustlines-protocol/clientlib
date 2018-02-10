@@ -56,7 +56,8 @@ describe('e2e', () => {
         tl1.payment.getPath(networkAddress, user1.address, user2.address, 1.5)
           .then(pathObj => {
             expect(pathObj.estimatedGas).to.not.equal(0)
-            expect(pathObj.maxFees).to.not.equal(0)
+            expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
+            expect(pathObj.maxFees.raw).to.not.equal(0)
             expect(pathObj.path).to.not.equal([])
             done()
           })
@@ -66,7 +67,8 @@ describe('e2e', () => {
         tl1.payment.getPath(networkAddress, user1.address, user2.address, 1000)
           .then(pathObj => {
             expect(pathObj.estimatedGas).to.equal(0)
-            expect(pathObj.maxFees).to.equal(0)
+            expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
+            expect(pathObj.maxFees.raw).to.equal(0)
             expect(pathObj.path).to.deep.equal([])
             done()
           })
