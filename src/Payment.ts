@@ -36,12 +36,13 @@ export class Payment {
                   networkAddress,
                   'CurrencyNetwork',
                   'transfer',
-                  [ receiver, utils.calcRaw(value, dec), utils.calcRaw(maxFees, dec), path.slice(1) ]
-                ).then(({ rawTx, gasPrice }) => ({
+                  [ receiver, utils.calcRaw(value, dec), maxFees.raw, path.slice(1) ],
+                  estimatedGas
+                ).then(({ rawTx, gasPrice, ethFees }) => ({
                   rawTx,
                   path,
                   maxFees,
-                  ethFees: gasPrice * estimatedGas
+                  ethFees
                 }))
               : Promise.reject('Could not find a path with enough capacity')
           })
@@ -84,7 +85,7 @@ export class Payment {
         .then(({ estimatedGas, fees, path }) => ({
           estimatedGas,
           path,
-          maxFees: utils.calcValue(fees, dec)
+          maxFees: utils.formatAmount(fees, dec)
         }))
         .catch(e => Promise.reject(e))
       })
@@ -101,8 +102,8 @@ export class Payment {
 
   public createRequest (network: string, amount: number, subject: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const params = [ network, this.user.address, amount, subject ]
-      resolve(this.utils.createLink('paymentrequest', params))
+      const params = [ 'paymentrequest', network, this.user.address, amount, subject ]
+      resolve(this.utils.createLink(params))
     })
   }
 
@@ -112,10 +113,12 @@ export class Payment {
                       to: string // TODO receiver address optional?
   ): Promise<any> {
     const msg = this.user.address + to + value + expiresOn
-    return this.user.signMsg(msg).then(({ concatSig }) => {
-      const params = [ network, value, expiresOn, concatSig ]
-      if (to) { params.push(to) }
-      return this.utils.createLink('cheque', params)
+    return this.user.signMsg(msg).then(signature => {
+      const params = [ 'cheque', network, value, expiresOn, signature ]
+      if (to) {
+        params.push(to)
+      }
+      return this.utils.createLink(params)
     })
   }
 

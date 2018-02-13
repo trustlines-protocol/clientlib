@@ -14,19 +14,23 @@ export class Transaction {
                      contractAddress: string,
                      contractName: string,
                      functionName: string,
-                     parameters: any[]): Promise<any> {
+                     parameters: any[],
+                     estimatedGas?: number): Promise<any> {
     return this.getTxInfos(userAddress)
       .then(txinfos => {
+        const gasLimit = estimatedGas ? estimatedGas * 1.5 : 2000000
         const txOptions = {
           gasPrice: txinfos.gasPrice, // TODO let user set gas price
-          gasLimit: 2000000, // TODO let user set gas limit
+          gasLimit, // TODO let user set gas limit
           value: 0,
           nonce: txinfos.nonce,
           to: contractAddress.toLowerCase()
         }
         const txObj = {
-          rawTx: lightwallet.txutils.functionTx(CONTRACTS[ contractName ].abi, functionName, parameters, txOptions),
-          ethFees: 200000 * txOptions.gasPrice, // TODO set gas dynamically according to method
+          rawTx: lightwallet.txutils.functionTx(
+            CONTRACTS[ contractName ].abi, functionName, parameters, txOptions
+          ),
+          ethFees: this.utils.formatAmount(gasLimit * txOptions.gasPrice, 18),
           gasPrice: txinfos.gasPrice
         }
         return txObj
@@ -54,7 +58,7 @@ export class Transaction {
         }
         return {
           rawTx: lightwallet.txutils.valueTx(txOptions),
-          ethFees: 21000 * txOptions.gasPrice
+          ethFees: this.utils.formatAmount(21000 * txOptions.gasPrice, 18)
         }
       })
       .catch(error => Promise.reject(error))

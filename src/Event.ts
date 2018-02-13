@@ -1,27 +1,31 @@
 import { Utils } from './Utils'
 import { User } from './User'
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { EventFilterOptions } from './typings'
 
 import { Observable } from 'rxjs/Observable'
 
 export class Event {
-
-  private validParameters = [ 'type', 'fromBlock', 'toBlock' ]
-
   constructor (private user: User, private utils: Utils, private currencyNetwork: CurrencyNetwork) {
   }
 
-  public createObservable (networkAddress: string, filter?: object): Observable<any> {
-    const { user, utils, validParameters } = this
+  public createObservable (
+    networkAddress: string,
+    { type, fromBlock, toBlock }: EventFilterOptions = {}
+  ): Observable<any> {
+    const { user, utils } = this
     const baseUrl = `networks/${networkAddress}/users/${user.address}/events`
-    const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)
+    const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock, toBlock })
     return utils.createObservable(parameterUrl)
   }
 
-  public get (networkAddress: string, filter?: object): Promise<any[]> {
-    const { user, utils, validParameters } = this
+  public get (
+    networkAddress: string,
+    { type, fromBlock, toBlock }: EventFilterOptions = {}
+  ): Promise<any[]> {
+    const { user, utils } = this
     const baseUrl = `networks/${networkAddress}/users/${user.address}/events`
-    const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)
+    const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock, toBlock })
     return Promise.all([
       utils.fetchUrl(parameterUrl),
       this.currencyNetwork.getDecimals(networkAddress)
@@ -32,10 +36,10 @@ export class Event {
   )))
   }
 
-  public getAll (filter?: object): Promise<any[]> {
-    const { user, utils, validParameters } = this
+  public getAll ({ type, fromBlock, toBlock }: EventFilterOptions = {}): Promise<any[]> {
+    const { user, utils } = this
     const baseUrl = `users/${user.address}/events`
-    const parameterUrl = utils.buildUrl(baseUrl, validParameters, filter)
+    const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock, toBlock })
     return utils.fetchUrl(parameterUrl)
   }
 

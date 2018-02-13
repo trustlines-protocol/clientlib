@@ -14,8 +14,8 @@ export class Contact {
 
   public createLink (address: string, username: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const params = [ address, username ]
-      resolve(this.utils.createLink('contact', params))
+      const params = ['contact', address, username]
+      resolve(this.utils.createLink(params))
     })
   }
 

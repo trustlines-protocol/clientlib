@@ -65,23 +65,24 @@ export class Utils {
       })
   }
 
-  public buildUrl (baseUrl: string, validParameters: string[], parameters?: any): string {
-    if (!parameters || typeof parameters !== 'object') {
-      return baseUrl
-    }
-    for (let key in parameters) {
-      if (parameters[ key ] && validParameters.indexOf(key) !== -1) {
-        baseUrl += (baseUrl.indexOf('?') === -1) ? '?' : '&'
-        baseUrl += `${key}=${parameters[ key ]}`
+  public buildUrl (baseUrl: string, params?: any): string {
+    if (Array.isArray(params)) {
+      baseUrl = params.reduce((acc, param) => `${acc}/${encodeURIComponent(param)}`, baseUrl)
+    } else if (typeof params === 'object') {
+      for (let key in params) {
+        if (params[key]) {
+          const param = encodeURIComponent(params[key])
+          baseUrl += (baseUrl.indexOf('?') === -1) ? '?' : '&'
+          baseUrl += `${key}=${param}`
+        }
       }
     }
     return baseUrl
   }
 
-  public createLink (pre: string, parameters: any[]): string {
-    const base = `http://trustlines.network/v1/${pre}/`
-    const link = parameters.reduce((result, param) => `${result}/${param}`)
-    return `${base}${link}`
+  public createLink (params: any[]): string {
+    const base = 'http://trustlines.network/v1'
+    return this.buildUrl(base, params)
   }
 
   public calcRaw (value: number, decimals: number): any {
