@@ -1,11 +1,9 @@
 #!/bin/sh
-
-PWD="$(pwd)"
+set -ev
 DIR="$(dirname "$(readlink -f "$0")")"
+COMPOSE_FILE="$DIR/../tests/testrelay/docker-compose.yml"
 
-cd $DIR/../tests/testrelay
-docker-compose up -d
+docker-compose -f "$COMPOSE_FILE" up -d
 sleep 30
 npm run test:e2e
-docker-compose down
-cd "$PWD"
+docker-compose -f "$COMPOSE_FILE" down
