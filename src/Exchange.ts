@@ -19,6 +19,16 @@ export class Exchange {
     private currencyNetwork: CurrencyNetwork
   ) {}
 
+  public getOrderbook (
+    baseTokenAddress: string,
+    quoteTokenAddress: string
+  ): Promise<any> {
+    const params = { baseTokenAddress, quoteTokenAddress }
+    const endpoint = this.utils.buildUrl('exchange/orderbook', params)
+    return this.utils.fetchUrl(endpoint)
+    // TODO format amount of bids and asks
+  }
+
   public makeOrder (
     makerTokenAmount: any,
     takerTokenAmount: any,
@@ -51,12 +61,7 @@ export class Exchange {
     const convertedRequest = this.convertFieldsToBigNumber(request, [
       'expirationUnixTimestampSec', 'makerTokenAmount', 'salt', 'takerTokenAmount'
     ])
-    // return this.postRequest('/exchange/fees', convertedRequest)
-    return Promise.resolve({
-      feeRecipient: '0x...',
-      makerFee: '10000',
-      takerFee: '20000'
-    })
+    return this.postRequest('/exchange/fees', convertedRequest)
   }
 
   private postRequest (path: string, payload: any): Promise<any> {
