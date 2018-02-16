@@ -61,7 +61,13 @@ export class Exchange {
     const convertedRequest = this.convertFieldsToBigNumber(request, [
       'expirationUnixTimestampSec', 'makerTokenAmount', 'salt', 'takerTokenAmount'
     ])
-    return this.postRequest('/exchange/fees', convertedRequest)
+    // NOTE fees disabled
+    // return this.postRequest('/exchange/fees', convertedRequest)
+    return Promise.resolve({
+      feeRecipient: '0x0000000000000000000000000000000000000000',
+      makerFee: new BigNumber(0),
+      takerFee: new BigNumber(0)
+    })
   }
 
   private postRequest (path: string, payload: any): Promise<any> {
