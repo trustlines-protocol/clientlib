@@ -8,9 +8,6 @@ import { BigNumber } from 'bignumber.js'
 
 export class Exchange {
 
-  // TODO either fetch from server or from whitelist in clientlib
-  private exchangeContractAddress = '0x'
-
   constructor (
     private event: Event,
     private user: User,
@@ -18,6 +15,10 @@ export class Exchange {
     private transaction: Transaction,
     private currencyNetwork: CurrencyNetwork
   ) {}
+
+  public getExchanges (): Promise<any> {
+    return this.utils.fetchUrl('exchange/exchanges')
+  }
 
   public getOrderbook (
     baseTokenAddress: string,
@@ -55,7 +56,10 @@ export class Exchange {
       .then(order => this.user.signMsg(JSON.stringify(order)).then(
         ({ ecSignature }) => ({...order, ecSignature})
       ))
-      .then(signedOrder => this.postRequest('exchange/order', signedOrder))
+      .then(signedOrder => {
+        console.log(signedOrder)
+        this.postRequest('exchange/order', signedOrder)
+      })
   }
 
   private getFees (request: any): Promise<any> {
@@ -83,7 +87,7 @@ export class Exchange {
     fields.forEach(key => {
       if (obj[key]) {
         obj[key] = new BigNumber(obj[key]).toString()
-    }
+      }
     })
     return obj
   }
