@@ -56,10 +56,7 @@ export class Exchange {
       .then(order => this.user.signMsg(JSON.stringify(order)).then(
         ({ ecSignature }) => ({...order, ecSignature})
       ))
-      .then(signedOrder => {
-        console.log(signedOrder)
-        this.postRequest('exchange/order', signedOrder)
-      })
+      .then(signedOrder => this.postRequest('exchange/order', signedOrder))
   }
 
   private getFees (request: any): Promise<any> {
