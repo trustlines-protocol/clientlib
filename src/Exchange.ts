@@ -30,20 +30,21 @@ export class Exchange {
   }
 
   public makeOrder (
-    makerTokenAmount: any,
-    takerTokenAmount: any,
+    exchangeContractAddress: string,
     makerTokenAddress: string,
     takerTokenAddress: string,
-    { taker = '', expirationUnixTimestampSec = 2524604400 } = {}
+    makerTokenAmount: any,
+    takerTokenAmount: any,
+    { expirationUnixTimestampSec = 2524604400 } = {}
   ): Promise<any> {
     const feesRequest = {
-      exchangeContractAddress: this.exchangeContractAddress,
+      exchangeContractAddress,
       expirationUnixTimestampSec,
-      maker: this.user.address.toLowerCase(),
+      maker: this.user.address,
       makerTokenAddress,
       makerTokenAmount,
       salt: Math.floor(Math.random() * 1000000000000000),
-      taker,
+      taker: '0x0000000000000000000000000000000000000000',
       takerTokenAddress,
       takerTokenAmount
     }
@@ -54,7 +55,7 @@ export class Exchange {
       .then(order => this.user.signMsg(JSON.stringify(order)).then(
         ({ ecSignature }) => ({...order, ecSignature})
       ))
-      .then(signedOrder => console.log(signedOrder))
+      .then(signedOrder => this.postRequest('exchange/order', signedOrder))
   }
 
   private getFees (request: any): Promise<any> {
@@ -65,8 +66,8 @@ export class Exchange {
     // return this.postRequest('/exchange/fees', convertedRequest)
     return Promise.resolve({
       feeRecipient: '0x0000000000000000000000000000000000000000',
-      makerFee: new BigNumber(0),
-      takerFee: new BigNumber(0)
+      makerFee: new BigNumber(0).toString(),
+      takerFee: new BigNumber(0).toString()
     })
   }
 
@@ -74,16 +75,16 @@ export class Exchange {
     return this.utils.fetchUrl(path, {
       method: 'POST',
       headers: new Headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ payload })
+      body: JSON.stringify(payload)
     })
   }
 
   private convertFieldsToBigNumber (obj: any, fields: string[]): any {
-    for (let key in Object.keys(obj)) {
-      if (fields.indexOf(key) !== -1) {
-        obj[key] = new BigNumber(obj[key])
-      }
+    fields.forEach(key => {
+      if (obj[key]) {
+        obj[key] = new BigNumber(obj[key]).toString()
     }
+    })
     return obj
   }
 }
