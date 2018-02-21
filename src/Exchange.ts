@@ -5,6 +5,7 @@ import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
 
 import { BigNumber } from 'bignumber.js'
+import * as ethUtils from 'ethereumjs-util'
 
 export class Exchange {
 
@@ -44,19 +45,37 @@ export class Exchange {
       maker: this.user.address,
       makerTokenAddress,
       makerTokenAmount,
-      salt: Math.floor(Math.random() * 1000000000000000),
+      // salt: Math.floor(Math.random() * 1000000000000000),
+      salt: 1,
       taker: '0x0000000000000000000000000000000000000000',
       takerTokenAddress,
       takerTokenAmount
     }
+    const keysOrder = [
+      'exchangeContractAddress',
+      'maker',
+      'taker',
+      'makerTokenAddress',
+      'takerTokenAddress',
+      'feeRecipient',
+      'makerTokenAmount',
+      'takerTokenAmount',
+      'makerFee',
+      'takerFee',
+      'expirationUnixTimestampSec',
+      'salt'
+    ]
     return this.getFees(feesRequest)
       .then(({ feeRecipient, makerFee, takerFee }) => ({
         ...feesRequest, feeRecipient, makerFee, takerFee
       }))
-      .then(order => this.user.signMsg(JSON.stringify(order)).then(
+      .then(order => this.user.signMsg(this.padToDataString(order, keysOrder)).then(
         ({ ecSignature }) => ({...order, ecSignature})
       ))
-      .then(signedOrder => this.postRequest('exchange/order', signedOrder))
+      .then(signedOrder => {
+        console.log(signedOrder)
+        this.postRequest('exchange/order', signedOrder)
+      })
   }
 
   private getFees (request: any): Promise<any> {
@@ -87,5 +106,19 @@ export class Exchange {
       }
     })
     return obj
+  }
+
+  private padToDataString (obj: any, params: string[]): string {
+    return params.reduce((dataString, param) => {
+      const value = obj[param]
+      if (ethUtils.isValidAddress(value)) {
+        dataString += value.substr(2, value.length - 1).toLowerCase()
+      } else {
+        const pad = '00000000000000000000000000000000000000000000000000000000000000000'
+        const hexValue = Number(value).toString(16)
+        dataString += (pad.substring(0, pad.length - hexValue.length) + hexValue)
+      }
+      return dataString
+    }, '')
   }
 }

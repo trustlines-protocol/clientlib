@@ -84,6 +84,9 @@ export class User {
             rawMsg,
             this.address.toLowerCase()
           )
+          console.log('RAW', rawMsg)
+          console.log('HASH', ethUtils.bufferToHex(ethUtils.sha3(rawMsg)))
+          console.log('SIGNATURE', lightwallet.signing.concatSig(signature))
           resolve({
             ecSignature: {
               r: ethUtils.bufferToHex(signature.r),
@@ -227,7 +230,7 @@ export class User {
     return this.utils.fetchUrl('request-ether', options)
   }
 
-  private verifySignature (message: any, signature: string): boolean {
+  public verifySignature (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))
     const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
     const v = ethUtils.bufferToInt(ethUtils.toBuffer(`0x${signature.slice(130, 132)}`))
