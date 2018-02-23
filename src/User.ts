@@ -72,21 +72,20 @@ export class User {
     })
   }
 
-  public signMsg (rawMsg: string): Promise<any> {
+  public signMsg (msgHash: string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           reject(err)
         } else {
-          const signature = lightwallet.signing.signMsg(
+          const msgHashBuff = ethUtils.toBuffer(msgHash)
+          const personalMsgHashBuff = ethUtils.hashPersonalMessage(msgHashBuff)
+          const signature = lightwallet.signing.signMsgHash(
             this.keystore,
             pwDerivedKey,
-            rawMsg,
+            ethUtils.bufferToHex(personalMsgHashBuff),
             this.address.toLowerCase()
           )
-          console.log('RAW', rawMsg)
-          console.log('HASH', ethUtils.bufferToHex(ethUtils.sha3(rawMsg)))
-          console.log('SIGNATURE', lightwallet.signing.concatSig(signature))
           resolve({
             ecSignature: {
               r: ethUtils.bufferToHex(signature.r),
