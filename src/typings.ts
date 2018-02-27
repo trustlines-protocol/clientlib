@@ -4,16 +4,17 @@ export interface EventFilterOptions {
   toBlock?: number
 }
 
-export interface PaymentOptions {
-  decimals?: number,
-  maximumHops?: number,
-  maximumFees?: number,
-  gasPrice?: number,
-  gasLimit?: number
-}
-
 export interface TxOptions {
   gasPrice?: number,
   gasLimit?: number,
   estimatedGas?: number
+}
+
+export interface TLOptions extends TxOptions {
+  decimals?: number
+}
+
+export interface PaymentOptions extends TLOptions {
+  maximumHops?: number,
+  maximumFees?: number
 }
