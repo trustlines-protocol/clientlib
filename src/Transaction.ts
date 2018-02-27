@@ -22,10 +22,9 @@ export class Transaction {
   ): Promise<any> {
     return this.getTxInfos(userAddress)
       .then(txinfos => {
-        const gasLimit = estimatedGas ? estimatedGas * 1.5 : 2000000
         const txOptions = {
           gasPrice: gasPrice || txinfos.gasPrice,
-          gasLimit: gasLimit || 2000000,
+          gasLimit: estimatedGas ? estimatedGas * 1.5 : 2000000,
           value: 0,
           nonce: txinfos.nonce,
           to: contractAddress.toLowerCase()
@@ -34,8 +33,9 @@ export class Transaction {
           rawTx: lightwallet.txutils.functionTx(
             CONTRACTS[ contractName ].abi, functionName, parameters, txOptions
           ),
-          ethFees: this.utils.formatAmount(gasLimit * txOptions.gasPrice, 18),
-          gasPrice: txinfos.gasPrice
+          ethFees: this.utils.formatAmount(
+            txOptions.gasLimit * txOptions.gasPrice, 18
+          )
         }
         return txObj
       })
