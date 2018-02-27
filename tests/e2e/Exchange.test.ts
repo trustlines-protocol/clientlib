@@ -41,14 +41,16 @@ describe.only('e2e', () => {
 
     describe('#makeOrder()', () => {
       it('should make order', done => {
-        // TODO
         tl.exchange.makeOrder(
           exchangeAddress,
           baseTokenAddress,
           quoteTokenAddress,
           1000,
           2000
-        ).then(res => done())
+        ).then(res => {
+          expect(res).to.equal(null)
+          done()
+        })
       })
     })
   })
