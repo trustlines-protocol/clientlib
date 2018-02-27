@@ -8,7 +8,7 @@ services:
       - "parity:node"
     volumes:
       - ./config.json:/relay/config.json
-      - ./networks:/relay/networks
+      - ./addresses.json:/relay/addresses.json
     ports:
       - "127.0.0.1:5000:5000"
     networks:
@@ -31,7 +31,7 @@ services:
     links:
       - "parity:node"
     volumes:
-      - ./networks:/contracts/networks
+      - ./addresses.json:/contracts/addresses.json
     networks:
       - internal
        
