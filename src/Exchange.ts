@@ -64,6 +64,51 @@ export class Exchange {
       .then(signedOrder => this.postRequest('exchange/order', signedOrder))
   }
 
+  /**
+   * Prepares an on-chain transaction for a fill order.
+   * @param orderAddresses Array of order's maker, taker, makerToken, takerToken, and feeRecipient.
+   * @param orderValues Array of order's makerTokenAmount, takerTokenAmount, makerFee, takerFee, expirationTimestampInSec, and salt.
+   * @param fillTakerTokenAmount Desired amount of takerToken to fill.
+   * @param makerPath Path in the currency network of the maker token or [] if no currency network
+   * @param takerPath Path in the currency network of the taker token or [] if no currency network
+   * @param v ECDSA signature parameter v.
+   * @param r ECDSA signature parameter r.
+   * @param s ECDSA signature parameter s.
+   */
+  public prepFillOrder (
+    exchangeContractAddress: string,
+    makerAddress: string,
+    takerAddress: string,
+    makerTokenAddress: string,
+    takerTokenAddress: string,
+    makerTokenAmount: string,
+    takerTokenAmount: string,
+    expirationTimestampInSec: string,
+    salt: string,
+    fillTakerTokenAmount: string,
+    v: number,
+    r: string,
+    s: string
+  ): void {
+    const orderAddresses = [
+      makerAddress,
+      takerAddress,
+      makerTokenAddress,
+      takerTokenAddress,
+      ZERO_ADDRESS
+    ]
+    const orderValues = [
+      makerTokenAmount,
+      takerTokenAmount,
+      0,
+      0,
+      expirationTimestampInSec,
+      salt
+    ]
+    // TODO
+    return
+  }
+
   private getFees (request: any): Promise<any> {
     const convertedRequest = this.convertFieldsToBigNumber(request, [
       'expirationUnixTimestampSec', 'makerTokenAmount', 'salt', 'takerTokenAmount'
