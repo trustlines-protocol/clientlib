@@ -28,19 +28,21 @@ describe('e2e', () => {
     })
 
     describe('#prepareUpdate()', () => {
-      it('should prepare request tx', () => {
-        expect(tl1.trustline.prepareUpdate(networkAddress, user2.address, 1300))
-          .to.eventually.have.keys('rawTx', 'ethFees', 'gasPrice')
+      it('should prepare raw trustline update request tx', () => {
+        expect(tl1.trustline.prepareUpdate(
+          networkAddress, user2.address, 1300, 1000
+        )).to.eventually.have.keys('rawTx', 'ethFees')
       })
     })
 
-    describe('#confirm() request tx', () => {
+    describe('#confirm() trustline update request tx', () => {
       before(done => {
-        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1300)
-          .then(updateTx => {
-            tx = updateTx
-            setTimeout(() => done(), 500)
-          })
+        tl1.trustline.prepareUpdate(
+          networkAddress, user2.address, 1300, 1000
+        ).then(updateTx => {
+          tx = updateTx
+          setTimeout(() => done(), 500)
+        })
       })
 
       it('should return txId', done => {
@@ -49,12 +51,14 @@ describe('e2e', () => {
       })
     })
 
-    describe('#getRequests()', () => {
+    // FIXME: waiting for relay server to return correctly formatted events
+    describe.skip('#getRequests()', () => {
       before(done => {
-        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1500)
+        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1500, 1000)
           .then(({ rawTx }) => tl1.trustline.confirm(rawTx))
           .then(id => {
             txId = id
+            console.log(id)
             setTimeout(() => done(), 500)
           })
       })
@@ -70,7 +74,7 @@ describe('e2e', () => {
           expect(latestRequest.status).to.be.a('string')
           expect(latestRequest.timestamp).to.be.a('number')
           expect(latestRequest.transactionId).to.equal(txId)
-          expect(latestRequest.type).to.equal('CreditlineUpdateRequest')
+          expect(latestRequest.type).to.equal('TrustlineUpdateRequest')
           done()
         })
       })
@@ -82,20 +86,20 @@ describe('e2e', () => {
 
     describe('#prepareAccept()', () => {
       it('should prepare accept tx', () => {
-        expect(tl2.trustline.prepareAccept(networkAddress, user1.address, 1250))
-          .to.eventually.have.keys('rawTx', 'ethFees', 'gasPrice')
+        expect(tl2.trustline.prepareAccept(networkAddress, user1.address, 1250, 1000))
+          .to.eventually.have.keys('rawTx', 'ethFees')
       })
     })
 
-    describe('#confirm() accept tx', () => {
+    describe('#confirm() trustline update accept tx', () => {
       before(done => {
-        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1250)
+        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1500, 100)
           .then(updateTx => tl1.trustline.confirm(updateTx.rawTx))
           .then(txId => setTimeout(() => done(), 500))
       })
 
       it('should return txId', done => {
-        tl2.trustline.prepareAccept(networkAddress, user1.address, 1250)
+        tl2.trustline.prepareAccept(networkAddress, user1.address, 100, 1500)
           .then(tx => {
             expect(tl2.trustline.confirm(tx.rawTx)).to.eventually.be.a('string')
             setTimeout(() => done(), 500)
@@ -103,15 +107,16 @@ describe('e2e', () => {
       })
     })
 
-    describe('#getUpdates()', () => {
+    // FIXME: waiting for relay server to return correctly formatted events
+    describe.skip('#getUpdates()', () => {
       before(done => {
-        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1500)
+        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1500, 1000)
           .then(({ rawTx }) => tl1.trustline.confirm(rawTx))
           .then(() => setTimeout(() => done(), 500))
       })
 
       it('should return latest update', done => {
-        tl2.trustline.prepareAccept(networkAddress, user1.address, 1500)
+        tl2.trustline.prepareAccept(networkAddress, user1.address, 1000, 1500)
           .then(tx => tl2.trustline.confirm(tx.rawTx))
           .then(txId => {
             setTimeout(() => {
