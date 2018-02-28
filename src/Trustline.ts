@@ -15,13 +15,12 @@ export class Trustline {
   }
 
   /**
-   * Prepares a raw transaction to update a trustline
+   * Prepares a raw transaction for a trustline update request
    * @param network address of currency network
-   * @param debtor address of counterparty
-   * @param creditLineGiven credit line given to counterparty as a value not raw,
-   *                        i.e. 1.23 if network has to 2 decimals
-   * @param creditLineReceived credit line received by counterparty as a value
-   * @param decimals (optional) number of decimals
+   * @param debtor address of counterparty who receives trustline update request
+   * @param creditLineGiven value of credit line given to counterparty, i.e. 1.23 if network has to 2 decimals
+   * @param creditLineReceived value of credit line received by counterparty, i.e. 1.23 if network has to 2 decimals
+   * @param decimals (optional) number of decimals can be provided manually
    * @param gasLimit (optional)
    * @param gasPrice (optional)
    */
@@ -45,20 +44,33 @@ export class Trustline {
       ))
   }
 
+  /**
+   * Prepares a raw transaction for accepting a trustline update request
+   * @param network address of currency network
+   * @param creditor address of counterparty who sent trustline udpate request
+   * @param creditLineGiven value of credit line given to counterparty, i.e. 1.23 if network has to 2 decimals
+   * @param creditLineReceived value of credit line received by counterparty, i.e. 1.23 if network has to 2 decimals
+   * @param decimals (optional) number of decimals can be provided manually
+   * @param gasLimit (optional)
+   * @param gasPrice (optional)
+   */
   public prepareAccept (
     network: string,
     creditor: string,
-    value: number,
-    decimals?: number
+    creditLineGiven: number,
+    creditLineReceived: number,
+    { decimals, gasLimit, gasPrice }: TLOptions = {}
   ): Promise<any> {
     const { currencyNetwork, transaction, user, utils } = this
+    const { calcRaw } = utils
     return currencyNetwork.getDecimals(network, decimals)
       .then(dec => transaction.prepFuncTx(
         user.address,
         network,
         'CurrencyNetwork',
         'updateTrustline',
-        [ creditor, utils.calcRaw(value, dec) ]
+        [ creditor, calcRaw(creditLineGiven, dec), calcRaw(creditLineReceived, dec) ],
+        { gasPrice, gasLimit }
       ))
   }
 
@@ -97,11 +109,13 @@ export class Trustline {
     }))
   }
 
+  // FIXME: wait for relay server to return correctly formatted events
   public getRequests (networkAddress: string, filter?: object): Promise<any> {
     const mergedFilter = Object.assign({type: 'TrustlineUpdateRequest'}, filter)
     return this.event.get(networkAddress, mergedFilter)
   }
 
+  // FIXME: wait for relay server to return correctly formatted events
   public getUpdates (networkAddress: string, filter?: object): Promise<any> {
     const mergedFilter = Object.assign({type: 'TrustlineUpdate'}, filter)
     return this.event.get(networkAddress, mergedFilter)
