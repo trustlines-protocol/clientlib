@@ -109,13 +109,11 @@ export class Trustline {
     }))
   }
 
-  // FIXME: wait for relay server to return correctly formatted events
   public getRequests (networkAddress: string, filter?: object): Promise<any> {
     const mergedFilter = Object.assign({type: 'TrustlineUpdateRequest'}, filter)
     return this.event.get(networkAddress, mergedFilter)
   }
 
-  // FIXME: wait for relay server to return correctly formatted events
   public getUpdates (networkAddress: string, filter?: object): Promise<any> {
     const mergedFilter = Object.assign({type: 'TrustlineUpdate'}, filter)
     return this.event.get(networkAddress, mergedFilter)

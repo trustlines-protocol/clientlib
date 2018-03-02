@@ -83,7 +83,7 @@ describe('e2e', () => {
 
       it('should not prepare tx for trustline transfer', () => {
         expect(tl1.payment.prepare(networkAddress, user2.address, 2000))
-          .to.eventually.throw()
+          .to.be.rejectedWith('There was an error while finding a path: Could not find a path with enough capacity')
       })
     })
 

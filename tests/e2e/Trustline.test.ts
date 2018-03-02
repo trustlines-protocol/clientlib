@@ -51,14 +51,12 @@ describe('e2e', () => {
       })
     })
 
-    // FIXME: waiting for relay server to return correctly formatted events
-    describe.skip('#getRequests()', () => {
+    describe('#getRequests()', () => {
       before(done => {
         tl1.trustline.prepareUpdate(networkAddress, user2.address, 1500, 1000)
           .then(({ rawTx }) => tl1.trustline.confirm(rawTx))
           .then(id => {
             txId = id
-            console.log(id)
             setTimeout(() => done(), 500)
           })
       })
@@ -66,14 +64,17 @@ describe('e2e', () => {
       it('should return latest request', done => {
         tl1.trustline.getRequests(networkAddress).then(requests => {
           const latestRequest = requests[requests.length - 1]
-          expect(latestRequest.address).to.equal(user2.address)
-          expect(latestRequest.amount).to.have.keys('raw', 'value', 'decimals')
-          expect(latestRequest.blockNumber).to.be.a('number')
           expect(latestRequest.direction).to.equal('sent')
+          expect(latestRequest.from).to.equal(user1.address)
+          expect(latestRequest.transactionId).to.equal(txId)
+          expect(latestRequest.to).to.equal(user2.address)
+          expect(latestRequest.blockNumber).to.be.a('number')
+          expect(latestRequest.timestamp).to.be.a('number')
+          expect(latestRequest.address).to.equal(user2.address)
           expect(latestRequest.networkAddress).to.equal(networkAddress)
           expect(latestRequest.status).to.be.a('string')
-          expect(latestRequest.timestamp).to.be.a('number')
-          expect(latestRequest.transactionId).to.equal(txId)
+          expect(latestRequest.received).to.have.keys('raw', 'value', 'decimals')
+          expect(latestRequest.given).to.have.keys('raw', 'value', 'decimals')
           expect(latestRequest.type).to.equal('TrustlineUpdateRequest')
           done()
         })
@@ -93,13 +94,13 @@ describe('e2e', () => {
 
     describe('#confirm() trustline update accept tx', () => {
       before(done => {
-        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1500, 100)
+        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1300, 123)
           .then(updateTx => tl1.trustline.confirm(updateTx.rawTx))
           .then(txId => setTimeout(() => done(), 500))
       })
 
       it('should return txId', done => {
-        tl2.trustline.prepareAccept(networkAddress, user1.address, 100, 1500)
+        tl2.trustline.prepareAccept(networkAddress, user1.address, 123, 1300)
           .then(tx => {
             expect(tl2.trustline.confirm(tx.rawTx)).to.eventually.be.a('string')
             setTimeout(() => done(), 500)
@@ -107,30 +108,32 @@ describe('e2e', () => {
       })
     })
 
-    // FIXME: waiting for relay server to return correctly formatted events
-    describe.skip('#getUpdates()', () => {
+    describe('#getUpdates()', () => {
       before(done => {
-        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1500, 1000)
+        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1234, 4321)
           .then(({ rawTx }) => tl1.trustline.confirm(rawTx))
           .then(() => setTimeout(() => done(), 500))
       })
 
       it('should return latest update', done => {
-        tl2.trustline.prepareAccept(networkAddress, user1.address, 1000, 1500)
+        tl2.trustline.prepareAccept(networkAddress, user1.address, 4321, 1234)
           .then(tx => tl2.trustline.confirm(tx.rawTx))
           .then(txId => {
             setTimeout(() => {
               tl2.trustline.getUpdates(networkAddress).then(updates => {
                 const latestUpdate = updates[updates.length - 1]
-                expect(latestUpdate.address).to.equal(user1.address)
-                expect(latestUpdate.amount).to.have.keys('raw', 'value', 'decimals')
-                expect(latestUpdate.blockNumber).to.be.a('number')
                 expect(latestUpdate.direction).to.equal('received')
+                expect(latestUpdate.from).to.equal(user1.address)
+                expect(latestUpdate.transactionId).to.equal(txId)
+                expect(latestUpdate.to).to.equal(user2.address)
+                expect(latestUpdate.blockNumber).to.be.a('number')
+                expect(latestUpdate.timestamp).to.be.a('number')
+                expect(latestUpdate.address).to.equal(user1.address)
                 expect(latestUpdate.networkAddress).to.equal(networkAddress)
                 expect(latestUpdate.status).to.be.a('string')
-                expect(latestUpdate.timestamp).to.be.a('number')
-                expect(latestUpdate.transactionId).to.equal(txId)
-                expect(latestUpdate.type).to.equal('CreditlineUpdate')
+                expect(latestUpdate.received).to.have.keys('raw', 'value', 'decimals')
+                expect(latestUpdate.given).to.have.keys('raw', 'value', 'decimals')
+                expect(latestUpdate.type).to.equal('TrustlineUpdate')
                 done()
               })
             }, 500)
