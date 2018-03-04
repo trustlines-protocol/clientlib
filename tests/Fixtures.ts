@@ -4,7 +4,8 @@ export const keystore2 = `{"encSeed":{"encStr":"UJrWA2ZaPF6lnWVktF/VjtLFJ3EZRpmh
 
 export const config = {
   protocol: 'http',
-  host: 'localhost:5000',
+  host: 'localhost',
+  port: 5000,
   useWebSockets: false,
   path: 'api/v1/'
 }

@@ -19,11 +19,8 @@ module.exports = {
         umdNamedDefine: true
     },
     externals: [
-        "eth-lightwallet",
-        "rxjs",
         "@types/isomorphic-fetch",
-        "es6-promise",
-        "ethereumjs-util"
+        "es6-promise"
     ],
 
     // Enable sourcemaps for debugging webpack's output.

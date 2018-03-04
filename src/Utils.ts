@@ -11,6 +11,7 @@ import { Configuration } from './Configuration'
 let __DEV__
 
 const ReconnectingWebSocket = require('reconnecting-websocket')
+const JsonRPC = require('simple-jsonrpc-js')
 
 export class Utils {
 
@@ -63,6 +64,40 @@ export class Utils {
         const message = 'There was an error fetching ' + completeUrl + ' | ' + (error && error.message)
         return Promise.reject(new Error(message))
       })
+  }
+
+  public eventStream (event: string, userAddress: string): Observable<any> {
+    const { wsApiUrl } = this.configuration
+    return Observable.create((observer: Observer<any>) => {
+      const ws = new ReconnectingWebSocket(`${wsApiUrl}streams/events`)
+      const jrpc = new JsonRPC()
+
+      jrpc.toStream = (message: string) => {
+        ws.send(message)
+      }
+
+      ws.onmessage = (e: MessageEvent) => {
+        jrpc.messageHandler(e.data)
+      }
+      ws.onerror = (e: ErrorEvent) => {
+        console.error('An web socket error occured: ' + e.message)
+      }
+
+      ws.onopen = () => {
+        console.log('Websocket opened')
+        jrpc.call('subscribe', {'event': event, 'user': userAddress}).then((subscriptionId: string) => {
+          console.log('Subscribed')
+          jrpc.on(`subscription_${subscriptionId}`, ['event'], (event) => {
+            console.log('Got event')
+            observer.next(event)
+          })
+        })
+      }
+
+      return () => {
+        ws.close(1000, '', { keepClosed: true })
+      }
+    })
   }
 
   public buildUrl (baseUrl: string, params?: any): string {

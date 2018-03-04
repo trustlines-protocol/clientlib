@@ -49,6 +49,7 @@
     "chai-as-promised": "^7.1.1",
     "eth-lightwallet": "^3.0.1",
     "ethereumjs-util": "^5.1.2",
-    "rxjs": "^5.4.1"
+    "rxjs": "^5.4.1",
+    "simple-jsonrpc-js": "0.0.10"
   }
 }
