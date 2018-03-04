@@ -54,4 +54,9 @@ export class Event {
     return utils.fetchUrl(parameterUrl)
   }
 
+  public stream (): Observable<any> {
+    const { user, utils } = this
+    return this.utils.eventStream('all', user.address)
+  }
+
 }
