@@ -3,6 +3,7 @@ import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { TLOptions } from './typings'
 
 export class Trustline {
 
@@ -13,37 +14,63 @@ export class Trustline {
                private currencyNetwork: CurrencyNetwork) {
   }
 
+  /**
+   * Prepares a raw transaction for a trustline update request
+   * @param network address of currency network
+   * @param debtor address of counterparty who receives trustline update request
+   * @param creditLineGiven value of credit line given to counterparty, i.e. 1.23 if network has to 2 decimals
+   * @param creditLineReceived value of credit line received by counterparty, i.e. 1.23 if network has to 2 decimals
+   * @param decimals (optional) number of decimals can be provided manually
+   * @param gasLimit (optional)
+   * @param gasPrice (optional)
+   */
   public prepareUpdate (
     network: string,
     debtor: string,
-    value: number,
-    decimals?: number
+    creditLineGiven: number,
+    creditLineReceived: number,
+    { decimals, gasLimit, gasPrice }: TLOptions = {}
   ): Promise<any> {
     const { currencyNetwork, transaction, user, utils } = this
+    const { calcRaw } = utils
     return currencyNetwork.getDecimals(network, decimals)
       .then(dec => transaction.prepFuncTx(
         user.address,
         network,
         'CurrencyNetwork',
-        'updateCreditline',
-        [ debtor, utils.calcRaw(value, dec) ]
+        'updateTrustline',
+        [ debtor, calcRaw(creditLineGiven, dec), calcRaw(creditLineReceived, dec) ],
+        { gasPrice, gasLimit }
       ))
   }
 
+  /**
+   * Prepares a raw transaction for accepting a trustline update request
+   * @param network address of currency network
+   * @param creditor address of counterparty who sent trustline udpate request
+   * @param creditLineGiven value of credit line given to counterparty, i.e. 1.23 if network has to 2 decimals
+   * @param creditLineReceived value of credit line received by counterparty, i.e. 1.23 if network has to 2 decimals
+   * @param decimals (optional) number of decimals can be provided manually
+   * @param gasLimit (optional)
+   * @param gasPrice (optional)
+   */
   public prepareAccept (
     network: string,
     creditor: string,
-    value: number,
-    decimals?: number
+    creditLineGiven: number,
+    creditLineReceived: number,
+    { decimals, gasLimit, gasPrice }: TLOptions = {}
   ): Promise<any> {
     const { currencyNetwork, transaction, user, utils } = this
+    const { calcRaw } = utils
     return currencyNetwork.getDecimals(network, decimals)
       .then(dec => transaction.prepFuncTx(
         user.address,
         network,
         'CurrencyNetwork',
-        'acceptCreditline',
-        [ creditor, utils.calcRaw(value, dec) ]
+        'updateTrustline',
+        [ creditor, calcRaw(creditLineGiven, dec), calcRaw(creditLineReceived, dec) ],
+        { gasPrice, gasLimit }
       ))
   }
 
@@ -83,12 +110,12 @@ export class Trustline {
   }
 
   public getRequests (networkAddress: string, filter?: object): Promise<any> {
-    const mergedFilter = Object.assign({type: 'CreditlineUpdateRequest'}, filter)
+    const mergedFilter = Object.assign({type: 'TrustlineUpdateRequest'}, filter)
     return this.event.get(networkAddress, mergedFilter)
   }
 
   public getUpdates (networkAddress: string, filter?: object): Promise<any> {
-    const mergedFilter = Object.assign({type: 'CreditlineUpdate'}, filter)
+    const mergedFilter = Object.assign({type: 'TrustlineUpdate'}, filter)
     return this.event.get(networkAddress, mergedFilter)
   }
 }
