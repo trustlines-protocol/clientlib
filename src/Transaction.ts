@@ -1,4 +1,6 @@
 import { Utils } from './Utils'
+import { TxOptions } from './typings'
+
 import * as lightwallet from 'eth-lightwallet'
 // declare let lightwallet
 import * as ethUtils from 'ethereumjs-util'
@@ -10,18 +12,20 @@ export class Transaction {
   constructor (private utils: Utils) {
   }
 
-  public prepFuncTx (userAddress: string,
-                     contractAddress: string,
-                     contractName: string,
-                     functionName: string,
-                     parameters: any[],
-                     estimatedGas?: number): Promise<any> {
+  public prepFuncTx (
+    userAddress: string,
+    contractAddress: string,
+    contractName: string,
+    functionName: string,
+    parameters: any[],
+    { gasPrice, gasLimit, estimatedGas }: TxOptions = {}
+  ): Promise<any> {
     return this.getTxInfos(userAddress)
       .then(txinfos => {
         const gasLimit = estimatedGas ? estimatedGas * 1.5 : 2000000
         const txOptions = {
-          gasPrice: txinfos.gasPrice, // TODO let user set gas price
-          gasLimit, // TODO let user set gas limit
+          gasPrice: gasPrice || txinfos.gasPrice,
+          gasLimit: gasLimit || 2000000,
           value: 0,
           nonce: txinfos.nonce,
           to: contractAddress.toLowerCase()
@@ -43,16 +47,15 @@ export class Transaction {
   public prepValueTx (
     from: string,
     to: string,
-    value: number,
-    options: any = {}
+    rawValue: number,
+    { gasPrice, gasLimit }: TxOptions = {}
   ): Promise<any> {
-    const { gasPrice, gasLimit } = options
     return this.getTxInfos(from)
       .then(txinfos => {
         const txOptions = {
           gasPrice: gasPrice || txinfos.gasPrice,
           gasLimit: gasLimit || 1000000,
-          value: this.utils.convertEthToWei(value),
+          rawValue,
           nonce: txinfos.nonce,
           to: to.toLowerCase()
         }
