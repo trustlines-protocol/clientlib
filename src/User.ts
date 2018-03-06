@@ -99,11 +99,11 @@ export class User {
     })
   }
 
-  public prepOnboarding (newUserAddress: any): Promise<object> {
+  public prepOnboarding (newUserAddress: string, initialValue = 0.01): Promise<object> {
     return this.transaction.prepValueTx(
       this.address, // address of onboarder
       newUserAddress, // address of new user who gets onboarded
-      0.01 // TODO fetch default onboarding amount of eth
+      this.utils.calcRaw(initialValue, 18)
     ).then(tx => tx)
     .catch(error => Promise.reject(error))
   }
