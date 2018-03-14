@@ -3,6 +3,8 @@ import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { Payment } from './Payment'
+import { ExchangeOptions } from './typings'
 
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
@@ -18,7 +20,8 @@ export class Exchange {
     private user: User,
     private utils: Utils,
     private transaction: Transaction,
-    private currencyNetwork: CurrencyNetwork
+    private currencyNetwork: CurrencyNetwork,
+    private payment: Payment
   ) {}
 
   public getExchanges (): Promise<any> {
@@ -35,33 +38,46 @@ export class Exchange {
     // TODO format amount of bids and asks
   }
 
-  public makeOrder (
+  public async makeOrder (
     exchangeContractAddress: string,
     makerTokenAddress: string,
     takerTokenAddress: string,
-    makerTokenAmount: any,
-    takerTokenAmount: any,
-    { expirationUnixTimestampSec = 2524604400 } = {}
+    makerTokenValue: number | string,
+    takerTokenValue: number | string,
+    {
+      makerTokenDecimals,
+      takerTokenDecimals,
+      expirationUnixTimestampSec = 2524604400
+    }: ExchangeOptions = {}
   ): Promise<any> {
-    const feesRequest = {
-      exchangeContractAddress,
-      expirationUnixTimestampSec,
-      maker: this.user.address,
-      makerTokenAddress,
-      makerTokenAmount,
-      salt: Math.floor(Math.random() * 1000000000000000),
-      taker: ZERO_ADDRESS,
-      takerTokenAddress,
-      takerTokenAmount
+    const { currencyNetwork, user, utils } = this
+    try {
+      const makerDecimals = await currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals)
+      const takerDecimals = await currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      const feesRequest = {
+        exchangeContractAddress,
+        expirationUnixTimestampSec: expirationUnixTimestampSec.toString(),
+        maker: user.address,
+        makerTokenAddress,
+        makerTokenAmount: utils.calcRaw(makerTokenValue, makerDecimals).toString(),
+        salt: Math.floor(Math.random() * 1000000000000000).toString(),
+        taker: ZERO_ADDRESS,
+        takerTokenAddress,
+        takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals).toString()
+      }
+      const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
+      const order = {
+        ...feesRequest,
+        makerFee,
+        takerFee,
+        feeRecipient
+      }
+      return user.signMsg(this.getOrderHashHex(order))
+        .then(({ ecSignature }) => ({...order, ecSignature}))
+        .then(signedOrder => this.postRequest('exchange/order', signedOrder))
+    } catch (error) {
+      return Promise.reject(error)
     }
-    return this.getFees(feesRequest)
-      .then(({ feeRecipient, makerFee, takerFee }) => ({
-        ...feesRequest, feeRecipient, makerFee, takerFee
-      }))
-      .then(order => this.user.signMsg(this.getOrderHashHex(order)).then(
-        ({ ecSignature }) => ({...order, ecSignature})
-      ))
-      .then(signedOrder => this.postRequest('exchange/order', signedOrder))
   }
 
   /**
@@ -75,44 +91,114 @@ export class Exchange {
    * @param r ECDSA signature parameter r.
    * @param s ECDSA signature parameter s.
    */
-  public prepFillOrder (
+  public async prepTakeOrder (
     exchangeContractAddress: string,
     makerAddress: string,
-    takerAddress: string,
     makerTokenAddress: string,
     takerTokenAddress: string,
-    makerTokenAmount: string,
-    takerTokenAmount: string,
-    expirationTimestampInSec: string,
+    makerTokenValue: number | string,
+    takerTokenValue: number | string,
+    fillTakerTokenValue: number | string,
     salt: string,
-    fillTakerTokenAmount: string,
+    expirationUnixTimestampSec: string,
     v: number,
     r: string,
-    s: string
-  ): void {
-    const orderAddresses = [
-      makerAddress,
-      takerAddress,
-      makerTokenAddress,
-      takerTokenAddress,
-      ZERO_ADDRESS
-    ]
-    const orderValues = [
-      makerTokenAmount,
-      takerTokenAmount,
-      0,
-      0,
-      expirationTimestampInSec,
-      salt
-    ]
-    // TODO
-    return
+    s: string,
+    {
+      gasLimit,
+      gasPrice,
+      makerTokenDecimals,
+      takerTokenDecimals
+    }: ExchangeOptions = {}
+  ): Promise<any> {
+    const { currencyNetwork, payment, transaction, user, utils } = this
+
+    try {
+      const makerDecimals = await currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals)
+      const takerDecimals = await currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      const feesRequest = {
+        exchangeContractAddress,
+        expirationUnixTimestampSec,
+        maker: makerAddress,
+        makerTokenAddress,
+        makerTokenAmount: utils.calcRaw(makerTokenValue, makerDecimals),
+        salt,
+        taker: ZERO_ADDRESS,
+        takerTokenAddress,
+        takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals)
+      }
+      const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
+      const makerPath = currencyNetwork.isNetwork(takerTokenAddress)
+        ? await payment.getPath(
+          makerTokenAddress,
+          makerAddress,
+          user.address,
+          this.getPartialAmount(fillTakerTokenValue, takerTokenValue, makerTokenValue),
+          { decimals: makerTokenDecimals }
+        ) : []
+      const takerPath = currencyNetwork.isNetwork(takerTokenAddress)
+        ? await payment.getPath(
+          takerTokenAddress,
+          user.address,
+          makerAddress,
+          fillTakerTokenValue,
+          { decimals: takerTokenDecimals }
+        ) : []
+      const orderAddresses = [
+        makerAddress,
+        ZERO_ADDRESS,
+        makerTokenAddress,
+        takerTokenAddress,
+        feeRecipient
+      ]
+      const orderValues = [
+        utils.calcRaw(makerTokenValue, makerDecimals),
+        utils.calcRaw(takerTokenValue, takerDecimals),
+        parseInt(makerFee, 10),
+        parseInt(takerFee, 10),
+        parseInt(expirationUnixTimestampSec, 10),
+        parseInt(salt, 10)
+      ]
+
+      if (makerPath.path.length === 0 || takerPath.path.length === 0) {
+        return Promise.reject('Could not find a path with enough capacity')
+      }
+      return transaction.prepFuncTx(
+        user.address,
+        exchangeContractAddress,
+        'Exchange',
+        'fillOrderTrustlines',
+        [
+          orderAddresses,
+          orderValues,
+          utils.calcRaw(fillTakerTokenValue, takerDecimals),
+          makerPath.path,
+          takerPath.path,
+          v,
+          ethUtils.toBuffer(r),
+          ethUtils.toBuffer(s)
+        ]
+      )
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  private getPartialAmount (
+    numerator: number | string,
+    denominator: number | string,
+    target: number | string
+  ): number {
+    const bnNumerator = new BigNumber(numerator)
+    const bnDenominator = new BigNumber(denominator)
+    const bnTarget = new BigNumber(target)
+    return bnNumerator.times(bnTarget).dividedBy(bnDenominator).toNumber()
   }
 
   private getFees (request: any): Promise<any> {
-    const convertedRequest = this.convertFieldsToBigNumber(request, [
-      'expirationUnixTimestampSec', 'makerTokenAmount', 'salt', 'takerTokenAmount'
-    ])
+    // const convertedRequest = this.convertFieldsToBigNumber(request, [
+    //   'expirationUnixTimestampSec', 'makerTokenAmount', 'salt', 'takerTokenAmount'
+    // ])
     // NOTE fees disabled
     // return this.postRequest('/exchange/fees', convertedRequest)
     return Promise.resolve({
