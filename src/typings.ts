@@ -44,9 +44,11 @@ export interface FeesRequest {
 }
 
 export interface FeesResponse {
-	 feeRecipient: string,
-	 makerFee: BigNumber,
-	 takerFee: BigNumber,
+  feeRecipient: string,
+  makerFee: BigNumber,
+  takerFee: BigNumber
+}
+
 export interface TxOptions {
   gasPrice?: number,
   gasLimit?: number,
