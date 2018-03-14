@@ -63,3 +63,9 @@ export interface PaymentOptions extends TLOptions {
   maximumHops?: number,
   maximumFees?: number
 }
+
+export interface ExchangeOptions extends TxOptions {
+  makerTokenDecimals?: number,
+  takerTokenDecimals?: number,
+  expirationUnixTimestampSec?: number
+}
