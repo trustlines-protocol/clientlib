@@ -3,6 +3,7 @@ import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { PaymentOptions } from './typings'
 
 export class Payment {
 
@@ -16,38 +17,47 @@ export class Payment {
   }
 
   public prepare (
-    networkAddress: string,
-    receiver: string,
+    network: string,
+    to: string,
     value: number,
-    decimals: any = {},
-    pathOptions: any = {}
+    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { user, currencyNetwork, transaction, utils } = this
-    if (typeof decimals === 'object') {
-      pathOptions = decimals
-    }
-    return currencyNetwork.getDecimals(networkAddress, decimals)
+    return currencyNetwork.getDecimals(network, decimals)
       .then(dec => {
-        return this.getPath(networkAddress, user.address, receiver, value, dec, pathOptions)
+        return this.getPath(network, user.address, to, value, {
+          decimals: dec, maximumHops, maximumFees, gasPrice, gasLimit
+        })
           .then(({ path, maxFees, estimatedGas }) => {
             return path.length > 0
               ? transaction.prepFuncTx(
-                  user.address,
-                  networkAddress,
-                  'CurrencyNetwork',
-                  'transfer',
-                  [ receiver, utils.calcRaw(value, dec), maxFees.raw, path.slice(1) ],
-                  estimatedGas
-                ).then(({ rawTx, gasPrice, ethFees }) => ({
-                  rawTx,
-                  path,
-                  maxFees,
-                  ethFees
-                }))
+                user.address,
+                network,
+                'CurrencyNetwork',
+                'transfer',
+                [ to, utils.calcRaw(value, dec), maxFees.raw, path.slice(1) ],
+                { gasPrice, gasLimit, estimatedGas }
+              ).then(({ rawTx, gasPrice, ethFees }) => ({
+                rawTx,
+                path,
+                maxFees,
+                ethFees
+              }))
               : Promise.reject('Could not find a path with enough capacity')
           })
       })
       .catch(e => Promise.reject(`There was an error while finding a path: ${e}`))
+  }
+
+  public prepareEth (
+    to: string,
+    value: number,
+    { gasPrice, gasLimit }: PaymentOptions = {}
+  ): Promise<any> {
+    const { transaction, user, utils } = this
+    const rawValue = utils.convertEthToWei(value)
+    return transaction.prepValueTx(user.address, to, rawValue, { gasPrice, gasLimit })
+      .catch(error => Promise.reject(error))
   }
 
   public getPath (
@@ -55,27 +65,22 @@ export class Payment {
     accountA: string,
     accountB: string,
     value: number,
-    decimals: any = {},
-    pathOptions: any = {}
+    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { utils, currencyNetwork } = this
     const url = `networks/${network}/path-info`
-    if (typeof decimals === 'object') {
-      pathOptions = decimals
-    }
     return currencyNetwork.getDecimals(network, decimals)
       .then(dec => {
-        const { maxFees, maxHops } = pathOptions
         const data = {
           from: accountA,
           to: accountB,
           value: utils.calcRaw(value, dec)
         }
-        if (maxFees) {
-          data['maxFees'] = maxFees
+        if (maximumFees) {
+          data['maxFees'] = maximumFees
         }
-        if (maxHops) {
-          data['maxHops'] = maxHops
+        if (maximumHops) {
+          data['maxHops'] = maximumHops
         }
         return utils.fetchUrl(url, {
           method: 'POST',
@@ -150,10 +155,4 @@ export class Payment {
         return Promise.reject(error)
       })
   }
-
-  public prepareEth (to: string, value: number, options?: object): Promise<any> {
-    return this.transaction.prepValueTx(this.user.address, to, value, options)
-      .catch(error => Promise.reject(error))
-  }
-
 }
