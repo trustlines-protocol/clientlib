@@ -1,5 +1,7 @@
 import { Utils } from './Utils'
 
+import * as ethUtils from 'ethereumjs-util'
+
 export class CurrencyNetwork {
 
   constructor (private utils: Utils) {
@@ -50,5 +52,15 @@ export class CurrencyNetwork {
       this.utils.fetchUrl(`networks/${networkAddress}`)
         .then(network => network.decimals)
     )
+  }
+
+  public async isNetwork (contractAddress: string): Promise<any> {
+    if (!this.utils.checkAddress(contractAddress)) {
+      return Promise.reject(`${contractAddress} is not a valid address.`)
+    }
+    // TODO find another to check if given address is a currency network
+    const currencyNetworks = await this.getAll()
+    const networkAddresses = currencyNetworks.map(c => ethUtils.toChecksumAddress(c.address))
+    return networkAddresses.indexOf(ethUtils.toChecksumAddress(contractAddress)) !== -1
   }
 }
