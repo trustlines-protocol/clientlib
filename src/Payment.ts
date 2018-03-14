@@ -19,7 +19,7 @@ export class Payment {
   public prepare (
     network: string,
     to: string,
-    value: number,
+    value: number | string,
     { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { user, currencyNetwork, transaction, utils } = this
@@ -51,7 +51,7 @@ export class Payment {
 
   public prepareEth (
     to: string,
-    value: number,
+    value: number | string,
     { gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { transaction, user, utils } = this
@@ -64,7 +64,7 @@ export class Payment {
     network: string,
     accountA: string,
     accountB: string,
-    value: number,
+    value: number | string,
     { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { utils, currencyNetwork } = this
