@@ -153,22 +153,32 @@ export class Exchange {
         takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals)
       }
       const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
-      const makerPath = currencyNetwork.isNetwork(takerTokenAddress)
+      const makerPathObj = currencyNetwork.isNetwork(takerTokenAddress)
         ? await payment.getPath(
           makerTokenAddress,
           makerAddress,
           user.address,
           this.getPartialAmount(fillTakerTokenValue, takerTokenValue, makerTokenValue),
           { decimals: makerTokenDecimals }
-        ) : []
-      const takerPath = currencyNetwork.isNetwork(takerTokenAddress)
+        ) : {
+          path: [],
+          maxFees: 0,
+          estimatedGas: 21000,
+          isNoNetwork: true
+        }
+      const takerPathObj = currencyNetwork.isNetwork(takerTokenAddress)
         ? await payment.getPath(
           takerTokenAddress,
           user.address,
           makerAddress,
           fillTakerTokenValue,
           { decimals: takerTokenDecimals }
-        ) : []
+        ) : {
+          path: [],
+          maxFees: 0,
+          estimatedGas: 21000,
+          isNoNetwork: true
+        }
       const orderAddresses = [
         makerAddress,
         ZERO_ADDRESS,
@@ -185,10 +195,12 @@ export class Exchange {
         parseInt(salt, 10)
       ]
 
-      if (makerPath.path.length === 0 || takerPath.path.length === 0) {
+      if ((makerPathObj.path.length === 0 && !makerPathObj.isNoNetwork) ||
+          (takerPathObj.path.length === 0 && !takerPathObj.isNoNetwork)) {
         return Promise.reject('Could not find a path with enough capacity')
       }
-      return transaction.prepFuncTx(
+
+      const { rawTx, ethFees } = await transaction.prepFuncTx(
         user.address,
         exchangeContractAddress,
         'Exchange',
@@ -197,16 +209,33 @@ export class Exchange {
           orderAddresses,
           orderValues,
           utils.calcRaw(fillTakerTokenValue, takerDecimals),
-          makerPath.path,
-          takerPath.path,
+          makerPathObj.path,
+          takerPathObj.path,
           v,
           ethUtils.toBuffer(r),
           ethUtils.toBuffer(s)
-        ]
+        ], {
+          gasPrice,
+          gasLimit,
+          estimatedGas: takerPathObj.estimatedGas + makerPathObj.estimatedGas
+        }
       )
+      return {
+        rawTx,
+        ethFees,
+        makerMaxFees: makerPathObj.maxFees,
+        makerPath: makerPathObj.path,
+        takerMaxFees: takerPathObj.maxFees,
+        takerPath: takerPathObj.path
+      }
     } catch (error) {
       return Promise.reject(error)
     }
+  }
+
+  public async confirm (rawTx: string): Promise<any> {
+    const signedTx = await this.user.signTx(rawTx)
+    return this.transaction.relayTx(signedTx)
   }
 
   private getPartialAmount (
