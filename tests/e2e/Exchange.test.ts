@@ -64,6 +64,12 @@ describe('e2e', () => {
       })
     })
 
+    describe('#getEthWrappers()', () => {
+      it('should return array', () => {
+        expect(tl1.exchange.getEthWrappers()).to.eventually.be.an('array')
+      })
+    })
+
     describe('#getOrderbook()', () => {
       it('should return orderbook', () => {
         expect(tl1.exchange.getOrderbook(makerTokenAddress, takerTokenAddress))

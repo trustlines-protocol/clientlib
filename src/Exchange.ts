@@ -28,7 +28,7 @@ export class Exchange {
     return this.utils.fetchUrl('exchange/exchanges')
   }
 
-  public getEthAddress (): Promise<any> {
+  public getEthWrappers (): Promise<any> {
     return this.utils.fetchUrl('exchange/eth')
   }
 
