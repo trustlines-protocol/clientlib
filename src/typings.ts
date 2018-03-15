@@ -69,3 +69,8 @@ export interface ExchangeOptions extends TxOptions {
   takerTokenDecimals?: number,
   expirationUnixTimestampSec?: number
 }
+
+export interface OrderbookOptions {
+  baseTokenDecimals?: number,
+  quoteTokenDecimals?: number
+}

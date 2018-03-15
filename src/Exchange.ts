@@ -4,12 +4,13 @@ import { User } from './User'
 import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Payment } from './Payment'
-import { ExchangeOptions } from './typings'
+import { ExchangeOptions, OrderbookOptions, Order } from './typings'
 
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 import * as ethABI from 'ethereumjs-abi'
 import BN = require('bn.js')
+import { url } from 'inspector';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -28,14 +29,38 @@ export class Exchange {
     return this.utils.fetchUrl('exchange/exchanges')
   }
 
-  public getOrderbook (
+  public async getOrderbook (
     baseTokenAddress: string,
-    quoteTokenAddress: string
+    quoteTokenAddress: string,
+    { baseTokenDecimals, quoteTokenDecimals }: OrderbookOptions = {}
   ): Promise<any> {
-    const params = { baseTokenAddress, quoteTokenAddress }
-    const endpoint = this.utils.buildUrl('exchange/orderbook', params)
-    return this.utils.fetchUrl(endpoint)
-    // TODO format amount of bids and asks
+    try {
+      const { currencyNetwork, utils } = this
+      const baseDecimals = await currencyNetwork.getDecimals(baseTokenAddress, baseTokenDecimals)
+      const quoteDecimals = await currencyNetwork.getDecimals(quoteTokenAddress, quoteTokenDecimals)
+      const params = { baseTokenAddress, quoteTokenAddress }
+      const endpoint = utils.buildUrl('exchange/orderbook', params)
+      const orderbook = await utils.fetchUrl(endpoint)
+      const { asks, bids } = orderbook
+      return {
+        asks: asks.map(a => ({
+          ...a,
+          makerTokenAmount: utils.formatAmount(a.makerTokenAmount, baseDecimals),
+          takerTokenAmount: utils.formatAmount(a.takerTokenAmount, quoteDecimals),
+          makerFee: utils.formatAmount(a.makerFee, baseDecimals),
+          takerFee: utils.formatAmount(a.takerFee, quoteDecimals)
+        })),
+        bids: bids.map(b => ({
+          ...b,
+          makerTokenAmount: utils.formatAmount(b.makerTokenAmount, quoteDecimals),
+          takerTokenAmount: utils.formatAmount(b.takerTokenAmount, baseDecimals),
+          makerFee: utils.formatAmount(b.makerFee, quoteDecimals),
+          takerFee: utils.formatAmount(b.takerFee, baseDecimals)
+        }))
+      }
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 
   public async makeOrder (
