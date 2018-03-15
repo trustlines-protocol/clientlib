@@ -10,7 +10,6 @@ import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 import * as ethABI from 'ethereumjs-abi'
 import BN = require('bn.js')
-import { url } from 'inspector';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -27,6 +26,10 @@ export class Exchange {
 
   public getExchanges (): Promise<any> {
     return this.utils.fetchUrl('exchange/exchanges')
+  }
+
+  public getEthAddress (): Promise<any> {
+    return this.utils.fetchUrl('exchange/eth')
   }
 
   public async getOrderbook (
