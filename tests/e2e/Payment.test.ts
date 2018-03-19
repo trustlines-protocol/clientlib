@@ -28,8 +28,8 @@ describe('e2e', () => {
         .then(() => Promise.all([tl1.user.requestEth(), tl2.user.requestEth()]))
         // set up trustlines requests
         .then(() => Promise.all([
-          tl1.trustline.prepareUpdate(networkAddress, user2.address, 1000),
-          tl2.trustline.prepareUpdate(networkAddress, user1.address, 500)
+          tl1.trustline.prepareUpdate(networkAddress, user2.address, 1000, 500),
+          tl2.trustline.prepareUpdate(networkAddress, user1.address, 500, 1000)
         ]))
         .then(([ tx1, tx2 ]) => Promise.all([
           tl1.trustline.confirm(tx1.rawTx),
@@ -39,8 +39,8 @@ describe('e2e', () => {
         .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
         // set trustline accepts
         .then(() => Promise.all([
-          tl1.trustline.prepareAccept(networkAddress, user2.address, 500),
-          tl2.trustline.prepareAccept(networkAddress, user1.address, 1000)
+          tl1.trustline.prepareAccept(networkAddress, user2.address, 500, 1000),
+          tl2.trustline.prepareAccept(networkAddress, user1.address, 1000, 500)
         ]))
         .then(([ tx1, tx2 ]) => Promise.all([
           tl1.trustline.confirm(tx1.rawTx),
@@ -83,7 +83,7 @@ describe('e2e', () => {
 
       it('should not prepare tx for trustline transfer', () => {
         expect(tl1.payment.prepare(networkAddress, user2.address, 2000))
-          .to.eventually.throw()
+          .to.be.rejectedWith('There was an error while finding a path: Could not find a path with enough capacity')
       })
     })
 
