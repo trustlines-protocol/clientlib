@@ -7,8 +7,7 @@ import { CurrencyNetwork } from './CurrencyNetwork'
 import { Contact } from './Contact'
 import { Utils } from './Utils'
 import { Event } from './Event'
-
-import { Observable } from 'rxjs/Observable'
+import { Messaging } from './Messaging'
 
 export class TLNetwork {
   public configuration: Configuration
@@ -20,6 +19,7 @@ export class TLNetwork {
   public contact: Contact
   public utils: Utils
   public event: Event
+  public messaging: Messaging
 
   constructor (config: any = {}) {
     const { protocol, host, port, path,tokenAddress, pollInterval, useWebSockets, wsProtocol } = config
@@ -32,6 +32,7 @@ export class TLNetwork {
     this.contact = new Contact(this.user, this.utils)
     this.trustline = new Trustline(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
     this.payment = new Payment(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
+    this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
   }
 
 }
