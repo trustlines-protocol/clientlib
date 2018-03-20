@@ -55,7 +55,7 @@ export class Transaction {
         const txOptions = {
           gasPrice: gasPrice || txinfos.gasPrice,
           gasLimit: gasLimit || 1000000,
-          rawValue,
+          value: rawValue,
           nonce: txinfos.nonce,
           to: to.toLowerCase()
         }
