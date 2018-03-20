@@ -29,7 +29,7 @@ describe('e2e', () => {
       let stream
       before((done) => {
         stream = tl1.messaging.messageStream().subscribe(message => messages.push(message))
-        setTimeout(() => done(), 500)
+        setTimeout(() => done(), 1000)
       })
 
       it('should receive payment requests', (done) => {
@@ -45,7 +45,7 @@ describe('e2e', () => {
           expect(messages[0]).to.have.property('address', user2.address)
           expect(messages[0]).to.have.property('direction', 'received')
           done()
-        }, 500)
+        }, 1000)
       })
 
       after(() => {
