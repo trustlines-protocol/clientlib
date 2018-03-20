@@ -16,7 +16,6 @@ describe('e2e', () => {
     let exchangeAddress
     let makerTokenAddress
     let takerTokenAddress
-    let latestSalt
 
     before(done => {
       // load users
@@ -104,15 +103,25 @@ describe('e2e', () => {
       })
 
       it('should prepare a fill order tx for latest order', () => {
-        const { ecSignature, salt, expirationUnixTimestampSec } = latestOrder
-        expect(tl2.exchange.prepTakeOrder(
-          exchangeAddress,
-          user1.address,
+        const {
+          exchangeContractAddress,
+          maker,
           makerTokenAddress,
           takerTokenAddress,
-          1,
-          2,
-          1,
+          makerTokenAmount,
+          takerTokenAmount,
+          salt,
+          expirationUnixTimestampSec,
+          ecSignature
+        } = latestOrder
+        expect(tl2.exchange.prepTakeOrder(
+          exchangeContractAddress,
+          maker,
+          makerTokenAddress,
+          takerTokenAddress,
+          makerTokenAmount.value,
+          takerTokenAmount.value,
+          1, // fillTakerTokenAmount
           salt,
           expirationUnixTimestampSec,
           ecSignature.v,
@@ -136,15 +145,25 @@ describe('e2e', () => {
       })
 
       it('should confirm a signed fill order tx for latest order', done => {
-        const { ecSignature, salt, expirationUnixTimestampSec } = latestOrder
-        tl2.exchange.prepTakeOrder(
-          exchangeAddress,
-          user1.address,
+        const {
+          exchangeContractAddress,
+          maker,
           makerTokenAddress,
           takerTokenAddress,
-          1,
-          2,
-          1,
+          makerTokenAmount,
+          takerTokenAmount,
+          salt,
+          expirationUnixTimestampSec,
+          ecSignature
+        } = latestOrder
+        tl2.exchange.prepTakeOrder(
+          exchangeContractAddress,
+          maker,
+          makerTokenAddress,
+          takerTokenAddress,
+          makerTokenAmount.value,
+          takerTokenAmount.value,
+          1, // fillTakerTokenAmount
           salt,
           expirationUnixTimestampSec,
           ecSignature.v,
