@@ -26,7 +26,7 @@ describe('e2e', () => {
         .then(({ rawTx }) => tl1.trustline.confirm(rawTx))
         .then(() => tl2.trustline.prepareUpdate(networkAddress, user1.address, 500, 1000))
         .then(({ rawTx }) => tl2.trustline.confirm(rawTx))
-        .then(() => setTimeout(() => done(), 500))
+        .then(() => setTimeout(() => done(), 1000))
     })
 
     describe('#get()', () => {
@@ -57,9 +57,9 @@ describe('e2e', () => {
       let stream
       before(done => {
         stream = tl1.event.updateStream().subscribe(event => events.push(event))
-        setTimeout(() => tl1.payment.prepare(networkAddress, user2.address, 2.5)
+        tl1.payment.prepare(networkAddress, user2.address, 2.5)
           .then(({ rawTx }) => tl1.payment.confirm(rawTx))
-          .then(() => setTimeout(() => done(), 500)), 500)
+          .then(() => setTimeout(() => done(), 1000))
       })
 
       it('should receive transfer updates', () => {
