@@ -51,6 +51,8 @@
     "eth-lightwallet": "^3.0.1",
     "ethereumjs-abi": "^0.6.5",
     "ethereumjs-util": "^5.1.2",
-    "rxjs": "^5.4.1"
+    "html5-websocket": "^2.0.2",
+    "rxjs": "^5.4.1",
+    "simple-jsonrpc-js": "0.0.10"
   }
 }

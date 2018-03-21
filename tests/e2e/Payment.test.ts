@@ -139,12 +139,25 @@ describe('e2e', () => {
     })
 
     describe('#confirm()', () => {
+      let beforeBalance
+      before(done => {
+        tl2.user.getBalance()
+          .then(balance => {
+            beforeBalance = balance
+            done()
+          })
+      })
+
       it('should confirm eth transfer', done => {
         tl1.payment.prepareEth(user2.address, 0.01)
           .then(({ rawTx }) => tl1.payment.confirm(rawTx))
           .then(txId => {
-            expect(txId).to.be.a('string')
-            done()
+            tl2.user.getBalance()
+              .then(balance => {
+                expect(txId).to.be.a('string')
+                expect(parseFloat(balance)).to.be.above(parseFloat(beforeBalance))
+                done()
+              })
           })
       })
     })

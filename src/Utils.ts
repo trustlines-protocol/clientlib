@@ -11,6 +11,8 @@ import { Configuration } from './Configuration'
 let __DEV__
 
 const ReconnectingWebSocket = require('reconnecting-websocket')
+const JsonRPC = require('simple-jsonrpc-js')
+const WebSocket = require('html5-websocket')
 
 export class Utils {
 
@@ -65,6 +67,46 @@ export class Utils {
       })
   }
 
+  public websocketStream (endpoint: String, functionName: String, args: object): Observable<any> {
+    const { wsApiUrl } = this.configuration
+    return Observable.create((observer: Observer<any>) => {
+      const options = {constructor: WebSocket}
+      const ws = new ReconnectingWebSocket(`${wsApiUrl}${endpoint}`, undefined, options)
+      const jrpc = new JsonRPC()
+
+      jrpc.toStream = (message: string) => {
+        ws.send(message)
+      }
+
+      ws.onmessage = (e: MessageEvent) => {
+        jrpc.messageHandler(e.data)
+      }
+
+      ws.onerror = (e: ErrorEvent) => {
+        console.error('An web socket error occured: ' + e.message)
+      }
+
+      ws.onopen = () => {
+        jrpc.call(functionName, args).then((subscriptionId: string) => {
+          jrpc.on(`subscription_${subscriptionId}`, ['event'], (event) => {
+            observer.next(event)
+          })
+        })
+        if (functionName === 'listen') {
+          jrpc.call('getMissedMessages', args).then(events => {
+            events.map(event => {
+              observer.next(event)
+            })
+          })
+        }
+      }
+
+      return () => {
+        ws.close(1000, '', { keepClosed: true })
+      }
+    })
+  }
+
   public buildUrl (baseUrl: string, params?: any): string {
     if (Array.isArray(params)) {
       baseUrl = params.reduce((acc, param) => `${acc}/${encodeURIComponent(param)}`, baseUrl)
@@ -100,6 +142,23 @@ export class Utils {
       decimals,
       raw,
       value: this.calcValue(raw, decimals)
+    }
+  }
+
+  public formatEvent (event: any, decimals: number): any {
+    if (event.amount) {
+      return {
+        ...event,
+        amount: this.formatAmount(event.amount, decimals)
+      }
+    } else if (event.received && event.given) {
+      return {
+        ...event,
+        given: this.formatAmount(event.given, decimals),
+        received: this.formatAmount(event.received, decimals)
+      }
+    } else {
+      return event
     }
   }
 

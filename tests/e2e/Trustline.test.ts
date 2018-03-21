@@ -110,13 +110,13 @@ describe('e2e', () => {
 
     describe('#getUpdates()', () => {
       before(done => {
-        tl1.trustline.prepareUpdate(networkAddress, user2.address, 1234, 4321)
+        tl1.trustline.prepareUpdate(networkAddress, user2.address, 123, 321)
           .then(({ rawTx }) => tl1.trustline.confirm(rawTx))
-          .then(() => setTimeout(() => done(), 500))
+          .then(() => setTimeout(() => done(), 1000))
       })
 
       it('should return latest update', done => {
-        tl2.trustline.prepareAccept(networkAddress, user1.address, 4321, 1234)
+        tl2.trustline.prepareAccept(networkAddress, user1.address, 321, 123)
           .then(tx => tl2.trustline.confirm(tx.rawTx))
           .then(txId => {
             setTimeout(() => {
@@ -136,7 +136,7 @@ describe('e2e', () => {
                 expect(latestUpdate.type).to.equal('TrustlineUpdate')
                 done()
               })
-            }, 500)
+            }, 1000)
           })
       })
 

@@ -29,22 +29,7 @@ export class Event {
     return Promise.all([
       utils.fetchUrl(parameterUrl),
       this.currencyNetwork.getDecimals(networkAddress)
-    ]).then(([ events, decimals ]) => events.map(e => {
-      if (e.amount) {
-        return {
-          ...e,
-          amount: utils.formatAmount(e.amount, decimals)
-        }
-      } else if (e.received && e.given) {
-        return {
-          ...e,
-          given: utils.formatAmount(e.given, decimals),
-          received: utils.formatAmount(e.received, decimals)
-        }
-      } else {
-        return e
-      }
-    }))
+    ]).then(([ events, decimals ]) => events.map(event => utils.formatEvent(event, decimals)))
   }
 
   public getAll ({ type, fromBlock, toBlock }: EventFilterOptions = {}): Promise<any[]> {
@@ -52,6 +37,14 @@ export class Event {
     const baseUrl = `users/${user.address}/events`
     const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock, toBlock })
     return utils.fetchUrl(parameterUrl)
+  }
+
+  public updateStream (): Observable<any> {
+    const { user, utils } = this
+    return this.utils.websocketStream('streams/events', 'subscribe', {'event': 'all', 'user': user.address}).mergeMap(event => {
+      return this.currencyNetwork.getDecimals(event.networkAddress).then(
+        decimals => utils.formatEvent(event, decimals))
+    })
   }
 
 }
