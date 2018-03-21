@@ -49,8 +49,12 @@ export class Event {
   public updateStream (): Observable<any> {
     const { user, utils } = this
     return this.utils.websocketStream('streams/events', 'subscribe', {'event': 'all', 'user': user.address}).mergeMap(event => {
-      return this.currencyNetwork.getDecimals(event.networkAddress).then(
-        decimals => utils.formatEvent(event, decimals))
+      if (event.hasOwnProperty('networkAddress')) {
+        return this.currencyNetwork.getDecimals(event.networkAddress).then(
+          decimals => utils.formatEvent(event, decimals))
+      } else {
+        return Promise.resolve(event)
+      }
     })
   }
 
