@@ -212,8 +212,8 @@ export class Exchange {
           orderAddresses,
           orderValues,
           utils.calcRaw(fillTakerTokenValue, takerDecimals),
-          makerPathObj.path.slice(1),
-          takerPathObj.path.slice(1),
+          makerPathObj.path.length === 1 ? makerPathObj.path : makerPathObj.path.slice(1),
+          takerPathObj.path.length === 1 ? takerPathObj.path : takerPathObj.path.slice(1),
           v,
           ethUtils.toBuffer(r),
           ethUtils.toBuffer(s)
