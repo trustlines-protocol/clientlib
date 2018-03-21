@@ -36,7 +36,10 @@ export class Payment {
                 'CurrencyNetwork',
                 'transfer',
                 [ to, utils.calcRaw(value, dec), maxFees.raw, path.slice(1) ],
-                { gasPrice, gasLimit, estimatedGas }
+                {
+                  gasPrice,
+                  gasLimit: estimatedGas
+                }
               ).then(({ rawTx, gasPrice, ethFees }) => ({
                 rawTx,
                 path,

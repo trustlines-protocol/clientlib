@@ -51,8 +51,7 @@ export interface FeesResponse {
 
 export interface TxOptions {
   gasPrice?: number,
-  gasLimit?: number,
-  estimatedGas?: number
+  gasLimit?: number
 }
 
 export interface TLOptions extends TxOptions {

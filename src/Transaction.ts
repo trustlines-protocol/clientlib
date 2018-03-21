@@ -18,13 +18,14 @@ export class Transaction {
     contractName: string,
     functionName: string,
     parameters: any[],
-    { gasPrice, gasLimit, estimatedGas }: TxOptions = {}
+    { gasPrice, gasLimit }: TxOptions = {}
   ): Promise<any> {
     return this.getTxInfos(userAddress)
       .then(txinfos => {
+        console.log(gasLimit, contractName, contractAddress, functionName, parameters)
         const txOptions = {
           gasPrice: gasPrice || txinfos.gasPrice,
-          gasLimit: estimatedGas ? estimatedGas * 1.5 : 2000000,
+          gasLimit: gasLimit ? gasLimit * 1.5 : 2000000,
           value: 0,
           nonce: txinfos.nonce,
           to: contractAddress.toLowerCase()

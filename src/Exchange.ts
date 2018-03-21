@@ -156,7 +156,7 @@ export class Exchange {
         takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals)
       }
       const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
-      const makerPathObj = currencyNetwork.isNetwork(takerTokenAddress)
+      const makerPathObj = currencyNetwork.isNetwork(makerTokenAddress)
         ? await payment.getPath(
           makerTokenAddress,
           makerAddress,
@@ -212,15 +212,14 @@ export class Exchange {
           orderAddresses,
           orderValues,
           utils.calcRaw(fillTakerTokenValue, takerDecimals),
-          makerPathObj.path,
-          takerPathObj.path,
+          makerPathObj.path.slice(1),
+          takerPathObj.path.slice(1),
           v,
           ethUtils.toBuffer(r),
           ethUtils.toBuffer(s)
         ], {
           gasPrice,
-          gasLimit,
-          estimatedGas: takerPathObj.estimatedGas + makerPathObj.estimatedGas
+          gasLimit: takerPathObj.estimatedGas + makerPathObj.estimatedGas
         }
       )
       return {
