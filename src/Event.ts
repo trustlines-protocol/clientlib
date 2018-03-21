@@ -37,6 +37,13 @@ export class Event {
     const baseUrl = `users/${user.address}/events`
     const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock, toBlock })
     return utils.fetchUrl(parameterUrl)
+      .then((events) => {
+        const mappedEvents = events.map((event) =>
+          this.currencyNetwork.getDecimals(event.networkAddress)
+            .then(decimals => (utils.formatEvent(event, decimals)))
+        )
+        return Promise.all(mappedEvents)
+      })
   }
 
   public updateStream (): Observable<any> {
