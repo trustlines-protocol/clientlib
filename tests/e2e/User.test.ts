@@ -35,7 +35,7 @@ describe('e2e', () => {
       it('should return balance for existing user', done => {
         tlExisting.user.getBalance().then(balance => {
           expect(balance).to.have.keys('raw', 'value', 'decimals')
-          expect(balance.value).to.equal(1)
+          expect(balance.value).to.be.above(0)
           done()
         })
       })
