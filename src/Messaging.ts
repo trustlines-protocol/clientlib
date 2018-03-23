@@ -40,6 +40,9 @@ export class Messaging {
     const {user, utils} = this
     return this.utils.websocketStream('streams/messages', 'listen', {'type': 'all', 'user': user.address})
       .mergeMap(data => {
+        if (data.type) {
+          return [data]
+        }
         let message = {...JSON.parse(data.message), timestamp: data.timestamp}
         return this.currencyNetwork.getDecimals(message.networkAddress).then(
           decimals => utils.formatEvent(message, decimals))
