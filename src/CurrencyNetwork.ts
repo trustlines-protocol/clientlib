@@ -42,16 +42,25 @@ export class CurrencyNetwork {
     }))
   }
 
-  public getDecimals (networkAddress: string, decimals?: number): Promise<any> {
+  public async getDecimals (networkAddress: string, decimals?: number): Promise<any> {
+    const isNetwork = await this.isNetwork(networkAddress)
     if (!this.utils.checkAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
-    return Promise.resolve(
-      ((typeof decimals === 'number') && decimals) ||
-      // TODO replace with list of known currency network in clientlib
-      this.utils.fetchUrl(`networks/${networkAddress}`)
-        .then(network => network.decimals)
-    )
+    if (isNetwork) {
+      return Promise.resolve(
+        ((typeof decimals === 'number') && decimals) ||
+        // TODO replace with list of known currency network in clientlib
+        this.utils.fetchUrl(`networks/${networkAddress}`)
+          .then(network => network.decimals)
+      )
+    } else {
+      if ((typeof decimals === 'number') && decimals) {
+        return decimals
+      } else {
+        return Promise.reject(`${networkAddress} is a token address. Decimals have to be explicit.`)
+      }
+    }
   }
 
   public async isNetwork (contractAddress: string): Promise<any> {
