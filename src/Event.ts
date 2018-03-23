@@ -37,13 +37,24 @@ export class Event {
     const baseUrl = `users/${user.address}/events`
     const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock, toBlock })
     return utils.fetchUrl(parameterUrl)
+      .then((events) => {
+        const mappedEvents = events.map((event) =>
+          this.currencyNetwork.getDecimals(event.networkAddress)
+            .then(decimals => (utils.formatEvent(event, decimals)))
+        )
+        return Promise.all(mappedEvents)
+      })
   }
 
   public updateStream (): Observable<any> {
     const { user, utils } = this
     return this.utils.websocketStream('streams/events', 'subscribe', {'event': 'all', 'user': user.address}).mergeMap(event => {
-      return this.currencyNetwork.getDecimals(event.networkAddress).then(
-        decimals => utils.formatEvent(event, decimals))
+      if (event.hasOwnProperty('networkAddress')) {
+        return this.currencyNetwork.getDecimals(event.networkAddress).then(
+          decimals => utils.formatEvent(event, decimals))
+      } else {
+        return Promise.resolve(event)
+      }
     })
   }
 

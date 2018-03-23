@@ -83,10 +83,11 @@ export class Utils {
       }
 
       ws.onerror = (e: ErrorEvent) => {
-        console.error('An web socket error occured: ' + e.message)
+        console.log('An web socket error occured: ' + e.message)
       }
 
       ws.onopen = () => {
+        observer.next({ type: 'WebsocketOpen' })
         jrpc.call(functionName, args).then((subscriptionId: string) => {
           jrpc.on(`subscription_${subscriptionId}`, ['event'], (event) => {
             observer.next(event)
