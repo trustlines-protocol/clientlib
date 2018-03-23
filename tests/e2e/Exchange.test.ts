@@ -26,9 +26,10 @@ describe('e2e', () => {
         .then(exchanges => exchangeAddress = exchanges[0])
         // get all currency networks
         .then(() => tl1.currencyNetwork.getAll())
-        .then(([ base, quote ]) => {
-          makerTokenAddress = base.address
-          takerTokenAddress = quote.address
+        .then(networks => {
+          const [ x, y ] = networks.filter(n => n.abbreviation === 'EUR' || n.abbreviation === 'USD')
+          makerTokenAddress = x.address
+          takerTokenAddress = y.address
         })
         // make sure users have eth
         .then(() => Promise.all([tl1.user.requestEth(), tl2.user.requestEth()]))
@@ -133,14 +134,20 @@ describe('e2e', () => {
       })
     })
 
-    describe('#confirm()', () => {
+    describe.only('#confirm()', () => {
       let latestOrder
 
       before(done => {
         tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 2)
           .then(() => tl1.exchange.getOrderbook(makerTokenAddress, takerTokenAddress))
           .then(orderbook => latestOrder = orderbook.asks[orderbook.asks.length - 1])
-          .then(() => done())
+          .then(() => Promise.all([
+            tl2.trustline.getAll(makerTokenAddress),
+            tl2.trustline.getAll(takerTokenAddress)
+          ]).then(([ x, y ]) => {
+            console.log(x,y)
+            done()
+          }))
           .catch(e => done(e))
       })
 
@@ -172,7 +179,14 @@ describe('e2e', () => {
         ).then(tx => tl2.exchange.confirm(tx.rawTx))
         .then(txId => {
           expect(txId).to.be.a('string')
-          done()
+          console.log(txId)
+          Promise.all([
+            tl2.trustline.getAll(makerTokenAddress),
+            tl2.trustline.getAll(takerTokenAddress)
+          ]).then(([ x, y ]) => {
+            console.log(x,y)
+            done()
+          })
         })
       })
     })
