@@ -86,11 +86,11 @@ export class Exchange {
         exchangeContractAddress,
         expirationUnixTimestampSec: expirationUnixTimestampSec.toString(),
         maker: user.address,
-        makerTokenAddress,
+        makerTokenAddress: ethUtils.toChecksumAddress(makerTokenAddress),
         makerTokenAmount: utils.calcRaw(makerTokenValue, makerDecimals).toString(),
-        salt: Math.floor(Math.random() * 1000000000000000).toString(),
+        salt: Math.floor(Math.random() * 1000000000).toString(),
         taker: ZERO_ADDRESS,
-        takerTokenAddress,
+        takerTokenAddress: ethUtils.toChecksumAddress(takerTokenAddress),
         takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals).toString()
       }
       const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
@@ -156,7 +156,7 @@ export class Exchange {
         takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals)
       }
       const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
-      const makerPathObj = currencyNetwork.isNetwork(makerTokenAddress)
+      const makerPathObj = await currencyNetwork.isNetwork(makerTokenAddress)
         ? await payment.getPath(
           makerTokenAddress,
           makerAddress,
@@ -169,7 +169,7 @@ export class Exchange {
           estimatedGas: 21000,
           isNoNetwork: true
         }
-      const takerPathObj = currencyNetwork.isNetwork(takerTokenAddress)
+      const takerPathObj = await currencyNetwork.isNetwork(takerTokenAddress)
         ? await payment.getPath(
           takerTokenAddress,
           user.address,
@@ -202,7 +202,6 @@ export class Exchange {
           (takerPathObj.path.length === 0 && !takerPathObj.isNoNetwork)) {
         return Promise.reject('Could not find a path with enough capacity')
       }
-
       const { rawTx, ethFees } = await transaction.prepFuncTx(
         user.address,
         exchangeContractAddress,
@@ -215,8 +214,8 @@ export class Exchange {
           makerPathObj.path.length === 1 ? makerPathObj.path : makerPathObj.path.slice(1),
           takerPathObj.path.length === 1 ? takerPathObj.path : takerPathObj.path.slice(1),
           v,
-          ethUtils.toBuffer(r),
-          ethUtils.toBuffer(s)
+          r,
+          s
         ], {
           gasPrice,
           gasLimit: takerPathObj.estimatedGas + makerPathObj.estimatedGas
