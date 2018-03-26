@@ -205,5 +205,84 @@ describe('e2e', () => {
         })
       })
     })
+
+    // TODO scenario for TL money <-> token
+    describe.skip('#confirm() - TL money <-> token', () => {
+      let latestOrder
+      let makerTLBefore
+      let tokenBalanceBefore
+
+      before(done => {
+        tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, dummyTokenAddress, 1, 1, {
+          makerTokenDecimals: 2,
+          takerTokenDecimals: 2
+        })
+          .then(() => tl1.exchange.getOrderbook(makerTokenAddress, dummyTokenAddress, {
+            baseTokenDecimals: 2,
+            quoteTokenDecimals: 2
+          }))
+          .then(orderbook => latestOrder = orderbook.asks[orderbook.asks.length - 1])
+          .then(() => Promise.all([
+            tl2.trustline.getAll(makerTokenAddress)
+            // TODO get balance of dummy token
+          ])
+          .then(([ makerTrustlines ]) => {
+            makerTLBefore = makerTrustlines.find(tl => tl.address === tl1.user.address)
+            tokenBalanceBefore = 0
+            done()
+          }))
+          .catch(e => done(e))
+      })
+
+      it('should confirm a signed fill order tx for TL money <-> TL money order', done => {
+        const {
+          exchangeContractAddress,
+          maker,
+          makerTokenAddress,
+          takerTokenAddress,
+          makerTokenAmount,
+          takerTokenAmount,
+          salt,
+          expirationUnixTimestampSec,
+          ecSignature
+        } = latestOrder
+        tl2.exchange.prepTakeOrder(
+          exchangeContractAddress,
+          maker,
+          makerTokenAddress,
+          takerTokenAddress,
+          makerTokenAmount.value,
+          takerTokenAmount.value,
+          0.5, // fillTakerTokenAmount
+          salt,
+          expirationUnixTimestampSec,
+          ecSignature.v,
+          ecSignature.r,
+          ecSignature.s, {
+            makerTokenDecimals: 2,
+            takerTokenDecimals: 2
+          }
+        )
+        .then(tx => tl2.exchange.confirm(tx.rawTx))
+        .then(txId => {
+          setTimeout(() => {
+            expect(txId).to.be.a('string')
+            Promise.all([
+              tl2.trustline.getAll(makerTokenAddress)
+              // TODO get dummy token balance
+            ]).then(([ makerTrustlines ]) => {
+              const makerTLAfter = makerTrustlines.find(tl => tl.address === tl1.user.address)
+              const tokenBalanceAfter = 1
+              const makerBalanceDelta = Math.abs(makerTLBefore.balance.value - makerTLAfter.balance.value)
+              const tokenBalanceDelta = Math.abs(tokenBalanceBefore - tokenBalanceAfter)
+              expect(makerTLAfter.balance.value).to.be.above(0)
+              expect(tokenBalanceAfter).to.be.below(0)
+              expect(makerBalanceDelta).to.equal(tokenBalanceDelta)
+              done()
+            })
+          }, 1000)
+        })
+      })
+    })
   })
 })
