@@ -14,6 +14,7 @@ describe('e2e', () => {
     let user1
     let user2
     let exchangeAddress
+    let dummyTokenAddress
     let makerTokenAddress
     let takerTokenAddress
 
@@ -23,7 +24,9 @@ describe('e2e', () => {
         .then(users => [ user1, user2 ] = users)
         // get availabe exchange contracts
         .then(() => tl1.exchange.getExchanges())
-        .then(exchanges => exchangeAddress = exchanges[0])
+        .then(exchanges => {
+          exchangeAddress = exchanges[0]
+        })
         // get all currency networks
         .then(() => tl1.currencyNetwork.getAll())
         .then(networks => {
@@ -134,24 +137,28 @@ describe('e2e', () => {
       })
     })
 
-    describe.only('#confirm()', () => {
+    describe('#confirm() - TL money <-> TL money', () => {
       let latestOrder
+      let makerTLBefore
+      let takerTLBefore
 
       before(done => {
-        tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 2)
+        tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 1)
           .then(() => tl1.exchange.getOrderbook(makerTokenAddress, takerTokenAddress))
           .then(orderbook => latestOrder = orderbook.asks[orderbook.asks.length - 1])
           .then(() => Promise.all([
             tl2.trustline.getAll(makerTokenAddress),
             tl2.trustline.getAll(takerTokenAddress)
-          ]).then(([ x, y ]) => {
-            console.log(x,y)
+          ])
+          .then(([ makerTrustlines, takerTrustlines ]) => {
+            makerTLBefore = makerTrustlines.find(tl => tl.address === tl1.user.address)
+            takerTLBefore = takerTrustlines.find(tl => tl.address === tl1.user.address)
             done()
           }))
           .catch(e => done(e))
       })
 
-      it('should confirm a signed fill order tx for latest order', done => {
+      it('should confirm a signed fill order tx for TL money <-> TL money order', done => {
         const {
           exchangeContractAddress,
           maker,
@@ -170,23 +177,31 @@ describe('e2e', () => {
           takerTokenAddress,
           makerTokenAmount.value,
           takerTokenAmount.value,
-          1, // fillTakerTokenAmount
+          0.5, // fillTakerTokenAmount
           salt,
           expirationUnixTimestampSec,
           ecSignature.v,
           ecSignature.r,
           ecSignature.s
-        ).then(tx => tl2.exchange.confirm(tx.rawTx))
+        )
+        .then(tx => tl2.exchange.confirm(tx.rawTx))
         .then(txId => {
-          expect(txId).to.be.a('string')
-          console.log(txId)
-          Promise.all([
-            tl2.trustline.getAll(makerTokenAddress),
-            tl2.trustline.getAll(takerTokenAddress)
-          ]).then(([ x, y ]) => {
-            console.log(x,y)
-            done()
-          })
+          setTimeout(() => {
+            expect(txId).to.be.a('string')
+            Promise.all([
+              tl2.trustline.getAll(makerTokenAddress),
+              tl2.trustline.getAll(takerTokenAddress)
+            ]).then(([ makerTrustlines, takerTrustlines ]) => {
+              const makerTLAfter = makerTrustlines.find(tl => tl.address === tl1.user.address)
+              const takerTLAfter = takerTrustlines.find(tl => tl.address === tl1.user.address)
+              const makerBalanceDelta = Math.abs(makerTLBefore.balance.value - makerTLAfter.balance.value)
+              const takerBalanceDelta = Math.abs(takerTLBefore.balance.value - takerTLAfter.balance.value)
+              expect(makerTLAfter.balance.value).to.be.above(0)
+              expect(takerTLAfter.balance.value).to.be.below(0)
+              expect(makerBalanceDelta).to.equal(takerBalanceDelta)
+              done()
+            })
+          }, 1000)
         })
       })
     })

@@ -22,7 +22,6 @@ export class Transaction {
   ): Promise<any> {
     return this.getTxInfos(userAddress)
       .then(txinfos => {
-        console.log(gasLimit, contractName, contractAddress, functionName, parameters)
         const txOptions = {
           gasPrice: gasPrice || txinfos.gasPrice,
           gasLimit: gasLimit ? gasLimit * 1.5 : 2000000,
