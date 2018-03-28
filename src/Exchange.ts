@@ -9,7 +9,7 @@ import { ExchangeOptions, OrderbookOptions, Order } from './typings'
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 import * as ethABI from 'ethereumjs-abi'
-import BN from 'bn.js'
+import BN = require('bn.js')
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -102,9 +102,15 @@ export class Exchange {
         takerFee,
         feeRecipient
       }
-      return user.signMsg(this.getOrderHashHex(order))
+      const orderHash = this.getOrderHashHex(order)
+      return user.signMsg(orderHash)
         .then(({ ecSignature }) => ({...order, ecSignature}))
-        .then(signedOrder => this.postRequest('exchange/order', signedOrder))
+        .then(signedOrder => this.postRequest('exchange/order', signedOrder)
+          .then(() => ({
+            ...signedOrder,
+            hash: orderHash
+          }))
+      )
     } catch (error) {
       return Promise.reject(error)
     }

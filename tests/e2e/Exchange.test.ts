@@ -80,7 +80,7 @@ describe('e2e', () => {
       })
     })
 
-    describe('#makeOrder()', () => {
+    describe.only('#makeOrder()', () => {
       it('should make order', done => {
         tl1.exchange.makeOrder(
           exchangeAddress,
@@ -89,7 +89,8 @@ describe('e2e', () => {
           1000,
           2000
         ).then(res => {
-          expect(res).to.equal(null)
+          console.log(res)
+          expect(res).to.not.equal(null)
           done()
         })
       })
@@ -201,7 +202,7 @@ describe('e2e', () => {
               expect(makerBalanceDelta).to.equal(takerBalanceDelta)
               done()
             })
-          }, 1000)
+          }, 1500)
         })
       })
     })
