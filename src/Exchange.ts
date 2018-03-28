@@ -9,7 +9,7 @@ import { ExchangeOptions, OrderbookOptions, Order } from './typings'
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 import * as ethABI from 'ethereumjs-abi'
-import BN = require('bn.js')
+import BN from 'bn.js'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -48,6 +48,7 @@ export class Exchange {
       return {
         asks: asks.map(a => ({
           ...a,
+          hash: this.getOrderHashHex(a),
           makerTokenAmount: utils.formatAmount(a.makerTokenAmount, baseDecimals),
           takerTokenAmount: utils.formatAmount(a.takerTokenAmount, quoteDecimals),
           makerFee: utils.formatAmount(a.makerFee, baseDecimals),
@@ -55,6 +56,7 @@ export class Exchange {
         })),
         bids: bids.map(b => ({
           ...b,
+          hash: this.getOrderHashHex(b),
           makerTokenAmount: utils.formatAmount(b.makerTokenAmount, quoteDecimals),
           takerTokenAmount: utils.formatAmount(b.takerTokenAmount, baseDecimals),
           makerFee: utils.formatAmount(b.makerFee, quoteDecimals),
