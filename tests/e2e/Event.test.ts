@@ -63,7 +63,8 @@ describe('e2e', () => {
       })
 
       it('should receive transfer updates', () => {
-        expect(events).to.have.lengthOf(3)
+        expect(events).to.have.lengthOf(4)
+        expect(events.filter((event) => event.type === 'WebsocketOpen')).to.have.lengthOf(1)
         expect(events.filter((event) => event.type === 'Transfer')).to.have.lengthOf(1)
         expect(events.filter((event) => event.type === 'BalanceUpdate')).to.have.lengthOf(1)
         expect(events.filter((event) => event.type === 'NetworkBalance')).to.have.lengthOf(1)
