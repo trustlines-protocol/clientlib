@@ -242,6 +242,84 @@ export class Exchange {
     }
   }
 
+  public async cancelOrder (
+    exchangeContractAddress: string,
+    makerAddress: string,
+    makerTokenAddress: string,
+    takerTokenAddress: string,
+    makerTokenValue: number | string,
+    takerTokenValue: number | string,
+    cancelTakerTokenValue: number | string,
+    salt: string,
+    expirationUnixTimestampSec: string,
+    v: number,
+    r: string,
+    s: string,
+    {
+      gasLimit,
+      gasPrice,
+      makerTokenDecimals,
+      takerTokenDecimals
+    }: ExchangeOptions = {}): Promise<any> {
+    const { currencyNetwork, payment, transaction, user, utils } = this
+
+    try {
+      const makerDecimals = await currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals)
+      const takerDecimals = await currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      const feesRequest = {
+        exchangeContractAddress,
+        expirationUnixTimestampSec,
+        maker: makerAddress,
+        makerTokenAddress,
+        makerTokenAmount: utils.calcRaw(makerTokenValue, makerDecimals),
+        salt,
+        taker: ZERO_ADDRESS,
+        takerTokenAddress,
+        takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals)
+      }
+      const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
+      const orderAddresses = [
+        makerAddress,
+        ZERO_ADDRESS,
+        makerTokenAddress,
+        takerTokenAddress,
+        feeRecipient
+      ]
+      const orderValues = [
+        utils.calcRaw(makerTokenValue, makerDecimals),
+        utils.calcRaw(takerTokenValue, takerDecimals),
+        parseInt(makerFee, 10),
+        parseInt(takerFee, 10),
+        parseInt(expirationUnixTimestampSec, 10),
+        parseInt(salt, 10)
+      ]
+
+      const { rawTx, ethFees } = await transaction.prepFuncTx(
+        user.address,
+        exchangeContractAddress,
+        'Exchange',
+        'fillOrderTrustlines',
+        [
+          orderAddresses,
+          orderValues,
+          utils.calcRaw(cancelTakerTokenValue, takerDecimals),
+          v,
+          r,
+          s
+        ], {
+          gasPrice,
+          gasLimit
+        }
+      )
+      return {
+        rawTx,
+        ethFees
+      }
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
   public async confirm (rawTx: string): Promise<any> {
     const signedTx = await this.user.signTx(rawTx)
     return this.transaction.relayTx(signedTx)
