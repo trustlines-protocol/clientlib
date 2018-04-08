@@ -148,19 +148,28 @@ export class Utils {
 
   public formatEvent (event: any, decimals: number): any {
     if (event.amount) {
-      return {
+      event = {
         ...event,
         amount: this.formatAmount(event.amount, decimals)
       }
-    } else if (event.received && event.given) {
-      return {
+    }
+
+    if (event.received && event.given) {
+      event = {
         ...event,
         given: this.formatAmount(event.given, decimals),
         received: this.formatAmount(event.received, decimals)
       }
-    } else {
-      return event
     }
+
+    if (event.leftReceived && event.leftGiven) {
+      event = {
+        ...event,
+        leftGiven: this.formatAmount(event.leftGiven, decimals),
+        leftReceived: this.formatAmount(event.leftReceived, decimals)
+      }
+    }
+    return event
   }
 
   public checkAddress (address: string): boolean {
