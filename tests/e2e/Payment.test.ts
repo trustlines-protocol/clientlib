@@ -155,7 +155,8 @@ describe('e2e', () => {
             tl2.user.getBalance()
               .then(balance => {
                 expect(txId).to.be.a('string')
-                expect(parseFloat(balance)).to.be.above(parseFloat(beforeBalance))
+                expect(parseFloat(balance.value))
+                .to.be.above(parseFloat(beforeBalance.value))
                 done()
               })
           })

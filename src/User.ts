@@ -126,6 +126,9 @@ export class User {
 
   public getBalance (): Promise<any> {
     return this.utils.fetchUrl(`users/${this.address}/balance`)
+      .then(balance => this.utils.formatAmount(
+        this.utils.calcRaw(balance, 18), 18)
+      )
   }
 
   public balanceObservable (): Observable<any> {
