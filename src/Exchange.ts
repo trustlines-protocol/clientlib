@@ -7,9 +7,9 @@ import { Payment } from './Payment'
 import { ExchangeOptions, OrderbookOptions, Order } from './typings'
 
 import { BigNumber } from 'bignumber.js'
+import { BN } from 'bn.js'
 import * as ethUtils from 'ethereumjs-util'
 import * as ethABI from 'ethereumjs-abi'
-import BN = require('bn.js')
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
