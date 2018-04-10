@@ -52,7 +52,7 @@ describe('e2e', () => {
       })
     })
 
-    describe('#updateStream()', () => {
+    describe('#updateStreamTransfer()', () => {
       let events = []
       let stream
       before(done => {
@@ -64,24 +64,77 @@ describe('e2e', () => {
 
       it('should receive transfer updates', () => {
         expect(events).to.have.lengthOf(4)
+
         expect(events.filter((event) => event.type === 'WebsocketOpen')).to.have.lengthOf(1)
         expect(events.filter((event) => event.type === 'Transfer')).to.have.lengthOf(1)
         expect(events.filter((event) => event.type === 'BalanceUpdate')).to.have.lengthOf(1)
         expect(events.filter((event) => event.type === 'NetworkBalance')).to.have.lengthOf(1)
+
         let transferEvent = events.filter((event) => event.type === 'Transfer')[0]
+        expect(transferEvent.amount).to.have.keys('raw', 'value', 'decimals')
         expect(transferEvent).to.have.nested.property('amount.value', 2.5)
         expect(transferEvent).to.have.property('direction', 'sent')
         expect(transferEvent).to.have.property('from', user1.address)
         expect(transferEvent).to.have.property('to', user2.address)
         expect(transferEvent).to.have.property('address', user2.address)
+
         let networkBalanceEvent = events.filter((event) => event.type === 'NetworkBalance')[0]
         expect(networkBalanceEvent.timestamp).to.be.a('number')
-        expect(networkBalanceEvent.amount).to.have.keys('raw', 'value', 'decimals')
+        expect(networkBalanceEvent.given).to.have.keys('raw', 'value', 'decimals')
+        expect(networkBalanceEvent.received).to.have.keys('raw', 'value', 'decimals')
+        expect(networkBalanceEvent.leftGiven).to.have.keys('raw', 'value', 'decimals')
+        expect(networkBalanceEvent.leftReceived).to.have.keys('raw', 'value', 'decimals')
+
+        let balanceEvent = events.filter((event) => event.type === 'BalanceUpdate')[0]
+        expect(balanceEvent.timestamp).to.be.a('number')
+        expect(balanceEvent.from).to.be.a('string')
+        expect(balanceEvent.to).to.be.a('string')
+        expect(balanceEvent.given).to.have.keys('raw', 'value', 'decimals')
+        expect(balanceEvent.received).to.have.keys('raw', 'value', 'decimals')
+        expect(balanceEvent.leftGiven).to.have.keys('raw', 'value', 'decimals')
+        expect(balanceEvent.leftReceived).to.have.keys('raw', 'value', 'decimals')
       })
 
       after(() => {
         stream.unsubscribe()
       })
+
+    })
+
+    describe('#updateStreamTrustlineRequest()', () => {
+      let events = []
+      let stream
+
+      before(done => {
+        stream = tl2.event.updateStream().subscribe(event => events.push(event))
+        new Promise(resolve => setTimeout(() => resolve(), 1000))
+          .then(() => tl2.trustline.prepareUpdate(networkAddress, user1.address, 4001, 4002))
+          .then(({ rawTx }) => tl2.trustline.confirm(rawTx))
+          .then(() => setTimeout(() => done(), 1000))
+      })
+
+      it('should receive trustline update request', () => {
+        expect(events).to.have.lengthOf(2)
+
+        expect(events.filter((event) => event.type === 'WebsocketOpen')).to.have.lengthOf(1)
+        expect(events.filter((event) => event.type === 'TrustlineUpdateRequest')).to.have.lengthOf(1)
+
+        let trustlineRequestEvent = events.filter((event) => event.type === 'TrustlineUpdateRequest')[0]
+        expect(trustlineRequestEvent.timestamp).to.be.a('number')
+        expect(trustlineRequestEvent.from).to.equal(user2.address)
+        expect(trustlineRequestEvent.to).to.equal(user1.address)
+        expect(trustlineRequestEvent.address).to.equal(user1.address)
+        expect(trustlineRequestEvent.direction).to.equal('sent')
+        expect(trustlineRequestEvent.given).to.have.keys('raw', 'value', 'decimals')
+        expect(trustlineRequestEvent.received).to.have.keys('raw', 'value', 'decimals')
+        expect(trustlineRequestEvent).to.have.nested.property('given.value', 4001)
+        expect(trustlineRequestEvent).to.have.nested.property('received.value', 4002)
+      })
+
+      after(() => {
+        stream.unsubscribe()
+      })
+
     })
   })
 })
