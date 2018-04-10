@@ -39,8 +39,10 @@ export class Exchange {
   ): Promise<any> {
     try {
       const { currencyNetwork, utils } = this
-      const baseDecimals = await currencyNetwork.getDecimals(baseTokenAddress, baseTokenDecimals)
-      const quoteDecimals = await currencyNetwork.getDecimals(quoteTokenAddress, quoteTokenDecimals)
+      const [ baseDecimals, quoteDecimals ] = await Promise.all([
+        currencyNetwork.getDecimals(baseTokenAddress, baseTokenDecimals),
+        currencyNetwork.getDecimals(quoteTokenAddress, quoteTokenDecimals)
+      ])
       const params = { baseTokenAddress, quoteTokenAddress }
       const endpoint = utils.buildUrl('exchange/orderbook', params)
       const orderbook = await utils.fetchUrl(endpoint)
@@ -82,8 +84,10 @@ export class Exchange {
   ): Promise<any> {
     const { currencyNetwork, user, utils } = this
     try {
-      const makerDecimals = await currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals)
-      const takerDecimals = await currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      const [ makerDecimals, takerDecimals ] = await Promise.all([
+        currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals),
+        currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      ])
       const feesRequest = {
         exchangeContractAddress,
         expirationUnixTimestampSec: expirationUnixTimestampSec.toString(),
@@ -150,8 +154,10 @@ export class Exchange {
     const { currencyNetwork, payment, transaction, user, utils } = this
 
     try {
-      const makerDecimals = await currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals)
-      const takerDecimals = await currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      const [ makerDecimals, takerDecimals ] = await Promise.all([
+        currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals),
+        currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      ])
       const feesRequest = {
         exchangeContractAddress,
         expirationUnixTimestampSec,
@@ -264,8 +270,10 @@ export class Exchange {
     const { currencyNetwork, payment, transaction, user, utils } = this
 
     try {
-      const makerDecimals = await currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals)
-      const takerDecimals = await currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      const [ makerDecimals, takerDecimals ] = await Promise.all([
+        currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals),
+        currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      ])
       const feesRequest = {
         exchangeContractAddress,
         expirationUnixTimestampSec,
