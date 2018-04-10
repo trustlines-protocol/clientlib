@@ -24,12 +24,20 @@ describe('e2e', () => {
     })
 
     describe('#getBalance()', () => {
-      it('should return 0 balance for newly created user', () => {
-        expect(tlNew.user.getBalance()).to.eventually.equal('0')
+      it('should return 0 balance for newly created user', done => {
+        tlNew.user.getBalance().then(balance => {
+          expect(balance).to.have.keys('raw', 'value', 'decimals')
+          expect(balance.value).to.equal(0)
+          done()
+        })
       })
 
-      it('should return balance for existing user', () => {
-        expect(tlExisting.user.getBalance()).to.eventually.equal('1')
+      it('should return balance for existing user', done => {
+        tlExisting.user.getBalance().then(balance => {
+          expect(balance).to.have.keys('raw', 'value', 'decimals')
+          expect(balance.value).to.be.above(0)
+          done()
+        })
       })
     })
 
