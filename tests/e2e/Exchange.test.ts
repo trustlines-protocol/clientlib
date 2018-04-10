@@ -80,7 +80,7 @@ describe('e2e', () => {
       })
     })
 
-    describe.only('#makeOrder()', () => {
+    describe('#makeOrder()', () => {
       it('should make order', done => {
         tl1.exchange.makeOrder(
           exchangeAddress,
