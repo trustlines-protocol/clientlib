@@ -106,11 +106,11 @@ describe('e2e', () => {
       let stream
 
       before(done => {
-        stream = tl1.event.updateStream().subscribe(event => events.push(event))
-        new Promise(resolve => setTimeout(() => resolve(''), 1000))
-        .then(() => tl1.trustline.prepareUpdate(networkAddress, user2.address, 4001, 4002))
-        .then(({ rawTx }) => tl1.trustline.confirm(rawTx))
-        .then(() => setTimeout(() => done(), 1000))
+        stream = tl2.event.updateStream().subscribe(event => events.push(event))
+        new Promise(resolve => setTimeout(() => resolve(), 1000))
+          .then(() => tl2.trustline.prepareUpdate(networkAddress, user1.address, 4001, 4002))
+          .then(({ rawTx }) => tl2.trustline.confirm(rawTx))
+          .then(() => setTimeout(() => done(), 1000))
       })
 
       it('should receive trustline update request', () => {
@@ -121,14 +121,14 @@ describe('e2e', () => {
 
         let trustlineRequestEvent = events.filter((event) => event.type === 'TrustlineUpdateRequest')[0]
         expect(trustlineRequestEvent.timestamp).to.be.a('number')
-        expect(trustlineRequestEvent.from).to.equal(user1.address)
+        expect(trustlineRequestEvent.from).to.equal(user2.address)
         expect(trustlineRequestEvent.to).to.equal(user1.address)
-        expect(trustlineRequestEvent.address).to.equal(user2.address)
+        expect(trustlineRequestEvent.address).to.equal(user1.address)
         expect(trustlineRequestEvent.direction).to.equal('sent')
         expect(trustlineRequestEvent.given).to.have.keys('raw', 'value', 'decimals')
         expect(trustlineRequestEvent.received).to.have.keys('raw', 'value', 'decimals')
-        expect(trustlineRequestEvent).to.have.nested.property('given.value', 100001)
-        expect(trustlineRequestEvent).to.have.nested.property('received.value', 100002)
+        expect(trustlineRequestEvent).to.have.nested.property('given.value', 4001)
+        expect(trustlineRequestEvent).to.have.nested.property('received.value', 4002)
       })
 
       after(() => {
