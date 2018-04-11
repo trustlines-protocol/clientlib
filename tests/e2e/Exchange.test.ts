@@ -89,7 +89,6 @@ describe('e2e', () => {
           1000,
           2000
         ).then(res => {
-          console.log(res)
           expect(res).to.not.equal(null)
           done()
         })
@@ -101,8 +100,7 @@ describe('e2e', () => {
 
       before(done => {
         tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 2)
-          .then(() => tl1.exchange.getOrderbook(makerTokenAddress, takerTokenAddress))
-          .then(orderbook => latestOrder = orderbook.asks[orderbook.asks.length - 1])
+          .then(order => latestOrder = order)
           .then(() => done())
           .catch(e => done(e))
       })
@@ -133,7 +131,12 @@ describe('e2e', () => {
           ecSignature.r,
           ecSignature.s
         )).to.eventually.have.keys(
-          'rawTx', 'ethFees', 'makerMaxFees', 'makerPath', 'takerMaxFees', 'takerPath'
+          'rawTx',
+          'ethFees',
+          'makerMaxFees',
+          'makerPath',
+          'takerMaxFees',
+          'takerPath'
         )
       })
     })
@@ -145,8 +148,7 @@ describe('e2e', () => {
 
       before(done => {
         tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 1)
-          .then(() => tl1.exchange.getOrderbook(makerTokenAddress, takerTokenAddress))
-          .then(orderbook => latestOrder = orderbook.asks[orderbook.asks.length - 1])
+          .then(order => latestOrder = order)
           .then(() => Promise.all([
             tl2.trustline.getAll(makerTokenAddress),
             tl2.trustline.getAll(takerTokenAddress)
@@ -195,10 +197,10 @@ describe('e2e', () => {
             ]).then(([ makerTrustlines, takerTrustlines ]) => {
               const makerTLAfter = makerTrustlines.find(tl => tl.address === tl1.user.address)
               const takerTLAfter = takerTrustlines.find(tl => tl.address === tl1.user.address)
-              const makerBalanceDelta = Math.abs(makerTLBefore.balance.value - makerTLAfter.balance.value)
-              const takerBalanceDelta = Math.abs(takerTLBefore.balance.value - takerTLAfter.balance.value)
-              expect(makerTLAfter.balance.value).to.be.above(0)
-              expect(takerTLAfter.balance.value).to.be.below(0)
+              const makerBalanceDelta = Math.abs(makerTLBefore.balance.raw - makerTLAfter.balance.raw)
+              const takerBalanceDelta = Math.abs(takerTLBefore.balance.raw - takerTLAfter.balance.raw)
+              expect(makerTLAfter.balance.raw).to.be.above(0)
+              expect(takerTLAfter.balance.raw).to.be.below(0)
               expect(makerBalanceDelta).to.equal(takerBalanceDelta)
               done()
             })
