@@ -10,8 +10,6 @@ import { Event } from './Event'
 import { Exchange } from './Exchange'
 import { Messaging } from './Messaging'
 
-import { Observable } from 'rxjs/Observable'
-
 export class TLNetwork {
   public configuration: Configuration
   public user: User
