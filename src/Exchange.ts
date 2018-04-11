@@ -7,7 +7,6 @@ import { Payment } from './Payment'
 import { ExchangeOptions, OrderbookOptions, Order } from './typings'
 
 import { BigNumber } from 'bignumber.js'
-import { BN } from 'bn.js'
 import * as ethUtils from 'ethereumjs-util'
 import * as ethABI from 'ethereumjs-abi'
 
@@ -403,27 +402,27 @@ export class Exchange {
         type: 'address'
       },
       {
-        value: new BN(order.makerTokenAmount, 10),
+        value: new BigNumber(order.makerTokenAmount, 10).toNumber(),
         type: 'uint256'
       },
       {
-        value: new BN(order.takerTokenAmount, 10),
+        value: new BigNumber(order.takerTokenAmount, 10).toNumber(),
         type: 'uint256'
       },
       {
-        value: new BN(order.makerFee, 10),
+        value: new BigNumber(order.makerFee, 10).toNumber(),
         type: 'uint256'
       },
       {
-        value: new BN(order.takerFee, 10),
+        value: new BigNumber(order.takerFee, 10).toNumber(),
         type: 'uint256'
       },
       {
-        value: new BN(order.expirationUnixTimestampSec, 10),
+        value: new BigNumber(order.expirationUnixTimestampSec, 10).toNumber(),
         type: 'uint256'
       },
       {
-        value: new BN(order.salt, 10),
+        value: new BigNumber(order.salt, 10).toNumber(),
         type: 'uint256'
       }
     ]
