@@ -88,8 +88,16 @@ describe('e2e', () => {
           takerTokenAddress,
           1000,
           2000
-        ).then(res => {
-          expect(res).to.not.equal(null)
+        ).then(order => {
+          expect(order.exchangeContractAddress).to.equal(exchangeAddress)
+          expect(order.maker).to.equal(tl1.user.address)
+          expect(order.makerTokenAddress).to.equal(makerTokenAddress)
+          expect(order.takerTokenAddress).to.equal(takerTokenAddress)
+          expect(order.makerTokenAmount).to.have.keys('raw', 'value', 'decimals')
+          expect(order.takerTokenAmount).to.have.keys('raw', 'value', 'decimals')
+          expect(order.salt).to.be.a('string')
+          expect(order.expirationUnixTimestampSec).to.be.a('string')
+          expect(order.ecSignature).to.have.keys('r', 's', 'v')
           done()
         })
       })
