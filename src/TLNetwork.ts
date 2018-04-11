@@ -9,6 +9,7 @@ import { Utils } from './Utils'
 import { Event } from './Event'
 import { Exchange } from './Exchange'
 import { Messaging } from './Messaging'
+import { TokenWrapper } from './TokenWrapper'
 
 import { TLNetworkConfig } from './typings'
 
@@ -65,6 +66,7 @@ export class TLNetwork {
    * @hidden
    */
   public messaging: Messaging
+  public tokenWrapper: TokenWrapper
 
   /**
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
@@ -82,6 +84,7 @@ export class TLNetwork {
     this.payment = new Payment(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
     this.exchange = new Exchange(this.event, this.user, this.utils, this.transaction, this.currencyNetwork, this.payment)
     this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
+    this.tokenWrapper = new TokenWrapper(this.user, this.utils, this.currencyNetwork, this.transaction)
   }
 
 }
