@@ -177,7 +177,7 @@ export class Exchange {
         ) : {
           path: [],
           maxFees: 0,
-          estimatedGas: 21000,
+          estimatedGas: 40000,
           isNoNetwork: true
         }
       const takerPathObj = await currencyNetwork.isNetwork(takerTokenAddress)
@@ -190,7 +190,7 @@ export class Exchange {
         ) : {
           path: [],
           maxFees: 0,
-          estimatedGas: 21000,
+          estimatedGas: 40000,
           isNoNetwork: true
         }
       const orderAddresses = [
