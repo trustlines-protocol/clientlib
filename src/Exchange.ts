@@ -112,7 +112,9 @@ export class Exchange {
         .then(signedOrder => this.postRequest('exchange/order', signedOrder)
           .then(() => ({
             ...signedOrder,
-            hash: orderHash
+            hash: orderHash,
+            makerTokenAmount: utils.formatAmount(signedOrder.makerTokenAmount, makerDecimals),
+            takerTokenAmount: utils.formatAmount(signedOrder.takerTokenAmount, takerDecimals)
           }))
       )
     } catch (error) {
