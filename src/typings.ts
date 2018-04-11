@@ -1,5 +1,11 @@
 import { BigNumber } from 'bignumber.js'
 
+export interface Amount {
+  raw: string | number,
+  value: string | number,
+  decimals: number
+}
+
 export interface EventFilterOptions {
   type?: string,
   fromBlock?: number,
@@ -9,16 +15,21 @@ export interface EventFilterOptions {
 export interface Order {
   maker: string // this.user.address
   taker: string // optional
-  makerFee: BigNumber
-  takerFee: BigNumber
-  makerTokenAmount: BigNumber // required
-  takerTokenAmount: BigNumber // required
+  makerFee: Amount
+  takerFee: Amount
+  makerTokenAmount: Amount // required
+  takerTokenAmount: Amount // required
   makerTokenAddress: string // required
   takerTokenAddress: string // required
-  salt: BigNumber
+  salt: string
   exchangeContractAddress: string
   feeRecipient: string
-  expirationUnixTimestampSec: BigNumber
+  expirationUnixTimestampSec: string
+}
+
+export interface Orderbook {
+  asks: Order[],
+  bids: Order[]
 }
 
 export interface SignedOrder extends Order {

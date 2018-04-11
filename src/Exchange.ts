@@ -4,7 +4,13 @@ import { User } from './User'
 import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Payment } from './Payment'
-import { ExchangeOptions, OrderbookOptions, Order } from './typings'
+import {
+  ExchangeOptions,
+  Order,
+  Orderbook,
+  OrderbookOptions,
+  SignedOrder
+} from './typings'
 
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
@@ -35,7 +41,7 @@ export class Exchange {
     baseTokenAddress: string,
     quoteTokenAddress: string,
     { baseTokenDecimals, quoteTokenDecimals }: OrderbookOptions = {}
-  ): Promise<any> {
+  ): Promise<Orderbook> {
     try {
       const { currencyNetwork, utils } = this
       const [ baseDecimals, quoteDecimals ] = await Promise.all([
@@ -80,7 +86,7 @@ export class Exchange {
       takerTokenDecimals,
       expirationUnixTimestampSec = 2524604400
     }: ExchangeOptions = {}
-  ): Promise<any> {
+  ): Promise<SignedOrder> {
     const { currencyNetwork, user, utils } = this
     try {
       const [ makerDecimals, takerDecimals ] = await Promise.all([
@@ -121,30 +127,9 @@ export class Exchange {
     }
   }
 
-  /**
-   * Prepares an on-chain transaction for a fill order.
-   * @param orderAddresses Array of order's maker, taker, makerToken, takerToken, and feeRecipient.
-   * @param orderValues Array of order's makerTokenAmount, takerTokenAmount, makerFee, takerFee, expirationTimestampInSec, and salt.
-   * @param fillTakerTokenAmount Desired amount of takerToken to fill.
-   * @param makerPath Path in the currency network of the maker token or [] if no currency network
-   * @param takerPath Path in the currency network of the taker token or [] if no currency network
-   * @param v ECDSA signature parameter v.
-   * @param r ECDSA signature parameter r.
-   * @param s ECDSA signature parameter s.
-   */
   public async prepTakeOrder (
-    exchangeContractAddress: string,
-    makerAddress: string,
-    makerTokenAddress: string,
-    takerTokenAddress: string,
-    makerTokenValue: number | string,
-    takerTokenValue: number | string,
+    signedOrder: SignedOrder,
     fillTakerTokenValue: number | string,
-    salt: string,
-    expirationUnixTimestampSec: string,
-    v: number,
-    r: string,
-    s: string,
     {
       gasLimit,
       gasPrice,
@@ -152,6 +137,17 @@ export class Exchange {
       takerTokenDecimals
     }: ExchangeOptions = {}
   ): Promise<any> {
+    const {
+      exchangeContractAddress,
+      maker,
+      makerTokenAddress,
+      takerTokenAddress,
+      makerTokenAmount,
+      takerTokenAmount,
+      salt,
+      expirationUnixTimestampSec,
+      ecSignature
+    } = signedOrder
     const { currencyNetwork, payment, transaction, user, utils } = this
 
     try {
@@ -162,21 +158,21 @@ export class Exchange {
       const feesRequest = {
         exchangeContractAddress,
         expirationUnixTimestampSec,
-        maker: makerAddress,
+        maker,
         makerTokenAddress,
-        makerTokenAmount: utils.calcRaw(makerTokenValue, makerDecimals),
+        makerTokenAmount: makerTokenAmount.raw,
         salt,
         taker: ZERO_ADDRESS,
         takerTokenAddress,
-        takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals)
+        takerTokenAmount: takerTokenAmount.raw
       }
       const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
       const makerPathObj = await currencyNetwork.isNetwork(makerTokenAddress)
         ? await payment.getPath(
           makerTokenAddress,
-          makerAddress,
+          maker,
           user.address,
-          this.getPartialAmount(fillTakerTokenValue, takerTokenValue, makerTokenValue),
+          this.getPartialAmount(fillTakerTokenValue, takerTokenAmount.value, makerTokenAmount.value),
           { decimals: makerTokenDecimals }
         ) : {
           path: [],
@@ -188,7 +184,7 @@ export class Exchange {
         ? await payment.getPath(
           takerTokenAddress,
           user.address,
-          makerAddress,
+          maker,
           fillTakerTokenValue,
           { decimals: takerTokenDecimals }
         ) : {
@@ -198,15 +194,15 @@ export class Exchange {
           isNoNetwork: true
         }
       const orderAddresses = [
-        makerAddress,
+        maker,
         ZERO_ADDRESS,
         makerTokenAddress,
         takerTokenAddress,
         feeRecipient
       ]
       const orderValues = [
-        utils.calcRaw(makerTokenValue, makerDecimals),
-        utils.calcRaw(takerTokenValue, takerDecimals),
+        makerTokenAmount.raw,
+        takerTokenAmount.raw,
         parseInt(makerFee, 10),
         parseInt(takerFee, 10),
         parseInt(expirationUnixTimestampSec, 10),
@@ -228,9 +224,9 @@ export class Exchange {
           utils.calcRaw(fillTakerTokenValue, takerDecimals),
           makerPathObj.path.length === 1 ? makerPathObj.path : makerPathObj.path.slice(1),
           takerPathObj.path.length === 1 ? takerPathObj.path : takerPathObj.path.slice(1),
-          v,
-          r,
-          s
+          ecSignature.v,
+          ecSignature.r,
+          ecSignature.s
         ], {
           gasPrice,
           gasLimit: takerPathObj.estimatedGas + makerPathObj.estimatedGas

@@ -17,6 +17,7 @@ describe('e2e', () => {
     let dummyTokenAddress
     let makerTokenAddress
     let takerTokenAddress
+    let latestOrder
 
     before(done => {
       // load users
@@ -104,8 +105,6 @@ describe('e2e', () => {
     })
 
     describe('#prepTakeOrder()', () => {
-      let latestOrder
-
       before(done => {
         tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 2)
           .then(order => latestOrder = order)
@@ -114,43 +113,19 @@ describe('e2e', () => {
       })
 
       it('should prepare a fill order tx for latest order', () => {
-        const {
-          exchangeContractAddress,
-          maker,
-          makerTokenAddress,
-          takerTokenAddress,
-          makerTokenAmount,
-          takerTokenAmount,
-          salt,
-          expirationUnixTimestampSec,
-          ecSignature
-        } = latestOrder
-        expect(tl2.exchange.prepTakeOrder(
-          exchangeContractAddress,
-          maker,
-          makerTokenAddress,
-          takerTokenAddress,
-          makerTokenAmount.value,
-          takerTokenAmount.value,
-          1, // fillTakerTokenAmount
-          salt,
-          expirationUnixTimestampSec,
-          ecSignature.v,
-          ecSignature.r,
-          ecSignature.s
-        )).to.eventually.have.keys(
-          'rawTx',
-          'ethFees',
-          'makerMaxFees',
-          'makerPath',
-          'takerMaxFees',
-          'takerPath'
-        )
+        expect(tl2.exchange.prepTakeOrder(latestOrder, 1))
+          .to.eventually.have.keys(
+            'rawTx',
+            'ethFees',
+            'makerMaxFees',
+            'makerPath',
+            'takerMaxFees',
+            'takerPath'
+          )
       })
     })
 
     describe('#confirm() - TL money <-> TL money', () => {
-      let latestOrder
       let makerTLBefore
       let takerTLBefore
 
@@ -170,56 +145,31 @@ describe('e2e', () => {
       })
 
       it('should confirm a signed fill order tx for TL money <-> TL money order', done => {
-        const {
-          exchangeContractAddress,
-          maker,
-          makerTokenAddress,
-          takerTokenAddress,
-          makerTokenAmount,
-          takerTokenAmount,
-          salt,
-          expirationUnixTimestampSec,
-          ecSignature
-        } = latestOrder
-        tl2.exchange.prepTakeOrder(
-          exchangeContractAddress,
-          maker,
-          makerTokenAddress,
-          takerTokenAddress,
-          makerTokenAmount.value,
-          takerTokenAmount.value,
-          0.5, // fillTakerTokenAmount
-          salt,
-          expirationUnixTimestampSec,
-          ecSignature.v,
-          ecSignature.r,
-          ecSignature.s
-        )
-        .then(tx => tl2.exchange.confirm(tx.rawTx))
-        .then(txId => {
-          setTimeout(() => {
-            expect(txId).to.be.a('string')
-            Promise.all([
-              tl2.trustline.getAll(makerTokenAddress),
-              tl2.trustline.getAll(takerTokenAddress)
-            ]).then(([ makerTrustlines, takerTrustlines ]) => {
-              const makerTLAfter = makerTrustlines.find(tl => tl.address === tl1.user.address)
-              const takerTLAfter = takerTrustlines.find(tl => tl.address === tl1.user.address)
-              const makerBalanceDelta = Math.abs(makerTLBefore.balance.raw - makerTLAfter.balance.raw)
-              const takerBalanceDelta = Math.abs(takerTLBefore.balance.raw - takerTLAfter.balance.raw)
-              expect(makerTLAfter.balance.raw).to.be.above(0)
-              expect(takerTLAfter.balance.raw).to.be.below(0)
-              expect(makerBalanceDelta).to.equal(takerBalanceDelta)
-              done()
-            })
-          }, 1500)
-        })
+        tl2.exchange.prepTakeOrder(latestOrder, 0.5)
+          .then(tx => tl2.exchange.confirm(tx.rawTx))
+          .then(txId => {
+            setTimeout(() => {
+              expect(txId).to.be.a('string')
+              Promise.all([
+                tl2.trustline.getAll(makerTokenAddress),
+                tl2.trustline.getAll(takerTokenAddress)
+              ]).then(([ makerTrustlines, takerTrustlines ]) => {
+                const makerTLAfter = makerTrustlines.find(tl => tl.address === tl1.user.address)
+                const takerTLAfter = takerTrustlines.find(tl => tl.address === tl1.user.address)
+                const makerBalanceDelta = Math.abs(makerTLBefore.balance.raw - makerTLAfter.balance.raw)
+                const takerBalanceDelta = Math.abs(takerTLBefore.balance.raw - takerTLAfter.balance.raw)
+                expect(makerTLAfter.balance.raw).to.be.above(0)
+                expect(takerTLAfter.balance.raw).to.be.below(0)
+                expect(makerBalanceDelta).to.equal(takerBalanceDelta)
+                done()
+              })
+            }, 1500)
+          })
       })
     })
 
     // TODO scenario for TL money <-> token
     describe.skip('#confirm() - TL money <-> token', () => {
-      let latestOrder
       let makerTLBefore
       let tokenBalanceBefore
 
@@ -246,34 +196,7 @@ describe('e2e', () => {
       })
 
       it('should confirm a signed fill order tx for TL money <-> TL money order', done => {
-        const {
-          exchangeContractAddress,
-          maker,
-          makerTokenAddress,
-          takerTokenAddress,
-          makerTokenAmount,
-          takerTokenAmount,
-          salt,
-          expirationUnixTimestampSec,
-          ecSignature
-        } = latestOrder
-        tl2.exchange.prepTakeOrder(
-          exchangeContractAddress,
-          maker,
-          makerTokenAddress,
-          takerTokenAddress,
-          makerTokenAmount.value,
-          takerTokenAmount.value,
-          0.5, // fillTakerTokenAmount
-          salt,
-          expirationUnixTimestampSec,
-          ecSignature.v,
-          ecSignature.r,
-          ecSignature.s, {
-            makerTokenDecimals: 2,
-            takerTokenDecimals: 2
-          }
-        )
+        tl2.exchange.prepTakeOrder(latestOrder, 0.5)
         .then(tx => tl2.exchange.confirm(tx.rawTx))
         .then(txId => {
           setTimeout(() => {
