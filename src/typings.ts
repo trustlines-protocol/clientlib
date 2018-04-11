@@ -243,15 +243,15 @@ export interface ECSignature {
 }
 
 export interface FeesRequest {
-	 exchangeContractAddress: string,
-	 expirationUnixTimestampSec: BigNumber,
-	 maker: string,
-	 makerTokenAddress: string,
-	 makerTokenAmount: BigNumber,
-	 salt: BigNumber,
-	 taker: string,
-	 takerTokenAddress: string,
-	 takerTokenAmount: BigNumber,
+  exchangeContractAddress: string,
+  expirationUnixTimestampSec: BigNumber,
+  maker: string,
+  makerTokenAddress: string,
+  makerTokenAmount: BigNumber,
+  salt: BigNumber,
+  taker: string,
+  takerTokenAddress: string,
+  takerTokenAmount: BigNumber
 }
 
 export interface FeesResponse {
