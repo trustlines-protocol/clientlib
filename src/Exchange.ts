@@ -106,7 +106,7 @@ export class Exchange {
         feeRecipient
       }
       const orderHash = this.getOrderHashHex(order)
-      return user.signMsg(orderHash)
+      return user.signMsgHash(orderHash)
         .then(({ ecSignature }) => ({...order, ecSignature}))
         .then(signedOrder => this.postRequest('exchange/order', signedOrder)
           .then(() => ({

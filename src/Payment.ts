@@ -121,7 +121,7 @@ export class Payment {
                       to: string // TODO receiver address optional?
   ): Promise<any> {
     const msg = this.user.address + to + value + expiresOn
-    return this.user.signMsg(msg).then(signature => {
+    return this.user.signMsgHash(msg).then(signature => {
       const params = [ 'cheque', network, value, expiresOn, signature ]
       if (to) {
         params.push(to)

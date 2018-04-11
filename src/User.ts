@@ -72,7 +72,7 @@ export class User {
     })
   }
 
-  public signMsg (msgHash: string): Promise<any> {
+  public signMsgHash (msgHash: string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
