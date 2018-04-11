@@ -246,24 +246,25 @@ export class Exchange {
   }
 
   public async cancelOrder (
-    exchangeContractAddress: string,
-    makerAddress: string,
-    makerTokenAddress: string,
-    takerTokenAddress: string,
-    makerTokenValue: number | string,
-    takerTokenValue: number | string,
+    signedOrder: SignedOrder,
     cancelTakerTokenValue: number | string,
-    salt: string,
-    expirationUnixTimestampSec: string,
-    v: number,
-    r: string,
-    s: string,
     {
       gasLimit,
       gasPrice,
       makerTokenDecimals,
       takerTokenDecimals
     }: ExchangeOptions = {}): Promise<any> {
+    const {
+      exchangeContractAddress,
+      maker,
+      makerTokenAddress,
+      takerTokenAddress,
+      makerTokenAmount,
+      takerTokenAmount,
+      salt,
+      expirationUnixTimestampSec,
+      ecSignature
+    } = signedOrder
     const { currencyNetwork, payment, transaction, user, utils } = this
 
     try {
@@ -274,25 +275,25 @@ export class Exchange {
       const feesRequest = {
         exchangeContractAddress,
         expirationUnixTimestampSec,
-        maker: makerAddress,
+        maker,
         makerTokenAddress,
-        makerTokenAmount: utils.calcRaw(makerTokenValue, makerDecimals),
+        makerTokenAmount: makerTokenAmount.raw,
         salt,
         taker: ZERO_ADDRESS,
         takerTokenAddress,
-        takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals)
+        takerTokenAmount: takerTokenAmount.raw
       }
       const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
       const orderAddresses = [
-        makerAddress,
+        maker,
         ZERO_ADDRESS,
         makerTokenAddress,
         takerTokenAddress,
         feeRecipient
       ]
       const orderValues = [
-        utils.calcRaw(makerTokenValue, makerDecimals),
-        utils.calcRaw(takerTokenValue, takerDecimals),
+        makerTokenAmount.raw,
+        takerTokenAmount.raw,
         parseInt(makerFee, 10),
         parseInt(takerFee, 10),
         parseInt(expirationUnixTimestampSec, 10),
@@ -308,9 +309,9 @@ export class Exchange {
           orderAddresses,
           orderValues,
           utils.calcRaw(cancelTakerTokenValue, takerDecimals),
-          v,
-          r,
-          s
+          ecSignature.v,
+          ecSignature.r,
+          ecSignature.s
         ], {
           gasPrice,
           gasLimit
