@@ -60,7 +60,7 @@ describe.only('e2e', () => {
       it('should confirm deposit tx', done => {
         tl1.tokenWrapper.confirm(tx.rawTx)
           .then(txId => expect(txId).to.be.a('string'))
-          .then(() => new Promise(resolve => setTimeout(resolve(), 10000)))
+          .then(() => new Promise(resolve => setTimeout(resolve(), 1000)))
           .then(() => tl1.user.getBalance())
           .then(balanceAfter => {
             const delta = Math.abs(balanceBefore.raw - balanceAfter.raw)

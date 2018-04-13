@@ -16,6 +16,14 @@ export class TokenWrapper {
     return this.utils.fetchUrl('exchange/eth')
   }
 
+  public getBalance (tokenAddress: string): Promise<any> {
+    const { user, utils } = this
+    return utils.fetchUrl(`tokens/${tokenAddress}/users/${user.address}/balance`)
+      .then(balance => utils.formatAmount(
+        utils.calcRaw(balance, 18), 18)
+      )
+  }
+
   public prepDeposit (
     tokenAddress: string,
     value: number | string,
@@ -38,6 +46,7 @@ export class TokenWrapper {
 
   public confirm (rawTx): Promise<string> {
     const { transaction, user } = this
-    return user.signTx(rawTx).then(signedTx => transaction.relayTx(signedTx))
+    return user.signTx(rawTx)
+      .then(signedTx => transaction.relayTx(signedTx))
   }
 }
