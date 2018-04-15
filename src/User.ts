@@ -99,7 +99,7 @@ export class User {
     })
   }
 
-  public prepOnboarding (newUserAddress: string, initialValue = 0.01): Promise<object> {
+  public prepOnboarding (newUserAddress: string, initialValue = 0.1): Promise<object> {
     return this.transaction.prepValueTx(
       this.address, // address of onboarder
       newUserAddress, // address of new user who gets onboarded
