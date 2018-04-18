@@ -38,7 +38,7 @@ export class Payment {
                 [ to, utils.calcRaw(value, dec), maxFees.raw, path.slice(1) ],
                 {
                   gasPrice,
-                  gasLimit: estimatedGas
+                  gasLimit: gasLimit || estimatedGas * 1.5
                 }
               ).then(({ rawTx, gasPrice, ethFees }) => ({
                 rawTx,
@@ -68,7 +68,7 @@ export class Payment {
     accountA: string,
     accountB: string,
     value: number | string,
-    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
+    { decimals, maximumHops, maximumFees}: PaymentOptions = {}
   ): Promise<any> {
     const { utils, currencyNetwork } = this
     const url = `networks/${network}/path-info`

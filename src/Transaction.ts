@@ -24,7 +24,7 @@ export class Transaction {
       .then(txinfos => {
         const txOptions = {
           gasPrice: gasPrice || txinfos.gasPrice,
-          gasLimit: gasLimit ? gasLimit * 1.5 : 2000000,
+          gasLimit: gasLimit || 600000,
           value: 0,
           nonce: txinfos.nonce,
           to: contractAddress.toLowerCase()
@@ -54,14 +54,14 @@ export class Transaction {
       .then(txinfos => {
         const txOptions = {
           gasPrice: gasPrice || txinfos.gasPrice,
-          gasLimit: gasLimit || 1000000,
+          gasLimit: gasLimit || 21000,
           value: rawValue,
           nonce: txinfos.nonce,
           to: to.toLowerCase()
         }
         return {
           rawTx: lightwallet.txutils.valueTx(txOptions),
-          ethFees: this.utils.formatAmount(21000 * txOptions.gasPrice, 18)
+          ethFees: this.utils.formatAmount(txOptions.gasLimit * txOptions.gasPrice, 18)
         }
       })
       .catch(error => Promise.reject(error))
