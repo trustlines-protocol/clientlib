@@ -6,7 +6,7 @@ import { config, keystore1, keystore2 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
-describe.only('e2e', () => {
+describe('e2e', () => {
   describe('TokenWrapper', () => {
     const { expect } = chai
     const tl1 = new TLNetwork(config)
