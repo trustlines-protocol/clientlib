@@ -60,7 +60,7 @@ describe('e2e', () => {
         new Promise(resolve => setTimeout(() => resolve(), 1000))
           .then(() => tl1.payment.prepare(networkAddress, user2.address, 2.5))
           .then(({ rawTx }) => tl1.payment.confirm(rawTx))
-          .then(() => setTimeout(() => done(), 1000))
+          .then(() => setTimeout(() => done(), 3000))
       })
 
       it('should receive transfer updates', () => {
