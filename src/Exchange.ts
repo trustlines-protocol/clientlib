@@ -229,7 +229,7 @@ export class Exchange {
           ecSignature.s
         ], {
           gasPrice,
-          gasLimit: takerPathObj.estimatedGas + makerPathObj.estimatedGas
+          gasLimit: (takerPathObj.estimatedGas + makerPathObj.estimatedGas) * 1.5
         }
       )
       return {
