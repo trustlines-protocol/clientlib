@@ -128,7 +128,7 @@ export class Utils {
     return this.buildUrl(base, params)
   }
 
-  public calcRaw (value: number, decimals: number): any {
+  public calcRaw (value: number | string, decimals: number): any {
     const x = new BigNumber(value)
     return x.times(Math.pow(10, decimals)).toNumber()
   }
@@ -180,7 +180,7 @@ export class Utils {
     }
   }
 
-  public convertEthToWei (value: number): number {
+  public convertEthToWei (value: number | string): number {
     const eth = new BigNumber(value)
     const wei = new BigNumber(1000000000000000000)
     return eth.times(wei).toNumber()

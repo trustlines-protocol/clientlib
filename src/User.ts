@@ -72,19 +72,28 @@ export class User {
     })
   }
 
-  public signMsg (rawMsg: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
+  public signMsgHash (msgHash: string): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           reject(err)
         } else {
-          const signature = lightwallet.signing.signMsg(
+          const msgHashBuff = ethUtils.toBuffer(msgHash)
+          const personalMsgHashBuff = ethUtils.hashPersonalMessage(msgHashBuff)
+          const signature = lightwallet.signing.signMsgHash(
             this.keystore,
             pwDerivedKey,
-            rawMsg,
+            ethUtils.bufferToHex(personalMsgHashBuff),
             this.address.toLowerCase()
           )
-          resolve(lightwallet.signing.concatSig(signature))
+          resolve({
+            ecSignature: {
+              r: ethUtils.bufferToHex(signature.r),
+              s: ethUtils.bufferToHex(signature.s),
+              v: signature.v
+            },
+            concatSig: lightwallet.signing.concatSig(signature)
+          })
         }
       })
     })
@@ -223,7 +232,7 @@ export class User {
     return this.utils.fetchUrl('request-ether', options)
   }
 
-  private verifySignature (message: any, signature: string): boolean {
+  public verifySignature (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))
     const s = ethUtils.toBuffer(`0x${signature.slice(66, 130)}`)
     const v = ethUtils.bufferToInt(ethUtils.toBuffer(`0x${signature.slice(130, 132)}`))
