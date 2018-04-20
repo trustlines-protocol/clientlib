@@ -3,6 +3,7 @@ import { User } from './User'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { TxOptions } from './typings'
 import { Transaction } from './Transaction'
+import { EventFilterOptions } from './typings'
 
 export class TokenWrapper {
   constructor (
@@ -48,5 +49,21 @@ export class TokenWrapper {
     const { transaction, user } = this
     return user.signTx(rawTx)
       .then(signedTx => transaction.relayTx(signedTx))
+  }
+
+  public async getLogs (
+    tokenAddress: string,
+    { type, fromBlock, toBlock }: EventFilterOptions = {}
+  ): Promise<any> {
+    const { user, utils } = this
+    const baseUrl = `tokens/${tokenAddress}/users/${user.address}/events`
+    const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock, toBlock })
+
+    try {
+      const events = await utils.fetchUrl(parameterUrl)
+      return events.map(event => utils.formatAmount(event.amount, 18))
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 }
