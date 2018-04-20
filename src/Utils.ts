@@ -154,6 +154,13 @@ export class Utils {
       }
     }
 
+    if (event.balance) {
+      event = {
+        ...event,
+        balance: this.formatAmount(event.balance, decimals)
+      }
+    }
+
     if (event.received && event.given) {
       event = {
         ...event,
