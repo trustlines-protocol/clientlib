@@ -19,7 +19,7 @@ export class Payment {
   public prepare (
     network: string,
     to: string,
-    value: number,
+    value: number | string,
     { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { user, currencyNetwork, transaction, utils } = this
@@ -36,7 +36,10 @@ export class Payment {
                 'CurrencyNetwork',
                 'transfer',
                 [ to, utils.calcRaw(value, dec), maxFees.raw, path.slice(1) ],
-                { gasPrice, gasLimit, estimatedGas }
+                {
+                  gasPrice,
+                  gasLimit: gasLimit || estimatedGas * 1.5
+                }
               ).then(({ rawTx, gasPrice, ethFees }) => ({
                 rawTx,
                 path,
@@ -51,7 +54,7 @@ export class Payment {
 
   public prepareEth (
     to: string,
-    value: number,
+    value: number | string,
     { gasPrice, gasLimit }: PaymentOptions = {}
   ): Promise<any> {
     const { transaction, user, utils } = this
@@ -64,8 +67,8 @@ export class Payment {
     network: string,
     accountA: string,
     accountB: string,
-    value: number,
-    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
+    value: number | string,
+    { decimals, maximumHops, maximumFees}: PaymentOptions = {}
   ): Promise<any> {
     const { utils, currencyNetwork } = this
     const url = `networks/${network}/path-info`
@@ -118,7 +121,7 @@ export class Payment {
                       to: string // TODO receiver address optional?
   ): Promise<any> {
     const msg = this.user.address + to + value + expiresOn
-    return this.user.signMsg(msg).then(signature => {
+    return this.user.signMsgHash(msg).then(signature => {
       const params = [ 'cheque', network, value, expiresOn, signature ]
       if (to) {
         params.push(to)

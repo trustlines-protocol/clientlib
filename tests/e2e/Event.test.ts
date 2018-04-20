@@ -56,8 +56,9 @@ describe('e2e', () => {
       let events = []
       let stream
       before(done => {
-        stream = tl1.event.updateStream().subscribe(event => events.push(event))
-        tl1.payment.prepare(networkAddress, user2.address, 2.5)
+        new Promise(resolve => setTimeout(() => resolve(), 3000))
+          .then(() => stream = tl1.event.updateStream().subscribe(event => events.push(event)))
+          .then(() => tl1.payment.prepare(networkAddress, user2.address, 2.5))
           .then(({ rawTx }) => tl1.payment.confirm(rawTx))
           .then(() => setTimeout(() => done(), 1000))
       })
@@ -106,8 +107,8 @@ describe('e2e', () => {
       let stream
 
       before(done => {
-        stream = tl2.event.updateStream().subscribe(event => events.push(event))
         new Promise(resolve => setTimeout(() => resolve(), 1000))
+          .then(() => stream = tl2.event.updateStream().subscribe(event => events.push(event)))
           .then(() => tl2.trustline.prepareUpdate(networkAddress, user1.address, 4001, 4002))
           .then(({ rawTx }) => tl2.trustline.confirm(rawTx))
           .then(() => setTimeout(() => done(), 1000))

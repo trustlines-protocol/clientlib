@@ -1,5 +1,7 @@
 import { Utils } from './Utils'
 
+import * as ethUtils from 'ethereumjs-util'
+
 export class CurrencyNetwork {
 
   constructor (private utils: Utils) {
@@ -40,15 +42,34 @@ export class CurrencyNetwork {
     }))
   }
 
-  public getDecimals (networkAddress: string, decimals?: number): Promise<any> {
+  public async getDecimals (networkAddress: string, decimals?: number): Promise<any> {
+    const isNetwork = await this.isNetwork(networkAddress)
     if (!this.utils.checkAddress(networkAddress)) {
       return Promise.reject(`${networkAddress} is not a valid address.`)
     }
-    return Promise.resolve(
-      ((typeof decimals === 'number') && decimals) ||
-      // TODO replace with list of known currency network in clientlib
-      this.utils.fetchUrl(`networks/${networkAddress}`)
-        .then(network => network.decimals)
-    )
+    if (isNetwork) {
+      return Promise.resolve(
+        ((typeof decimals === 'number') && decimals) ||
+        // TODO replace with list of known currency network in clientlib
+        this.utils.fetchUrl(`networks/${networkAddress}`)
+          .then(network => network.decimals)
+      )
+    } else {
+      if ((typeof decimals === 'number') && decimals) {
+        return decimals
+      } else {
+        return Promise.reject(`${networkAddress} is a token address. Decimals have to be explicit.`)
+      }
+    }
+  }
+
+  public async isNetwork (contractAddress: string): Promise<any> {
+    if (!this.utils.checkAddress(contractAddress)) {
+      return Promise.reject(`${contractAddress} is not a valid address.`)
+    }
+    // TODO find another to check if given address is a currency network
+    const currencyNetworks = await this.getAll()
+    const networkAddresses = currencyNetworks.map(c => ethUtils.toChecksumAddress(c.address))
+    return networkAddresses.indexOf(ethUtils.toChecksumAddress(contractAddress)) !== -1
   }
 }

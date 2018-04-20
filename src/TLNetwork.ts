@@ -7,6 +7,7 @@ import { CurrencyNetwork } from './CurrencyNetwork'
 import { Contact } from './Contact'
 import { Utils } from './Utils'
 import { Event } from './Event'
+import { Exchange } from './Exchange'
 import { Messaging } from './Messaging'
 
 export class TLNetwork {
@@ -19,6 +20,7 @@ export class TLNetwork {
   public contact: Contact
   public utils: Utils
   public event: Event
+  public exchange: Exchange
   public messaging: Messaging
 
   constructor (config: any = {}) {
@@ -32,6 +34,7 @@ export class TLNetwork {
     this.contact = new Contact(this.user, this.utils)
     this.trustline = new Trustline(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
     this.payment = new Payment(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
+    this.exchange = new Exchange(this.event, this.user, this.utils, this.transaction, this.currencyNetwork, this.payment)
     this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
   }
 
