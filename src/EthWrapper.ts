@@ -5,7 +5,7 @@ import { TxOptions } from './typings'
 import { Transaction } from './Transaction'
 import { EventFilterOptions } from './typings'
 
-export class TokenWrapper {
+export class EthWrapper {
   constructor (
     private user: User,
     private utils: Utils,
