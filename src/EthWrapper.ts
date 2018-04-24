@@ -48,6 +48,25 @@ export class EthWrapper {
     ).catch(e => Promise.reject(e))
   }
 
+  public prepWithdraw (
+    tokenAddress: string,
+    value: number | string,
+    { gasPrice, gasLimit }: TxOptions = {}
+  ): Promise<any> {
+    const { transaction, user, utils } = this
+    return transaction.prepFuncTx(
+      user.address,
+      tokenAddress,
+      'UnwEth',
+      'withdraw',
+      [ utils.convertEthToWei(value) ],
+      {
+        gasPrice,
+        gasLimit
+      }
+    ).catch(e => Promise.reject(e))
+  }
+
   public async confirm (rawTx): Promise<string> {
     const { transaction, user } = this
     try {
