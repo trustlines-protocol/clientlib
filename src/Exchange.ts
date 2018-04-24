@@ -331,6 +331,66 @@ export class Exchange {
     return this.transaction.relayTx(signedTx)
   }
 
+  private async getPathObj (
+    tokenAddress: string,
+    from: string,
+    to: string,
+    value: number | string,
+    { decimals }: TLOptions
+  ): Promise<any> {
+    const { currencyNetwork, payment } = this
+    return await currencyNetwork.isNetwork(tokenAddress)
+      ? await payment.getPath(
+          tokenAddress,
+          from,
+          to,
+          value,
+          { decimals }
+        )
+      : {
+        path: [],
+        maxFees: 0,
+        estimatedGas: 40000,
+        isNoNetwork: true
+      }
+  }
+
+  private getOrderAddresses ({
+    maker,
+    makerTokenAddress,
+    takerTokenAddress,
+    feeRecipient
+  }: Order): Array<string> {
+    return [
+      maker,
+      ZERO_ADDRESS,
+      makerTokenAddress,
+      takerTokenAddress,
+      feeRecipient
+    ]
+  }
+
+  private getOrderValues ({
+    makerTokenAmount,
+    takerTokenAmount,
+    makerFee,
+    takerFee,
+    expirationUnixTimestampSec,
+    salt
+  }: Order): Array<number> {
+    return [
+      this.toInt(makerTokenAmount.raw),
+      this.toInt(takerTokenAmount.raw),
+      0, // NOTE fees disabled
+      0, // NOTE fees disabled
+      this.toInt(expirationUnixTimestampSec),
+      this.toInt(salt)
+    ]
+  }
+
+  private toInt (int: number | string): number {
+    return typeof int === 'string' ? parseInt(int, 10) : int
+  }
   private getPartialAmount (
     numerator: number | string,
     denominator: number | string,
