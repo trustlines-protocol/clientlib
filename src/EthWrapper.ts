@@ -61,7 +61,7 @@ export class EthWrapper {
 
     try {
       const events = await utils.fetchUrl(parameterUrl)
-      return events.map(event => utils.formatAmount(event.amount, 18))
+      return events.map(event => utils.formatEvent(event, 18))
     } catch (error) {
       return Promise.reject(error)
     }
