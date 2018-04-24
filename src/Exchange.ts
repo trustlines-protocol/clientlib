@@ -144,70 +144,34 @@ export class Exchange {
       takerTokenAddress,
       makerTokenAmount,
       takerTokenAmount,
-      salt,
-      expirationUnixTimestampSec,
       ecSignature
     } = signedOrder
     const { currencyNetwork, payment, transaction, user, utils } = this
 
     try {
-      const [ makerDecimals, takerDecimals ] = await Promise.all([
+      const [ makerDecimals, takerDecimals, orderWithFees ] = await Promise.all([
         currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals),
-        currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+        currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals),
+        this.getFees(signedOrder)
       ])
-      const feesRequest = {
-        exchangeContractAddress,
-        expirationUnixTimestampSec,
-        maker,
+      const [ makerPathObj, takerPathObj ] = await Promise.all([
+        this.getPathObj(
         makerTokenAddress,
-        makerTokenAmount: makerTokenAmount.raw,
-        salt,
-        taker: ZERO_ADDRESS,
-        takerTokenAddress,
-        takerTokenAmount: takerTokenAmount.raw
-      }
-      const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
-      const makerPathObj = await currencyNetwork.isNetwork(makerTokenAddress)
-        ? await payment.getPath(
-          makerTokenAddress,
           maker,
           user.address,
           this.getPartialAmount(fillTakerTokenValue, takerTokenAmount.value, makerTokenAmount.value),
-          { decimals: makerTokenDecimals }
-        ) : {
-          path: [],
-          maxFees: 0,
-          estimatedGas: 40000,
-          isNoNetwork: true
-        }
-      const takerPathObj = await currencyNetwork.isNetwork(takerTokenAddress)
-        ? await payment.getPath(
+          { decimals: makerDecimals }
+        ),
+        this.getPathObj(
           takerTokenAddress,
           user.address,
           maker,
           fillTakerTokenValue,
-          { decimals: takerTokenDecimals }
-        ) : {
-          path: [],
-          maxFees: 0,
-          estimatedGas: 40000,
-          isNoNetwork: true
-        }
-      const orderAddresses = [
-        maker,
-        ZERO_ADDRESS,
-        makerTokenAddress,
-        takerTokenAddress,
-        feeRecipient
-      ]
-      const orderValues = [
-        makerTokenAmount.raw,
-        takerTokenAmount.raw,
-        parseInt(makerFee, 10),
-        parseInt(takerFee, 10),
-        parseInt(expirationUnixTimestampSec, 10),
-        parseInt(salt, 10)
-      ]
+          { decimals: takerDecimals }
+        )
+      ])
+      const orderAddresses = this.getOrderAddresses(orderWithFees)
+      const orderValues = this.getOrderValues(orderWithFees)
 
       if ((makerPathObj.path.length === 0 && !makerPathObj.isNoNetwork) ||
           (takerPathObj.path.length === 0 && !takerPathObj.isNoNetwork)) {
