@@ -100,7 +100,6 @@ describe('e2e', () => {
           .then(() => tl1.user.getBalance())
           .then(balanceAfter => {
             const delta = Math.abs(balanceBefore.raw - balanceAfter.raw)
-            console.log(balanceBefore, balanceAfter)
             expect(delta).to.gte(1000000000000000)
             done()
           })
@@ -117,7 +116,6 @@ describe('e2e', () => {
       it('should return all eth wrapper event logs', done => {
         tl1.ethWrapper.getLogs(ethWrapperAddress)
           .then(logs => {
-            console.log(logs)
             expect(logs).to.be.an('array')
             expect(logs.length).to.be.gt(0)
             done()
