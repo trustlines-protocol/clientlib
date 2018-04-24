@@ -9,7 +9,9 @@ import {
   Order,
   Orderbook,
   OrderbookOptions,
-  SignedOrder
+  SignedOrder,
+  TLOptions,
+  FeesRequest
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -93,34 +95,34 @@ export class Exchange {
         currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals),
         currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
       ])
-      const feesRequest = {
+      const order = {
         exchangeContractAddress,
         expirationUnixTimestampSec: expirationUnixTimestampSec.toString(),
+        feeRecipient: ZERO_ADDRESS,
         maker: user.address,
+        makerFee: utils.formatAmount(0, makerDecimals),
         makerTokenAddress: ethUtils.toChecksumAddress(makerTokenAddress),
-        makerTokenAmount: utils.calcRaw(makerTokenValue, makerDecimals).toString(),
+        makerTokenAmount: utils.formatAmount(makerTokenValue, makerDecimals),
         salt: Math.floor(Math.random() * 1000000000).toString(),
         taker: ZERO_ADDRESS,
+        takerFee: utils.formatAmount(0, makerDecimals),
         takerTokenAddress: ethUtils.toChecksumAddress(takerTokenAddress),
-        takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals).toString()
+        takerTokenAmount: utils.formatAmount(takerTokenValue, takerDecimals)
       }
-      const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
-      const order = {
-        ...feesRequest,
-        makerFee,
-        takerFee,
-        feeRecipient
-      }
-      const orderHash = this.getOrderHashHex(order)
+      const orderWithFees = await this.getFees(order)
+      const orderHash = this.getOrderHashHex(orderWithFees)
       return user.signMsgHash(orderHash)
-        .then(({ ecSignature }) => ({...order, ecSignature}))
-        .then(signedOrder => this.postRequest('exchange/order', signedOrder)
-          .then(() => ({
-            ...signedOrder,
-            hash: orderHash,
-            makerTokenAmount: utils.formatAmount(signedOrder.makerTokenAmount, makerDecimals),
-            takerTokenAmount: utils.formatAmount(signedOrder.takerTokenAmount, takerDecimals)
-          }))
+        .then(({ ecSignature }) => ({...orderWithFees, ecSignature}))
+        .then(signedOrder => this.postRequest('exchange/order', {
+          ...signedOrder,
+          makerFee: orderWithFees.makerFee.raw.toString(),
+          takerFee: orderWithFees.takerFee.raw.toString(),
+          makerTokenAmount: orderWithFees.makerTokenAmount.raw.toString(),
+          takerTokenAmount: orderWithFees.takerTokenAmount.raw.toString()
+        }).then(() => ({
+          ...signedOrder,
+          hash: orderHash
+        }))
       )
     } catch (error) {
       return Promise.reject(error)
@@ -156,7 +158,7 @@ export class Exchange {
       ])
       const [ makerPathObj, takerPathObj ] = await Promise.all([
         this.getPathObj(
-        makerTokenAddress,
+          makerTokenAddress,
           maker,
           user.address,
           this.getPartialAmount(fillTakerTokenValue, takerTokenAmount.value, makerTokenAmount.value),
@@ -325,6 +327,7 @@ export class Exchange {
   private toInt (int: number | string): number {
     return typeof int === 'string' ? parseInt(int, 10) : int
   }
+
   private getPartialAmount (
     numerator: number | string,
     denominator: number | string,
@@ -336,16 +339,27 @@ export class Exchange {
     return bnNumerator.times(bnTarget).dividedBy(bnDenominator).toNumber()
   }
 
-  private getFees (request: any): Promise<any> {
+  private getFees (order: Order): Promise<any> {
+    const {
+      exchangeContractAddress,
+      expirationUnixTimestampSec,
+      maker,
+      makerTokenAddress,
+      makerTokenAmount,
+      salt,
+      takerTokenAddress,
+      takerTokenAmount
+    } = order
     // const convertedRequest = this.convertFieldsToBigNumber(request, [
     //   'expirationUnixTimestampSec', 'makerTokenAmount', 'salt', 'takerTokenAmount'
     // ])
     // NOTE fees disabled
     // return this.postRequest('/exchange/fees', convertedRequest)
     return Promise.resolve({
+      ...order,
       feeRecipient: ZERO_ADDRESS,
-      makerFee: new BigNumber(0).toString(),
-      takerFee: new BigNumber(0).toString()
+      makerFee: this.utils.formatAmount(0, 2),
+      takerFee: this.utils.formatAmount(0, 2)
     })
   }
 
@@ -393,19 +407,19 @@ export class Exchange {
         type: 'address'
       },
       {
-        value: new BigNumber(order.makerTokenAmount, 10).toNumber(),
+        value: new BigNumber(order.makerTokenAmount.raw, 10).toNumber(),
         type: 'uint256'
       },
       {
-        value: new BigNumber(order.takerTokenAmount, 10).toNumber(),
+        value: new BigNumber(order.takerTokenAmount.raw, 10).toNumber(),
         type: 'uint256'
       },
       {
-        value: new BigNumber(order.makerFee, 10).toNumber(),
+        value: new BigNumber(order.makerFee.raw, 10).toNumber(),
         type: 'uint256'
       },
       {
-        value: new BigNumber(order.takerFee, 10).toNumber(),
+        value: new BigNumber(order.takerFee.raw, 10).toNumber(),
         type: 'uint256'
       },
       {
