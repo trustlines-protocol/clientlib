@@ -70,6 +70,43 @@ describe('e2e', () => {
       })
     })
 
+    describe('#prepWithdraw()', () => {
+      it('should prepare withdraw tx', () => {
+        expect(tl1.ethWrapper.prepWithdraw(ethWrapperAddress, 0.001))
+          .to.eventually.have.keys('rawTx', 'ethFees')
+      })
+    })
+
+    describe('#confirm() - withdraw', () => {
+      let balanceBefore
+      let tx
+
+      before(done => {
+        tl1.ethWrapper.prepDeposit(ethWrapperAddress, 0.002)
+          .then(({ rawTx }) => tl1.ethWrapper.confirm(rawTx))
+          .then(() => new Promise(resolve => setTimeout(resolve(), 1000)))
+          .then(() => tl1.user.getBalance())
+          .then(balance => balanceBefore = balance)
+          .then(() => tl1.ethWrapper.prepWithdraw(ethWrapperAddress, 0.001))
+          .then(txObj => tx = txObj)
+          .then(() => done())
+          .catch(e => done(e))
+      })
+
+      it('should confirm withdraw tx', done => {
+        tl1.ethWrapper.confirm(tx.rawTx)
+          .then(txId => expect(txId).to.be.a('string'))
+          .then(() => new Promise(resolve => setTimeout(resolve(), 1000)))
+          .then(() => tl1.user.getBalance())
+          .then(balanceAfter => {
+            const delta = Math.abs(balanceBefore.raw - balanceAfter.raw)
+            console.log(balanceBefore, balanceAfter)
+            expect(delta).to.gte(1000000000000000)
+            done()
+          })
+      })
+    })
+
     describe('#getLogs()', () => {
       before(done => {
         tl1.ethWrapper.prepDeposit(ethWrapperAddress, 0.012345)
@@ -80,6 +117,7 @@ describe('e2e', () => {
       it('should return all eth wrapper event logs', done => {
         tl1.ethWrapper.getLogs(ethWrapperAddress)
           .then(logs => {
+            console.log(logs)
             expect(logs).to.be.an('array')
             expect(logs.length).to.be.gt(0)
             done()
