@@ -7,7 +7,7 @@ import { config, keystore1, keystore2 } from '../Fixtures'
 chai.use(chaiAsPromised)
 
 describe('e2e', () => {
-  describe('TokenWrapper', () => {
+  describe('EthWrapper', () => {
     const { expect } = chai
     const tl1 = new TLNetwork(config)
     const tl2 = new TLNetwork(config)
@@ -20,7 +20,7 @@ describe('e2e', () => {
       Promise.all([tl1.user.load(keystore1), tl2.user.load(keystore2)])
         .then(users => [ user1, user2 ] = users)
         // get availabe wrapper contracts
-        .then(() => tl1.tokenWrapper.getAll())
+        .then(() => tl1.ethWrapper.getAll())
         .then(wrappers => {
           ethWrapperAddress = wrappers[0]
         })
@@ -33,13 +33,13 @@ describe('e2e', () => {
 
     describe('#getAll()', () => {
       it('should return array of wrapper addresses', () => {
-        expect(tl1.tokenWrapper.getAll()).to.eventually.be.an('array')
+        expect(tl1.ethWrapper.getAll()).to.eventually.be.an('array')
       })
     })
 
     describe('#prepDeposit()', () => {
       it('should prepare a deposit tx', () => {
-        expect(tl1.tokenWrapper.prepDeposit(ethWrapperAddress, 0.001))
+        expect(tl1.ethWrapper.prepDeposit(ethWrapperAddress, 0.001))
           .to.eventually.have.keys('rawTx', 'ethFees')
       })
     })
@@ -51,20 +51,54 @@ describe('e2e', () => {
       before(done => {
         tl1.user.getBalance()
           .then(balance => balanceBefore = balance)
-          .then(() => tl1.tokenWrapper.prepDeposit(ethWrapperAddress, 0.001))
+          .then(() => tl1.ethWrapper.prepDeposit(ethWrapperAddress, 0.001))
           .then(txObj => tx = txObj)
           .then(() => done())
           .catch(e => done(e))
       })
 
       it('should confirm deposit tx', done => {
-        tl1.tokenWrapper.confirm(tx.rawTx)
+        tl1.ethWrapper.confirm(tx.rawTx)
           .then(txId => expect(txId).to.be.a('string'))
           .then(() => new Promise(resolve => setTimeout(resolve(), 1000)))
           .then(() => tl1.user.getBalance())
           .then(balanceAfter => {
             const delta = Math.abs(balanceBefore.raw - balanceAfter.raw)
             expect(delta).to.gte(1000000000000000)
+            done()
+          })
+      })
+    })
+
+    describe('#getLogs()', () => {
+      before(done => {
+        tl1.ethWrapper.prepDeposit(ethWrapperAddress, 0.012345)
+          .then(({ rawTx }) => tl1.ethWrapper.confirm(rawTx))
+          .then(() => setTimeout(() => done(), 500))
+      })
+
+      it('should return all eth wrapper event logs', done => {
+        tl1.ethWrapper.getLogs(ethWrapperAddress)
+          .then(logs => {
+            expect(logs).to.be.an('array')
+            expect(logs.length).to.be.gt(0)
+            done()
+          })
+      })
+
+      it('should return latest deposit', done => {
+        tl1.ethWrapper.getLogs(ethWrapperAddress)
+          .then(logs => {
+            const latestLog = logs[logs.length - 1]
+            expect(latestLog.address).to.equal(tl1.user.address)
+            expect(latestLog.amount).to.have.keys('decimals', 'raw', 'value')
+            expect(latestLog.blockNumber).to.be.a('number')
+            expect(latestLog.direction).to.equal('sent')
+            expect(latestLog.tokenAddress).to.equal(ethWrapperAddress)
+            expect(latestLog.status).to.be.a('string')
+            expect(latestLog.timestamp).to.be.a('number')
+            expect(latestLog.transactionId).to.be.a('string')
+            expect(latestLog.type).to.equal('Deposit')
             done()
           })
       })
