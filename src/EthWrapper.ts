@@ -48,10 +48,14 @@ export class EthWrapper {
     ).catch(e => Promise.reject(e))
   }
 
-  public confirm (rawTx): Promise<string> {
+  public async confirm (rawTx): Promise<string> {
     const { transaction, user } = this
-    return user.signTx(rawTx)
-      .then(signedTx => transaction.relayTx(signedTx))
+    try {
+      const signedTx = await user.signTx(rawTx)
+      return transaction.relayTx(signedTx)
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 
   public async getLogs (
@@ -61,7 +65,6 @@ export class EthWrapper {
     const { user, utils } = this
     const baseUrl = `tokens/${tokenAddress}/users/${user.address}/events`
     const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock, toBlock })
-
     try {
       const events = await utils.fetchUrl(parameterUrl)
       return events.map(event => utils.formatEvent(event, 18))
