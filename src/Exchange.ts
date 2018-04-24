@@ -256,49 +256,19 @@ export class Exchange {
     }: ExchangeOptions = {}): Promise<any> {
     const {
       exchangeContractAddress,
-      maker,
       makerTokenAddress,
       takerTokenAddress,
-      makerTokenAmount,
-      takerTokenAmount,
-      salt,
-      expirationUnixTimestampSec,
       ecSignature
     } = signedOrder
-    const { currencyNetwork, payment, transaction, user, utils } = this
+    const { currencyNetwork, transaction, user, utils } = this
 
     try {
-      const [ makerDecimals, takerDecimals ] = await Promise.all([
-        currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals),
-        currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+      const [ takerDecimals, orderWithFees ] = await Promise.all([
+        currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals),
+        this.getFees(signedOrder)
       ])
-      const feesRequest = {
-        exchangeContractAddress,
-        expirationUnixTimestampSec,
-        maker,
-        makerTokenAddress,
-        makerTokenAmount: makerTokenAmount.raw,
-        salt,
-        taker: ZERO_ADDRESS,
-        takerTokenAddress,
-        takerTokenAmount: takerTokenAmount.raw
-      }
-      const { feeRecipient, makerFee, takerFee } = await this.getFees(feesRequest)
-      const orderAddresses = [
-        maker,
-        ZERO_ADDRESS,
-        makerTokenAddress,
-        takerTokenAddress,
-        feeRecipient
-      ]
-      const orderValues = [
-        makerTokenAmount.raw,
-        takerTokenAmount.raw,
-        parseInt(makerFee, 10),
-        parseInt(takerFee, 10),
-        parseInt(expirationUnixTimestampSec, 10),
-        parseInt(salt, 10)
-      ]
+      const orderAddresses = this.getOrderAddresses(orderWithFees)
+      const orderValues = this.getOrderValues(orderWithFees)
 
       const { rawTx, ethFees } = await transaction.prepFuncTx(
         user.address,
