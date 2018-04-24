@@ -163,7 +163,7 @@ describe('e2e', () => {
                 expect(makerBalanceDelta).to.equal(takerBalanceDelta)
                 done()
               })
-            }, 1500)
+            }, 3000)
           })
       })
     })
