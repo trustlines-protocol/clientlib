@@ -103,5 +103,18 @@ describe('e2e', () => {
           })
       })
     })
+
+    describe('#getBalance()', () => {
+      before(done => {
+        tl1.ethWrapper.prepDeposit(ethWrapperAddress, 0.00005)
+          .then(({ rawTx }) => tl1.ethWrapper.confirm(rawTx))
+          .then(() => setTimeout(() => done(), 500))
+      })
+
+      it('should return balance of wrapped eth', () => {
+        expect(tl1.ethWrapper.getBalance(ethWrapperAddress))
+          .to.eventually.have.keys('decimals', 'raw', 'value')
+      })
+    })
   })
 })

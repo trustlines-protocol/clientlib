@@ -17,12 +17,15 @@ export class EthWrapper {
     return this.utils.fetchUrl('exchange/eth')
   }
 
-  public getBalance (tokenAddress: string): Promise<any> {
+  public async getBalance (tokenAddress: string): Promise<any> {
     const { user, utils } = this
-    return utils.fetchUrl(`tokens/${tokenAddress}/users/${user.address}/balance`)
-      .then(balance => utils.formatAmount(
-        utils.calcRaw(balance, 18), 18)
-      )
+    try {
+      const balance = await utils.fetchUrl(`tokens/${tokenAddress}/users/${user.address}/balance`)
+      const rawBalance = utils.calcRaw(balance, 18)
+      return utils.formatAmount(rawBalance, 18)
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 
   public prepDeposit (
