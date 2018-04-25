@@ -265,3 +265,11 @@ export interface ExchangeTx extends TxObject {
   takerMaxFees: Amount,
   takerPath: string[]
 }
+
+export interface OrderOptions {
+  includeFilled?: boolean,
+  includeCancelled?: boolean,
+  includeUnavailable?: boolean,
+  makerTokenDecimals?: number,
+  takerTokenDecimals?: number
+}
