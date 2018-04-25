@@ -101,6 +101,36 @@ describe('e2e', () => {
       })
     })
 
+    describe('#getOrderByHash()', () => {
+      let order
+
+      before(done => {
+        tl1.exchange.makeOrder(
+          exchangeAddress,
+          makerTokenAddress,
+          takerTokenAddress,
+          1000,
+          2000
+        ).then(latestOrder => {
+          order = latestOrder
+          done()
+        })
+      })
+
+      it('should return latest order by its hash', done => {
+        tl1.exchange.getOrderByHash(order.hash, {
+          includeCancelled: true,
+          includeFilled: true,
+          includeUnavailable: true
+        }).then(returnedOrder => {
+          console.log(returnedOrder)
+          expect(returnedOrder).to.have.keys('filledTakerAmount', 'cancelledTakerAmount', 'unavailableTakerAmount')
+          done()
+        })
+          .catch(e => console.error(e))
+      })
+    })
+
     describe('#prepTakeOrder()', () => {
       let order
 
