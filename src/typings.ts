@@ -189,7 +189,13 @@ export interface Order {
   exchangeContractAddress: string
   feeRecipient: string
   expirationUnixTimestampSec: string
-  hash?: string
+  hash?: string,
+  filledMakerTokenAmount?: Amount,
+  filledTakerTokenAmount?: Amount,
+  cancelledMakerTokenAmount?: Amount,
+  cancelledTakerTokenAmount?: Amount,
+  availableMakerTokenAmount?: Amount,
+  availableTakerTokenAmount?: Amount
 }
 
 /**
@@ -207,7 +213,13 @@ export interface OrderRaw {
   salt: string
   exchangeContractAddress: string
   feeRecipient: string
-  expirationUnixTimestampSec: string
+  expirationUnixTimestampSec: string,
+  filledMakerTokenAmount: string,
+  filledTakerTokenAmount: string,
+  cancelledMakerTokenAmount: string,
+  cancelledTakerTokenAmount: string,
+  availableMakerTokenAmount: string,
+  availableTakerTokenAmount: string
 }
 
 export interface Orderbook {
