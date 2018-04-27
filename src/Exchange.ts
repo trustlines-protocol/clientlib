@@ -16,7 +16,8 @@ import {
   TLOptions,
   PathObject,
   TxObject,
-  OrderOptions
+  OrderOptions,
+  EventFilterOptions
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -328,6 +329,51 @@ export class Exchange {
     return this._transaction.relayTx(signedTx)
   }
 
+  public async getLogs (
+    exchangeAddress: string,
+    filter: EventFilterOptions = {}
+  ): Promise<any[]> {
+    const { _currencyNetwork, _user, _utils } = this
+    const baseUrl = `exchange/${exchangeAddress}/users/${_user.address}/events`
+    const parameterUrl = _utils.buildUrl(baseUrl, filter)
+    const events = await _utils.fetchUrl<any>(parameterUrl)
+    const networkAddresses = this.getUniqueAddresses(events)
+    const decimalPromises = networkAddresses.map(address => _currencyNetwork.getDecimals(address))
+    const decimals = await Promise.all(decimalPromises)
+    console.log(networkAddresses, decimalPromises, decimals)
+    return events.map(event => {
+      const {
+        makerTokenAddress,
+        takerTokenAddress,
+        filledMakerAmount,
+        filledTakerAmount,
+        cancelledMakerAmount,
+        cancelledTakerAmount
+      } = event
+      if (filledMakerAmount && filledTakerAmount) {
+        event.filledMakerAmount = _utils.formatAmount(
+          filledMakerAmount,
+          decimals[networkAddresses.indexOf(makerTokenAddress)]
+        )
+        event.filledTakerAmount = _utils.formatAmount(
+          filledTakerAmount,
+          decimals[networkAddresses.indexOf(takerTokenAddress)]
+        )
+      }
+      if (cancelledMakerAmount && cancelledTakerAmount) {
+        event.cancelledMakerAmount = _utils.formatAmount(
+          cancelledMakerAmount,
+          decimals[networkAddresses.indexOf(makerTokenAddress)]
+        )
+        event.cancelledTakerAmount = _utils.formatAmount(
+          cancelledMakerAmount,
+          decimals[networkAddresses.indexOf(takerTokenAddress)]
+        )
+      }
+      return event
+    })
+  }
+
   private async _getPathObj (
     tokenAddress: string,
     from: string,
@@ -459,5 +505,18 @@ export class Exchange {
     const values = orderParts.map(part => part.value)
     const hashBuff = ethABI.soliditySHA3(types, values)
     return ethUtils.bufferToHex(hashBuff)
+  }
+
+  private getUniqueAddresses (events: Array<any>): Array<any> {
+    return events.reduce((result, event) => {
+      console.log(result)
+      if (result.indexOf(event.makerTokenAddress) === -1) {
+        result.push(event.makerTokenAddress)
+      }
+      if (result.indexOf(event.takerTokenAddress) === -1) {
+        result.push(event.takerTokenAddress)
+      }
+      return result
+    }, [])
   }
 }
