@@ -340,7 +340,6 @@ export class Exchange {
     const networkAddresses = this.getUniqueAddresses(events)
     const decimalPromises = networkAddresses.map(address => _currencyNetwork.getDecimals(address))
     const decimals = await Promise.all(decimalPromises)
-    console.log(networkAddresses, decimalPromises, decimals)
     return events.map(event => {
       const {
         makerTokenAddress,
@@ -370,7 +369,10 @@ export class Exchange {
           decimals[networkAddresses.indexOf(takerTokenAddress)]
         )
       }
-      return event
+      return {
+        ...event,
+        orderHash: event.orderHash.toLowerCase()
+      }
     })
   }
 
@@ -509,7 +511,6 @@ export class Exchange {
 
   private getUniqueAddresses (events: Array<any>): Array<any> {
     return events.reduce((result, event) => {
-      console.log(result)
       if (result.indexOf(event.makerTokenAddress) === -1) {
         result.push(event.makerTokenAddress)
       }
