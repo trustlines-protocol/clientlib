@@ -205,6 +205,15 @@ describe('e2e', () => {
             }, 3000)
           })
       })
+
+      it('should return LogFill event', done => {
+        tl1.exchange.getLogs(exchangeAddress)
+          .then(logs => {
+            const latestLog = logs[logs.length - 1]
+            expect(latestLog.orderHash).to.eq(latestOrder.hash)
+            done()
+          })
+      })
     })
 
     // TODO scenario for TL money <-> token
