@@ -216,6 +216,41 @@ describe('e2e', () => {
       })
     })
 
+    describe('#cancelOrder', () => {
+      let cancelTx
+      let cancelTxHash
+
+      before(done => {
+        tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 2)
+          .then(order => latestOrder = order)
+          .then(() => tl1.exchange.cancelOrder(latestOrder, 1))
+          .then(tx => cancelTx = tx)
+          .then(() => done())
+          .catch(e => done(e))
+      })
+
+      it('should return tx hash', done => {
+        tl1.exchange.confirm(cancelTx.rawTx)
+          .then(txHash => cancelTxHash = txHash)
+          .then(() => expect(cancelTxHash).to.be.a('string'))
+          .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
+          .then(() => done())
+          .catch(e => done(e))
+      })
+
+      it('should return LogCancel event', done => {
+        tl1.exchange.getLogs(exchangeAddress)
+          .then(logs => {
+            const latestLog = logs[logs.length - 1]
+            expect(latestLog.type).to.eq('LogCancel')
+            expect(latestLog.transactionId).to.eq(cancelTxHash)
+            expect(latestLog.orderHash).to.eq(latestOrder.hash)
+            done()
+          })
+          .catch(e => done(e))
+      })
+    })
+
     // TODO scenario for TL money <-> token
     describe.skip('#confirm() - TL money <-> token', () => {
       let makerTLBefore
