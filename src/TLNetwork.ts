@@ -10,7 +10,7 @@ import { Event } from './Event'
 import { Exchange } from './Exchange'
 import { Messaging } from './Messaging'
 
-export class TLNetwork {
+export default class TLNetwork {
   public configuration: Configuration
   public user: User
   public transaction: Transaction
