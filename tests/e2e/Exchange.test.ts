@@ -1,7 +1,7 @@
 import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
-import { TLNetwork } from '../../src/TLNetwork'
+import TLNetwork from '../../src/TLNetwork'
 import { config, keystore1, user1, keystore2 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
@@ -81,7 +81,7 @@ describe('e2e', () => {
       })
     })
 
-    describe('#makeOrder()', () => {
+    describe.only('#makeOrder()', () => {
       it('should make order', done => {
         tl1.exchange.makeOrder(
           exchangeAddress,

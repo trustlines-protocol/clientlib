@@ -1,6 +1,6 @@
 import 'mocha'
 import * as chai from 'chai'
-import { TLNetwork } from '../../src/TLNetwork'
+import TLNetwork from '../../src/TLNetwork'
 import { config, user1 } from '../Fixtures'
 
 describe('integration', () => {

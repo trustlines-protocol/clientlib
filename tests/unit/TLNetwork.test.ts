@@ -1,6 +1,6 @@
 import 'mocha'
 import { expect } from 'chai'
-import { TLNetwork } from '../../src/TLNetwork'
+import TLNetwork from '../../src/TLNetwork'
 
 describe('unit', () => {
   describe('TLNetwork', () => {

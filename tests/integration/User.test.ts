@@ -1,7 +1,7 @@
 import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
-import { TLNetwork } from '../../src/TLNetwork'
+import TLNetwork from '../../src/TLNetwork'
 import { config, keystore1, user1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
