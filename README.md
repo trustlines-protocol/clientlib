@@ -42,7 +42,7 @@ Use the following configuration to connect to the currently deployed test setup.
 import { TLNetwork } from './src/TLNetwork'
 
 const config = {
-  protocol: 'http',
+  protocol: 'https',
   host: 'relay0.testnet.trustlines.network',
   port: 443,
   path: 'api/v1/'
@@ -219,8 +219,11 @@ Returns ETH balance of user.
 TLNetwork.user.getBalance()
 ```
 #### Returns
-`Promise<string>`
-- `balance` - balance of loaded user as a string
+`Promise<object>`
+- `balance` - balance object of loaded user
+    - `raw` - balance in wei
+    - `value` - balance in ETH
+    - `decimals` - 18, decimals of ETH
 #### Example
 ```javascript
 tlNetwork.user.getBalance().then(balance => {
@@ -304,7 +307,7 @@ TLNetwork.currencyNetwork.getAll()
 ```
 #### Returns
 `Promise<object[]>`
-- `currencyNetwork`
+- `currencyNetwork` - currency network object
   - `address` - address of currency network
   - `name` - name of currency network
   - `abbreviation` - abbreviation of currency (i.e. EUR, USD)
@@ -312,68 +315,197 @@ TLNetwork.currencyNetwork.getAll()
 #### Example
 ```javascript
 tlNetwork.currencyNetwork.getAll().then(networks => {
-    console.log('All registered networks: ', networks)
+  console.log(networks)
+  // [
+  //   {
+  //     'name': 'Hours',
+  //     'abbreviation': 'HOU',
+  //     'address': '0xC0B33D88C704455075a0724AA167a286da778DDE'
+  //   },
+  //   {
+  //     'name': 'Fugger',
+  //     'abbreviation': 'FUG',
+  //     'address': '0x55bdaAf9f941A5BB3EacC8D876eeFf90b90ddac9'
+  //   }
+  // ]
 })
 ```
 
-### Get detailed information of currency network
-`TLNetwork.currencyNetwork.getInfo(networkAddress)`
+---
 
+### `getInfo`
+Returns detailed information of specific currency network.
+```
+TLNetwork.currencyNetwork.getInfo(networkAddress)
+```
 #### Parameters
 - `networkAddress` - address of currency network
-
 #### Returns
 `Promise<object>`
-- `address` - address of currency network
-- `name` - name of currency network
-- `abbreviation` - abbreviation of currency (i.e. EUR, USD)
-- `numUsers` - number of users in currency network
-
+- `currencyNetwork` - currency network object
+  - `abbreviation` - abbreviation of currency (i.e. EUR, USD)
+  - `address` - address of currency network
+  - `decimals` - number of decimals specified in currency network
+  - `name` - name of currency network
+  - `numUsers` - number of users in currency network
 #### Example
 ```javascript
-tlNetwork.currencyNetwork.getInfo('0xabc123bb...').then(network => {
-  console.log('Detailed network information: ', network)
+const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+
+tlNetwork.currencyNetwork.getInfo(networkAddress).then(network => {
+  console.log(network)
+  // {
+  //   'decimals': 2,
+  //   'name': 'Hours',
+  //   'numUsers': 3,
+  //   'abbreviation': 'HOU',
+  //   'address': '0xC0B33D88C704455075a0724AA167a286da778DDE'
+  // }
 })
 ```
 
-### Get all proxy addresses of users in currency network
-`TLNetwork.currencyNetwork.getUsers(networkAddress)`
+---
 
+### `getUsers`
+Returns all addresses of users in a currency network.
+```
+TLNetwork.currencyNetwork.getUsers(networkAddress)
+```
 #### Parameters
 - `networkAddress` - address of currency network
-
 #### Returns
 `Promise<string[]>`
-- `string` - proxy addresses of users in a currency network
-
+- `address[]` - addresses of users in a currency network
 #### Example
 ```javascript
-tlNetwork.currencyNetwork.getUsers('0xabc123bb...').then(addresses => {
-    console.log('Proxy addresses of users in network 0xabc123bb...', addresses )
+const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+
+tlNetwork.currencyNetwork.getUsers(networkAddress).then(userAddresses => {
+  console.log(userAddresses)
+  // [
+  //   '0xcbF1153F6e5AC01D363d432e24112e8aA56c55ce',
+  //   '0x7Ff66eb1A824FF9D1bB7e234a2d3B7A3b0345320',
+  //   '0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b',
+  //    ...
+  // ]
 })
 ```
 
-### Get overview of currency network in user context
-`TLNetwork.currencyNetwork.getUserOverview(networkAddress, userAddress)`
+---
 
+### `getUserOverview`
+Returns overview of a user in a specific currency network
+```
+TLNetwork.currencyNetwork.getUserOverview(networkAddress, userAddress)
+```
 #### Parameters
 - `networkAddress` - address of currency network
 - `userAddress` - address of user
-
 #### Returns
 `Promise<object>`
-- `balance` - sum over balances of all trustlines user has in currency network
-- `given` - sum of all credit lines given by user in currency network
-- `received` - sum of all credit lines received by user in currency network
-- `leftGiven` - given - balance
-- `leftReceived` - received + balance
-
+- `userOverview` - user overview object
+  - `balance` - sum over balances of all trustlines user has in currency network
+    - `raw` - balance in smallest unit
+    - `value` - balance in biggest unit
+    - `decimals` - decimals specified in currency network
+  - `given` - sum of all credit lines given by user in currency network
+    - `raw` - given credit lines in smallest unit
+    - `value` - given credit lines in biggest unit
+    - `decimals` - decimals specified in currency network
+  - `received` - sum of all credit lines received by user in currency network
+    - `raw` - received credit lines in smallest unit
+    - `value` - received in biggest unit
+    - `decimals` - decimals specified in currency network
+  - `leftGiven` - given - balance
+    - `raw` - given - balance in smallest unit
+    - `value` - given - balance in biggest unit
+    - `decimals` - decimals specified in currency network
+  - `leftReceived` - received + balance
+    - `raw` - received + balance in smallest unit
+    - `value` - received + balance in biggest unit
+    - `decimals` - decimals specified in currency network
 #### Example
 ```javascript
-tlNetwork.currencyNetwork.getUserOverview('0xabc123bb...', '0xb33f33...').then(overview => {
-    console.log('Overview for user 0xb33f33... in currency network 0xabc123bb...', overview)
+const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+const userAddress = '0xcbF1153F6e5AC01D363d432e24112e8aA56c55ce'
+
+tlNetwork.currencyNetwork.getUserOverview(networkAddress, userAddress).then(overview => {
+  console.log(overview)
+  // {
+  //   'leftReceived': {
+  //     'raw': '26073',
+  //     'value': '260.73',
+  //     'decimals': 2
+  //   },
+  //   'balance': {
+  //     'raw': '-3927',
+  //     'value': '-39.27',
+  //     'decimals': 2
+  //   },
+  //   'given': {
+  //     'raw': '30000',
+  //     'value': '300.00',
+  //     'decimals': 2
+  //   },
+  //   'received': {
+  //     'raw': '30000',
+  //     'value': '300.00',
+  //     'decimals': 2
+  //   },
+  //   'leftGiven': {
+  //     'raw': '33927',
+  //     'value': '339.27',
+  //     'decimals': 2
+  //   }
+  // }
 })
 ```
+
+---
+
+### `getDecimals`
+Returns the decimals specified in a currency network.
+```
+TLNetwork.currencyNetwork.getDecimals(networkAddress)
+```
+#### Parameters
+- `networkAddress` - address of currency network
+#### Returns
+`Promise<number>`
+- `decimals` - decimals specified in currency network
+#### Example
+```javascript
+const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+
+tlNetwork.currencyNetwork.getDecimals(networkAddress).then(decimals => {
+  console.log(decimals)
+  // 2
+})
+```
+
+---
+
+### `isNetwork`
+Returns true or fals whether given address is a registered currency network.
+```
+TLNetwork.currencyNetwork.isNetwork(networkAddress)
+```
+#### Parameters
+- `networkAddress` - address of currency network
+#### Returns
+`Promise<boolean>`
+- `isNetwork` - true or false if address is a registered currency network
+#### Example
+```javascript
+const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+
+tlNetwork.currencyNetwork.isNetwork(networkAddress).then(isNetwork => {
+  console.log(isNetwork)
+  // true
+})
+```
+
+---
 
 ### Get contacts of user
 Returns a list of addresses a user has trustlines with

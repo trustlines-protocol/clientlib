@@ -2,7 +2,7 @@ version: "2"
 services:
   relay:
     build:
-      context: https://github.com/trustlines-network/relay.git#develop
+      context: /home/dh/Projects/trustlines-network/relay
     container_name: relay
     links:
       - "parity:node"
