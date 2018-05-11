@@ -54,17 +54,22 @@ const tlNetwork = new TLNetwork(config)
 ## API Documentation
 The `TLNetwork` object has following main modules:
 - [`User`](###User)
-    - [`create`](####create)
-    - [`load`](####load)
-    - [`createOnboardingMsg`](####createOnboardingMsg)
-    - [`prepOnboarding`](####prepOnboarding)
-    - [`confirmOnboarding`](####confirmOnboarding)
-    - [`showSeed`](####showSeed)
-    - [`recoverFromSeed`](####recoverFromSeed)
-    - [`exportPrivateKey`](####exportPrivateKey)
-    - [`getBalance`](####getBalance)
-- `CurrencyNetwork`
-    - ``
+  - [`create`](####create)
+  - [`load`](####load)
+  - [`createOnboardingMsg`](####createOnboardingMsg)
+  - [`prepOnboarding`](####prepOnboarding)
+  - [`confirmOnboarding`](####confirmOnboarding)
+  - [`showSeed`](####showSeed)
+  - [`recoverFromSeed`](####recoverFromSeed)
+  - [`exportPrivateKey`](####exportPrivateKey)
+  - [`getBalance`](####getBalance)
+- `CurrencyNetwork`(###CurrencyNetwork)
+  - [`getAll`](####getAll)
+  - [`getInfo`](####getInfo)
+  - [`getUsers`](####getUsers)
+  - [`getUserOverview`](####getUserOverview)
+  - [`getDecimals`](####getDecimals)
+  - [`isNetwork`](####isNetwork)
 - `Trustline`
 - `Payment`
 - `Event`
@@ -80,9 +85,9 @@ TLNetwork.user.create()
 #### Returns
 `Promise<Object>`
 - `user` - user / wallet object
-    - `address` - checksum ethereum address
-    - `pubKey` - public key
-    - `keystore` - serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) keystore object. **NOTE: Has to be stored locally on client**
+  - `address` - checksum ethereum address
+  - `pubKey` - public key
+  - `keystore` - serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) keystore object. **NOTE: Has to be stored locally on client**
 #### Example
 ```javascript
 tlNetwork.user.create().then(newUser => {
@@ -106,20 +111,21 @@ TLNetwork.user.load(serializedKeystore)
 - `serializedKeystore` - stringified [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) key store object
 #### Returns
 `Promise<Object>`
-- `address` - checksum ethereum address
-- `pubKey` - public key
-- `keystore` - serialized keystore object
+- `user` - user / wallet object
+  - `address` - checksum ethereum address
+  - `pubKey` - public key
+  - `keystore` - serialized keystore object
 #### Example
 ```javascript
 const keystore = '{"encSeed":{"encStr":"fdlM/t...'
 
 tlNetwork.user.load(keystore).then(loadedUser => {
-    console.log('Existing user loaded: ', loadedUser)
-    // {
-    //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-    //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
-    //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
-    // }
+  console.log('Existing user loaded: ', loadedUser)
+  // {
+  //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
+  //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
+  // }
 })
 ```
 
@@ -145,8 +151,8 @@ TLNetwork.user.createOnboardingMsg(username, keystore)
 const keystore = '{"encSeed":{"encStr":"fdlM/t...'
 
 tlNetwork.user.createOnboardingMsg('Alice', keystore).then(link => {
-    console.log(link)
-    // http://trustlines.network/v1/onboardingrequest/Alice/0xf8E191d2cd72Ff35CB8F012685A29B31996614EA/a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472
+  console.log(link)
+  // http://trustlines.network/v1/onboardingrequest/Alice/0xf8E191d2cd72Ff35CB8F012685A29B31996614EA/a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472
 })
 ```
 
@@ -163,25 +169,25 @@ TLNetwork.user.prepOnboarding(newUserAddress, initialValue)
 #### Returns
 `Promise<Object>`
 - `tx` - tx object
-    - `rawTx` - hex string of raw tx
-    - `ethFees` - estimated tx fees
-        - `raw` - fees in wei
-        - `value` - fees in ETH
-        - `decimals` - 18
+  - `rawTx` - hex string of raw tx
+  - `ethFees` - estimated tx fees
+    - `raw` - fees in wei
+    - `value` - fees in ETH
+    - `decimals` - 18
 #### Example
 ```javascript
 const newUserAddress = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
 
 tlNetwork.user.prepOnboarding(newUserAddress).then(onboardingTx => {
-    console.log(onboardingTx)
-    // {
-    //     rawTx: '0x...',
-    //     ethFees: {
-    //         raw: '100000000000000000',
-    //         value: '0.1',
-    //         decimals: 18
-    //     }
-    // }
+  console.log(onboardingTx)
+  // {
+  //     rawTx: '0x...',
+  //     ethFees: {
+  //         raw: '100000000000000000',
+  //         value: '0.1',
+  //         decimals: 18
+  //     }
+  // }
 })
 ```
 
@@ -200,8 +206,8 @@ TLNetwork.user.confirmOnboarding(rawTx)
 #### Example
 ```javascript
 tlNetwork.user.confirmOnboarding('0x...').then(txHash => {
-    console.log(txHash)
-    // '0xfc39b4696d72c6276be3e22406b36fdff1866b9f4364280139b5c8340782294a'
+  console.log(txHash)
+  // '0xfc39b4696d72c6276be3e22406b36fdff1866b9f4364280139b5c8340782294a'
 })
 ```
 
@@ -218,8 +224,8 @@ TLNetwork.user.getBalance()
 #### Example
 ```javascript
 tlNetwork.user.getBalance().then(balance => {
-    console.log(balance)
-    // '1.2345'
+  console.log(balance)
+  // '1.2345'
 })
 ```
 
@@ -235,8 +241,8 @@ TLNetwork.user.showSeed()
 #### Example
 ```javascript
 tlNetwork.user.showSeed().then(seed => {
-    console.log(seed)
-    // 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+  console.log(seed)
+  // 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
 })
 ```
 
@@ -252,20 +258,20 @@ TLNetwork.user.recoverFromSeed(seed)
 #### Returns
 `Promise<Object>`
 - `user` - recovered user object as returned from [`user.create()`](###create)
-    - `address` - checksum ethereum address
-    - `pubKey` - public key of recovered user
-    - `keystore` - serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) keystore object
+  - `address` - checksum ethereum address
+  - `pubKey` - public key of recovered user
+  - `keystore` - serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) keystore object
 #### Example
 ```javascript
 const seed = 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
 
 tlNetwork.user.recoverFromSeed(seed).then(recoveredUser => {
-    console.log(recoveredUser)
-    // {
-    //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-    //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
-    //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
-    // }
+  console.log(recoveredUser)
+  // {
+  //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
+  //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
+  // }
 })
 ```
 
@@ -282,23 +288,26 @@ TLNetwork.user.exportPrivatKey()
 #### Example
 ```javascript
 tlNetwork.user.exportPrivateKey().then(privateKey => {
-    console.log(privateKey)
-    // 'fe488d...'
+  console.log(privateKey)
+  // 'fe488d...'
 })
 ```
 
 ---
 
-## Currency Network
+## CurrencyNetwork
 
-### Get all registered currency networks
-`TLNetwork.currencyNetwork.getAll()`
-
+### `getAll`
+Returns all registered currency networks.
+```
+TLNetwork.currencyNetwork.getAll()
+```
 #### Returns
 `Promise<object[]>`
-- `address` - address of currency network
-- `name` - name of currency network
-- `abbreviation` - abbreviation of currency (i.e. EUR, USD)
+- `currencyNetwork`
+  - `address` - address of currency network
+  - `name` - name of currency network
+  - `abbreviation` - abbreviation of currency (i.e. EUR, USD)
 
 #### Example
 ```javascript
