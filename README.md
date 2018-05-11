@@ -51,111 +51,243 @@ const config = {
 const tlNetwork = new TLNetwork(config)
 ```
 
-## User
+## API Documentation
+The `TLNetwork` object has following main modules:
+- [`User`](###User)
+    - [`create`](####create)
+    - [`load`](####load)
+    - [`createOnboardingMsg`](####createOnboardingMsg)
+    - [`prepOnboarding`](####prepOnboarding)
+    - [`confirmOnboarding`](####confirmOnboarding)
+    - [`showSeed`](####showSeed)
+    - [`recoverFromSeed`](####recoverFromSeed)
+    - [`exportPrivateKey`](####exportPrivateKey)
+    - [`getBalance`](####getBalance)
+- `CurrencyNetwork`
+    - ``
+- `Trustline`
+- `Payment`
+- `Event`
 
-### Create new user
-`TLNetwork.user.create()`
+## `User`
+These are user related functions, which also include keystore related methods.
 
+### `create`
+Creates new user and respective keystore.
+```javascript
+TLNetwork.user.create()
+```
 #### Returns
 `Promise<Object>`
-- `address` - address of externally owned account
-- `pubKey` - public key
-- `keystore` - serialized [eth-lightwallet]() keystore object `IMPORTANT: has to be stored locally on client`
-
+- `user` - user / wallet object
+    - `address` - checksum ethereum address
+    - `pubKey` - public key
+    - `keystore` - serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) keystore object. **NOTE: Has to be stored locally on client**
 #### Example
 ```javascript
 tlNetwork.user.create().then(newUser => {
   console.log('New user created: ', newUser)
+  // {
+  //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
+  //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
+  // }
 })
 ```
 
-### Load existing user
-`TLNetwork.user.load(serializedKeystore)`
+---
 
+### `load`
+Loads an existing user and keystore.
+```javascript
+TLNetwork.user.load(serializedKeystore)
+```
 #### Parameters
-- `serializedKeystore` - stringified [eth-lightwallet]() key store object
-
+- `serializedKeystore` - stringified [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) key store object
 #### Returns
 `Promise<Object>`
-- `address` - address of externally owned account
-- `pubKey` - public key of user
-- `proxyAddress` - address of proxy contract
-- `keystore` - serialized [eth-lightwallet]() keystore object
-
+- `address` - checksum ethereum address
+- `pubKey` - public key
+- `keystore` - serialized keystore object
 #### Example
 ```javascript
-const keystore = '{"encSeed":{"encStr":"fdlM/t...,[...],"nonce":"mWCUhPdymK4VrR52a2ZHSibjXZcuclSh"},"salt":"njcNILd2XXQpF9ki4YzSiAfVPUzQu89WKlkI7F4/eXA=","version":2}'
+const keystore = '{"encSeed":{"encStr":"fdlM/t...'
 
 tlNetwork.user.load(keystore).then(loadedUser => {
     console.log('Existing user loaded: ', loadedUser)
+    // {
+    //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+    //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
+    //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
+    // }
 })
 ```
 
-### Create onboarding message
-`TLNetwork.user.createOnboardingMsg(username, keystore)`
+---
 
-Called from a new user who wants to *get onboarded*
+### `createOnboardingMsg`
+Returns a shareable link, which can be opened by other users who already have ETH and are willing to send some of it to the new user. Called by a new user who wants to *get onboarded*, respectively has no ETH and trustline.
 
+```
+TLNetwork.user.createOnboardingMsg(username, keystore)
+```
 #### Parameters
-- `username` - name of user who wants to get onboarded
-- `keystore` - serialized [eth-lightwallet]() keystore object
-
+- `username` - name of new user who wants to get onboarded
+- `keystore` - serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) keystore object of new user who wants to get onboarded
 #### Returns
 `Promise<string>`
-- `http://trustlines.network/v1/:username/:adress/:pubKey`
-- `username` - name of new user who wants to get onboarded
-- `address` - ethereum address of new user
-- `pubKey` - public key of new user to encrypt messages
+- `http://trustlines.network/v1/onboardingrequest/:username/:adress/:pubKey`
+    - `username` - name of new user who wants to get onboarded
+    - `address` - checksum ethereum address
+    - `pubKey` - public key of new user
+#### Example
+```javascript
+const keystore = '{"encSeed":{"encStr":"fdlM/t...'
 
-### Prepare onboarding
-`TLNetwork.user.prepOnboarding(newUserAddress)`
+tlNetwork.user.createOnboardingMsg('Alice', keystore).then(link => {
+    console.log(link)
+    // http://trustlines.network/v1/onboardingrequest/Alice/0xf8E191d2cd72Ff35CB8F012685A29B31996614EA/a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472
+})
+```
 
-Called from a user who *onboards* another user to *prepare* transactions for relay
+---
 
+### `prepOnboarding`
+Returns a tx object for onboarding a new user. Called by a user who already has ETH and wants to *onboard* a new user by sending some of it.
+```
+TLNetwork.user.prepOnboarding(newUserAddress, initialValue)
+```
 #### Parameters
 - `newUserAddress` - address of new user who wants to get onboarded
-
+- `initialValue` - (optional) value of ETH to send, default is 0.1
 #### Returns
 `Promise<Object>`
-- `proxyTx` - tx object of proxy contract creation
-- `proxyTx.rawTx` - hex string of proxy contract creation transaction
-- `proxyTx.ethFees` - eth transaction fees
-- `valueTx` - tx object of onboarding eth transfer transaction
-- `valueTx.rawTx` - hex string of eth transfer transaction
-- `valueTx.ethFees` - eth transaction fees
+- `tx` - tx object
+    - `rawTx` - hex string of raw tx
+    - `ethFees` - estimated tx fees
+        - `raw` - fees in wei
+        - `value` - fees in ETH
+        - `decimals` - 18
+#### Example
+```javascript
+const newUserAddress = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
 
-### Confirm onboarding
-`TLNetwork.user.confirmOnboarding(rawProxyTx, rawValueTx)`
+tlNetwork.user.prepOnboarding(newUserAddress).then(onboardingTx => {
+    console.log(onboardingTx)
+    // {
+    //     rawTx: '0x...',
+    //     ethFees: {
+    //         raw: '100000000000000000',
+    //         value: '0.1',
+    //         decimals: 18
+    //     }
+    // }
+})
+```
 
-Called from an user who *onboards* another user
+---
 
+### `confirmOnboarding`
+Posts raw onboarding tx to relay server and returns the tx hash.
+```
+TLNetwork.user.confirmOnboarding(rawTx)
+```
 #### Parameters
-- `rawProxyTx` - hex string of proxy contract creation transaction
-- `rawValueTx` - hex string of eth transfer transaction
-
+- `rawTx` - hex string of raw tx returned by [`prepOnboarding`](###prepOnboarding)
 #### Returns
-`Promise<Object>`
-- `proxyTxId` - id of proxy contract creation transaction
-- `valueTxId` - id of eth transfer transaction
+`Promise<string>`
+- `txHash` - tx hash of onboarding transaction
+#### Example
+```javascript
+tlNetwork.user.confirmOnboarding('0x...').then(txHash => {
+    console.log(txHash)
+    // '0xfc39b4696d72c6276be3e22406b36fdff1866b9f4364280139b5c8340782294a'
+})
+```
 
-### Recover user from seed
-`TLNetwork.user.recoverFromSeed(seed)`
+---
 
-#### Parameters
-- `seed` - 12 word seed string
-
+### `getBalance`
+Returns ETH balance of user.
+```
+TLNetwork.user.getBalance()
+```
 #### Returns
-`Promise<Object>`
-- `address` - address of recovered externally owned account
-- `pubKey` - public key of recovered user
-- `proxyAddress` - address of proxy contract
-- `keystore` - serialized [eth-lightwallet]() keystore object
+`Promise<string>`
+- `balance` - balance of loaded user as a string
+#### Example
+```javascript
+tlNetwork.user.getBalance().then(balance => {
+    console.log(balance)
+    // '1.2345'
+})
+```
 
-### Reveal seed words
-`TLNetwork.user.showSeed()`
+---
 
+### `showSeed`
+Returns the 12 word seed of user.
+```
+TLNetwork.user.showSeed()
+```
 #### Returns
 `Promise<string>` - 12 word seed string
+#### Example
+```javascript
+tlNetwork.user.showSeed().then(seed => {
+    console.log(seed)
+    // 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+})
+```
+
+---
+
+### `recoverFromSeed`
+Recovers wallet / keystore from 12 word seed phrase.
+```
+TLNetwork.user.recoverFromSeed(seed)
+```
+#### Parameters
+- `seed` - 12 word seed string
+#### Returns
+`Promise<Object>`
+- `user` - recovered user object as returned from [`user.create()`](###create)
+    - `address` - checksum ethereum address
+    - `pubKey` - public key of recovered user
+    - `keystore` - serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) keystore object
+#### Example
+```javascript
+const seed = 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+
+tlNetwork.user.recoverFromSeed(seed).then(recoveredUser => {
+    console.log(recoveredUser)
+    // {
+    //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+    //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
+    //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
+    // }
+})
+```
+
+---
+
+### `exportPrivateKey`
+Returns private key of loaded user as a string.
+```
+TLNetwork.user.exportPrivatKey()
+```
+#### Returns
+`Promise<string>`
+- `privateKey` - private key as string
+#### Example
+```javascript
+tlNetwork.user.exportPrivateKey().then(privateKey => {
+    console.log(privateKey)
+    // 'fe488d...'
+})
+```
+
+---
 
 ## Currency Network
 
