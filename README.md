@@ -84,6 +84,8 @@ The `TLNetwork` object has following main modules:
   - [`get`](####payment.get)
   - [`getPath`](####payment.getPath)
 - [`Event`](###Event)
+  - [`get`](####event.get)
+  - [`getAll`](####event.getAll)
 
 ## `User`
 These are user related functions, which also include keystore related methods.
@@ -1031,59 +1033,39 @@ tlNetwork.payment.getPath(network, userA, userB, 12.5).then(pathObj => {
 
 ---
 
-## Events
+## Event
 
-### Get events
-`TLNetwork.event.get(network, filter)`
-
+### `event.get`
+Returns event logs of loaded user in specified currency network.
+```
+TLNetwork.event.get(network, filter)
+```
 #### Parameters
 - `network` - address of currency network
-- `filter` (optional) - { type, fromBlock, toBlock }
-
+- `filter` (optional)
+  - `type` - `Transfer` || `TrustlineUpdateRequest` || `TrustlineUpdate`
+  - `fromBlock`
 #### Returns
 `Promise<object[]>`
-- `blockNumber` - number of block
-- `address` - proxy address of counterparty
-- `amount` - amount of proposed creditline
-- `direction` - `sent` or `received`
-- `networkAddress` - address of currency network
-- `status` - `sent` | `pending` | `confirmed`
-- `timestamp` - unix timestamp
-- `transactionId` - transaction hash of event
-- `type` - `CreditlineUpdateRequest` | `CreditlineUpdate` | `Transfer` | `ChequeCashed`
+- `event[]` - array of event objects depending on event type
+  - `Transfer` - see returned object as described in [payment.get](###payment.get)
+  - `TrustlineUpdateRequest` - see returned object as described in [trustline.getRequests](###trustline.getRequests)
+  - `TrustlineUpdate` - see returned object as described in [trustline.getUpdates](###trustline.getUpdates)
 
-### Create event Observable
-`TLNetwork.event.createObservable(network, filter)`
+---
 
+### `event.getAll`
+Returns event logs of loaded user in all currency networks.
+```
+TLNetwork.event.getAll(filter)
+```
 #### Parameters
-- `network` - address of currency network
-- `filter` (optional) - { type, fromBlock, toBlock }
-
+- `filter` (optional)
+  - `type` - `Transfer` || `TrustlineUpdateRequest` || `TrustlineUpdate`
+  - `fromBlock`
 #### Returns
-`Observable`
-
-#### Example
-```javascript
-const subscription = tlNetwork.createObservable('0xb33f33...').subscribe(events => console.log('Events: ', events))
-
-// to unsubscribe from Observable
-subscription.unsubscribe()
-```
-
-## Compiling and building
-Compiling and bundling follows this setup: http://marcobotto.com/compiling-and-bundling-typescript-libraries-with-webpack/
-
-### Library structure
-```
-_bundles/       // UMD bundles
-lib/            // ES5(commonjs) + source + .d.ts
-lib-esm/        // ES5(esmodule) + source + .d.ts
-package.json
-README.md
-```
-
-
-Other docs:
-
-* [Events](./docs/Events.md)
-* [Links](./docs/Links.md)
+`Promise<object[]>`
+- `event[]` - array of event objects depending on event type
+  - `Transfer` - see returned object as described in [payment.get](###payment.get)
+  - `TrustlineUpdateRequest` - see returned object as described in [trustline.getRequests](###trustline.getRequests)
+  - `TrustlineUpdate` - see returned object as described in [trustline.getUpdates](###trustline.getUpdates)
