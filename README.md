@@ -79,6 +79,10 @@ The `TLNetwork` object has following main modules:
   - [`getRequests`](####trustline.getRequests)
   - [`getUpdates`](####trustline.getUpdates)
 - [`Payment`](###Payment)
+  - [`prepare`](####payment.prepare)
+  - [`confirm`](####payment.confirm)
+  - [`get`](####payment.get)
+  - [`getPath`](####payment.getPath)
 - [`Event`](###Event)
 
 ## `User`
@@ -751,7 +755,7 @@ TLNetwork.trustline.getRequests(networkAddress[, filter])
   - `fromBlock` - the block number from which to get trustline update requests on
 #### Returns
 `Promise<object[]>`
-- `updateRequests[]` - array of trustline update requests
+- `updateRequest[]` - array of trustline update requests
   - `from` - ethereum address of user who created request
   - `to` - ethereum address of user who is the counterparty of request
   - `given` - proposed amount of given credit line `from -> to`
@@ -810,7 +814,7 @@ TLNetwork.trustline.getUpdates(networkAddress[, filter])
   - `fromBlock` - the block number from which to get trustline update requests on
 #### Returns
 `Promise<object[]>`
-- `updates[]` - array of trustline updates
+- `update[]` - array of trustline updates
   - `from` - ethereum address of user who created request
   - `to` - ethereum address of user who accepted request
   - `given` - accepted amount of given credit line `from -> to`
@@ -861,56 +865,171 @@ tlNetwork.trustline.getUpdates(networkAddress, filter).then(updates => {
 
 ## Payment
 
-### Get transfers
-`TLNetwork.payment.get(networkAddress, filter)`
-
+### `payment.prepare`
+Prepares tx object for a trustlines transfer.
+```
+TLNetwork.payment.prepare(network, receiver, value[, options])
+```
 #### Parameters
-- `networkAddress` - address of currency network
-- `filter` (optional) - { fromBlock: number, toBlock: number }
-
-`Promise<object[]>`
-- `blockNumber` - number of block
-- `address` - proxy address of counterparty
-- `amount` - amount of proposed creditline
-- `direction` - `sent` or `received`
-- `networkAddress` - address of currency network
-- `status` - `sent` | `pending` | `confirmed`
-- `timestamp` - unix timestamp
-- `transactionId` - transaction hash of event
-- `type` - `Transfer`
-
+- `network` - address of currency network
+- `to` - address of receiver of transfer
+- `value` - amount to transfer, i.e. 1.50 if currency network has 2 decimals
+- `options`
+  - `decimals` - decimals fo currency network can be given manually if known
+  - `gasPrice`
+  - `gasLimit`
+#### Returns
+`Promise<object>`
+- `txObj` - tx object for a trustline transfer
+  - `rawTx` - RLP-encoded hex string defining the transaction
+  - `path` - addresses of users in the social graph that are used for facilitating the transfer
+  - `maxFees` - upper bound of estimated fees for transfer in trustlines money
+  - `ethFees` - estimated transaction fees in ETH
 #### Example
 ```javascript
-const filter = { fromBlock: 1, toBlock: 10 }
-tlNetwork.payment.get('0xabc123bb...', filter).then(transfers => {
-    console.log('Trustline transfers: ', transfers)
+const network = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+const to = '0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b'
+
+tlNetwork.payment.prepare(network, to, 3.50)
+  .then(txObj => {
+    console.log(txObj)
+    // {
+    //   rawTx: '0x...',
+    //   path: ['0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b'], // direct path
+    //   maxFees: {
+    //     raw: '1',
+    //     value: '0.01',
+    //     decimals: 2
+    //   },
+    //   ethFees: {
+    //     raw: '100000000000000000',
+    //     value: '0.1',
+    //     decimals: 18
+    //   }
+    // }
+  })
+```
+
+---
+
+### `payment.confirm`
+Relays raw transfer tx.
+```
+TLNetwork.payment.confirm(rawTx)
+```
+#### Parameters
+- `rawTx` - RLP-encoded hex string defining the transaction
+#### Returns
+`Promise<string>`
+- `txHash` - transaction hash of transfer tx
+#### Example
+```javascript
+const { rawTx } = transferTxObj
+
+tlNetwork.payment.confirm(rawTx).then(txHash => {
+  console.log(txHash)
+  // 0x...
 })
 ```
 
-### Prepare transfer
-`TLNetwork.payment.prepare(network, receiver, value)`
+---
 
+### `payment.get`
+Returns transfer logs of loaded user in a specified currency network.
+```
+TLNetwork.payment.get(network[, filter])
+```
 #### Parameters
 - `network` - address of currency network
-- `receiver` - proxy address of receiver
-- `value` - amount to transfer
-
+- `filter` (optional)
+  - `fromBlock`
 #### Returns
-`Promise<object>`
-- `ethFees` - estimated ETH transaction fees
-- `path` - path for transfer
-- `tlFees` - estimated TL fees for transfer
-- `rawTx` - RLP-encoded hex string defining the transaction
+`Promise<object[]>`
+- `transfer[]` - array of transfer objects
+  - `from` - ethereum address of user who sent transfer
+  - `to` - ethereum address of user who received transfer
+  - `amount` - transfer amount
+    - `raw` - amount in smallest unit
+    - `value` - amount in biggest unit
+    - `decimals` - decimals in currency network
+  - `direction` - `sent` if loaded user sent transfer | `received` if loaded user received transfer
+  - `networkAddress` - address of currency network
+  - `type` - `Transfer`
+  - `timestamp` - unix timestamp
+  - `blockNumber` - number of block
+  - `status` - `sent` | `pending` | `confirmed` depending block height
+  - `transactionId` - transaction hash of event
+#### Example
+```javascript
+const network = '0xC0B33D88704455075a0724AA167a286da778DDE'
+const filter = { fromBlock: 7000000 }
 
-### Confirm prepared transfer
-`TLNetwork.payment.confirm(rawTx)`
+tlNetwork.payment.get(network, filter).then(transfers => {
+  console.log(transfers)
+  // [
+  //   {
+  //     from: '0xcbF1153F6e5AC01D363d432e24112e8aA56c55ce',
+  //     to: '0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b',
+  //     amount: {
+  //       raw: '100',
+  //       value: '1',
+  //       decimals: 2
+  //     },
+  //     direction: 'sent',
+  //     networkAddress: '0xC0B33D88C704455075a0724AA167a286da778DDE',
+  //     type: 'Transfer',
+  //     timestamp: 1524755036,
+  //     blockNumber: 7011809,
+  //     status: 'confirmed',
+  //     transactionId: '0x05c91f6506e78b1ca2413df9985ca7d37d2da5fc076c0b55c5d9eb9fdd7513a6'
+  //   }
+  // ]
+})
+```
 
+---
+
+### `payment.getPath`
+Returns path object which contains a transfer path between two users in specified currency network.
+```
+TLNetwork.payment.getPath(network, accountA, accountB, value[, options])
+```
 #### Parameters
-- `rawTx` - RLP-encoded hex string defining the transaction
-
+- `network` - address of currency network
+- `accountA` - address of user who sends transfer
+- `accountB` - address of user who receives transfer
+- `value` - transfer amount in biggest unit, i.e. 2.50 if network has 2 decimals
+- `options` (optional)
+  - `decimals` - decimals of currency network can be provided manually if known
+  - `maximumHops` - maximum hops for transfer
+  - `maximumFees` - maximum trustline money fees
 #### Returns
 `Promise<object>`
-- `txId` - transaction hash
+- `pathObj` - path object
+  - `estimatedGas` - estimated gas of transfer
+  - `path` - addresses of users in social graph through which the transfer can be facilitated
+  - `maxFees` - maximal transfer fees in trustlines money
+#### Example
+```javascript
+const network = '0xC0B33D88704455075a0724AA167a286da778DDE'
+const userA = '0xcbF1153F6e5AC01D363d432e24112e8aA56c55ce'
+const userB = '0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b'
+
+tlNetwork.payment.getPath(network, userA, userB, 12.5).then(pathObj => {
+  console.log(pathObj)
+  // {
+  //   estimatedGas: 150000,
+  //   path: ['0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b'],
+  //   maxFees: {
+  //     raw: '1',
+  //     value: '0.01',
+  //     decimals: 2
+  //   }
+  // }
+})
+```
+
+---
 
 ## Events
 
