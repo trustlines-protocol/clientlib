@@ -63,16 +63,23 @@ The `TLNetwork` object has following main modules:
   - [`recoverFromSeed`](####recoverFromSeed)
   - [`exportPrivateKey`](####exportPrivateKey)
   - [`getBalance`](####getBalance)
-- `CurrencyNetwork`(###CurrencyNetwork)
+- [`CurrencyNetwork`](###CurrencyNetwork)
   - [`getAll`](####getAll)
   - [`getInfo`](####getInfo)
   - [`getUsers`](####getUsers)
   - [`getUserOverview`](####getUserOverview)
   - [`getDecimals`](####getDecimals)
   - [`isNetwork`](####isNetwork)
-- `Trustline`
-- `Payment`
-- `Event`
+- [`Trustline`](###Trustline)
+  - [`prepareUpdate`](####trustline.prepareUpdate)
+  - [`prepareAccept`](####trustline.prepareAccept)
+  - [`confirm`](####trustline.confirm)
+  - [`getAll`](####trustline.getAll)
+  - [`get`](####trustline.get)
+  - [`getRequests`](####trustline.getRequests)
+  - [`getUpdates`](####trustline.getUpdates)
+- [`Payment`](###Payment)
+- [`Event`](###Event)
 
 ## `User`
 These are user related functions, which also include keystore related methods.
@@ -91,11 +98,11 @@ TLNetwork.user.create()
 #### Example
 ```javascript
 tlNetwork.user.create().then(newUser => {
-  console.log('New user created: ', newUser)
+  console.log(newUser)
   // {
-  //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
-  //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
+  //   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  //   pubKey: 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
+  //   keystore: '{"encSeed":{"encStr":"UJrWA...'
   // }
 })
 ```
@@ -120,11 +127,11 @@ TLNetwork.user.load(serializedKeystore)
 const keystore = '{"encSeed":{"encStr":"fdlM/t...'
 
 tlNetwork.user.load(keystore).then(loadedUser => {
-  console.log('Existing user loaded: ', loadedUser)
+  console.log(loadedUser)
   // {
-  //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
-  //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
+  //   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  //   pubKey: 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
+  //   keystore: '{"encSeed":{"encStr":"UJrWA...'
   // }
 })
 ```
@@ -228,7 +235,13 @@ TLNetwork.user.getBalance()
 ```javascript
 tlNetwork.user.getBalance().then(balance => {
   console.log(balance)
-  // '1.2345'
+  // {
+  //   balance: {
+  //     raw: '1000000000000000000',
+  //     value: '1',
+  //     decimals: 18
+  //   }
+  // }
 })
 ```
 
@@ -271,9 +284,9 @@ const seed = 'mesh park casual casino sorry giraffe half shrug wool anger chef a
 tlNetwork.user.recoverFromSeed(seed).then(recoveredUser => {
   console.log(recoveredUser)
   // {
-  //   'address': '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  //   'pubKey': 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
-  //   'keystore': '{"encSeed":{"encStr":"UJrWA...'
+  //   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  //   pubKey: 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
+  //   keystore: '{"encSeed":{"encStr":"UJrWA...'
   // }
 })
 ```
@@ -311,21 +324,20 @@ TLNetwork.currencyNetwork.getAll()
   - `address` - address of currency network
   - `name` - name of currency network
   - `abbreviation` - abbreviation of currency (i.e. EUR, USD)
-
 #### Example
 ```javascript
 tlNetwork.currencyNetwork.getAll().then(networks => {
   console.log(networks)
   // [
   //   {
-  //     'name': 'Hours',
-  //     'abbreviation': 'HOU',
-  //     'address': '0xC0B33D88C704455075a0724AA167a286da778DDE'
+  //     name: 'Hours',
+  //     abbreviation: 'HOU',
+  //     address: '0xC0B33D88C704455075a0724AA167a286da778DDE'
   //   },
   //   {
-  //     'name': 'Fugger',
-  //     'abbreviation': 'FUG',
-  //     'address': '0x55bdaAf9f941A5BB3EacC8D876eeFf90b90ddac9'
+  //     name: 'Fugger',
+  //     abbreviation: 'FUG',
+  //     address: '0x55bdaAf9f941A5BB3EacC8D876eeFf90b90ddac9'
   //   }
   // ]
 })
@@ -355,11 +367,11 @@ const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
 tlNetwork.currencyNetwork.getInfo(networkAddress).then(network => {
   console.log(network)
   // {
-  //   'decimals': 2,
-  //   'name': 'Hours',
-  //   'numUsers': 3,
-  //   'abbreviation': 'HOU',
-  //   'address': '0xC0B33D88C704455075a0724AA167a286da778DDE'
+  //   decimals: 2,
+  //   name: 'Hours',
+  //   numUsers: 3,
+  //   abbreviation: 'HOU',
+  //   address: '0xC0B33D88C704455075a0724AA167a286da778DDE'
   // }
 })
 ```
@@ -432,30 +444,30 @@ const userAddress = '0xcbF1153F6e5AC01D363d432e24112e8aA56c55ce'
 tlNetwork.currencyNetwork.getUserOverview(networkAddress, userAddress).then(overview => {
   console.log(overview)
   // {
-  //   'leftReceived': {
-  //     'raw': '26073',
-  //     'value': '260.73',
-  //     'decimals': 2
+  //   leftReceived: {
+  //     raw: '26073',
+  //     value: '260.73',
+  //     decimals: 2
   //   },
-  //   'balance': {
-  //     'raw': '-3927',
-  //     'value': '-39.27',
-  //     'decimals': 2
+  //   balance: {
+  //     raw: '-3927',
+  //     value: '-39.27',
+  //     decimals: 2
   //   },
-  //   'given': {
-  //     'raw': '30000',
-  //     'value': '300.00',
-  //     'decimals': 2
+  //   given: {
+  //     raw: '30000',
+  //     value: '300.00',
+  //     decimals: 2
   //   },
-  //   'received': {
-  //     'raw': '30000',
-  //     'value': '300.00',
-  //     'decimals': 2
+  //   received: {
+  //     raw: '30000',
+  //     value: '300.00',
+  //     decimals: 2
   //   },
-  //   'leftGiven': {
-  //     'raw': '33927',
-  //     'value': '339.27',
-  //     'decimals': 2
+  //   leftGiven: {
+  //     raw: '33927',
+  //     value: '339.27',
+  //     decimals: 2
   //   }
   // }
 })
@@ -486,7 +498,7 @@ tlNetwork.currencyNetwork.getDecimals(networkAddress).then(decimals => {
 ---
 
 ### `isNetwork`
-Returns true or fals whether given address is a registered currency network.
+Returns true or false whether given address is a registered currency network.
 ```
 TLNetwork.currencyNetwork.isNetwork(networkAddress)
 ```
@@ -507,154 +519,345 @@ tlNetwork.currencyNetwork.isNetwork(networkAddress).then(isNetwork => {
 
 ---
 
-### Get contacts of user
-Returns a list of addresses a user has trustlines with
+## `Trustline`
 
-`TLNetwork.contact.getAll(networkAddress)`
-
-#### Parameters
-- `networkAddress` - address of currency network
-
-#### Returns
-`Array<string[]>` - addresses of contacts
-
-## Trustline
-
-### Get trustlines of user in currency network
-`TLNetwork.trustline.getAll(networkAddress)`
-
-#### Parameters
-- `networkAddress` - address of currency network
-
-#### Returns
-`Promise<object[]>`
-- `address` - address of counterparty
-- `balance` - balance of trustline from view of requestor
-- `given` - credit line given by requestor
-- `leftGiven` - given - balance
-- `received` - credit line received
-- `leftReceived` - received + balance
-- `interestRate` - interest rate of trustline // TODO
-
-#### Example
-```javascript
-tlNetwork.trustline.getAll('0xabc123bb...').then(trustlines => {
-    console.log('Trustlines of loaded user in currency network 0xabc123bb...: ', trustlines)
-})
+### `trustline.prepareUpdate`
+Prepares a tx object for creating a trustline update request.
 ```
-
-### Get specific trustline
-`TLNetwork.trustline.get(networkAddress, userAddress)`
-
-#### Parameters
-- `networkAddress` - address of currency network
-- `userAddress` - address of counterparty
-
-#### Returns
-`Promise<object>`
-- `address` - address of counterparty
-- `balance` - balance of trustline from view of requestor
-- `given` - credit line given by requestor
-- `leftGiven` - given - balance
-- `received` - credit line received
-- `leftReceived` - received + balance
-- `interestRate` - interest rate of trustline // TODO
-
-#### Example
-```javascript
-tlNetwork.trustline.get('0xccccc...', '0xbbbbbb...').then(trustline => {
-    console.log('Trustline of loaded user in currency network 0xccccc... to user 0xbbbbb...: ', trustline)
-})
+TLNetwork.trustline.prepareUpdate(network, counterparty, given, received[, options])
 ```
-
-### Get trustline requests
-`TLNetwork.trustline.getRequests(networkAddress, filter)`
-
-#### Parameters
-- `networkAddress` - address of currency network
-- `filter` (optional) - { fromBlock: number, toBlock: number }
-
-#### Returns
-`Promise<object[]>`
-- `blockNumber` - number of block
-- `address` - proxy address of counterparty
-- `amount` - amount of proposed creditline
-- `direction` - `sent` or `received`
-- `networkAddress` - address of currency network
-- `status` - `sent` | `pending` | `confirmed`
-- `timestamp` - unix timestamp
-- `transactionId` - transaction hash of event
-- `type` - `CreditlineUpdateRequest`
-
-#### Example
-```javascript
-const filter = { fromBlock: 1, toBlock: 10 }
-tlNetwork.trustline.getRequests('0xabc123bb...', filter).then(requests => {
-    console.log('Trustline requests: ', requests)
-})
-```
-
-### Get trustline updates
-`TLNetwork.trustline.getUpdates(networkAddress, filter)`
-
-#### Parameters
-- `networkAddress` - address of currency network
-- `filter` (optional) - { fromBlock: number, toBlock: number }
-
-#### Returns
-`Promise<object[]>`
-- `blockNumber` - number of block
-- `address` - proxy address of counterparty
-- `amount` - amount of proposed creditline
-- `direction` - `sent` or `received`
-- `networkAddress` - address of currency network
-- `status` - `sent` | `pending` | `confirmed`
-- `timestamp` - unix timestamp
-- `transactionId` - transaction hash of event
-- `type` - `CreditlineUpdate`
-
-#### Example
-```javascript
-const filter = { fromBlock: 1, toBlock: 10 }
-tlNetwork.trustline.getUpdates('0xabc123bb...', filter).then(updates => {
-    console.log('Trustline updates: ', updates)
-})
-```
-
-### Prepare trustline update
-`TLNetwork.trustline.prepareUpdate(network, debtor, value)`
-
 #### Parameters
 - `network` - address of currency network
-- `debtor` - proxy address of debtor
-- `value` - new value credit line
-
+- `counterparty` - address of counterparty who receives trustline update request
+- `given` - proposed value of credit line given to counterparty, i.e. 100 if network has to 2 decimals
+- `received` - proposed value of credit line received from counterparty, i.e. 100 if network has to 2 decimals
+- `options` - optional
+  - `decimals` - decimals of currency network can be provided manually if know
+  - `gasPrice`
+  - `gasLimit`
 #### Returns
 `Promise<object>`
-- `ethFees` - estimated ETH transaction fees
-- `rawTx` - RLP-encoded hex string defining the transaction
+- `txObj` - tx object
+  - `ethFees` - estimated transaction fees in ETH
+  - `rawTx` - RLP-encoded hex string defining the transaction
+```javascript
+const network = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+const counterparty = '0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b'
 
-### Prepare trustline accept
-`TLNetwork.trustline.prepareAccept(network, creditor)`
+tlNetwork.trustline.prepareUpdate(network, counterparty, 100, 200)
+  .then(txObj => {
+    console.log(txObj)
+    // {
+    //   rawTx: '0x...',
+    //   ethFees: {
+    //     raw: '100000000000000000',
+    //     value: '0.1',
+    //     decimals: 18
+    //   }
+    // }
+})
+```
 
+---
+
+### `trustline.prepareAccept`
+Prepares a tx object for accepting a trustline update request.
+```
+TLNetwork.trustline.prepareAccept(network, initiator, given, received[, options])
+```
 #### Parameters
 - `network` - address of currency network
-- `creditor` - proxy address of creditor
-
+- `initiator` - address of user who initiated / created the trustline update request
+- `given` - proposed value of given credit line `initiator -> counterparty`, i.e. 100 if network has to 2 decimals
+- `received` - proposed value of received credit `counterparty -> initiator`, i.e. 100 if network has to 2 decimals
+- `options` - optional
+  - `decimals` - decimals of currency network can be provided manually if know
+  - `gasPrice`
+  - `gasLimit`
 #### Returns
 `Promise<object>`
-- `ethFees` - estimated ETH transaction fees
-- `rawTx` - RLP-encoded hex string defining the transaction
+- `txObj` - tx object
+  - `ethFees` - estimated transaction fees in ETH
+  - `rawTx` - RLP-encoded hex string defining the transaction
+```javascript
+const network = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+const counterparty = '0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b'
 
-### Confirm trustline accept/update
-`TLNetwork.trustline.confirm(rawTx)`
+tlNetwork.trustline.prepareAccept(network, counterparty, 100, 200)
+  .then(txObj => {
+    console.log(txObj)
+    // {
+    //   rawTx: '0x...',
+    //   ethFees: {
+    //     raw: '100000000000000000',
+    //     value: '0.1',
+    //     decimals: 18
+    //   }
+    // }
+})
+```
 
+---
+
+### `trustline.confirm`
+Relays raw transaction as returned in `prepareUpdate` or `prepareAccept`.
+```
+TLNetwork.trustline.confirm(rawTx)
+```
 #### Parameters
 - `rawTx` - RLP-encoded hex string defining the transaction
+#### Returns
+`Promise<string>`
+- `txHash` - tx hash of onboarding transaction
+### Example
+```javascript
+const { rawTx } = txObj
 
+tlNetwork.trustline.confirm(rawTx).then(txHash => {
+  console.log(txHash)
+  // 0x...
+})
+```
+
+---
+
+### `trustline.get`
+Returns trustline in a specified currency network and counterparty address.
+```
+TLNetwork.trustline.get(networkAddress, counterpartyAddress)
+```
+#### Parameters
+- `networkAddress` - address of currency network
+- `counterpartyAddress` - address of counterparty
 #### Returns
 `Promise<object>`
-- `txId` - transaction hash
+- `trustline` - trustline object
+  - `id` - identifier hash of trustline
+  - `address` - checksummed ethereum address of counterparty
+  - `balance` - balance of trustline from view of requestor
+  - `given` - credit line given by requestor
+  - `leftGiven` - given - balance
+  - `received` - credit line received
+  - `leftReceived` - received + balance
+#### Example
+```javascript
+const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+const counterpartyAddress = '0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b'
+
+tlNetwork.trustline.get(networkAddress, counterpartyAddress).then(trustline => {
+    console.log(trustline)
+    // {
+    //   id: '0x314338891c370d4c77657386c676b6cd2e4862af1244820f9e7b9166d181057f',
+    //   address: '0x7Ec3543702FA8F2C7b2bD84C034aAc36C263cA8b',
+    //   balance: {
+    //     raw: '-102',
+    //     value: '-1.02',
+    //     decimals: 2
+    //   },
+    //   given: {
+    //     raw: '10000',
+    //     value: '100',
+    //     decimals: 2
+    //   },
+    //   leftGiven: {
+    //     raw: '10102',
+    //     value: '101.02',
+    //     decimals: 2
+    //   },
+    //   received: {
+    //     raw: '10000',
+    //     value: '100',
+    //     decimals: 2
+    //   },
+    //   leftReceived: {
+    //     raw: '9898',
+    //     value: '98.98',
+    //     decimals: 2
+    //   }
+    // }
+})
+```
+
+---
+
+### `trustline.getAll`
+Returns all trustlines of a loaded user in a currency network.
+```
+TLNetwork.trustline.getAll(networkAddress)
+```
+#### Parameters
+- `networkAddress` - address of currency network
+#### Returns
+`Promise<object[]>`
+- `trustline[]` - array of trustline objects
+  - `id` - identifier hash of trustline
+  - `address` - checksummed ethereum address of counterparty
+  - `balance` - balance of trustline from view of requestor
+  - `given` - credit line given by requestor
+  - `leftGiven` - given - balance
+  - `received` - credit line received
+  - `leftReceived` - received + balance
+#### Example
+```javascript
+const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+
+tlNetwork.trustline.getAll(networkAddress).then(trustlines => {
+    console.log(trustlines)
+    // [
+    //   {
+    //     id: '0x987e38fc52eb557bbe7fa7d93bde10dbdc744d824fa35a27b01f76a36a3e8b16'
+    //     address: '0xcbF1153F6e5AC01D363d432e24112e8aA56c55ce',
+    //     leftReceived: {
+    //       raw: '26073',
+    //       value: '260.73',
+    //       decimals: 2
+    //     },
+    //     balance: {
+    //       raw: '-3927',
+    //       value: '-39.27',
+    //       decimals: 2
+    //     },
+    //     given: {
+    //       raw: '30000',
+    //       value: '300.00',
+    //       decimals: 2
+    //     },
+    //     received: {
+    //       raw: '30000',
+    //       value: '300.00',
+    //       decimals: 2
+    //     },
+    //     leftGiven: {
+    //       raw: '33927',
+    //       value: '339.27',
+    //       decimals: 2
+    //     }
+    //   },
+    //   ...
+    // ]
+})
+```
+
+---
+
+### `trustline.getRequests`
+Returns trustline update requests of loaded user in a currency network.
+```
+TLNetwork.trustline.getRequests(networkAddress[, filter])
+```
+#### Parameters
+- `networkAddress` - address of currency network
+- `filter` - optional filter object to specify block range
+  - `fromBlock` - the block number from which to get trustline update requests on
+#### Returns
+`Promise<object[]>`
+- `updateRequests[]` - array of trustline update requests
+  - `from` - ethereum address of user who created request
+  - `to` - ethereum address of user who is the counterparty of request
+  - `given` - proposed amount of given credit line `from -> to`
+  - `received` - proposed amount of received credit `to -> from` 
+  - `direction` - `sent` if loaded user created request | `received` if loaded user is the counterparty of request
+  - `networkAddress` - address of currency network
+  - `type` - `TrustlineUpdateRequest`
+  - `timestamp` - unix timestamp
+  - `blockNumber` - number of block
+  - `status` - `sent` | `pending` | `confirmed` depending block height
+  - `transactionId` - transaction hash of event
+#### Example
+```javascript
+const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+const filter = { fromBlock: 6000000 }
+
+tlNetwork.trustline.getRequests(networkAddress, filter).then(requests => {
+    console.log(requests)
+    // [
+    //   {
+    //     from: '0xcbF1153F6e5AC01D363d432e24112e8aA56c55ce',
+    //     to: '0x7Ff66eb1A824FF9D1bB7e234a2d3B7A3b0345320',
+    //     given: {
+    //       raw: '20000',
+    //       value: '200',
+    //       decimals: 2
+    //     },
+    //     received: {
+    //       raw: '20000',
+    //       value: '200',
+    //       decimals: 2
+    //     },
+    //     direction: 'sent',
+    //     networkAddress: '0xC0B33D88C704455075a0724AA167a286da778DDE',
+    //     type: 'TrustlineUpdateRequest',
+    //     timestamp: 1524655432,
+    //     blockNumber: 6000001,
+    //     status: 'confirmed',
+    //     transactionId: '0xb141aa3baec4e7151d8bd6ecab46d26b1add131e50bcc517c956a7ac979815cd'
+    //   },
+    //   ...
+    // ]
+})
+```
+
+---
+
+### `trustline.getUpdates`
+Returns trustline updates of loaded user in a currency network. A update happens when an user accepts a trustline update request.
+```
+TLNetwork.trustline.getUpdates(networkAddress[, filter])
+```
+#### Parameters
+- `networkAddress` - address of currency network
+- `filter` - optional filter object to specify block range
+  - `fromBlock` - the block number from which to get trustline update requests on
+#### Returns
+`Promise<object[]>`
+- `updates[]` - array of trustline updates
+  - `from` - ethereum address of user who created request
+  - `to` - ethereum address of user who accepted request
+  - `given` - accepted amount of given credit line `from -> to`
+  - `received` - accepted amount of received credit `to -> from` 
+  - `direction` - `sent` if loaded user created request | `received` if loaded user accepted request
+  - `networkAddress` - address of currency network
+  - `type` - `TrustlineUpdate`
+  - `timestamp` - unix timestamp
+  - `blockNumber` - number of block
+  - `status` - `sent` | `pending` | `confirmed` depending block height
+  - `transactionId` - transaction hash of event
+
+#### Example
+```javascript
+const networkAddress = '0xC0B33D88C704455075a0724AA167a286da778DDE'
+const filter = { fromBlock: 6000000 }
+
+tlNetwork.trustline.getUpdates(networkAddress, filter).then(updates => {
+    console.log(updates)
+    // [
+    //   {
+    //     from: '0xcbF1153F6e5AC01D363d432e24112e8aA56c55ce',
+    //     to: '0x7Ff66eb1A824FF9D1bB7e234a2d3B7A3b0345320',
+    //     given: {
+    //       raw: '20000',
+    //       value: '200',
+    //       decimals: 2
+    //     },
+    //     received: {
+    //       raw: '20000',
+    //       value: '200',
+    //       decimals: 2
+    //     },
+    //     direction: 'sent',
+    //     networkAddress: '0xC0B33D88C704455075a0724AA167a286da778DDE',
+    //     type: 'TrustlineUpdate',
+    //     timestamp: 1524655432,
+    //     blockNumber: 6000001,
+    //     status: 'confirmed',
+    //     transactionId: '0xb141aa3baec4e7151d8bd6ecab46d26b1add131e50bcc517c956a7ac979815cd'
+    //   },
+    //   ...
+    // ]
+})
+```
+
+---
 
 ## Payment
 
