@@ -1,5 +1,15 @@
 import { BigNumber } from 'bignumber.js'
 
+export interface TLNetworkConfig {
+  protocol?: string,
+  host?: string,
+  port?: number,
+  path?: string,
+  pollInterval?: number,
+  useWebSockets?: boolean,
+  wsProtocol?: string
+}
+
 export interface Amount {
   raw: string | number,
   value: string | number,

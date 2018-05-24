@@ -10,6 +10,12 @@ import { Event } from './Event'
 import { Exchange } from './Exchange'
 import { Messaging } from './Messaging'
 
+import { TLNetworkConfig } from './typings'
+
+/**
+ * The TLNetwork class is the single entry-point into the trustline-network.js library.
+ * It contains all of the library's functionality and all calls to the library should be made through a TLNetwork instance.
+ */
 export class TLNetwork {
   public configuration: Configuration
   public user: User
@@ -23,9 +29,8 @@ export class TLNetwork {
   public exchange: Exchange
   public messaging: Messaging
 
-  constructor (config: any = {}) {
-    const { protocol, host, port, path,tokenAddress, pollInterval, useWebSockets, wsProtocol } = config
-    this.configuration = new Configuration(protocol, host, port, path, pollInterval, useWebSockets, wsProtocol)
+  constructor (config: TLNetworkConfig = {}) {
+    this.configuration = new Configuration(config)
     this.utils = new Utils(this.configuration)
     this.transaction = new Transaction(this.utils)
     this.currencyNetwork = new CurrencyNetwork(this.utils)
