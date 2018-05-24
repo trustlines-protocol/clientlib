@@ -40,7 +40,7 @@ export class Payment {
                   gasPrice,
                   gasLimit: gasLimit || estimatedGas * 1.5
                 }
-              ).then(({ rawTx, gasPrice, ethFees }) => ({
+              ).then(({ rawTx, ethFees }) => ({
                 rawTx,
                 path,
                 maxFees,

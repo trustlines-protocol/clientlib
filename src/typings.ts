@@ -10,6 +10,17 @@ export interface TLNetworkConfig {
   wsProtocol?: string
 }
 
+export interface TxObject {
+  rawTx: string,
+  ethFees: Amount
+}
+
+export interface TxInfos {
+  gasPrice: number,
+  balance: number,
+  nonce: number
+}
+
 export interface Amount {
   raw: string | number,
   value: string | number,
