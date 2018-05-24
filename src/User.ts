@@ -17,9 +17,6 @@ export class User {
   constructor (private transaction: Transaction, private utils: Utils) {
   }
 
-  /**
-   * Creates a new user and keystore.
-   */
   public create (): Promise<object> {
     return new Promise((resolve, reject) => {
       this.generateKeys().then(keys => {
@@ -35,10 +32,6 @@ export class User {
     })
   }
 
-  /**
-   * Loads an existing user and keystore.
-   * @param serializedKeystore - stringified eth-lightwallet keystore object
-   */
   public load (serializedKeystore: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.setKeystore(serializedKeystore)
