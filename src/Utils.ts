@@ -14,16 +14,27 @@ const ReconnectingWebSocket = require('reconnecting-websocket')
 const JsonRPC = require('simple-jsonrpc-js')
 const WebSocket = require('html5-websocket')
 
+/**
+ * The Utils class contains utility functions that are used in multiple classes.
+ */
 export class Utils {
 
-  constructor (private configuration: Configuration) {
+  private _apiUrl: string
+  private _wsApiUrl: string
+  private _pollInterval: number
+  private _useWebSockets: boolean
+
+  constructor (configuration: Configuration) {
+    this._apiUrl = configuration.apiUrl
+    this._wsApiUrl = configuration.wsApiUrl
+    this._pollInterval = configuration.pollInterval
+    this._useWebSockets = configuration.useWebSockets
   }
 
   public createObservable (url: string): Observable<any> {
-    const { useWebSockets, apiUrl, wsApiUrl, pollInterval } = this.configuration
-    if (useWebSockets && 'WebSocket' in window) {
+    if (this._useWebSockets && 'WebSocket' in window) {
       return Observable.create((observer: Observer<any>) => {
-        let ws = new ReconnectingWebSocket(`${wsApiUrl}${url}`)
+        let ws = new ReconnectingWebSocket(`${this._wsApiUrl}${url}`)
         ws.onmessage = (e: MessageEvent) => {
           const json = JSON.parse(e.data)
           observer.next(json)
@@ -36,9 +47,9 @@ export class Utils {
         }
       })
     } else {
-      return TimerObservable.create(0, pollInterval)
+      return TimerObservable.create(0, this._pollInterval)
         .mergeMap(() =>
-          fetch(`${apiUrl}${url}`)
+          fetch(`${this._apiUrl}${url}`)
             .then(res => res.json())
             .catch(err => new Error(`Could not get events: ${err.message}`))
         )
@@ -46,8 +57,7 @@ export class Utils {
   }
 
   public fetchUrl (url: string, options?: object): Promise<any> {
-    const { apiUrl } = this.configuration
-    const completeUrl = `${apiUrl}${url}`
+    const completeUrl = `${this._apiUrl}${url}`
     return fetch(completeUrl, options)
       .then(response => {
         if (response.status !== 200) {
@@ -68,10 +78,9 @@ export class Utils {
   }
 
   public websocketStream (endpoint: String, functionName: String, args: object): Observable<any> {
-    const { wsApiUrl } = this.configuration
     return Observable.create((observer: Observer<any>) => {
       const options = {constructor: WebSocket}
-      const ws = new ReconnectingWebSocket(`${wsApiUrl}${endpoint}`, undefined, options)
+      const ws = new ReconnectingWebSocket(`${this._wsApiUrl}${endpoint}`, undefined, options)
       const jrpc = new JsonRPC()
 
       jrpc.toStream = (message: string) => {
