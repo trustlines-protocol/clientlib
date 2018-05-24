@@ -56,10 +56,23 @@ export interface TxInfos {
 /**
  * CURRENCY NETWORK
  */
-export interface CurrencyNetwork {
+export interface Network {
   name: string,
   abbreviation: string,
   address: string
+}
+
+export interface NetworkDetails extends Network {
+  decimals: number,
+  numUsers: number
+}
+
+export interface UserOverview {
+  leftReceived: Amount,
+  balance: Amount,
+  given: Amount,
+  received: Amount,
+  leftGiven: Amount
 }
 
 /**
