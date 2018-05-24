@@ -1,5 +1,8 @@
 import { BigNumber } from 'bignumber.js'
 
+/**
+ * GENERAL
+ */
 export interface TLNetworkConfig {
   protocol?: string,
   host?: string,
@@ -10,15 +13,18 @@ export interface TLNetworkConfig {
   wsProtocol?: string
 }
 
-export interface TxObject {
-  rawTx: string,
-  ethFees: Amount
+export interface TxOptions {
+  gasPrice?: number,
+  gasLimit?: number
 }
 
-export interface TxInfos {
-  gasPrice: number,
-  balance: number,
-  nonce: number
+export interface TLOptions extends TxOptions {
+  decimals?: number
+}
+
+export interface PaymentOptions extends TLOptions {
+  maximumHops?: number,
+  maximumFees?: number
 }
 
 export interface Amount {
@@ -33,6 +39,32 @@ export interface EventFilterOptions {
   toBlock?: number
 }
 
+/**
+ * TRANSACTION
+ */
+export interface TxObject {
+  rawTx: string,
+  ethFees: Amount
+}
+
+export interface TxInfos {
+  gasPrice: number,
+  balance: number,
+  nonce: number
+}
+
+/**
+ * CURRENCY NETWORK
+ */
+export interface CurrencyNetwork {
+  name: string,
+  abbreviation: string,
+  address: string
+}
+
+/**
+ * EXCHANGE
+ */
 export interface Order {
   maker: string // this.user.address
   taker: string // optional
@@ -79,20 +111,6 @@ export interface FeesResponse {
   feeRecipient: string,
   makerFee: BigNumber,
   takerFee: BigNumber
-}
-
-export interface TxOptions {
-  gasPrice?: number,
-  gasLimit?: number
-}
-
-export interface TLOptions extends TxOptions {
-  decimals?: number
-}
-
-export interface PaymentOptions extends TLOptions {
-  maximumHops?: number,
-  maximumFees?: number
 }
 
 export interface ExchangeOptions extends TxOptions {
