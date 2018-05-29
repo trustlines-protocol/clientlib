@@ -33,10 +33,32 @@ export interface Amount {
   decimals: number
 }
 
+/**
+ * EVENTS
+ */
+
 export interface EventFilterOptions {
   type?: string,
   fromBlock?: number,
   toBlock?: number
+}
+
+export interface TLEvent {
+  networkAddress: string,
+  type: string,
+  timestamp: number,
+  blockNumber: number,
+  status: string,
+  transactionId: string,
+  from: string,
+  to: string,
+  direction: string,
+  address?: string,
+  // only on TrustlineUpdateRequest and TrustlineUpdate
+  given?: Amount,
+  received?: Amount,
+  // only on Transfer
+  amount?: Amount
 }
 
 /**
@@ -73,6 +95,14 @@ export interface UserOverview {
   given: Amount,
   received: Amount,
   leftGiven: Amount
+}
+
+export interface UserOverviewUnformatted {
+  leftReceived: string,
+  balance: string,
+  given: string,
+  received: string,
+  leftGiven: string
 }
 
 /**

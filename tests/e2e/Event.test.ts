@@ -3,7 +3,6 @@ import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, keystore1, keystore2 } from '../Fixtures'
-import { Promise } from 'es6-promise'
 
 chai.use(chaiAsPromised)
 
@@ -15,10 +14,14 @@ describe('e2e', () => {
     let user1
     let user2
     let networkAddress
+    let networkAddress2
 
     before(done => {
       tl1.currencyNetwork.getAll()
-        .then(results => networkAddress = results[0].address)
+        .then(results => {
+          networkAddress = results[0].address
+          networkAddress2 = results[1].address
+        })
         .then(() => Promise.all([tl1.user.load(keystore1), tl2.user.load(keystore2)]))
         .then(users => [ user1, user2 ] = users)
         .then(() => Promise.all([tl1.user.requestEth(), tl2.user.requestEth()]))
@@ -50,6 +53,30 @@ describe('e2e', () => {
             done()
           })
       })
+    })
+
+    describe('#getAll()', async () => {
+      before(async () => {
+        const [ txObj1, txObj2 ] = await Promise.all([
+          tl1.trustline.prepareUpdate(networkAddress2, user2.address, 1000, 500),
+          tl2.trustline.prepareUpdate(networkAddress2, user1.address, 500, 1000)
+        ])
+        await Promise.all([
+          tl1.trustline.confirm(txObj1.rawTx),
+          tl2.trustline.confirm(txObj2.rawTx)
+        ])
+        await new Promise(resolve => setTimeout(() => resolve(), 1000))
+      })
+
+      it('should return trustline updates from more than one network', async () => {
+        const allEvents = await tl1.event.getAll({ type: 'TrustlineUpdate' })
+        const networks = allEvents.map(e => e.networkAddress)
+        const set = new Set(networks)
+        const uniqueNetworks = Array.from(set)
+        expect(uniqueNetworks.length).to.be.above(1)
+      })
+
+      // TODO more tests
     })
 
     describe('#updateStreamTransfer()', () => {
