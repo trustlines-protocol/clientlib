@@ -28,8 +28,8 @@ export interface PaymentOptions extends TLOptions {
 }
 
 export interface Amount {
-  raw: string | number,
-  value: string | number,
+  raw: string,
+  value: string,
   decimals: number
 }
 
@@ -73,6 +73,15 @@ export interface UserOverview {
   given: Amount,
   received: Amount,
   leftGiven: Amount
+}
+
+/**
+ * USER
+ */
+export interface UserObject {
+  address: string,
+  pubKey: string,
+  keystore: string
 }
 
 /**
