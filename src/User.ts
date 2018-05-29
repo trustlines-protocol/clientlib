@@ -38,7 +38,7 @@ export class User {
   public async create (): Promise<UserObject> {
     try {
       // generate new keystore
-      const { address, keystore, pubKey } = await this.generateKeys()
+      const { address, keystore, pubKey } = await this._generateKeys()
       this.address = address
       this.keystore = keystore
       this.pubKey = pubKey
@@ -62,10 +62,10 @@ export class User {
       const parsedKeystore = JSON.parse(serializedKeystore)
       // check if keystore version is old and update to new version
       if (parsedKeystore.version < 3) {
-        serializedKeystore = await this.updateKeystore(parsedKeystore)
+        serializedKeystore = await this._updateKeystore(parsedKeystore)
       }
       const deserialized = lightwallet.keystore.deserialize(serializedKeystore)
-      const { address, keystore, pubKey } = await this.getUserObject(deserialized)
+      const { address, keystore, pubKey } = await this._getUserObject(deserialized)
       this.address = address
       this.keystore = keystore
       this.pubKey = pubKey
@@ -291,7 +291,7 @@ export class User {
    */
   public async recoverFromSeed (seed: string): Promise<UserObject> {
     try {
-      const { address, keystore, pubKey } = await this.generateKeys(seed)
+      const { address, keystore, pubKey } = await this._generateKeys(seed)
       this.address = address
       this.keystore = keystore
       this.pubKey = pubKey
@@ -346,7 +346,7 @@ export class User {
    * Creates or recovers a keystore.
    * @param seed (optional) 12 word seed string
    */
-  private generateKeys (seed?: string): Promise<UserObject> {
+  private _generateKeys (seed?: string): Promise<UserObject> {
     return new Promise((resolve, reject) => {
       lightwallet.keystore.createVault({
         password: this._password,
@@ -356,7 +356,7 @@ export class User {
         if (err) {
           return reject(err)
         }
-        resolve(this.getUserObject(keystore))
+        resolve(this._getUserObject(keystore))
       })
     })
   }
@@ -365,7 +365,7 @@ export class User {
    * Returns address, keystore and public key of given keystore.
    * @param keystore deserialized keystore object
    */
-  private getUserObject (keystore: any): Promise<UserObject> {
+  private _getUserObject (keystore: any): Promise<UserObject> {
     return new Promise((resolve, reject) => {
       keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
@@ -391,7 +391,7 @@ export class User {
    * Updates an old keystore to new version. Old version < 3
    * @param parsedKeystore keystore as JSON object
    */
-  private updateKeystore (parsedKeystore: any): Promise<string> {
+  private _updateKeystore (parsedKeystore: any): Promise<string> {
     return new Promise((resolve, reject) => {
       // remove encrypt path of HD wallet manually
       delete parsedKeystore.ksData['m/44\'/60\'/0\'/1']
