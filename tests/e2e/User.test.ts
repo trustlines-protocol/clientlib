@@ -1,6 +1,7 @@
 import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+import { BigNumber } from 'bignumber.js'
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, keystore1, user1 } from '../Fixtures'
 
@@ -27,7 +28,7 @@ describe('e2e', () => {
       it('should return 0 balance for newly created user', done => {
         tlNew.user.getBalance().then(balance => {
           expect(balance).to.have.keys('raw', 'value', 'decimals')
-          expect(balance.value).to.equal(0)
+          expect(balance.value).to.equal('0')
           done()
         })
       })
@@ -35,7 +36,7 @@ describe('e2e', () => {
       it('should return balance for existing user', done => {
         tlExisting.user.getBalance().then(balance => {
           expect(balance).to.have.keys('raw', 'value', 'decimals')
-          expect(balance.value).to.be.above(0)
+          expect(new BigNumber(balance.raw).toNumber()).to.be.above(0)
           done()
         })
       })

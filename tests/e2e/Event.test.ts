@@ -73,7 +73,7 @@ describe('e2e', () => {
 
         let transferEvent = events.filter((event) => event.type === 'Transfer')[0]
         expect(transferEvent.amount).to.have.keys('raw', 'value', 'decimals')
-        expect(transferEvent).to.have.nested.property('amount.value', 2.5)
+        expect(transferEvent).to.have.nested.property('amount.value', '2.5')
         expect(transferEvent).to.have.property('direction', 'sent')
         expect(transferEvent).to.have.property('from', user1.address)
         expect(transferEvent).to.have.property('to', user2.address)
@@ -128,8 +128,8 @@ describe('e2e', () => {
         expect(trustlineRequestEvent.direction).to.equal('sent')
         expect(trustlineRequestEvent.given).to.have.keys('raw', 'value', 'decimals')
         expect(trustlineRequestEvent.received).to.have.keys('raw', 'value', 'decimals')
-        expect(trustlineRequestEvent).to.have.nested.property('given.value', 4001)
-        expect(trustlineRequestEvent).to.have.nested.property('received.value', 4002)
+        expect(trustlineRequestEvent).to.have.nested.property('given.value', '4001')
+        expect(trustlineRequestEvent).to.have.nested.property('received.value', '4002')
       })
 
       after(() => {

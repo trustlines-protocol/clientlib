@@ -139,18 +139,18 @@ export class Utils {
 
   public calcRaw (value: number | string, decimals: number): any {
     const x = new BigNumber(value)
-    return x.times(Math.pow(10, decimals)).toNumber()
+    return x.times(Math.pow(10, decimals)).toString()
   }
 
   public calcValue (raw: number | string, decimals: number): any {
     const x = new BigNumber(raw)
-    return x.div(Math.pow(10, decimals)).toNumber()
+    return x.div(Math.pow(10, decimals)).toString()
   }
 
   public formatAmount (raw: number | string, decimals: number): any {
     return {
       decimals,
-      raw,
+      raw: new BigNumber(raw).toString(),
       value: this.calcValue(raw, decimals)
     }
   }
