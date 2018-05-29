@@ -57,7 +57,7 @@ describe('e2e', () => {
           .then(pathObj => {
             expect(pathObj.estimatedGas).to.not.equal(0)
             expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
-            expect(pathObj.maxFees.raw).to.not.equal(0)
+            expect(pathObj.maxFees.raw).to.not.equal('0')
             expect(pathObj.path).to.not.equal([])
             done()
           })
@@ -68,7 +68,7 @@ describe('e2e', () => {
           .then(pathObj => {
             expect(pathObj.estimatedGas).to.equal(0)
             expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
-            expect(pathObj.maxFees.raw).to.equal(0)
+            expect(pathObj.maxFees.raw).to.equal('0')
             expect(pathObj.path).to.deep.equal([])
             done()
           })

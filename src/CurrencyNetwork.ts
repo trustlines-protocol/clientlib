@@ -2,7 +2,12 @@ import * as ethUtils from 'ethereumjs-util'
 
 import { Utils } from './Utils'
 
-import { Network, NetworkDetails, UserOverview } from './typings'
+import {
+  Network,
+  NetworkDetails,
+  UserOverview,
+  UserOverviewUnformatted
+} from './typings'
 
 /**
  * The CurrencyNetwork contains all functions relevant in the currency network context.
@@ -18,7 +23,7 @@ export class CurrencyNetwork {
    * Returns all registered currency networks.
    */
   public getAll (): Promise<Network[]> {
-    return this._utils.fetchUrl(`networks`)
+    return this._utils.fetchUrl<Network[]>(`networks`)
   }
 
   /**
@@ -27,7 +32,7 @@ export class CurrencyNetwork {
    */
   public getInfo (networkAddress: string): Promise<NetworkDetails> {
     this._checkAddresses([networkAddress])
-    return this._utils.fetchUrl(`networks/${networkAddress}`)
+    return this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
   }
 
   /**
@@ -36,7 +41,7 @@ export class CurrencyNetwork {
    */
   public getUsers (networkAddress: string): Promise<string[]> {
     this._checkAddresses([networkAddress])
-    return this._utils.fetchUrl(`networks/${networkAddress}/users`)
+    return this._utils.fetchUrl<string[]>(`networks/${networkAddress}/users`)
   }
 
   /**
@@ -51,7 +56,7 @@ export class CurrencyNetwork {
     this._checkAddresses([networkAddress, userAddress])
     try {
       const [ overview, decimals ] = await Promise.all([
-        this._utils.fetchUrl(`networks/${networkAddress}/users/${userAddress}`),
+        this._utils.fetchUrl<UserOverviewUnformatted>(`networks/${networkAddress}/users/${userAddress}`),
         this.getDecimals(networkAddress)
       ])
       const userOverview = {
@@ -80,7 +85,7 @@ export class CurrencyNetwork {
         return Promise.resolve(
           ((typeof decimals === 'number') && decimals) ||
           // TODO replace with list of known currency network in clientlib
-          this._utils.fetchUrl(`networks/${networkAddress}`)
+          this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
             .then(network => network.decimals)
         )
       } else {

@@ -56,7 +56,7 @@ export class Utils {
     }
   }
 
-  public fetchUrl (url: string, options?: object): Promise<any> {
+  public fetchUrl<T> (url: string, options?: object): Promise<T> {
     const completeUrl = `${this._apiUrl}${url}`
     return fetch(completeUrl, options)
       .then(response => {

@@ -107,14 +107,14 @@ export class Transaction {
       headers,
       body: JSON.stringify({rawTransaction: `0x${signedRawTx}`})
     }
-    return this._utils.fetchUrl('relay', options)
+    return this._utils.fetchUrl<string>('relay', options)
   }
 
   /**
    * Returns the latest block number.
    */
   public getBlockNumber (): Promise<number> {
-    return this._utils.fetchUrl('blocknumber')
+    return this._utils.fetchUrl<number>('blocknumber')
   }
 
   /**
@@ -122,7 +122,7 @@ export class Transaction {
    * @param userAddress address of user creating the transaction
    */
   private _getTxInfos (userAddress: string): Promise<TxInfos> {
-    return this._utils.fetchUrl(`users/${userAddress}/txinfos`)
+    return this._utils.fetchUrl<TxInfos>(`users/${userAddress}/txinfos`)
   }
 
   /**
