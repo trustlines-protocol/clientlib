@@ -115,6 +115,29 @@ export interface UserObject {
 }
 
 /**
+ * TRUSTLINE
+ */
+export interface TrustlineObject {
+  id: string,
+  address: string,
+  balance: Amount,
+  given: Amount,
+  received: Amount,
+  leftGiven: Amount,
+  leftReceived: Amount
+}
+
+export interface TrustlineUnformatted {
+  id: string,
+  address: string,
+  balance: string,
+  given: string,
+  received: string,
+  leftGiven: string,
+  leftReceived: string
+}
+
+/**
  * EXCHANGE
  */
 export interface Order {

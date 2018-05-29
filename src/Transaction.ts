@@ -100,7 +100,7 @@ export class Transaction {
    * Relays signed raw transactions.
    * @param signedRawTx signed raw transaction
    */
-  public relayTx (signedRawTx: string): Promise<any> {
+  public relayTx (signedRawTx: string): Promise<string> {
     const headers = new Headers({'Content-Type': 'application/json'})
     const options = {
       method: 'POST',

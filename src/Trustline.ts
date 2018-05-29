@@ -3,119 +3,204 @@ import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
-import { TLOptions } from './typings'
+import {
+  TLOptions,
+  EventFilterOptions,
+  TLEvent,
+  TxObject,
+  TrustlineObject,
+  TrustlineUnformatted
+} from './typings'
 
+/**
+ * The Trustline class contains all relevant methods for retrieving, creating and
+ * editing trustlines.
+ */
 export class Trustline {
+  private _event: Event
+  private _user: User
+  private _utils: Utils
+  private _transaction: Transaction
+  private _currencyNetwork: CurrencyNetwork
 
-  constructor (private event: Event,
-               private user: User,
-               private utils: Utils,
-               private transaction: Transaction,
-               private currencyNetwork: CurrencyNetwork) {
+  constructor (
+    event: Event,
+    user: User,
+    utils: Utils,
+    transaction: Transaction,
+    currencyNetwork: CurrencyNetwork
+  ) {
+    this._event = event
+    this._user = user
+    this._utils = utils
+    this._transaction = transaction
+    this._currencyNetwork = currencyNetwork
   }
 
   /**
-   * Prepares a raw transaction for a trustline update request
+   * Prepares a tx object for creating a trustline update request. Called by initiator
+   * of update request.
    * @param network address of currency network
-   * @param debtor address of counterparty who receives trustline update request
-   * @param creditLineGiven value of credit line given to counterparty, i.e. 1.23 if network has to 2 decimals
-   * @param creditLineReceived value of credit line received by counterparty, i.e. 1.23 if network has to 2 decimals
-   * @param decimals (optional) number of decimals can be provided manually
+   * @param counterparty address of counterparty who receives trustline update request
+   * @param given proposed creditline limit given by iniator to counterparty,
+   *              i.e. 1.23 if network has to 2 decimals
+   * @param received proposed creditline limit received from counterparty to initiator,
+   *                 i.e. 1.23 if network has to 2 decimals
+   * @param decimals (optional) decimals of currency network can be provided manually if known
    * @param gasLimit (optional)
    * @param gasPrice (optional)
    */
-  public prepareUpdate (
+  public async prepareUpdate (
     network: string,
-    debtor: string,
-    creditLineGiven: number,
-    creditLineReceived: number,
+    counterparty: string,
+    given: number | string,
+    received: number | string,
     { decimals, gasLimit, gasPrice }: TLOptions = {}
-  ): Promise<any> {
-    const { currencyNetwork, transaction, user, utils } = this
-    const { calcRaw } = utils
-    return currencyNetwork.getDecimals(network, decimals)
-      .then(dec => transaction.prepFuncTx(
-        user.address,
+  ): Promise<TxObject> {
+    try {
+      const { _currencyNetwork, _transaction, _user, _utils } = this
+      decimals = await _currencyNetwork.getDecimals(network, decimals)
+      return _transaction.prepFuncTx(
+        _user.address,
         network,
         'CurrencyNetwork',
         'updateTrustline',
-        [ debtor, calcRaw(creditLineGiven, dec), calcRaw(creditLineReceived, dec) ],
+        [ counterparty, _utils.calcRaw(given, decimals), _utils.calcRaw(received, decimals) ],
         { gasPrice, gasLimit }
-      ))
+      )
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 
   /**
-   * Prepares a raw transaction for accepting a trustline update request
+   * Prepares a tx object for accepting a trustline update request. Called
+   * by receiver of initial update request.
    * @param network address of currency network
-   * @param creditor address of counterparty who sent trustline udpate request
-   * @param creditLineGiven value of credit line given to counterparty, i.e. 1.23 if network has to 2 decimals
-   * @param creditLineReceived value of credit line received by counterparty, i.e. 1.23 if network has to 2 decimals
-   * @param decimals (optional) number of decimals can be provided manually
+   * @param initiator address of user who initiated trustline udpate request
+   * @param given received proposal of creditline limit given to initiator,
+   *              i.e. 1.23 if network has to 2 decimals
+   * @param received received proposal of creditline limit received by iniator,
+   *                 i.e. 1.23 if network has to 2 decimals
+   * @param decimals (optional) decimals of currency network can be provided manually if known
    * @param gasLimit (optional)
    * @param gasPrice (optional)
    */
   public prepareAccept (
     network: string,
-    creditor: string,
-    creditLineGiven: number,
-    creditLineReceived: number,
+    initiator: string,
+    given: number | string,
+    received: number | string,
     { decimals, gasLimit, gasPrice }: TLOptions = {}
-  ): Promise<any> {
-    const { currencyNetwork, transaction, user, utils } = this
-    const { calcRaw } = utils
-    return currencyNetwork.getDecimals(network, decimals)
-      .then(dec => transaction.prepFuncTx(
-        user.address,
-        network,
-        'CurrencyNetwork',
-        'updateTrustline',
-        [ creditor, calcRaw(creditLineGiven, dec), calcRaw(creditLineReceived, dec) ],
-        { gasPrice, gasLimit }
-      ))
+  ): Promise<TxObject> {
+    return this.prepareUpdate(
+      network,
+      initiator,
+      given,
+      received,
+      { decimals, gasLimit, gasPrice }
+    )
   }
 
-  public confirm (rawTx: string): Promise<string> {
-    return this.user.signTx(rawTx)
-      .then(signedTx => this.transaction.relayTx(signedTx))
+  /**
+   * Signs and relays raw transaction as returned in prepareUpdate or prepareAccept.
+   * @param rawTx RLP-encoded hex string defining the transaction
+   */
+  public async confirm (rawTx: string): Promise<string> {
+    try {
+      const signedTx = await this._user.signTx(rawTx)
+      return this._transaction.relayTx(signedTx)
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 
-  public getAll (networkAddress: string): Promise<any[]> {
-    const { user, utils, currencyNetwork } = this
-    return Promise.all([
-      utils.fetchUrl(`networks/${networkAddress}/users/${user.address}/trustlines`),
-      currencyNetwork.getDecimals(networkAddress)
-    ]).then(([ trustlines, decimals ]) => trustlines.map(t => ({
-      ...t,
-      balance: utils.formatAmount(t.balance, decimals),
-      given: utils.formatAmount(t.given, decimals),
-      leftGiven: utils.formatAmount(t.leftGiven, decimals),
-      leftReceived: utils.formatAmount(t.leftReceived, decimals),
-      received: utils.formatAmount(t.received, decimals)
-    })))
+  /**
+   * Returns all trustlines of a loaded user in a currency network.
+   * @param network address of currency network
+   */
+  public async getAll (network: string): Promise<TrustlineObject[]> {
+    try {
+      const { _user, _utils, _currencyNetwork } = this
+      const endpoint = `networks/${network}/users/${_user.address}/trustlines`
+      const [ trustlines, decimals ] = await Promise.all([
+        _utils.fetchUrl<TrustlineUnformatted[]>(endpoint),
+        _currencyNetwork.getDecimals(network)
+      ])
+      return trustlines.map(trustline => this._formatTrustline(trustline, decimals))
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 
-  public get (networkAddress: string, userAddressB: string): Promise<any> {
-    const { user, utils, currencyNetwork } = this
-    return Promise.all([
-      utils.fetchUrl(`networks/${networkAddress}/users/${user.address}/trustlines/${userAddressB}`),
-      currencyNetwork.getDecimals(networkAddress)
-    ]).then(([ trustline, decimals ]) => ({
+  /**
+   * Returns a trustline to a counterparty address in a specified currency network.
+   * @param network address of currency network
+   * @param counterparty address of counterparty of trustline
+   */
+  public async get (network: string, counterparty: string): Promise<TrustlineObject> {
+    try {
+      const { _user, _utils, _currencyNetwork } = this
+      const endpoint = `networks/${network}/users/${_user.address}/trustlines/${counterparty}`
+      const [ trustline, decimals ] = await Promise.all([
+        _utils.fetchUrl<TrustlineUnformatted>(endpoint),
+        _currencyNetwork.getDecimals(network)
+      ])
+      return this._formatTrustline(trustline, decimals)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
+  /**
+   * Returns trustline update requests of loaded user in a currency network.
+   * @param network address of currency network
+   * @param fromBlock start of block range
+   */
+  public getRequests (
+    network: string,
+    { fromBlock }: EventFilterOptions = {}
+  ): Promise<TLEvent[]> {
+    const filter = { type: 'TrustlineUpdateRequest' }
+    if (fromBlock) {
+      filter['fromBlock'] = fromBlock
+    }
+    return this._event.get(network, filter)
+  }
+
+  /**
+   * Returns trustline updates of loaded user in a currency network. A update
+   * happens when an user accepts a trustline update request.
+   * @param network address of currency network
+   * @param fromBlock start of block range
+   */
+  public getUpdates (
+    network: string,
+    { fromBlock }: EventFilterOptions = {}
+  ): Promise<TLEvent[]> {
+    const filter = { type: 'TrustlineUpdate' }
+    if (fromBlock) {
+      filter['fromBlock'] = fromBlock
+    }
+    return this._event.get(network, filter)
+  }
+
+  /**
+   * Formats number values of trustline retrieved from the relay server.
+   * @param trustline unformatted trustline
+   * @param decimals decimals currency network
+   */
+  private _formatTrustline (
+    trustline: TrustlineUnformatted,
+    decimals: number
+  ): TrustlineObject {
+    return {
       ...trustline,
-      balance: utils.formatAmount(trustline.balance, decimals),
-      given: utils.formatAmount(trustline.given, decimals),
-      leftGiven: utils.formatAmount(trustline.leftGiven, decimals),
-      leftReceived: utils.formatAmount(trustline.leftReceived, decimals),
-      received: utils.formatAmount(trustline.received, decimals)
-    }))
-  }
-
-  public getRequests (networkAddress: string, filter?: object): Promise<any> {
-    const mergedFilter = Object.assign({type: 'TrustlineUpdateRequest'}, filter)
-    return this.event.get(networkAddress, mergedFilter)
-  }
-
-  public getUpdates (networkAddress: string, filter?: object): Promise<any> {
-    const mergedFilter = Object.assign({type: 'TrustlineUpdate'}, filter)
-    return this.event.get(networkAddress, mergedFilter)
+      balance: this._utils.formatAmount(trustline.balance, decimals),
+      given: this._utils.formatAmount(trustline.given, decimals),
+      leftGiven: this._utils.formatAmount(trustline.leftGiven, decimals),
+      leftReceived: this._utils.formatAmount(trustline.leftReceived, decimals),
+      received: this._utils.formatAmount(trustline.received, decimals)
+    }
   }
 }

@@ -7,6 +7,7 @@ import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 
 import { Configuration } from './Configuration'
+import { TLEvent, Amount } from './typings'
 
 let __DEV__
 
@@ -137,17 +138,17 @@ export class Utils {
     return this.buildUrl(base, params)
   }
 
-  public calcRaw (value: number | string, decimals: number): any {
+  public calcRaw (value: number | string, decimals: number): string {
     const x = new BigNumber(value)
     return x.times(Math.pow(10, decimals)).toString()
   }
 
-  public calcValue (raw: number | string, decimals: number): any {
+  public calcValue (raw: number | string, decimals: number): string {
     const x = new BigNumber(raw)
     return x.div(Math.pow(10, decimals)).toString()
   }
 
-  public formatAmount (raw: number | string, decimals: number): any {
+  public formatAmount (raw: number | string, decimals: number): Amount {
     return {
       decimals,
       raw: new BigNumber(raw).toString(),
@@ -155,7 +156,7 @@ export class Utils {
     }
   }
 
-  public formatEvent (event: any, decimals: number): any {
+  public formatEvent (event: any, decimals: number): TLEvent {
     if (event.amount) {
       event = {
         ...event,
