@@ -183,12 +183,22 @@ export class Payment {
     }
   }
 
-  // public createRequest (network: string, amount: number, subject: string): Promise<string> {
-  //   return new Promise((resolve, reject) => {
-  //     const params = [ 'paymentrequest', network, this._user.address, amount, subject ]
-  //     resolve(this._utils.createLink(params))
-  //   })
-  // }
+  /**
+   * Creates a payment request link
+   * @param network address of currency network for payment request
+   * @param amount requested transfer amount
+   * @param subject additional information for payment request
+   */
+  public createRequest (
+    network: string,
+    amount: number,
+    subject: string
+  ): Promise<string> {
+    return new Promise(resolve => {
+      const params = [ 'paymentrequest', network, this._user.address, amount, subject ]
+      resolve(this._utils.createLink(params))
+    })
+  }
 
   // public issueCheque (network: string,
   //                     value: number,

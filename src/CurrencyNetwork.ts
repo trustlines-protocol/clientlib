@@ -30,18 +30,26 @@ export class CurrencyNetwork {
    * Returns detailed information of specific currency network.
    * @param networkAddress address of currency network
    */
-  public getInfo (networkAddress: string): Promise<NetworkDetails> {
-    this._checkAddresses([networkAddress])
-    return this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
+  public async getInfo (networkAddress: string): Promise<NetworkDetails> {
+    try {
+      await this._checkAddresses([networkAddress])
+      return this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 
   /**
    * Returns all addresses of users in a currency network.
    * @param networkAddress address of currency network
    */
-  public getUsers (networkAddress: string): Promise<string[]> {
-    this._checkAddresses([networkAddress])
-    return this._utils.fetchUrl<string[]>(`networks/${networkAddress}/users`)
+  public async getUsers (networkAddress: string): Promise<string[]> {
+    try {
+      await this._checkAddresses([networkAddress])
+      return this._utils.fetchUrl<string[]>(`networks/${networkAddress}/users`)
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 
   /**
@@ -53,8 +61,8 @@ export class CurrencyNetwork {
     networkAddress: string,
     userAddress: string
   ): Promise<UserOverview> {
-    this._checkAddresses([networkAddress, userAddress])
     try {
+      await this._checkAddresses([networkAddress, userAddress])
       const [ overview, decimals ] = await Promise.all([
         this._utils.fetchUrl<UserOverviewRaw>(`networks/${networkAddress}/users/${userAddress}`),
         this.getDecimals(networkAddress)
@@ -105,11 +113,15 @@ export class CurrencyNetwork {
    * @param contractAddress address which should be checked
    */
   public async isNetwork (contractAddress: string): Promise<boolean> {
-    this._checkAddresses([contractAddress])
-    // TODO find another to check if given address is a currency network
-    const currencyNetworks = await this.getAll()
-    const networkAddresses = currencyNetworks.map(c => ethUtils.toChecksumAddress(c.address))
-    return networkAddresses.indexOf(ethUtils.toChecksumAddress(contractAddress)) !== -1
+    try {
+      await this._checkAddresses([contractAddress])
+      // TODO find another to check if given address is a currency network
+      const currencyNetworks = await this.getAll()
+      const networkAddresses = currencyNetworks.map(c => ethUtils.toChecksumAddress(c.address))
+      return networkAddresses.indexOf(ethUtils.toChecksumAddress(contractAddress)) !== -1
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
 
   /**
