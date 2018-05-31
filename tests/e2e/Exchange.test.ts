@@ -125,7 +125,7 @@ describe('e2e', () => {
       })
     })
 
-    describe('#confirm() - TL money <-> TL money', () => {
+    describe.skip('#confirm() - TL money <-> TL money', () => {
       let makerTLBefore
       let takerTLBefore
 
@@ -156,8 +156,12 @@ describe('e2e', () => {
               ]).then(([ makerTrustlines, takerTrustlines ]) => {
                 const makerTLAfter = makerTrustlines.find(tl => tl.address === tl1.user.address)
                 const takerTLAfter = takerTrustlines.find(tl => tl.address === tl1.user.address)
-                const makerBalanceDelta = Math.abs(makerTLBefore.balance.raw - makerTLAfter.balance.raw)
-                const takerBalanceDelta = Math.abs(takerTLBefore.balance.raw - takerTLAfter.balance.raw)
+                const makerBalanceDelta = Math.abs(
+                  parseInt(makerTLBefore.balance.raw, 10) - parseInt(makerTLAfter.balance.raw, 10)
+                )
+                const takerBalanceDelta = Math.abs(
+                  parseInt(takerTLBefore.balance.raw, 10) - parseInt(takerTLAfter.balance.raw, 10)
+                )
                 expect(makerTLAfter.balance.raw).to.be.above(0)
                 expect(takerTLAfter.balance.raw).to.be.below(0)
                 expect(makerBalanceDelta).to.equal(takerBalanceDelta)
@@ -207,7 +211,9 @@ describe('e2e', () => {
             ]).then(([ makerTrustlines ]) => {
               const makerTLAfter = makerTrustlines.find(tl => tl.address === tl1.user.address)
               const tokenBalanceAfter = 1
-              const makerBalanceDelta = Math.abs(makerTLBefore.balance.value - makerTLAfter.balance.value)
+              const makerBalanceDelta = Math.abs(
+                parseInt(makerTLBefore.balance.value, 10) - parseInt(makerTLAfter.balance.value, 10)
+              )
               const tokenBalanceDelta = Math.abs(tokenBalanceBefore - tokenBalanceAfter)
               expect(makerTLAfter.balance.value).to.be.above(0)
               expect(tokenBalanceAfter).to.be.below(0)

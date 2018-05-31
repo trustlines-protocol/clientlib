@@ -6,7 +6,7 @@ import {
   Network,
   NetworkDetails,
   UserOverview,
-  UserOverviewUnformatted
+  UserOverviewRaw
 } from './typings'
 
 /**
@@ -56,7 +56,7 @@ export class CurrencyNetwork {
     this._checkAddresses([networkAddress, userAddress])
     try {
       const [ overview, decimals ] = await Promise.all([
-        this._utils.fetchUrl<UserOverviewUnformatted>(`networks/${networkAddress}/users/${userAddress}`),
+        this._utils.fetchUrl<UserOverviewRaw>(`networks/${networkAddress}/users/${userAddress}`),
         this.getDecimals(networkAddress)
       ])
       const userOverview = {
@@ -78,8 +78,8 @@ export class CurrencyNetwork {
    * @param decimals (optional) if decimals are known they can be provided manually
    */
   public async getDecimals (networkAddress: string, decimals?: number): Promise<number> {
-    this._checkAddresses([networkAddress])
     try {
+      await this._checkAddresses([networkAddress])
       const isNetwork = await this.isNetwork(networkAddress)
       if (isNetwork) {
         return Promise.resolve(
@@ -122,5 +122,6 @@ export class CurrencyNetwork {
         return Promise.reject(`${address} is not a valid address.`)
       }
     }
+    return Promise.resolve(true)
   }
 }

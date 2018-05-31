@@ -9,7 +9,7 @@ import {
   TLEvent,
   TxObject,
   TrustlineObject,
-  TrustlineUnformatted
+  TrustlineRaw
 } from './typings'
 
 /**
@@ -124,7 +124,7 @@ export class Trustline {
       const { _user, _utils, _currencyNetwork } = this
       const endpoint = `networks/${network}/users/${_user.address}/trustlines`
       const [ trustlines, decimals ] = await Promise.all([
-        _utils.fetchUrl<TrustlineUnformatted[]>(endpoint),
+        _utils.fetchUrl<TrustlineRaw[]>(endpoint),
         _currencyNetwork.getDecimals(network)
       ])
       return trustlines.map(trustline => this._formatTrustline(trustline, decimals))
@@ -143,7 +143,7 @@ export class Trustline {
       const { _user, _utils, _currencyNetwork } = this
       const endpoint = `networks/${network}/users/${_user.address}/trustlines/${counterparty}`
       const [ trustline, decimals ] = await Promise.all([
-        _utils.fetchUrl<TrustlineUnformatted>(endpoint),
+        _utils.fetchUrl<TrustlineRaw>(endpoint),
         _currencyNetwork.getDecimals(network)
       ])
       return this._formatTrustline(trustline, decimals)
@@ -188,10 +188,10 @@ export class Trustline {
   /**
    * Formats number values of trustline retrieved from the relay server.
    * @param trustline unformatted trustline
-   * @param decimals decimals currency network
+   * @param decimals decimals of currency network
    */
   private _formatTrustline (
-    trustline: TrustlineUnformatted,
+    trustline: TrustlineRaw,
     decimals: number
   ): TrustlineObject {
     return {
