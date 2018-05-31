@@ -160,16 +160,11 @@ export class User {
     newUserAddress: string,
     initialValue = 0.1
   ): Promise<object> {
-    try {
-      const txObj = await this._transaction.prepValueTx(
-        this.address, // address of onboarder
-        newUserAddress, // address of new user who gets onboarded
-        this._utils.calcRaw(initialValue, 18)
-      )
-      return txObj
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    return this._transaction.prepValueTx(
+      this.address, // address of onboarder
+      newUserAddress, // address of new user who gets onboarded
+      this._utils.calcRaw(initialValue, 18)
+    )
   }
 
   /**
@@ -179,8 +174,7 @@ export class User {
   public async confirmOnboarding (rawTx: string): Promise<string> {
     try {
       const signedTx = await this.signTx(rawTx)
-      const txId = await this._transaction.relayTx(signedTx)
-      return txId
+      return this._transaction.relayTx(signedTx)
     } catch (error) {
       return Promise.reject(error)
     }
@@ -192,10 +186,9 @@ export class User {
   public async getBalance (): Promise<Amount> {
     try {
       const balance = await this._utils.fetchUrl<string>(`users/${this.address}/balance`)
-      const formattedBalance = this._utils.formatAmount(
+      return this._utils.formatAmount(
         this._utils.calcRaw(balance, 18), 18
       )
-      return formattedBalance
     } catch (error) {
       return Promise.reject(error)
     }
@@ -315,7 +308,7 @@ export class User {
     return this._utils.createLink(params)
   }
 
-  // NOTE: instead of onboarding for PoC
+  // NOTE: only for dev purposes
   public requestEth (): Promise<string> {
     const options = {
       method: 'POST',

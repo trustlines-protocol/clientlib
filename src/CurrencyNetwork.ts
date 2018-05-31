@@ -67,14 +67,13 @@ export class CurrencyNetwork {
         this._utils.fetchUrl<UserOverviewRaw>(`networks/${networkAddress}/users/${userAddress}`),
         this.getDecimals(networkAddress)
       ])
-      const userOverview = {
+      return {
         balance: this._utils.formatAmount(overview.balance, decimals),
         given: this._utils.formatAmount(overview.given, decimals),
         received: this._utils.formatAmount(overview.received, decimals),
         leftGiven: this._utils.formatAmount(overview.leftGiven, decimals),
         leftReceived: this._utils.formatAmount(overview.leftReceived, decimals)
       }
-      return userOverview
     } catch (error) {
       return Promise.reject(error)
     }

@@ -47,7 +47,7 @@ export class Transaction {
         nonce: txInfos.nonce,
         to: contractAddress.toLowerCase()
       }
-      const txObj = {
+      return {
         rawTx: lightwallet.txutils.functionTx(
           CONTRACTS[ contractName ].abi, functionName, parameters, txOptions
         ),
@@ -55,7 +55,6 @@ export class Transaction {
           txOptions.gasLimit * txOptions.gasPrice, 18
         )
       }
-      return txObj
     } catch (error) {
       this._handleError(error)
     }
@@ -84,13 +83,12 @@ export class Transaction {
         nonce: txInfos.nonce,
         to: to.toLowerCase()
       }
-      const txObj = {
+      return {
         rawTx: lightwallet.txutils.valueTx(txOptions),
         ethFees: this._utils.formatAmount(
           txOptions.gasLimit * txOptions.gasPrice, 18
         )
       }
-      return txObj
     } catch (error) {
       this._handleError(error)
     }
