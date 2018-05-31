@@ -76,6 +76,27 @@ export interface TxInfos {
 }
 
 /**
+ * PAYMENT
+ */
+export interface TLTxObject extends TxObject {
+  path: string[],
+  maxFees: Amount
+}
+
+export interface PathObject {
+  path: string[],
+  maxFees: Amount,
+  estimatedGas: number,
+  isNoNetwork?: boolean
+}
+
+export interface PathRaw {
+  path: string[],
+  fees: string,
+  estimatedGas: number
+}
+
+/**
  * CURRENCY NETWORK
  */
 export interface Network {
@@ -97,7 +118,7 @@ export interface UserOverview {
   leftGiven: Amount
 }
 
-export interface UserOverviewUnformatted {
+export interface UserOverviewRaw {
   leftReceived: string,
   balance: string,
   given: string,
@@ -127,7 +148,7 @@ export interface TrustlineObject {
   leftReceived: Amount
 }
 
-export interface TrustlineUnformatted {
+export interface TrustlineRaw {
   id: string,
   address: string,
   balance: string,

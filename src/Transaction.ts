@@ -72,7 +72,7 @@ export class Transaction {
   public async prepValueTx (
     from: string,
     to: string,
-    rawValue: number,
+    rawValue: string,
     { gasPrice, gasLimit }: TxOptions = {}
   ): Promise<TxObject> {
     try {
