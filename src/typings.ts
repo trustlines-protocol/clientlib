@@ -39,8 +39,7 @@ export interface Amount {
 
 export interface EventFilterOptions {
   type?: string,
-  fromBlock?: number,
-  toBlock?: number
+  fromBlock?: number
 }
 
 export interface TLEvent {
