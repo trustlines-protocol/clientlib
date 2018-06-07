@@ -1,8 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 
-/**
- * GENERAL
- */
+// GENERAL
 export interface TLNetworkConfig {
   protocol?: string,
   host?: string,
@@ -33,10 +31,7 @@ export interface Amount {
   decimals: number
 }
 
-/**
- * EVENTS
- */
-
+// EVENTS
 export interface EventFilterOptions {
   type?: string,
   fromBlock?: number
@@ -60,9 +55,7 @@ export interface TLEvent {
   amount?: Amount
 }
 
-/**
- * TRANSACTION
- */
+// TRANSACTION
 export interface TxObject {
   rawTx: string,
   ethFees: Amount
@@ -74,9 +67,7 @@ export interface TxInfos {
   nonce: number
 }
 
-/**
- * PAYMENT
- */
+// PAYMENT
 export interface TLTxObject extends TxObject {
   path: string[],
   maxFees: Amount
@@ -95,9 +86,7 @@ export interface PathRaw {
   estimatedGas: number
 }
 
-/**
- * CURRENCY NETWORK
- */
+// CURRENCY NETWORK
 export interface Network {
   name: string,
   abbreviation: string,
@@ -125,18 +114,14 @@ export interface UserOverviewRaw {
   leftGiven: string
 }
 
-/**
- * USER
- */
+// USER
 export interface UserObject {
   address: string,
   pubKey: string,
   keystore: string
 }
 
-/**
- * TRUSTLINE
- */
+// TRUSTLINE
 export interface TrustlineObject {
   id: string,
   address: string,
@@ -157,9 +142,7 @@ export interface TrustlineRaw {
   leftReceived: string
 }
 
-/**
- * EXCHANGE
- */
+// EXCHANGE
 export interface Order {
   maker: string // this.user.address
   taker: string // optional

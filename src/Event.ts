@@ -28,6 +28,7 @@ export class Event {
   }
 
   /**
+   * @hidden
    * Creates and Observable for events.
    * @param networkAddress address of currency network
    * @param type type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`
@@ -45,9 +46,9 @@ export class Event {
 
   /**
    * Returns event logs of loaded user in a specified currency network.
-   * @param networkAddress address of currency network
-   * @param type type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`
-   * @param fromBlock start of block range
+   * @param networkAddress Address of a currency network.
+   * @param type Type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public async get (
     networkAddress: string,
@@ -69,8 +70,7 @@ export class Event {
 
   /**
    * Returns event logs of loaded user in all currency networks.
-   * @param type type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`
-   * @param fromBlock start of block range
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public async getAll (filter: EventFilterOptions = {}): Promise<TLEvent[]> {
     try {
@@ -89,6 +89,9 @@ export class Event {
     }
   }
 
+  /**
+   * @hidden
+   */
   public updateStream (): Observable<any> {
     return this._utils.websocketStream(
       'streams/events',

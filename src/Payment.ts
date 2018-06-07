@@ -40,15 +40,16 @@ export class Payment {
 
   /**
    * Prepares tx object for a trustlines transfer, where loaded user is sender.
-   * @param network address of currency network
-   * @param to address of receiver of transfer
-   * @param value amount to transfer in biggest unit,
-   *              i.e. 1.5 if currency network has 2 decimals
-   * @param decimals (optional) decimals of currency network can be provided manually
-   * @param maximumHops (optional) max. number of hops for transfer
-   * @param maximumFees (optional) max. transfer fees
-   * @param gasPrice (optional)
-   * @param gasLimit (optional)
+   * @param network Address of a currency network.
+   * @param to Address of receiver of transfer.
+   * @param value Amount to transfer in biggest unit,
+   *              i.e. 1.5 if currency network has 2 decimals.
+   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options.decimals Decimals of currency network can be provided manually.
+   * @param options.maximumHops Max. number of hops for transfer.
+   * @param options.maximumFees Max. transfer fees user is willing to pay.
+   * @param options.gasPrice Custom gas price.
+   * @param options.gasLimit Custom gas limit.
    */
   public async prepare (
     network: string,
@@ -89,11 +90,12 @@ export class Payment {
   }
 
   /**
-   * Prepares a tx object for a ether transfer, where loaded user is the sender.
-   * @param to address of receiver of transfer
-   * @param value amount of ether to transfer
-   * @param gasPrice (optional)
-   * @param gasLimit (optional)
+   * Prepares a tx object for a ETH transfer, where loaded user is the sender.
+   * @param to Address of receiver of transfer.
+   * @param value Amount of ETH to transfer.
+   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options.gasPrice Custom gas price.
+   * @param options.gasLimit Custom gas limit.
    */
   public prepareEth (
     to: string,
@@ -110,13 +112,15 @@ export class Payment {
 
   /**
    * Returns a path for a trustlines transfer.
-   * @param network address of currency network
-   * @param accountA address of sender of transfer
-   * @param accountB address of receiver of transfer
-   * @param value transfer for amount
-   * @param decimals (optional) decimals of currency network can be provided manually
-   * @param maximumHops (optional) max. number of hops for transfer
-   * @param maximumFees (optional) max. transfer fees
+   * @param network Address of a currency network.
+   * @param accountA Address of sender of transfer.
+   * @param accountB Address of receiver of transfer.
+   * @param value Amount to transfer in biggest unit,
+   *              i.e. 1.23 if currency network has 2 decimals.
+   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options.decimals Decimals of currency network can be provided manually.
+   * @param options.maximumHops Max. number of hops for transfer.
+   * @param options.maximumFees Max. transfer fees user if willing to pay.
    */
   public async getPath (
     network: string,
@@ -158,8 +162,8 @@ export class Payment {
 
   /**
    * Returns transfer logs of loaded user in a specified currency network.
-   * @param network address of currency network
-   * @param fromBlock (optional) start of block range for query
+   * @param network Address of currency network.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public get (
     network: string,
@@ -172,8 +176,8 @@ export class Payment {
   }
 
   /**
-   * Signs and relays a raw transaction.
-   * @param rawTx rlp encoded hex string defining the transaction
+   * Signs and relays a raw transaction as returned by `prepare`.
+   * @param rawTx RLP encoded hex string defining the transaction.
    */
   public async confirm (rawTx): Promise<string> {
     try {
@@ -185,10 +189,10 @@ export class Payment {
   }
 
   /**
-   * Creates a payment request link
-   * @param network address of currency network for payment request
-   * @param amount requested transfer amount
-   * @param subject additional information for payment request
+   * Creates a payment request link.
+   * @param network Address of a currency network.
+   * @param amount Requested transfer amount.
+   * @param subject Additional information for payment request.
    */
   public createRequest (
     network: string,
