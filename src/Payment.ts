@@ -54,17 +54,18 @@ export class Payment {
     network: string,
     to: string,
     value: number | string,
-    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
+    options: PaymentOptions = {}
   ): Promise<TLTxObject> {
     try {
       const { _user, _currencyNetwork, _transaction, _utils } = this
+      let { decimals } = options
       decimals = await _currencyNetwork.getDecimals(network, decimals)
       const { path, maxFees, estimatedGas } = await this.getPath(
         network,
         _user.address,
         to,
         value,
-        { decimals, maximumHops, maximumFees, gasPrice, gasLimit }
+        { ...options, decimals }
       )
       if (path.length > 0) {
         const { rawTx, ethFees } = await _transaction.prepFuncTx(
@@ -74,8 +75,8 @@ export class Payment {
           'transfer',
           [ to, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
           {
-            gasPrice,
-            gasLimit: gasLimit || estimatedGas * 1.5
+            gasPrice: options.gasPrice,
+            gasLimit: options.gasLimit || estimatedGas * 1.5
           }
         )
         return { rawTx, path, maxFees, ethFees }
@@ -97,13 +98,13 @@ export class Payment {
   public prepareEth (
     to: string,
     value: number | string,
-    { gasPrice, gasLimit }: PaymentOptions = {}
+    options: PaymentOptions = {}
   ): Promise<TxObject> {
     return this._transaction.prepValueTx(
       this._user.address,
       to,
       this._utils.calcRaw(value, 18),
-      { gasPrice, gasLimit }
+      options
     )
   }
 
@@ -122,10 +123,11 @@ export class Payment {
     accountA: string,
     accountB: string,
     value: number | string,
-    { decimals, maximumHops, maximumFees}: PaymentOptions = {}
+    options: PaymentOptions = {}
   ): Promise<PathObject> {
     try {
       const { _currencyNetwork, _utils, _user } = this
+      let { decimals, maximumHops, maximumFees} = options
       decimals = await _currencyNetwork.getDecimals(network, decimals)
       const data = {
         from: accountA,
@@ -161,13 +163,12 @@ export class Payment {
    */
   public get (
     network: string,
-    { fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    const filter = { type: 'Transfer' }
-    if (fromBlock) {
-      filter['fromBlock'] = fromBlock
-    }
-    return this._event.get(network, filter)
+    return this._event.get(network, {
+      ...filter,
+      type: 'Transfer'
+    })
   }
 
   /**

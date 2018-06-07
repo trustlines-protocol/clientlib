@@ -22,15 +22,16 @@ export class Configuration {
    */
   public useWebSockets: boolean
 
-  constructor ({
-    protocol = 'http',
-    host = 'localhost',
-    port = 80,
-    path = '',
-    pollInterval = 500,
-    useWebSockets = false,
-    wsProtocol = 'ws'
-  }: TLNetworkConfig) {
+  constructor (config: TLNetworkConfig = {}) {
+    const {
+      protocol = 'http',
+      host = 'localhost',
+      port = 80,
+      path = '',
+      pollInterval = 500,
+      useWebSockets = false,
+      wsProtocol = 'ws'
+    } = config
     this.apiUrl = this._buildApiUrl(protocol, host, port, path)
     this.wsApiUrl = this._buildApiUrl(wsProtocol, host, port, path)
     this.pollInterval = pollInterval

@@ -36,13 +36,13 @@ export class Transaction {
     contractName: string,
     functionName: string,
     parameters: any[],
-    { gasPrice, gasLimit }: TxOptions = {}
+    options: TxOptions = {}
   ): Promise<TxObject> {
     try {
       const txInfos = await this._getTxInfos(userAddress)
       const txOptions = {
-        gasPrice: gasPrice || txInfos.gasPrice,
-        gasLimit: gasLimit || 600000,
+        gasPrice: options.gasPrice || txInfos.gasPrice,
+        gasLimit: options.gasLimit || 600000,
         value: 0,
         nonce: txInfos.nonce,
         to: contractAddress.toLowerCase()
@@ -72,13 +72,13 @@ export class Transaction {
     from: string,
     to: string,
     rawValue: string,
-    { gasPrice, gasLimit }: TxOptions = {}
+    options: TxOptions = {}
   ): Promise<TxObject> {
     try {
       const txInfos = await this._getTxInfos(from)
       const txOptions = {
-        gasPrice: gasPrice || txInfos.gasPrice,
-        gasLimit: gasLimit || 21000,
+        gasPrice: options.gasPrice || txInfos.gasPrice,
+        gasLimit: options.gasLimit || 21000,
         value: rawValue,
         nonce: txInfos.nonce,
         to: to.toLowerCase()

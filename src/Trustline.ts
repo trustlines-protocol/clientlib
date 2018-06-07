@@ -55,10 +55,11 @@ export class Trustline {
     counterparty: string,
     given: number | string,
     received: number | string,
-    { decimals, gasLimit, gasPrice }: TLOptions = {}
+    options: TLOptions = {}
   ): Promise<TxObject> {
     try {
       const { _currencyNetwork, _transaction, _user, _utils } = this
+      let { decimals, gasLimit, gasPrice } = options
       decimals = await _currencyNetwork.getDecimals(network, decimals)
       return _transaction.prepFuncTx(
         _user.address,
@@ -91,14 +92,14 @@ export class Trustline {
     initiator: string,
     given: number | string,
     received: number | string,
-    { decimals, gasLimit, gasPrice }: TLOptions = {}
+    options: TLOptions = {}
   ): Promise<TxObject> {
     return this.prepareUpdate(
       network,
       initiator,
       given,
       received,
-      { decimals, gasLimit, gasPrice }
+      options
     )
   }
 
@@ -159,13 +160,12 @@ export class Trustline {
    */
   public getRequests (
     network: string,
-    { fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    const filter = { type: 'TrustlineUpdateRequest' }
-    if (fromBlock) {
-      filter['fromBlock'] = fromBlock
-    }
-    return this._event.get(network, filter)
+    return this._event.get(network, {
+      ...filter,
+      type: 'TrustlineUpdateRequest'
+    })
   }
 
   /**
@@ -176,13 +176,12 @@ export class Trustline {
    */
   public getUpdates (
     network: string,
-    { fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    const filter = { type: 'TrustlineUpdate' }
-    if (fromBlock) {
-      filter['fromBlock'] = fromBlock
-    }
-    return this._event.get(network, filter)
+    return this._event.get(network, {
+      ...filter,
+      type: 'TrustlineUpdate'
+    })
   }
 
   /**

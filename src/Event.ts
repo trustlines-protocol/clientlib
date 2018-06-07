@@ -35,11 +35,11 @@ export class Event {
    */
   public createObservable (
     networkAddress: string,
-    { type, fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Observable<any> {
     const { _user, _utils } = this
     const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
-    const parameterUrl = _utils.buildUrl(baseUrl, { type, fromBlock })
+    const parameterUrl = _utils.buildUrl(baseUrl, filter)
     return _utils.createObservable(parameterUrl)
   }
 
@@ -51,12 +51,12 @@ export class Event {
    */
   public async get (
     networkAddress: string,
-    { type, fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
     try {
       const { _currencyNetwork, _user, _utils } = this
       const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
-      const parameterUrl = _utils.buildUrl(baseUrl, { type, fromBlock })
+      const parameterUrl = _utils.buildUrl(baseUrl, filter)
       const [ events, decimals ] = await Promise.all([
         _utils.fetchUrl<TLEvent[]>(parameterUrl),
         _currencyNetwork.getDecimals(networkAddress)
@@ -72,11 +72,11 @@ export class Event {
    * @param type type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`
    * @param fromBlock start of block range
    */
-  public async getAll ({ type, fromBlock }: EventFilterOptions = {}): Promise<TLEvent[]> {
+  public async getAll (filter: EventFilterOptions = {}): Promise<TLEvent[]> {
     try {
       const { _currencyNetwork, _user, _utils } = this
       const baseUrl = `users/${_user.address}/events`
-      const parameterUrl = _utils.buildUrl(baseUrl, { type, fromBlock })
+      const parameterUrl = _utils.buildUrl(baseUrl, filter)
       const events = await _utils.fetchUrl<TLEvent[]>(parameterUrl)
       const networks = this._getUniqueNetworksFromEvents(events)
       const decimalsMap = await this._getDecimalsMap(networks)
