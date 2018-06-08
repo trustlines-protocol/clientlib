@@ -1,24 +1,55 @@
-export class Configuration {
-  // url of rest api
-  public apiUrl: string
-  // url of websocket api
-  public wsApiUrl: string
+import { TLNetworkConfig } from './typings'
+import { TLNetwork } from './TLNetwork'
 
-  constructor (// protocol of the REST relay server
-    public protocol: string = 'http',
-    // port of REST relay server
-    public host: string = 'localhost',
-    // port of REST relay server
-    public port: number = 80,
-    // path of REST relay server, if set should end with trailing slash
-    public path: string = '',
-    // poll interval
-    public pollInterval: number = 500,
-    // use websockets?
-    public useWebSockets: boolean = false,
-    // protocol of the REST relay server
-    public wsProtocol: string = 'ws') {
-    this.apiUrl = `${this.protocol}://${this.host}${(this.port === 80) ? '' : ':' + this.port}/${this.path}`
-    this.wsApiUrl = `${this.wsProtocol}://${this.host}:${this.port}/${this.path}`
+/**
+ * The Configuration class contains all configurable variables of the TLNetwork instance.
+ */
+export class Configuration {
+  /**
+   *  Base URL of the relay REST API endpoint
+   */
+  public apiUrl: string
+  /**
+   * Base URL of the relay WebSocket API endpoint
+   */
+  public wsApiUrl: string
+  /**
+   * Default poll interval in seconds for Observables
+   */
+  public pollInterval: number
+  /**
+   * Whether to use WebSockets or not
+   */
+  public useWebSockets: boolean
+
+  constructor ({
+    protocol = 'http',
+    host = 'localhost',
+    port = 80,
+    path = '',
+    pollInterval = 500,
+    useWebSockets = false,
+    wsProtocol = 'ws'
+  }: TLNetworkConfig) {
+    this.apiUrl = this._buildApiUrl(protocol, host, port, path)
+    this.wsApiUrl = this._buildApiUrl(wsProtocol, host, port, path)
+    this.pollInterval = pollInterval
+    this.useWebSockets = useWebSockets
+  }
+
+  /**
+   * Returns URL by concatenating protocol, host, port and path.
+   * @param protocol relay api endpoint protocol
+   * @param host relay api host address
+   * @param port relay api port
+   * @param path relay api base endpoint
+   */
+  private _buildApiUrl (
+    protocol: string,
+    host: string,
+    port: number,
+    path: string
+  ): string {
+    return `${protocol}://${host}:${port}/${path}`
   }
 }

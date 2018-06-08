@@ -6,5 +6,6 @@
     "ssl": false
   },
   "syncInterval": 300,
-  "updateNetworksInterval": 5
+  "updateNetworksInterval": 5,
+  "enableEtherFaucet": true  
 }

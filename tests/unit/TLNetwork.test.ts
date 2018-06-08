@@ -10,7 +10,7 @@ describe('unit', () => {
         expect(tlNetwork).to.be.an('object')
         expect(tlNetwork.configuration.pollInterval).to.equal(500)
         expect(tlNetwork.configuration.useWebSockets).to.equal(false)
-        expect(tlNetwork.configuration.apiUrl).to.equal('http://localhost/')
+        expect(tlNetwork.configuration.apiUrl).to.equal('http://localhost:80/')
       })
 
       it('should load custom configuration', () => {

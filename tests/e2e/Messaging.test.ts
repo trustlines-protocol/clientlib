@@ -38,7 +38,7 @@ describe('e2e', () => {
           expect(messages).to.have.lengthOf(2)
           expect(messages[1]).to.have.property('type', 'PaymentRequest')
           expect(messages[1].amount).to.have.keys('raw', 'value', 'decimals')
-          expect(messages[1]).to.have.nested.property('amount.value', 250)
+          expect(messages[1]).to.have.nested.property('amount.value', '250')
           expect(messages[1].timestamp).to.be.a('number')
           expect(messages[1]).to.have.property('from', user2.address)
           expect(messages[1]).to.have.property('to', user1.address)

@@ -57,7 +57,7 @@ describe('e2e', () => {
           .then(pathObj => {
             expect(pathObj.estimatedGas).to.not.equal(0)
             expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
-            expect(pathObj.maxFees.raw).to.not.equal(0)
+            expect(pathObj.maxFees.raw).to.not.equal('0')
             expect(pathObj.path).to.not.equal([])
             done()
           })
@@ -68,7 +68,7 @@ describe('e2e', () => {
           .then(pathObj => {
             expect(pathObj.estimatedGas).to.equal(0)
             expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
-            expect(pathObj.maxFees.raw).to.equal(0)
+            expect(pathObj.maxFees.raw).to.equal('0')
             expect(pathObj.path).to.deep.equal([])
             done()
           })
@@ -83,7 +83,7 @@ describe('e2e', () => {
 
       it('should not prepare tx for trustline transfer', () => {
         expect(tl1.payment.prepare(networkAddress, user2.address, 2000))
-          .to.be.rejectedWith('There was an error while finding a path: Could not find a path with enough capacity')
+          .to.be.rejectedWith('Could not find a path with enough capacity')
       })
     })
 
@@ -149,7 +149,7 @@ describe('e2e', () => {
       })
 
       it('should confirm eth transfer', done => {
-        tl1.payment.prepareEth(user2.address, 0.01)
+        tl1.payment.prepareEth(user2.address, 0.0001)
           .then(({ rawTx }) => tl1.payment.confirm(rawTx))
           .then(txId => {
             tl2.user.getBalance()
