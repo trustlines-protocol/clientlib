@@ -26,7 +26,7 @@ export class Configuration {
     const {
       protocol = 'http',
       host = 'localhost',
-      port = -1,
+      port = '',
       path = '',
       pollInterval = 500,
       wsProtocol = 'ws'
@@ -46,9 +46,9 @@ export class Configuration {
   private _buildApiUrl (
     protocol: string,
     host: string,
-    port: number,
+    port: number | string,
     path: string
   ): string {
-    return `${protocol}://${host}${port === -1 ? '' : `:${port}`}/${path}`
+    return `${protocol}://${host}${port === '' ? '' : `:${port}`}/${path}`
   }
 }
