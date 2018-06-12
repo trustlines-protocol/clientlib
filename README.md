@@ -3,7 +3,7 @@
 ## Get started
 ### Install dependencies
 ```
-$ npm install
+$ yarn/npm install
 ```
 
 ### Start mocked relay server
