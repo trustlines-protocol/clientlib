@@ -113,14 +113,14 @@ export class Transaction {
   }
 
   /**
-   * Returns the latest block number.
+   * Returns the latest block number of the underlying blockchain.
    */
   public getBlockNumber (): Promise<number> {
     return this._utils.fetchUrl<number>('blocknumber')
   }
 
   /**
-   * Returns needed information for creating a transaction.
+   * Returns needed information for creating an ethereum transaction.
    * @param userAddress address of user creating the transaction
    * @returns Information for creating an ethereum transaction for the given user address.
    */
