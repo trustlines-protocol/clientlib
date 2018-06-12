@@ -30,6 +30,7 @@ export class CurrencyNetwork {
   /**
    * Returns detailed information of specific currency network.
    * @param networkAddress Address of a currency network.
+   * @returns A network object with information about name, decimals, number of users and address.
    */
   public async getInfo (networkAddress: string): Promise<NetworkDetails> {
     try {
