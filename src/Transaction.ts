@@ -40,25 +40,21 @@ export class Transaction {
     parameters: any[],
     options: TxOptions = {}
   ): Promise<TxObject> {
-    try {
-      const txInfos = await this._getTxInfos(userAddress)
-      const txOptions = {
-        gasPrice: options.gasPrice || txInfos.gasPrice,
-        gasLimit: options.gasLimit || 600000,
-        value: 0,
-        nonce: txInfos.nonce,
-        to: contractAddress.toLowerCase()
-      }
-      return {
-        rawTx: lightwallet.txutils.functionTx(
-          CONTRACTS[ contractName ].abi, functionName, parameters, txOptions
-        ),
-        ethFees: this._utils.formatAmount(
-          txOptions.gasLimit * txOptions.gasPrice, 18
-        )
-      }
-    } catch (error) {
-      this._handleError(error)
+    const txInfos = await this._getTxInfos(userAddress)
+    const txOptions = {
+      gasPrice: options.gasPrice || txInfos.gasPrice,
+      gasLimit: options.gasLimit || 600000,
+      value: 0,
+      nonce: txInfos.nonce,
+      to: contractAddress.toLowerCase()
+    }
+    return {
+      rawTx: lightwallet.txutils.functionTx(
+        CONTRACTS[ contractName ].abi, functionName, parameters, txOptions
+      ),
+      ethFees: this._utils.formatAmount(
+        txOptions.gasLimit * txOptions.gasPrice, 18
+      )
     }
   }
 
@@ -127,13 +123,5 @@ export class Transaction {
    */
   private _getTxInfos (userAddress: string): Promise<TxInfos> {
     return this._utils.fetchUrl<TxInfos>(`users/${userAddress}/txinfos`)
-  }
-
-  /**
-   * Reject Promise and return error message if exists.
-   * @param error error object
-   */
-  private _handleError (error: any) {
-    return Promise.reject(error.json().message || error)
   }
 }

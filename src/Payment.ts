@@ -57,35 +57,31 @@ export class Payment {
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<TLTxObject> {
-    try {
-      const { _user, _currencyNetwork, _transaction, _utils } = this
-      let { decimals } = options
-      decimals = await _currencyNetwork.getDecimals(network, decimals)
-      const { path, maxFees, estimatedGas } = await this.getPath(
-        network,
+    const { _user, _currencyNetwork, _transaction, _utils } = this
+    let { decimals } = options
+    decimals = await _currencyNetwork.getDecimals(network, decimals)
+    const { path, maxFees, estimatedGas } = await this.getPath(
+      network,
+      _user.address,
+      to,
+      value,
+      { ...options, decimals }
+    )
+    if (path.length > 0) {
+      const { rawTx, ethFees } = await _transaction.prepFuncTx(
         _user.address,
-        to,
-        value,
-        { ...options, decimals }
+        network,
+        'CurrencyNetwork',
+        'transfer',
+        [ to, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
+        {
+          gasPrice: options.gasPrice,
+          gasLimit: options.gasLimit || estimatedGas * 1.5
+        }
       )
-      if (path.length > 0) {
-        const { rawTx, ethFees } = await _transaction.prepFuncTx(
-          _user.address,
-          network,
-          'CurrencyNetwork',
-          'transfer',
-          [ to, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
-          {
-            gasPrice: options.gasPrice,
-            gasLimit: options.gasLimit || estimatedGas * 1.5
-          }
-        )
-        return { rawTx, path, maxFees, ethFees }
-      } else {
-        return Promise.reject('Could not find a path with enough capacity.')
-      }
-    } catch (error) {
-      return Promise.reject(error)
+      return { rawTx, path, maxFees, ethFees }
+    } else {
+      return Promise.reject('Could not find a path with enough capacity.')
     }
   }
 
@@ -129,34 +125,30 @@ export class Payment {
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<PathObject> {
-    try {
-      const { _currencyNetwork, _utils, _user } = this
-      let { decimals, maximumHops, maximumFees} = options
-      decimals = await _currencyNetwork.getDecimals(network, decimals)
-      const data = {
-        from: senderAddress,
-        to: receiverAddress,
-        value: this._utils.calcRaw(value, decimals)
-      }
-      if (maximumFees) {
-        data['maxFees'] = maximumFees
-      }
-      if (maximumHops) {
-        data['maxHops'] = maximumHops
-      }
-      const endpoint = `networks/${network}/path-info`
-      const { estimatedGas, fees, path } = await _utils.fetchUrl<PathRaw>(endpoint, {
-        method: 'POST',
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify(data)
-      })
-      return {
-        estimatedGas,
-        path,
-        maxFees: _utils.formatAmount(fees, decimals)
-      }
-    } catch (error) {
-      return Promise.reject(error)
+    const { _currencyNetwork, _utils, _user } = this
+    let { decimals, maximumHops, maximumFees} = options
+    decimals = await _currencyNetwork.getDecimals(network, decimals)
+    const data = {
+      from: senderAddress,
+      to: receiverAddress,
+      value: this._utils.calcRaw(value, decimals)
+    }
+    if (maximumFees) {
+      data['maxFees'] = maximumFees
+    }
+    if (maximumHops) {
+      data['maxHops'] = maximumHops
+    }
+    const endpoint = `networks/${network}/path-info`
+    const { estimatedGas, fees, path } = await _utils.fetchUrl<PathRaw>(endpoint, {
+      method: 'POST',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(data)
+    })
+    return {
+      estimatedGas,
+      path,
+      maxFees: _utils.formatAmount(fees, decimals)
     }
   }
 
@@ -180,12 +172,8 @@ export class Payment {
    * @param rawTx RLP encoded hex string defining the transaction.
    */
   public async confirm (rawTx): Promise<string> {
-    try {
-      const signedTx = await this._user.signTx(rawTx)
-      return this._transaction.relayTx(signedTx)
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const signedTx = await this._user.signTx(rawTx)
+    return this._transaction.relayTx(signedTx)
   }
 
   /**
