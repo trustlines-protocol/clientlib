@@ -18,6 +18,10 @@ export class Configuration {
    */
   public pollInterval: number
 
+  /**
+   * Contructs a Configuration instance that is used for interacting with a relay server.
+   * @param config Configuration object. See type `TLNetworkConfig` for more information.
+   */
   constructor (config: TLNetworkConfig = {}) {
     const {
       protocol = 'http',

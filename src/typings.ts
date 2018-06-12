@@ -1,13 +1,32 @@
 import { BigNumber } from 'bignumber.js'
 
-// GENERAL
+/**
+ * Configuration object for a TLNetwork instance
+ */
 export interface TLNetworkConfig {
+  /**
+   * Protocol for communicating with a relay server
+   */
   protocol?: string,
+  /**
+   * Host of a relay server
+   */
   host?: string,
+  /**
+   * Port for communcation
+   */
   port?: number,
+  /**
+   * Base path for the relay api
+   */
   path?: string,
+  /**
+   * Polling interval in ms for HTTP/HTTPS Oberservables
+   */
   pollInterval?: number,
-  useWebSockets?: boolean,
+  /**
+   * Protocol for websockets
+   */
   wsProtocol?: string
 }
 
