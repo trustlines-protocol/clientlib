@@ -33,28 +33,12 @@ export class Utils {
   }
 
   public createObservable (url: string): Observable<any> {
-    if (this._useWebSockets && 'WebSocket' in window) {
-      return Observable.create((observer: Observer<any>) => {
-        let ws = new ReconnectingWebSocket(`${this._wsApiUrl}${url}`)
-        ws.onmessage = (e: MessageEvent) => {
-          const json = JSON.parse(e.data)
-          observer.next(json)
-        }
-        ws.onerror = (e: ErrorEvent) => {
-          console.error('An web socket error occured')
-        }
-        return () => {
-          ws.close(1000, '', { keepClosed: true })
-        }
-      })
-    } else {
-      return TimerObservable.create(0, this._pollInterval)
-        .mergeMap(() =>
-          fetch(`${this._apiUrl}${url}`)
-            .then(res => res.json())
-            .catch(err => new Error(`Could not get events: ${err.message}`))
-        )
-    }
+    return TimerObservable.create(0, this._pollInterval)
+      .mergeMap(() =>
+        fetch(`${this._apiUrl}${url}`)
+          .then(res => res.json())
+          .catch(err => new Error(`Could not get events: ${err.message}`))
+      )
   }
 
   /**

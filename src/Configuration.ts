@@ -17,10 +17,6 @@ export class Configuration {
    * Default poll interval in seconds for Observables
    */
   public pollInterval: number
-  /**
-   * Whether to use WebSockets or not
-   */
-  public useWebSockets: boolean
 
   constructor (config: TLNetworkConfig = {}) {
     const {
@@ -29,13 +25,11 @@ export class Configuration {
       port = -1,
       path = '',
       pollInterval = 500,
-      useWebSockets = false,
       wsProtocol = 'ws'
     } = config
     this.apiUrl = this._buildApiUrl(protocol, host, port, path)
     this.wsApiUrl = this._buildApiUrl(wsProtocol, host, port, path)
     this.pollInterval = pollInterval
-    this.useWebSockets = useWebSockets
   }
 
   /**
