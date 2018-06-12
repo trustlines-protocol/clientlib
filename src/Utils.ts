@@ -23,13 +23,11 @@ export class Utils {
   private _apiUrl: string
   private _wsApiUrl: string
   private _pollInterval: number
-  private _useWebSockets: boolean
 
   constructor (configuration: Configuration) {
     this._apiUrl = configuration.apiUrl
     this._wsApiUrl = configuration.wsApiUrl
     this._pollInterval = configuration.pollInterval
-    this._useWebSockets = configuration.useWebSockets
   }
 
   public createObservable (url: string): Observable<any> {
