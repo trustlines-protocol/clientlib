@@ -14,7 +14,7 @@ import {
 } from './typings'
 
 /**
- * The Payment class contains all payment related funcstion. This includes
+ * The Payment class contains all payment related functions. This includes
  * trustline transfers and normal ETH transfers.
  */
 export class Payment {
@@ -39,7 +39,7 @@ export class Payment {
   }
 
   /**
-   * Prepares tx object for a trustlines transfer, where loaded user is sender.
+   * Prepares ethereum transaction object for a trustlines transfer, where loaded user is sender.
    * @param network Address of a currency network.
    * @param to Address of receiver of transfer.
    * @param value Amount to transfer in biggest unit,
@@ -90,7 +90,7 @@ export class Payment {
   }
 
   /**
-   * Prepares a tx object for a ETH transfer, where loaded user is the sender.
+   * Prepares a ethereum transaction object for a ETH transfer, where loaded user is the sender.
    * @param to Address of receiver of transfer.
    * @param value Amount of ETH to transfer.
    * @param options Payment options. See `PaymentOptions` for more information.
@@ -161,7 +161,7 @@ export class Payment {
   }
 
   /**
-   * Returns transfer logs of loaded user in a specified currency network.
+   * Returns transfer event logs of loaded user in a specified currency network.
    * @param network Address of currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
@@ -176,7 +176,7 @@ export class Payment {
   }
 
   /**
-   * Signs and relays a raw transaction as returned by `prepare`.
+   * Signs a raw transaction as returned by `prepare` and relays the signed transaction.
    * @param rawTx RLP encoded hex string defining the transaction.
    */
   public async confirm (rawTx): Promise<string> {
@@ -190,17 +190,17 @@ export class Payment {
 
   /**
    * Creates a payment request link.
-   * @param network Address of a currency network.
+   * @param networkAddress Address of a currency network.
    * @param amount Requested transfer amount.
    * @param subject Additional information for payment request.
    */
   public createRequest (
-    network: string,
+    networkAddress: string,
     amount: number,
     subject: string
   ): Promise<string> {
     return new Promise(resolve => {
-      const params = [ 'paymentrequest', network, this._user.address, amount, subject ]
+      const params = [ 'paymentrequest', networkAddress, this._user.address, amount, subject ]
       resolve(this._utils.createLink(params))
     })
   }

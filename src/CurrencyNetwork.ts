@@ -55,9 +55,9 @@ export class CurrencyNetwork {
   }
 
   /**
-   * Returns overview of an user in a specific currency network.
+   * Returns overview of a user in a specific currency network.
    * @param networkAddress Address of a currency network.
-   * @param userAddress Address of an user.
+   * @param userAddress Address of a user.
    */
   public async getUserOverview (
     networkAddress: string,

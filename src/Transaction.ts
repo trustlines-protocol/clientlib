@@ -29,6 +29,8 @@ export class Transaction {
    * @param parameters arguments of function in same order as in contract
    * @param gasPrice (optional)
    * @param gasLimit (optional)
+   * @returns A ethereum transaction object containing the RLP encoded hex string of the
+   *          transaction and the estimated transaction fees in ETH.
    */
   public async prepFuncTx (
     userAddress: string,
@@ -67,6 +69,8 @@ export class Transaction {
    * @param rawValue transfer amount in wei
    * @param gasPrice (optional)
    * @param gasLimit (optional)
+   * @returns A ethereum transaction object containing the RLP encoded hex string of the
+   *          transaction and the estimated transaction fees in ETH.
    */
   public async prepValueTx (
     from: string,
@@ -96,14 +100,14 @@ export class Transaction {
 
   /**
    * Relays signed raw transactions.
-   * @param signedRawTx signed raw transaction
+   * @param signedTx signed ethereum transaction
    */
-  public relayTx (signedRawTx: string): Promise<string> {
+  public relayTx (signedTx: string): Promise<string> {
     const headers = new Headers({'Content-Type': 'application/json'})
     const options = {
       method: 'POST',
       headers,
-      body: JSON.stringify({rawTransaction: `0x${signedRawTx}`})
+      body: JSON.stringify({rawTransaction: `0x${signedTx}`})
     }
     return this._utils.fetchUrl<string>('relay', options)
   }
@@ -118,6 +122,7 @@ export class Transaction {
   /**
    * Returns needed information for creating a transaction.
    * @param userAddress address of user creating the transaction
+   * @returns Information for creating an ethereum transaction for the given user address.
    */
   private _getTxInfos (userAddress: string): Promise<TxInfos> {
     return this._utils.fetchUrl<TxInfos>(`users/${userAddress}/txinfos`)

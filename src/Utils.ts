@@ -151,7 +151,7 @@ export class Utils {
 
   /**
    * Formats number into an Amount object which includes the decimals,
-   * smmallest and biggest representation.
+   * smallest and biggest representation.
    * @param raw representation of number in smallest unit
    * @param decimals nubmer of decimals
    */

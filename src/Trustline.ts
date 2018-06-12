@@ -38,7 +38,7 @@ export class Trustline {
   }
 
   /**
-   * Prepares a tx object for creating a trustline update request. Called by initiator
+   * Prepares an ethereum transaction object for creating a trustline update request. Called by initiator
    * of update request.
    * @param network Address of a currency network.
    * @param counterparty Address of counterparty who receives trustline update request.
@@ -46,7 +46,7 @@ export class Trustline {
    *              i.e. 1.23 if network has to 2 decimals.
    * @param received Proposed creditline limit received by iniator from counterparty,
    *                 i.e. 1.23 if network has to 2 decimals.
-   * @param options Options for creating tx. See type `TLOptions` for more information.
+   * @param options Options for creating an ethereum transaction. See type `TLOptions` for more information.
    * @param options.decimals Decimals of currency network can be provided manually if known.
    * @param options.gasLimit Custom gas limit.
    * @param options.gasPrice Custom gas price.
@@ -76,7 +76,7 @@ export class Trustline {
   }
 
   /**
-   * Prepares a tx object for accepting a trustline update request. Called
+   * Prepares an ethereum transaction object for accepting a trustline update request. Called
    * by receiver of initial update request.
    * @param network Address of a currency network.
    * @param initiator Address of user who initiated the trustline udpate request.
@@ -84,7 +84,7 @@ export class Trustline {
    *              i.e. 1.23 if network has to 2 decimals.
    * @param received Proposed creditline limit received by iniator from receiver,
    *                 i.e. 1.23 if network has to 2 decimals.
-   * @param options Options for creating tx. See type `TLOptions` for more information.
+   * @param options Options for creating a ethereum transaction. See type `TLOptions` for more information.
    * @param options.decimals Decimals of currency network can be provided manually if known.
    * @param options.gasLimit Custom gas limit.
    * @param options.gasPrice Custom gas price.
@@ -106,7 +106,8 @@ export class Trustline {
   }
 
   /**
-   * Signs and relays raw transaction as returned in `prepareUpdate` or `prepareAccept`.
+   * Signs a raw transaction as returned by `prepareUpdate` or `prepareAccept` and relays
+   * the signed transaction.
    * @param rawTx RLP encoded hex string defining the transaction.
    */
   public async confirm (rawTx: string): Promise<string> {
@@ -172,7 +173,7 @@ export class Trustline {
 
   /**
    * Returns trustline updates of loaded user in a currency network. A update
-   * happens when an user accepts a trustline update request.
+   * happens when a user accepts a trustline update request.
    * @param network Address of a currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */

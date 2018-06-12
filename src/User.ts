@@ -160,7 +160,7 @@ export class User {
   }
 
   /**
-   * Returns a tx object for onboarding a new user. Called by a user who already has ETH
+   * Returns an ethereum transaction object for onboarding a new user. Called by a user who already has ETH
    * and wants to onboard a new user by sending some of it.
    * @param newUserAddress Address of new user who wants to get onboarded.
    * @param initialValue Value of ETH to send, default is 0.1 ETH.
@@ -177,8 +177,8 @@ export class User {
   }
 
   /**
-   * Posts a raw onboarding tx to the relay server and returns the tx hash.
-   * @param rawTx RLP encoded hex string of tx returned by `prepOnboarding`.
+   * Posts a raw onboarding ethereum transaction to the relay server and returns the transaction hash.
+   * @param rawTx RLP encoded hex string of the ethereum transaction returned by `prepOnboarding`.
    */
   public async confirmOnboarding (rawTx: string): Promise<string> {
     try {
