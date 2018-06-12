@@ -40,7 +40,6 @@ import { TLNetwork } from './src/TLNetwork'
 const config = {
   protocol: 'https',
   host: 'relay0.testnet.trustlines.network',
-  port: 443,
   path: 'api/v1/'
 }
 

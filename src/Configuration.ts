@@ -26,7 +26,7 @@ export class Configuration {
     const {
       protocol = 'http',
       host = 'localhost',
-      port = 80,
+      port = -1,
       path = '',
       pollInterval = 500,
       useWebSockets = false,
@@ -51,6 +51,6 @@ export class Configuration {
     port: number,
     path: string
   ): string {
-    return `${protocol}://${host}:${port}/${path}`
+    return `${protocol}://${host}${port === -1 ? '' : `:${port}`}/${path}`
   }
 }
