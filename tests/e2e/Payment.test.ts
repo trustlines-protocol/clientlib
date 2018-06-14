@@ -1,6 +1,8 @@
 import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+import { BigNumber } from 'bignumber.js'
+
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, keystore1, keystore2 } from '../Fixtures'
 
@@ -154,9 +156,9 @@ describe('e2e', () => {
           .then(txId => {
             tl2.user.getBalance()
               .then(balance => {
+                const delta = new BigNumber(balance.value).minus(beforeBalance.value)
                 expect(txId).to.be.a('string')
-                expect(parseFloat(balance.value))
-                .to.be.above(parseFloat(beforeBalance.value))
+                expect(delta.toNumber()).to.eq(0.0001)
                 done()
               })
           })
