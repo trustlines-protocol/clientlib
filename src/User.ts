@@ -184,14 +184,6 @@ export class User {
   }
 
   /**
-   * @hidden
-   * Creates an Observable for polling the ETH balance of user.
-   */
-  public balanceObservable (): Observable<any> {
-    return this._utils.createObservable(`users/${this.address}/balance`)
-  }
-
-  /**
    * Encrypts a message with the public key of another user.
    * @param msg Plain text message that should get encrypted.
    * @param theirPubKey Public key of receiver of message.

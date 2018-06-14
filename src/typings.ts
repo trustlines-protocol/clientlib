@@ -21,10 +21,6 @@ export interface TLNetworkConfig {
    */
   path?: string,
   /**
-   * Polling interval in ms for HTTP/HTTPS Oberservables
-   */
-  pollInterval?: number,
-  /**
    * Protocol for websockets
    */
   wsProtocol?: string
