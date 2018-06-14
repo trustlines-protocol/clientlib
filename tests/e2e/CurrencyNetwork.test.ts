@@ -7,7 +7,7 @@ import { config, user1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
-describe.only('e2e', () => {
+describe('e2e', () => {
   describe('CurrencyNetwork', () => {
     const { expect } = chai
     const { configuration, currencyNetwork } = new TLNetwork(config)
