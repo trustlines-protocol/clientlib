@@ -9,7 +9,7 @@ chai.use(chaiAsPromised)
 describe('e2e', () => {
   describe('CurrencyNetwork', () => {
     const { expect } = chai
-    const { currencyNetwork } = new TLNetwork(config)
+    const { configuration, currencyNetwork } = new TLNetwork(config)
     let networks
     const notRegisteredAddress = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
 
@@ -82,15 +82,14 @@ describe('e2e', () => {
       })
 
       it('should throw error', async () => {
-        try {
-          await currencyNetwork.getDecimals(notRegisteredAddress)
-          throw new Error('Expected error was not thrown.')
-        } catch (error) {
-          expect(error.message)
-            .to.contain('Status 404').and
-            // NOTE: typo will be fixed if the relay server returns correct message
-            .to.contain(`Unkown network: ${notRegisteredAddress}`)
-        }
+        const errMsg = [
+          `${configuration.apiUrl}networks/${notRegisteredAddress}`,
+          `Status 404`,
+          // typo will be fixed as soon as relay returns correct message
+          `Unkown network: ${notRegisteredAddress}`
+        ].join(' | ')
+        await expect(currencyNetwork.getDecimals(notRegisteredAddress))
+          .to.be.rejectedWith(errMsg)
       })
     })
   })

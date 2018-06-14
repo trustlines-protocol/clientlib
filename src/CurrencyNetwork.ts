@@ -76,9 +76,6 @@ export class CurrencyNetwork {
    */
   public async getDecimals (networkAddress: string, decimals?: number): Promise<number> {
     await this._checkAddresses([networkAddress])
-    if (decimals && typeof decimals !== 'number') {
-      throw new Error('Decimals are not a number')
-    }
     if (decimals && typeof decimals === 'number') {
       return decimals
     }
