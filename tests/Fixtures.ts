@@ -19,3 +19,7 @@ export const user2 = {
   address: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
   keystore: keystore2
 }
+
+export function wait (ms) {
+  return new Promise(resolve => setTimeout(() => resolve(), ms))
+}
