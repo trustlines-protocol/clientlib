@@ -40,7 +40,7 @@ export class Trustline {
   /**
    * Prepares an ethereum transaction object for creating a trustline update request. Called by initiator
    * of update request.
-   * @param network Address of a currency network.
+   * @param networkAddress Address of a currency network.
    * @param counterparty Address of counterparty who receives trustline update request.
    * @param given Proposed creditline limit given by iniator to counterparty,
    *              i.e. 1.23 if network has to 2 decimals.
@@ -52,7 +52,7 @@ export class Trustline {
    * @param options.gasPrice Custom gas price.
    */
   public async prepareUpdate (
-    network: string,
+    networkAddress: string,
     counterparty: string,
     given: number | string,
     received: number | string,
@@ -60,10 +60,10 @@ export class Trustline {
   ): Promise<TxObject> {
     const { _currencyNetwork, _transaction, _user, _utils } = this
     let { decimals, gasLimit, gasPrice } = options
-    decimals = await _currencyNetwork.getDecimals(network, decimals)
+    decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
     return _transaction.prepFuncTx(
       _user.address,
-      network,
+      networkAddress,
       'CurrencyNetwork',
       'updateTrustline',
       [ counterparty, _utils.calcRaw(given, decimals), _utils.calcRaw(received, decimals) ],
@@ -74,7 +74,7 @@ export class Trustline {
   /**
    * Prepares an ethereum transaction object for accepting a trustline update request. Called
    * by receiver of initial update request.
-   * @param network Address of a currency network.
+   * @param networkAddress Address of a currency network.
    * @param initiator Address of user who initiated the trustline udpate request.
    * @param given Proposed creditline limit given by receiver to initiator,
    *              i.e. 1.23 if network has to 2 decimals.
@@ -86,14 +86,14 @@ export class Trustline {
    * @param options.gasPrice Custom gas price.
    */
   public prepareAccept (
-    network: string,
+    networkAddress: string,
     initiator: string,
     given: number | string,
     received: number | string,
     options: TLOptions = {}
   ): Promise<TxObject> {
     return this.prepareUpdate(
-      network,
+      networkAddress,
       initiator,
       given,
       received,
@@ -113,43 +113,43 @@ export class Trustline {
 
   /**
    * Returns all trustlines of a loaded user in a currency network.
-   * @param network Address of a currency network.
+   * @param networkAddress Address of a currency network.
    */
-  public async getAll (network: string): Promise<TrustlineObject[]> {
+  public async getAll (networkAddress: string): Promise<TrustlineObject[]> {
     const { _user, _utils, _currencyNetwork } = this
-    const endpoint = `networks/${network}/users/${_user.address}/trustlines`
+    const endpoint = `networks/${networkAddress}/users/${_user.address}/trustlines`
     const [ trustlines, decimals ] = await Promise.all([
       _utils.fetchUrl<TrustlineRaw[]>(endpoint),
-      _currencyNetwork.getDecimals(network)
+      _currencyNetwork.getDecimals(networkAddress)
     ])
     return trustlines.map(trustline => this._formatTrustline(trustline, decimals))
   }
 
   /**
    * Returns a trustline to a counterparty address in a specified currency network.
-   * @param network Address of a currency network.
+   * @param networkAddress Address of a currency network.
    * @param counterparty Address of counterparty of trustline.
    */
-  public async get (network: string, counterparty: string): Promise<TrustlineObject> {
+  public async get (networkAddress: string, counterparty: string): Promise<TrustlineObject> {
     const { _user, _utils, _currencyNetwork } = this
-    const endpoint = `networks/${network}/users/${_user.address}/trustlines/${counterparty}`
+    const endpoint = `networks/${networkAddress}/users/${_user.address}/trustlines/${counterparty}`
     const [ trustline, decimals ] = await Promise.all([
       _utils.fetchUrl<TrustlineRaw>(endpoint),
-      _currencyNetwork.getDecimals(network)
+      _currencyNetwork.getDecimals(networkAddress)
     ])
     return this._formatTrustline(trustline, decimals)
   }
 
   /**
    * Returns trustline update requests of loaded user in a currency network.
-   * @param network Address of a currency network.
+   * @param networkAddress Address of a currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public getRequests (
-    network: string,
+    networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    return this._event.get(network, {
+    return this._event.get(networkAddress, {
       ...filter,
       type: 'TrustlineUpdateRequest'
     })
@@ -158,14 +158,14 @@ export class Trustline {
   /**
    * Returns trustline updates of loaded user in a currency network. A update
    * happens when a user accepts a trustline update request.
-   * @param network Address of a currency network.
+   * @param networkAddress Address of a currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public getUpdates (
-    network: string,
+    networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    return this._event.get(network, {
+    return this._event.get(networkAddress, {
       ...filter,
       type: 'TrustlineUpdate'
     })
