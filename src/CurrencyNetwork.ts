@@ -75,13 +75,17 @@ export class CurrencyNetwork {
    * @param decimals If decimals are known they can be provided manually.
    */
   public async getDecimals (networkAddress: string, decimals?: number): Promise<number> {
-    await this._checkAddresses([networkAddress])
-    if (decimals && typeof decimals === 'number') {
-      return decimals
+    try {
+      await this._checkAddresses([networkAddress])
+      if (decimals && typeof decimals === 'number') {
+        return decimals
+      }
+      // TODO replace with list of known currency network in clientlib
+      const network = await this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
+      return network.decimals
+    } catch (error) {
+      throw error
     }
-    // TODO replace with list of known currency network in clientlib
-    const network = await this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
-    return network.decimals
   }
 
   /**
