@@ -36,8 +36,8 @@ describe('unit', () => {
     })
 
     describe('#createLink()', () => {
-      it('should create a contact link', () => {
-        const link = tl1.user.createLink('testuser')
+      it('should create a contact link', async () => {
+        const link = await tl1.user.createLink('testuser')
         const splitLink = link.split('/')
         expect(splitLink[0]).to.equal('http:') // base url
         expect(splitLink[2]).to.equal('trustlines.network') // base url
