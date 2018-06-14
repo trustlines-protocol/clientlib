@@ -143,7 +143,7 @@ export class User {
     serializedKeystore: string
   ): Promise<string> {
     const { address, pubKey } = await this.load(serializedKeystore)
-    const params = [ 'onboardingrequest', username, this.address, this.pubKey ]
+    const params = [ 'onboardingrequest', username, address, pubKey ]
     return this._utils.createLink(params)
   }
 
@@ -289,7 +289,7 @@ export class User {
    * Contains username and address.
    * @param username Custom username.
    */
-  public createLink (username: string): string {
+  public async createLink (username: string): Promise<string> {
     const params = ['contact', this.address, username]
     return this._utils.createLink(params)
   }

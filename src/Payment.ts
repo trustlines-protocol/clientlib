@@ -81,7 +81,7 @@ export class Payment {
       )
       return { rawTx, path, maxFees, ethFees }
     } else {
-      return Promise.reject('Could not find a path with enough capacity.')
+      throw new Error('Could not find a path with enough capacity.')
     }
   }
 
@@ -182,14 +182,12 @@ export class Payment {
    * @param amount Requested transfer amount.
    * @param subject Additional information for payment request.
    */
-  public createRequest (
+  public async createRequest (
     networkAddress: string,
     amount: number,
     subject: string
   ): Promise<string> {
-    return new Promise(resolve => {
-      const params = [ 'paymentrequest', networkAddress, this._user.address, amount, subject ]
-      resolve(this._utils.createLink(params))
-    })
+    const params = [ 'paymentrequest', networkAddress, this._user.address, amount, subject ]
+    return this._utils.createLink(params)
   }
 }
