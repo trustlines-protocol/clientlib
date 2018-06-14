@@ -105,7 +105,7 @@ export class Payment {
     return this._transaction.prepValueTx(
       this._user.address,
       to,
-      parseInt(this._utils.calcRaw(value, 18), 10),
+      this._utils.calcRaw(value, 18),
       options
     )
   }
