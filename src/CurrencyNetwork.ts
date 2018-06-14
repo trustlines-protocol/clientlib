@@ -115,6 +115,6 @@ export class CurrencyNetwork {
         throw new Error(`${address} is not a valid address.`)
       }
     }
-    return
+    return true
   }
 }
