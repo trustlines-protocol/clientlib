@@ -11,6 +11,7 @@ describe('e2e', () => {
     const { expect } = chai
     const { currencyNetwork } = new TLNetwork(config)
     let networks
+    const notRegisteredAddress = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
 
     before(done => {
       currencyNetwork.getAll().then(allNetworks => {
@@ -75,9 +76,21 @@ describe('e2e', () => {
           .to.eventually.be.a('number')
       })
 
-      it('should return decimals', () => {
+      it('should return provided decimals', () => {
         expect(currencyNetwork.getDecimals(networks[0].address, 2))
           .to.eventually.equal(2)
+      })
+
+      it('should throw error', async () => {
+        try {
+          await currencyNetwork.getDecimals(notRegisteredAddress)
+          throw new Error('Expected error was not thrown.')
+        } catch (error) {
+          expect(error.message)
+            .to.contain('Status 404').and
+            // NOTE: typo will be fixed if the relay server returns correct message
+            .to.contain(`Unkown network: ${notRegisteredAddress}`)
+        }
       })
     })
   })
