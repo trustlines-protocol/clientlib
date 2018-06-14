@@ -11,14 +11,11 @@ chai.use(chaiAsPromised)
 describe('e2e', () => {
   describe('Payment', () => {
     const { expect } = chai
-    const { currencyNetwork } = new TLNetwork(config)
     const tl1 = new TLNetwork(config)
     const tl2 = new TLNetwork(config)
     let user1
     let user2
     let networkAddress
-    let tx
-    let txId
 
     before(done => {
       tl1.currencyNetwork.getAll()
@@ -51,6 +48,7 @@ describe('e2e', () => {
         // wait for txs to be mined
         .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
         .then(() => done())
+        .catch(e => done(e))
     })
 
     describe('#getPath()', () => {
