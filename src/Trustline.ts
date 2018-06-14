@@ -58,21 +58,17 @@ export class Trustline {
     received: number | string,
     options: TLOptions = {}
   ): Promise<TxObject> {
-    try {
-      const { _currencyNetwork, _transaction, _user, _utils } = this
-      let { decimals, gasLimit, gasPrice } = options
-      decimals = await _currencyNetwork.getDecimals(network, decimals)
-      return _transaction.prepFuncTx(
-        _user.address,
-        network,
-        'CurrencyNetwork',
-        'updateTrustline',
-        [ counterparty, _utils.calcRaw(given, decimals), _utils.calcRaw(received, decimals) ],
-        { gasPrice, gasLimit }
-      )
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const { _currencyNetwork, _transaction, _user, _utils } = this
+    let { decimals, gasLimit, gasPrice } = options
+    decimals = await _currencyNetwork.getDecimals(network, decimals)
+    return _transaction.prepFuncTx(
+      _user.address,
+      network,
+      'CurrencyNetwork',
+      'updateTrustline',
+      [ counterparty, _utils.calcRaw(given, decimals), _utils.calcRaw(received, decimals) ],
+      { gasPrice, gasLimit }
+    )
   }
 
   /**
@@ -111,12 +107,8 @@ export class Trustline {
    * @param rawTx RLP encoded hex string defining the transaction.
    */
   public async confirm (rawTx: string): Promise<string> {
-    try {
-      const signedTx = await this._user.signTx(rawTx)
-      return this._transaction.relayTx(signedTx)
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const signedTx = await this._user.signTx(rawTx)
+    return this._transaction.relayTx(signedTx)
   }
 
   /**
@@ -124,17 +116,13 @@ export class Trustline {
    * @param network Address of a currency network.
    */
   public async getAll (network: string): Promise<TrustlineObject[]> {
-    try {
-      const { _user, _utils, _currencyNetwork } = this
-      const endpoint = `networks/${network}/users/${_user.address}/trustlines`
-      const [ trustlines, decimals ] = await Promise.all([
-        _utils.fetchUrl<TrustlineRaw[]>(endpoint),
-        _currencyNetwork.getDecimals(network)
-      ])
-      return trustlines.map(trustline => this._formatTrustline(trustline, decimals))
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const { _user, _utils, _currencyNetwork } = this
+    const endpoint = `networks/${network}/users/${_user.address}/trustlines`
+    const [ trustlines, decimals ] = await Promise.all([
+      _utils.fetchUrl<TrustlineRaw[]>(endpoint),
+      _currencyNetwork.getDecimals(network)
+    ])
+    return trustlines.map(trustline => this._formatTrustline(trustline, decimals))
   }
 
   /**
@@ -143,17 +131,13 @@ export class Trustline {
    * @param counterparty Address of counterparty of trustline.
    */
   public async get (network: string, counterparty: string): Promise<TrustlineObject> {
-    try {
-      const { _user, _utils, _currencyNetwork } = this
-      const endpoint = `networks/${network}/users/${_user.address}/trustlines/${counterparty}`
-      const [ trustline, decimals ] = await Promise.all([
-        _utils.fetchUrl<TrustlineRaw>(endpoint),
-        _currencyNetwork.getDecimals(network)
-      ])
-      return this._formatTrustline(trustline, decimals)
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const { _user, _utils, _currencyNetwork } = this
+    const endpoint = `networks/${network}/users/${_user.address}/trustlines/${counterparty}`
+    const [ trustline, decimals ] = await Promise.all([
+      _utils.fetchUrl<TrustlineRaw>(endpoint),
+      _currencyNetwork.getDecimals(network)
+    ])
+    return this._formatTrustline(trustline, decimals)
   }
 
   /**

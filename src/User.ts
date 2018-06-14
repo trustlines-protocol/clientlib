@@ -45,19 +45,15 @@ export class User {
    * Loads new user into the state and returns the created user object.
    */
   public async create (): Promise<UserObject> {
-    try {
-      // generate new keystore
-      const { address, keystore, pubKey } = await this._generateKeys()
-      this.address = address
-      this.keystore = keystore
-      this.pubKey = pubKey
-      return {
-        address: this.address,
-        keystore: this.keystore.serialize(),
-        pubKey: this.pubKey
-      }
-    } catch (error) {
-      return Promise.reject(error)
+    // generate new keystore
+    const { address, keystore, pubKey } = await this._generateKeys()
+    this.address = address
+    this.keystore = keystore
+    this.pubKey = pubKey
+    return {
+      address: this.address,
+      keystore: this.keystore.serialize(),
+      pubKey: this.pubKey
     }
   }
 
@@ -67,24 +63,20 @@ export class User {
    * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) key store.
    */
   public async load (serializedKeystore: string): Promise<UserObject> {
-    try {
-      const parsedKeystore = JSON.parse(serializedKeystore)
-      // check if keystore version is old and update to new version
-      if (parsedKeystore.version < 3) {
-        serializedKeystore = await this._updateKeystore(parsedKeystore)
-      }
-      const deserialized = lightwallet.keystore.deserialize(serializedKeystore)
-      const { address, keystore, pubKey } = await this._getUserObject(deserialized)
-      this.address = address
-      this.keystore = keystore
-      this.pubKey = pubKey
-      return {
-        address: this.address,
-        keystore: this.keystore.serialize(),
-        pubKey: this.pubKey
-      }
-    } catch (error) {
-      return Promise.reject(error)
+    const parsedKeystore = JSON.parse(serializedKeystore)
+    // check if keystore version is old and update to new version
+    if (parsedKeystore.version < 3) {
+      serializedKeystore = await this._updateKeystore(parsedKeystore)
+    }
+    const deserialized = lightwallet.keystore.deserialize(serializedKeystore)
+    const { address, keystore, pubKey } = await this._getUserObject(deserialized)
+    this.address = address
+    this.keystore = keystore
+    this.pubKey = pubKey
+    return {
+      address: this.address,
+      keystore: this.keystore.serialize(),
+      pubKey: this.pubKey
     }
   }
 
@@ -150,13 +142,9 @@ export class User {
     username: string,
     serializedKeystore: string
   ): Promise<string> {
-    try {
-      const { address, pubKey } = await this.load(serializedKeystore)
-      const params = [ 'onboardingrequest', username, this.address, this.pubKey ]
-      return this._utils.createLink(params)
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const { address, pubKey } = await this.load(serializedKeystore)
+    const params = [ 'onboardingrequest', username, address, pubKey ]
+    return this._utils.createLink(params)
   }
 
   /**
@@ -181,26 +169,18 @@ export class User {
    * @param rawTx RLP encoded hex string of the ethereum transaction returned by `prepOnboarding`.
    */
   public async confirmOnboarding (rawTx: string): Promise<string> {
-    try {
-      const signedTx = await this.signTx(rawTx)
-      return this._transaction.relayTx(signedTx)
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const signedTx = await this.signTx(rawTx)
+    return this._transaction.relayTx(signedTx)
   }
 
   /**
    * Returns ETH balance of loaded user.
    */
   public async getBalance (): Promise<Amount> {
-    try {
-      const balance = await this._utils.fetchUrl<string>(`users/${this.address}/balance`)
-      return this._utils.formatAmount(
-        this._utils.calcRaw(balance, 18), 18
-      )
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const balance = await this._utils.fetchUrl<string>(`users/${this.address}/balance`)
+    return this._utils.formatAmount(
+      this._utils.calcRaw(balance, 18), 18
+    )
   }
 
   /**
@@ -293,18 +273,14 @@ export class User {
    * @param seed 12 word seed phrase string.
    */
   public async recoverFromSeed (seed: string): Promise<UserObject> {
-    try {
-      const { address, keystore, pubKey } = await this._generateKeys(seed)
-      this.address = address
-      this.keystore = keystore
-      this.pubKey = pubKey
-      return {
-        address: this.address,
-        keystore: this.keystore.serialize(),
-        pubKey: this.pubKey
-      }
-    } catch (error) {
-      return Promise.reject(error)
+    const { address, keystore, pubKey } = await this._generateKeys(seed)
+    this.address = address
+    this.keystore = keystore
+    this.pubKey = pubKey
+    return {
+      address: this.address,
+      keystore: this.keystore.serialize(),
+      pubKey: this.pubKey
     }
   }
 
@@ -313,7 +289,7 @@ export class User {
    * Contains username and address.
    * @param username Custom username.
    */
-  public createLink (username: string): string {
+  public async createLink (username: string): Promise<string> {
     const params = ['contact', this.address, username]
     return this._utils.createLink(params)
   }

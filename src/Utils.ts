@@ -46,17 +46,12 @@ export class Utils {
    */
   public async fetchUrl<T> (endpoint: string, options?: object): Promise<T> {
     const fullUrl = `${this._apiUrl}${endpoint}`
-    try {
-      const response = await fetch(fullUrl, options)
-      const json = await response.json()
-      if (response.status !== 200) {
-        throw new Error(`Status ${response.status} -> ${json.message}`)
-      } else {
-        return json
-      }
-    } catch (error) {
-      const errMsg = `Error fetching ${fullUrl} | ${error && error.message}`
-      return Promise.reject(new Error(errMsg))
+    const response = await fetch(fullUrl, options)
+    const json = await response.json()
+    if (response.status !== 200) {
+      throw new Error(`${fullUrl} | Status ${response.status} | ${json.message}`)
+    } else {
+      return json
     }
   }
 

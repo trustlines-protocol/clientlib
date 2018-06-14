@@ -54,18 +54,14 @@ export class Event {
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    try {
-      const { _currencyNetwork, _user, _utils } = this
-      const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
-      const parameterUrl = _utils.buildUrl(baseUrl, filter)
-      const [ events, decimals ] = await Promise.all([
-        _utils.fetchUrl<TLEvent[]>(parameterUrl),
-        _currencyNetwork.getDecimals(networkAddress)
-      ])
-      return events.map(event => _utils.formatEvent(event, decimals))
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const { _currencyNetwork, _user, _utils } = this
+    const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
+    const parameterUrl = _utils.buildUrl(baseUrl, filter)
+    const [ events, decimals ] = await Promise.all([
+      _utils.fetchUrl<TLEvent[]>(parameterUrl),
+      _currencyNetwork.getDecimals(networkAddress)
+    ])
+    return events.map(event => _utils.formatEvent(event, decimals))
   }
 
   /**
@@ -73,20 +69,16 @@ export class Event {
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public async getAll (filter: EventFilterOptions = {}): Promise<TLEvent[]> {
-    try {
-      const { _currencyNetwork, _user, _utils } = this
-      const baseUrl = `users/${_user.address}/events`
-      const parameterUrl = _utils.buildUrl(baseUrl, filter)
-      const events = await _utils.fetchUrl<TLEvent[]>(parameterUrl)
-      const networks = this._getUniqueNetworksFromEvents(events)
-      const decimalsMap = await this._getDecimalsMap(networks)
-      return events.map(event => _utils.formatEvent(
-        event,
-        decimalsMap[event.networkAddress]
-      ))
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const { _currencyNetwork, _user, _utils } = this
+    const baseUrl = `users/${_user.address}/events`
+    const parameterUrl = _utils.buildUrl(baseUrl, filter)
+    const events = await _utils.fetchUrl<TLEvent[]>(parameterUrl)
+    const networks = this._getUniqueNetworksFromEvents(events)
+    const decimalsMap = await this._getDecimalsMap(networks)
+    return events.map(event => _utils.formatEvent(
+      event,
+      decimalsMap[event.networkAddress]
+    ))
   }
 
   /**
