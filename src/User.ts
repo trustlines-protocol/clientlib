@@ -172,7 +172,7 @@ export class User {
     return this._transaction.prepValueTx(
       this.address, // address of onboarder
       newUserAddress, // address of new user who gets onboarded
-      this._utils.calcRaw(initialValue, 18)
+      parseInt(this._utils.calcRaw(initialValue, 18), 10)
     )
   }
 
