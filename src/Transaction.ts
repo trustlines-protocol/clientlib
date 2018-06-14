@@ -74,23 +74,19 @@ export class Transaction {
     rawValue: string,
     options: TxOptions = {}
   ): Promise<TxObject> {
-    try {
-      const txInfos = await this._getTxInfos(from)
-      const txOptions = {
-        gasPrice: options.gasPrice || txInfos.gasPrice,
-        gasLimit: options.gasLimit || 21000,
-        value: new BigNumber(rawValue).toNumber(),
-        nonce: txInfos.nonce,
-        to: to.toLowerCase()
-      }
-      return {
-        rawTx: lightwallet.txutils.valueTx(txOptions),
-        ethFees: this._utils.formatAmount(
-          txOptions.gasLimit * txOptions.gasPrice, 18
-        )
-      }
-    } catch (error) {
-      this._handleError(error)
+    const txInfos = await this._getTxInfos(from)
+    const txOptions = {
+      gasPrice: options.gasPrice || txInfos.gasPrice,
+      gasLimit: options.gasLimit || 21000,
+      value: new BigNumber(rawValue).toNumber(),
+      nonce: txInfos.nonce,
+      to: to.toLowerCase()
+    }
+    return {
+      rawTx: lightwallet.txutils.valueTx(txOptions),
+      ethFees: this._utils.formatAmount(
+        txOptions.gasLimit * txOptions.gasPrice, 18
+      )
     }
   }
 
