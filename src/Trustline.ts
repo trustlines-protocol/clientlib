@@ -42,9 +42,9 @@ export class Trustline {
    * of update request.
    * @param networkAddress Address of a currency network.
    * @param counterpartyAddress Address of counterparty who receives trustline update request.
-   * @param given Proposed creditline limit given by iniator to counterparty,
+   * @param creditlineGiven Proposed creditline limit given by iniator to counterparty,
    *              i.e. 1.23 if network has to 2 decimals.
-   * @param received Proposed creditline limit received by iniator from counterparty,
+   * @param creditlineReceived Proposed creditline limit received by iniator from counterparty,
    *                 i.e. 1.23 if network has to 2 decimals.
    * @param options Options for creating an ethereum transaction. See type `TLOptions` for more information.
    * @param options.decimals Decimals of currency network can be provided manually if known.
@@ -54,8 +54,8 @@ export class Trustline {
   public async prepareUpdate (
     networkAddress: string,
     counterpartyAddress: string,
-    given: number | string,
-    received: number | string,
+    creditlineGiven: number | string,
+    creditlineReceived: number | string,
     options: TLOptions = {}
   ): Promise<TxObject> {
     const { _currencyNetwork, _transaction, _user, _utils } = this
@@ -66,7 +66,11 @@ export class Trustline {
       networkAddress,
       'CurrencyNetwork',
       'updateTrustline',
-      [ counterpartyAddress, _utils.calcRaw(given, decimals), _utils.calcRaw(received, decimals) ],
+      [
+        counterpartyAddress,
+        _utils.calcRaw(creditlineGiven, decimals),
+        _utils.calcRaw(creditlineReceived, decimals)
+      ],
       { gasPrice, gasLimit }
     )
   }
@@ -76,9 +80,9 @@ export class Trustline {
    * by receiver of initial update request.
    * @param networkAddress Address of a currency network.
    * @param initiator Address of user who initiated the trustline udpate request.
-   * @param given Proposed creditline limit given by receiver to initiator,
+   * @param creditlineGiven Proposed creditline limit given by receiver to initiator,
    *              i.e. 1.23 if network has to 2 decimals.
-   * @param received Proposed creditline limit received by iniator from receiver,
+   * @param creditlineReceived Proposed creditline limit received by iniator from receiver,
    *                 i.e. 1.23 if network has to 2 decimals.
    * @param options Options for creating a ethereum transaction. See type `TLOptions` for more information.
    * @param options.decimals Decimals of currency network can be provided manually if known.
@@ -88,15 +92,15 @@ export class Trustline {
   public prepareAccept (
     networkAddress: string,
     initiator: string,
-    given: number | string,
-    received: number | string,
+    creditlineGiven: number | string,
+    creditlineReceived: number | string,
     options: TLOptions = {}
   ): Promise<TxObject> {
     return this.prepareUpdate(
       networkAddress,
       initiator,
-      given,
-      received,
+      creditlineGiven,
+      creditlineReceived,
       options
     )
   }
