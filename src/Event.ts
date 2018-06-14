@@ -97,13 +97,13 @@ export class Event {
 
   /**
    * Returns a mapping from currency network address to decimals
-   * @param networks array of unique currency network addresses
+   * @param networkAddresses array of unique currency network addresses
    */
-  private async _getDecimalsMap (networks: string[]): Promise<object> {
+  private async _getDecimalsMap (networkAddresses: string[]): Promise<object> {
     const decimalsList = await Promise.all(
-      networks.map(n => this._currencyNetwork.getDecimals(n))
+      networkAddresses.map(n => this._currencyNetwork.getDecimals(n))
     )
-    return networks.reduce((decimalsMap, network, i) => {
+    return networkAddresses.reduce((decimalsMap, network, i) => {
       decimalsMap[network] = decimalsList[i]
       return decimalsMap
     }, {})

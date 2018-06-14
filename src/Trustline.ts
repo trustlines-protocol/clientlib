@@ -79,7 +79,7 @@ export class Trustline {
    * Prepares an ethereum transaction object for accepting a trustline update request. Called
    * by receiver of initial update request.
    * @param networkAddress Address of a currency network.
-   * @param initiator Address of user who initiated the trustline udpate request.
+   * @param initiatorAddress Address of user who initiated the trustline udpate request.
    * @param creditlineGiven Proposed creditline limit given by receiver to initiator,
    *              i.e. 1.23 if network has to 2 decimals.
    * @param creditlineReceived Proposed creditline limit received by iniator from receiver,
@@ -91,14 +91,14 @@ export class Trustline {
    */
   public prepareAccept (
     networkAddress: string,
-    initiator: string,
+    initiatorAddress: string,
     creditlineGiven: number | string,
     creditlineReceived: number | string,
     options: TLOptions = {}
   ): Promise<TxObject> {
     return this.prepareUpdate(
       networkAddress,
-      initiator,
+      initiatorAddress,
       creditlineGiven,
       creditlineReceived,
       options

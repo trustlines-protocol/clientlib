@@ -41,7 +41,7 @@ export class Payment {
   /**
    * Prepares ethereum transaction object for a trustlines transfer, where loaded user is sender.
    * @param networkAddress Address of a currency network.
-   * @param to Address of receiver of transfer.
+   * @param receiverAddress Address of receiver of transfer.
    * @param value Amount to transfer in biggest unit,
    *              i.e. 1.5 if currency network has 2 decimals.
    * @param options Optional payment options. See `PaymentOptions` for more information.
@@ -53,7 +53,7 @@ export class Payment {
    */
   public async prepare (
     networkAddress: string,
-    to: string,
+    receiverAddress: string,
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<TLTxObject> {
@@ -63,7 +63,7 @@ export class Payment {
     const { path, maxFees, estimatedGas } = await this.getPath(
       networkAddress,
       _user.address,
-      to,
+      receiverAddress,
       value,
       { ...options, decimals }
     )
@@ -73,7 +73,7 @@ export class Payment {
         networkAddress,
         'CurrencyNetwork',
         'transfer',
-        [ to, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
+        [ receiverAddress, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
         {
           gasPrice: options.gasPrice,
           gasLimit: options.gasLimit || estimatedGas * 1.5
@@ -87,20 +87,20 @@ export class Payment {
 
   /**
    * Prepares a ethereum transaction object for a ETH transfer, where loaded user is the sender.
-   * @param to Address of receiver of transfer.
+   * @param receiverAddress Address of receiver of transfer.
    * @param value Amount of ETH to transfer.
    * @param options Payment options. See `PaymentOptions` for more information.
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
   public prepareEth (
-    to: string,
+    receiverAddress: string,
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<TxObject> {
     return this._transaction.prepValueTx(
       this._user.address,
-      to,
+      receiverAddress,
       this._utils.calcRaw(value, 18),
       options
     )

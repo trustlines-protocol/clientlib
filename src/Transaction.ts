@@ -60,8 +60,8 @@ export class Transaction {
 
   /**
    * Returns transaction fees and raw transaction for transferring ETH.
-   * @param from address of user sending the transfer
-   * @param to address of user receiving the transfer
+   * @param senderAddress address of user sending the transfer
+   * @param receiverAddress address of user receiving the transfer
    * @param rawValue transfer amount in wei
    * @param gasPrice (optional)
    * @param gasLimit (optional)
@@ -69,18 +69,18 @@ export class Transaction {
    *          transaction and the estimated transaction fees in ETH.
    */
   public async prepValueTx (
-    from: string,
-    to: string,
+    senderAddress: string,
+    receiverAddress: string,
     rawValue: string,
     options: TxOptions = {}
   ): Promise<TxObject> {
-    const txInfos = await this._getTxInfos(from)
+    const txInfos = await this._getTxInfos(senderAddress)
     const txOptions = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
       gasLimit: options.gasLimit || 21000,
       value: new BigNumber(rawValue).toNumber(),
       nonce: txInfos.nonce,
-      to: to.toLowerCase()
+      to: receiverAddress.toLowerCase()
     }
     return {
       rawTx: lightwallet.txutils.valueTx(txOptions),
