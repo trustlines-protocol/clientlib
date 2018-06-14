@@ -6,19 +6,16 @@ export const config = {
   protocol: 'http',
   host: 'localhost',
   port: 5000,
-  useWebSockets: false,
   path: 'api/v1/'
 }
 
 export const user1 = {
   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  proxyAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
   keystore: keystore1,
   pubKey: 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472'
 }
 
 export const user2 = {
   address: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
-  proxyAddress: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
   keystore: keystore2
 }
