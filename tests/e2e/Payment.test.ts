@@ -1,6 +1,8 @@
 import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+import { BigNumber } from 'bignumber.js'
+
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, keystore1, keystore2 } from '../Fixtures'
 
@@ -9,14 +11,11 @@ chai.use(chaiAsPromised)
 describe('e2e', () => {
   describe('Payment', () => {
     const { expect } = chai
-    const { currencyNetwork } = new TLNetwork(config)
     const tl1 = new TLNetwork(config)
     const tl2 = new TLNetwork(config)
     let user1
     let user2
     let networkAddress
-    let tx
-    let txId
 
     before(done => {
       tl1.currencyNetwork.getAll()
@@ -49,6 +48,7 @@ describe('e2e', () => {
         // wait for txs to be mined
         .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
         .then(() => done())
+        .catch(e => done(e))
     })
 
     describe('#getPath()', () => {
@@ -154,9 +154,9 @@ describe('e2e', () => {
           .then(txId => {
             tl2.user.getBalance()
               .then(balance => {
+                const delta = new BigNumber(balance.value).minus(beforeBalance.value)
                 expect(txId).to.be.a('string')
-                expect(parseFloat(balance.value))
-                .to.be.above(parseFloat(beforeBalance.value))
+                expect(delta.toNumber()).to.eq(0.0001)
                 done()
               })
           })

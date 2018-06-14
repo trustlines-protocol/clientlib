@@ -1,9 +1,9 @@
 import { Utils } from './Utils'
 import { TxObject, TxOptions, TxInfos } from './typings'
 
+import { BigNumber } from 'bignumber.js'
 import * as lightwallet from 'eth-lightwallet'
 // declare let lightwallet
-import * as ethUtils from 'ethereumjs-util'
 
 /**
  * Contract ABIs
@@ -83,7 +83,7 @@ export class Transaction {
       const txOptions = {
         gasPrice: options.gasPrice || txInfos.gasPrice,
         gasLimit: options.gasLimit || 21000,
-        value: rawValue,
+        value: new BigNumber(rawValue).toNumber(),
         nonce: txInfos.nonce,
         to: to.toLowerCase()
       }
