@@ -123,6 +123,7 @@ export class Transaction {
    * Returns needed information for creating an ethereum transaction.
    * @param userAddress address of user creating the transaction
    * @returns Information for creating an ethereum transaction for the given user address.
+   *          See tyoe `TxInfos` for more details.
    */
   private _getTxInfos (userAddress: string): Promise<TxInfos> {
     return this._utils.fetchUrl<TxInfos>(`users/${userAddress}/txinfos`)

@@ -80,9 +80,22 @@ export interface TxObject {
   ethFees: Amount
 }
 
+/**
+ * Information for creating an ethereum transaction of a given user address
+ * as returned by the relay server.
+ */
 export interface TxInfos {
+  /**
+   * Amount of ETH in gwei for every unit of gas user is willing to pay
+   */
   gasPrice: number,
+  /**
+   * Balance of given user address in ETH
+   */
   balance: number,
+  /**
+   * Transaction count of given user address
+   */
   nonce: number
 }
 
