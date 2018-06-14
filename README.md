@@ -1,9 +1,15 @@
 # trustlines-network clientlib
+A TypeScript/Javascript library for interacting with the [trustlines-network protocol](https://trustlines.network/).
 
-## About
-This is the JS library of the trustlines network project. It is currently not published on npm but will soon be. Until then clone or download this repository and follow the guide below.
+## Read the [Documentation](https://trustlines-network.github.io/clientlib-docs/)
 
-## Get started
+## Installation
+The project is currently not published on npm but will soon be. Until then clone or download the repository from [here](https://github.com/trustlines-network/clientlib) and follow the steps below.
+
+Change into directory
+```
+$ cd ./clientlib
+```
 Install dependencies with `npm` or `yarn`
 ```
 $ npm/yarn install
@@ -18,22 +24,25 @@ _bundles/		// UMD bundles
 lib/			// ES5(commonjs) + source + .d.ts
 lib-esm/		// ES5(esmodule) + source + .d.ts
 ```
-### Import UMD bundle in HTML
+#### Import UMD bundle in HTML
 ```html
 <script src="./_bundles/trustlines-network.min.js"></script>
 ```
-### Import CommonJS module
+#### Import CommonJS module
 ```javascript
 const TLNetwork = require('./lib/TLNetwork.js')
 ```
-### Import ES6 module
+#### Import ES6 module
 ```javascript
 import { TLNetwork } from './lib-esm/trustlines-network'
 ```
 
-## Initialization
 Use the following configuration to connect to the currently deployed test setup.
-**NOTE: The smart contracts are deployed on the Kovan testnet. So some Kovan Test ETH is required to interact with the contracts in this setup.**
+
+
+**NOTE: The [trustlines-network contracts](https://github.com/trustlines-network/contracts) are deployed on the Kovan testnet. Some Kovan Test ETH is therefore required to interact with the contracts in this setup.**
+
+
 ```javascript
 import { TLNetwork } from './src/TLNetwork'
 
@@ -46,5 +55,14 @@ const config = {
 const tlNetwork = new TLNetwork(config)
 ```
 
-## API documentation
+## Example
+This library is a promise-based library. So every asynchronous call will return a native Javascript promise. If an error occurs the library will throw it. The caller has to handle it appropriately.
 
+```javascript
+try {
+  const networks = await tlNetwork.currencyNetwokr.getAll()
+}
+catch (error) {
+  console.log('Caught error:', error)
+}
+```
