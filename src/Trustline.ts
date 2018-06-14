@@ -41,7 +41,7 @@ export class Trustline {
    * Prepares an ethereum transaction object for creating a trustline update request. Called by initiator
    * of update request.
    * @param networkAddress Address of a currency network.
-   * @param counterparty Address of counterparty who receives trustline update request.
+   * @param counterpartyAddress Address of counterparty who receives trustline update request.
    * @param given Proposed creditline limit given by iniator to counterparty,
    *              i.e. 1.23 if network has to 2 decimals.
    * @param received Proposed creditline limit received by iniator from counterparty,
@@ -53,7 +53,7 @@ export class Trustline {
    */
   public async prepareUpdate (
     networkAddress: string,
-    counterparty: string,
+    counterpartyAddress: string,
     given: number | string,
     received: number | string,
     options: TLOptions = {}
@@ -66,7 +66,7 @@ export class Trustline {
       networkAddress,
       'CurrencyNetwork',
       'updateTrustline',
-      [ counterparty, _utils.calcRaw(given, decimals), _utils.calcRaw(received, decimals) ],
+      [ counterpartyAddress, _utils.calcRaw(given, decimals), _utils.calcRaw(received, decimals) ],
       { gasPrice, gasLimit }
     )
   }
@@ -128,11 +128,14 @@ export class Trustline {
   /**
    * Returns a trustline to a counterparty address in a specified currency network.
    * @param networkAddress Address of a currency network.
-   * @param counterparty Address of counterparty of trustline.
+   * @param counterpartyAddress Address of counterparty of trustline.
    */
-  public async get (networkAddress: string, counterparty: string): Promise<TrustlineObject> {
+  public async get (
+    networkAddress: string,
+    counterpartyAddress: string
+  ): Promise<TrustlineObject> {
     const { _user, _utils, _currencyNetwork } = this
-    const endpoint = `networks/${networkAddress}/users/${_user.address}/trustlines/${counterparty}`
+    const endpoint = `networks/${networkAddress}/users/${_user.address}/trustlines/${counterpartyAddress}`
     const [ trustline, decimals ] = await Promise.all([
       _utils.fetchUrl<TrustlineRaw>(endpoint),
       _currencyNetwork.getDecimals(networkAddress)
