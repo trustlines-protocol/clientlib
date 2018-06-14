@@ -38,27 +38,29 @@ export class Trustline {
   }
 
   /**
-   * Prepares a tx object for creating a trustline update request. Called by initiator
+   * Prepares an ethereum transaction object for creating a trustline update request. Called by initiator
    * of update request.
-   * @param network address of currency network
-   * @param counterparty address of counterparty who receives trustline update request
-   * @param given proposed creditline limit given by iniator to counterparty,
-   *              i.e. 1.23 if network has to 2 decimals
-   * @param received proposed creditline limit received from counterparty to initiator,
-   *                 i.e. 1.23 if network has to 2 decimals
-   * @param decimals (optional) decimals of currency network can be provided manually if known
-   * @param gasLimit (optional)
-   * @param gasPrice (optional)
+   * @param network Address of a currency network.
+   * @param counterparty Address of counterparty who receives trustline update request.
+   * @param given Proposed creditline limit given by iniator to counterparty,
+   *              i.e. 1.23 if network has to 2 decimals.
+   * @param received Proposed creditline limit received by iniator from counterparty,
+   *                 i.e. 1.23 if network has to 2 decimals.
+   * @param options Options for creating an ethereum transaction. See type `TLOptions` for more information.
+   * @param options.decimals Decimals of currency network can be provided manually if known.
+   * @param options.gasLimit Custom gas limit.
+   * @param options.gasPrice Custom gas price.
    */
   public async prepareUpdate (
     network: string,
     counterparty: string,
     given: number | string,
     received: number | string,
-    { decimals, gasLimit, gasPrice }: TLOptions = {}
+    options: TLOptions = {}
   ): Promise<TxObject> {
     try {
       const { _currencyNetwork, _transaction, _user, _utils } = this
+      let { decimals, gasLimit, gasPrice } = options
       decimals = await _currencyNetwork.getDecimals(network, decimals)
       return _transaction.prepFuncTx(
         _user.address,
@@ -74,37 +76,39 @@ export class Trustline {
   }
 
   /**
-   * Prepares a tx object for accepting a trustline update request. Called
+   * Prepares an ethereum transaction object for accepting a trustline update request. Called
    * by receiver of initial update request.
-   * @param network address of currency network
-   * @param initiator address of user who initiated trustline udpate request
-   * @param given received proposal of creditline limit given to initiator,
-   *              i.e. 1.23 if network has to 2 decimals
-   * @param received received proposal of creditline limit received by iniator,
-   *                 i.e. 1.23 if network has to 2 decimals
-   * @param decimals (optional) decimals of currency network can be provided manually if known
-   * @param gasLimit (optional)
-   * @param gasPrice (optional)
+   * @param network Address of a currency network.
+   * @param initiator Address of user who initiated the trustline udpate request.
+   * @param given Proposed creditline limit given by receiver to initiator,
+   *              i.e. 1.23 if network has to 2 decimals.
+   * @param received Proposed creditline limit received by iniator from receiver,
+   *                 i.e. 1.23 if network has to 2 decimals.
+   * @param options Options for creating a ethereum transaction. See type `TLOptions` for more information.
+   * @param options.decimals Decimals of currency network can be provided manually if known.
+   * @param options.gasLimit Custom gas limit.
+   * @param options.gasPrice Custom gas price.
    */
   public prepareAccept (
     network: string,
     initiator: string,
     given: number | string,
     received: number | string,
-    { decimals, gasLimit, gasPrice }: TLOptions = {}
+    options: TLOptions = {}
   ): Promise<TxObject> {
     return this.prepareUpdate(
       network,
       initiator,
       given,
       received,
-      { decimals, gasLimit, gasPrice }
+      options
     )
   }
 
   /**
-   * Signs and relays raw transaction as returned in prepareUpdate or prepareAccept.
-   * @param rawTx RLP-encoded hex string defining the transaction
+   * Signs a raw transaction as returned by `prepareUpdate` or `prepareAccept` and relays
+   * the signed transaction.
+   * @param rawTx RLP encoded hex string defining the transaction.
    */
   public async confirm (rawTx: string): Promise<string> {
     try {
@@ -117,7 +121,7 @@ export class Trustline {
 
   /**
    * Returns all trustlines of a loaded user in a currency network.
-   * @param network address of currency network
+   * @param network Address of a currency network.
    */
   public async getAll (network: string): Promise<TrustlineObject[]> {
     try {
@@ -135,8 +139,8 @@ export class Trustline {
 
   /**
    * Returns a trustline to a counterparty address in a specified currency network.
-   * @param network address of currency network
-   * @param counterparty address of counterparty of trustline
+   * @param network Address of a currency network.
+   * @param counterparty Address of counterparty of trustline.
    */
   public async get (network: string, counterparty: string): Promise<TrustlineObject> {
     try {
@@ -154,35 +158,33 @@ export class Trustline {
 
   /**
    * Returns trustline update requests of loaded user in a currency network.
-   * @param network address of currency network
-   * @param fromBlock start of block range
+   * @param network Address of a currency network.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public getRequests (
     network: string,
-    { fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    const filter = { type: 'TrustlineUpdateRequest' }
-    if (fromBlock) {
-      filter['fromBlock'] = fromBlock
-    }
-    return this._event.get(network, filter)
+    return this._event.get(network, {
+      ...filter,
+      type: 'TrustlineUpdateRequest'
+    })
   }
 
   /**
    * Returns trustline updates of loaded user in a currency network. A update
-   * happens when an user accepts a trustline update request.
-   * @param network address of currency network
-   * @param fromBlock start of block range
+   * happens when a user accepts a trustline update request.
+   * @param network Address of a currency network.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public getUpdates (
     network: string,
-    { fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    const filter = { type: 'TrustlineUpdate' }
-    if (fromBlock) {
-      filter['fromBlock'] = fromBlock
-    }
-    return this._event.get(network, filter)
+    return this._event.get(network, {
+      ...filter,
+      type: 'TrustlineUpdate'
+    })
   }
 
   /**

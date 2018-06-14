@@ -14,7 +14,7 @@ import {
 } from './typings'
 
 /**
- * The Payment class contains all payment related funcstion. This includes
+ * The Payment class contains all payment related functions. This includes
  * trustline transfers and normal ETH transfers.
  */
 export class Payment {
@@ -39,32 +39,34 @@ export class Payment {
   }
 
   /**
-   * Prepares tx object for a trustlines transfer, where loaded user is sender.
-   * @param network address of currency network
-   * @param to address of receiver of transfer
-   * @param value amount to transfer in biggest unit,
-   *              i.e. 1.5 if currency network has 2 decimals
-   * @param decimals (optional) decimals of currency network can be provided manually
-   * @param maximumHops (optional) max. number of hops for transfer
-   * @param maximumFees (optional) max. transfer fees
-   * @param gasPrice (optional)
-   * @param gasLimit (optional)
+   * Prepares ethereum transaction object for a trustlines transfer, where loaded user is sender.
+   * @param network Address of a currency network.
+   * @param to Address of receiver of transfer.
+   * @param value Amount to transfer in biggest unit,
+   *              i.e. 1.5 if currency network has 2 decimals.
+   * @param options Optional payment options. See `PaymentOptions` for more information.
+   * @param options.decimals Decimals of currency network can be provided manually.
+   * @param options.maximumHops Max. number of hops for transfer.
+   * @param options.maximumFees Max. transfer fees user is willing to pay.
+   * @param options.gasPrice Custom gas price.
+   * @param options.gasLimit Custom gas limit.
    */
   public async prepare (
     network: string,
     to: string,
     value: number | string,
-    { decimals, maximumHops, maximumFees, gasPrice, gasLimit }: PaymentOptions = {}
+    options: PaymentOptions = {}
   ): Promise<TLTxObject> {
     try {
       const { _user, _currencyNetwork, _transaction, _utils } = this
+      let { decimals } = options
       decimals = await _currencyNetwork.getDecimals(network, decimals)
       const { path, maxFees, estimatedGas } = await this.getPath(
         network,
         _user.address,
         to,
         value,
-        { decimals, maximumHops, maximumFees, gasPrice, gasLimit }
+        { ...options, decimals }
       )
       if (path.length > 0) {
         const { rawTx, ethFees } = await _transaction.prepFuncTx(
@@ -74,8 +76,8 @@ export class Payment {
           'transfer',
           [ to, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
           {
-            gasPrice,
-            gasLimit: gasLimit || estimatedGas * 1.5
+            gasPrice: options.gasPrice,
+            gasLimit: options.gasLimit || estimatedGas * 1.5
           }
         )
         return { rawTx, path, maxFees, ethFees }
@@ -88,48 +90,52 @@ export class Payment {
   }
 
   /**
-   * Prepares a tx object for a ether transfer, where loaded user is the sender.
-   * @param to address of receiver of transfer
-   * @param value amount of ether to transfer
-   * @param gasPrice (optional)
-   * @param gasLimit (optional)
+   * Prepares a ethereum transaction object for a ETH transfer, where loaded user is the sender.
+   * @param to Address of receiver of transfer.
+   * @param value Amount of ETH to transfer.
+   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options.gasPrice Custom gas price.
+   * @param options.gasLimit Custom gas limit.
    */
   public prepareEth (
     to: string,
     value: number | string,
-    { gasPrice, gasLimit }: PaymentOptions = {}
+    options: PaymentOptions = {}
   ): Promise<TxObject> {
     return this._transaction.prepValueTx(
       this._user.address,
       to,
       this._utils.calcRaw(value, 18),
-      { gasPrice, gasLimit }
+      options
     )
   }
 
   /**
    * Returns a path for a trustlines transfer.
-   * @param network address of currency network
-   * @param accountA address of sender of transfer
-   * @param accountB address of receiver of transfer
-   * @param value transfer for amount
-   * @param decimals (optional) decimals of currency network can be provided manually
-   * @param maximumHops (optional) max. number of hops for transfer
-   * @param maximumFees (optional) max. transfer fees
+   * @param network Address of a currency network.
+   * @param senderAddress Address of sender of transfer.
+   * @param receiverAddress Address of receiver of transfer.
+   * @param value Amount to transfer in biggest unit,
+   *              i.e. 1.23 if currency network has 2 decimals.
+   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options.decimals Decimals of currency network can be provided manually.
+   * @param options.maximumHops Max. number of hops for transfer.
+   * @param options.maximumFees Max. transfer fees user if willing to pay.
    */
   public async getPath (
     network: string,
-    accountA: string,
-    accountB: string,
+    senderAddress: string,
+    receiverAddress: string,
     value: number | string,
-    { decimals, maximumHops, maximumFees}: PaymentOptions = {}
+    options: PaymentOptions = {}
   ): Promise<PathObject> {
     try {
       const { _currencyNetwork, _utils, _user } = this
+      let { decimals, maximumHops, maximumFees} = options
       decimals = await _currencyNetwork.getDecimals(network, decimals)
       const data = {
-        from: accountA,
-        to: accountB,
+        from: senderAddress,
+        to: receiverAddress,
         value: this._utils.calcRaw(value, decimals)
       }
       if (maximumFees) {
@@ -155,24 +161,23 @@ export class Payment {
   }
 
   /**
-   * Returns transfer logs of loaded user in a specified currency network.
-   * @param network address of currency network
-   * @param fromBlock (optional) start of block range for query
+   * Returns transfer event logs of loaded user in a specified currency network.
+   * @param network Address of currency network.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public get (
     network: string,
-    { fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    const filter = { type: 'Transfer' }
-    if (fromBlock) {
-      filter['fromBlock'] = fromBlock
-    }
-    return this._event.get(network, filter)
+    return this._event.get(network, {
+      ...filter,
+      type: 'Transfer'
+    })
   }
 
   /**
-   * Signs and relays a raw transaction.
-   * @param rawTx rlp encoded hex string defining the transaction
+   * Signs a raw transaction as returned by `prepare` and relays the signed transaction.
+   * @param rawTx RLP encoded hex string defining the transaction.
    */
   public async confirm (rawTx): Promise<string> {
     try {
@@ -184,63 +189,19 @@ export class Payment {
   }
 
   /**
-   * Creates a payment request link
-   * @param network address of currency network for payment request
-   * @param amount requested transfer amount
-   * @param subject additional information for payment request
+   * Creates a payment request link.
+   * @param networkAddress Address of a currency network.
+   * @param amount Requested transfer amount.
+   * @param subject Additional information for payment request.
    */
   public createRequest (
-    network: string,
+    networkAddress: string,
     amount: number,
     subject: string
   ): Promise<string> {
     return new Promise(resolve => {
-      const params = [ 'paymentrequest', network, this._user.address, amount, subject ]
+      const params = [ 'paymentrequest', networkAddress, this._user.address, amount, subject ]
       resolve(this._utils.createLink(params))
     })
   }
-
-  // public issueCheque (network: string,
-  //                     value: number,
-  //                     expiresOn: number,
-  //                     to: string // TODO receiver address optional?
-  // ): Promise<any> {
-  //   const msg = this._user.address + to + value + expiresOn
-  //   return this._user.signMsgHash(msg).then(signature => {
-  //     const params = [ 'cheque', network, value, expiresOn, signature ]
-  //     if (to) {
-  //       params.push(to)
-  //     }
-  //     return this._utils.createLink(params)
-  //   })
-  // }
-
-  // public prepCashCheque (network: string,
-  //                        value: number,
-  //                        expiresOn: number,
-  //                        to: string,
-  //                        signature: string): Promise<any> {
-  //   return this._transaction.prepFuncTx(
-  //     this._user.address,
-  //     network,
-  //     'CurrencyNetwork',
-  //     'cashCheque',
-  //     [ this._user.address, to, value, expiresOn, signature ]
-  //   )
-  // }
-
-  // public confirmCashCheque (rawTx: any): Promise<string> {
-  //   return this._user.signTx(rawTx).then(signedTx => this._transaction.relayTx(signedTx))
-  // }
-
-  // public getCashedCheques (network: string, filter?: object): Promise<any> {
-  //   const mergedFilter = Object.assign({ type: 'ChequeCashed' }, filter)
-  //   return this._event.get(network, mergedFilter)
-  //     .then(transfers =>
-  //       transfers.map(t =>
-  //         Object.assign({}, { blockNumber: t.blockNumber }, t.event)))
-  //     .catch(error => {
-  //       return Promise.reject(error)
-  //     })
-  // }
 }

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
     "build:esm": "tsc -m es6 --outDir lib-esm",
+    "doc": "./node_modules/typedoc/bin/typedoc --options tdconfig.json",
     "lint": "tslint -c tslint.json ./src/**/**.ts ./tests/**/**.ts",
     "lint-fix": "tslint -c tslint.json --fix ./src/**/**.ts ./tests/**/**.ts",
     "test": "mocha --timeout 10000 --require isomorphic-fetch -r ts-node/register tests/**/**.test.ts",
@@ -40,6 +41,7 @@
     "ts-node": "^3.3.0",
     "tslint": "^5.5.0",
     "tslint-config-standard": "^6.0.1",
+    "typedoc": "^0.11.1",    
     "types-ethereumjs-util": "0.0.5",
     "typescript": "^2.4.1",
     "typings": "^2.1.1",

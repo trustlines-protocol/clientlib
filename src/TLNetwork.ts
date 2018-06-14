@@ -17,18 +17,59 @@ import { TLNetworkConfig } from './typings'
  * It contains all of the library's functionality and all calls to the library should be made through a TLNetwork instance.
  */
 export class TLNetwork {
+  /**
+   * @hidden
+   * Configuration instance containing all configurable parameters.
+   */
   public configuration: Configuration
+  /**
+   * User instance containing all user/keystore related methods.
+   */
   public user: User
+  /**
+   * @hidden
+   * Transaction instance containing all transaction related methods.
+   */
   public transaction: Transaction
+  /**
+   * Payment instance containing all methods for creating trustline transfers
+   * and ETH transfers.
+   */
   public payment: Payment
+  /**
+   * Trustline instance containing all methods for managing trustlines.
+   */
   public trustline: Trustline
+  /**
+   * CurrencyNetwork instance containing all methods for retrieving currency network
+   * related information.
+   */
   public currencyNetwork: CurrencyNetwork
+  /**
+   * @hidden
+   */
   public contact: Contact
+  /**
+   * @hidden
+   */
   public utils: Utils
+  /**
+   * Event instance for retrieving event logs.
+   */
   public event: Event
+  /**
+   * @hidden
+   */
   public exchange: Exchange
+  /**
+   * @hidden
+   */
   public messaging: Messaging
 
+  /**
+   * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
+   * @param config Configuration object. See type `TLNetworkConfig` for more information.
+   */
   constructor (config: TLNetworkConfig = {}) {
     this.configuration = new Configuration(config)
     this.utils = new Utils(this.configuration)

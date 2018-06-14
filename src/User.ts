@@ -13,8 +13,17 @@ import { Amount, UserObject } from './typings'
  * related methods.
  */
 export class User {
+  /**
+   * Checksummed Ethereum address of currently loaded user/keystore.
+   */
   public address: string
+  /**
+   * Public key of currently loaded user/keystore.
+   */
   public pubKey: string
+  /**
+   * Loaded [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) Keystore object.
+   */
   public keystore: any
 
   private _transaction: Transaction
@@ -32,7 +41,7 @@ export class User {
   }
 
   /**
-   * Creates a new user and respective keystore.
+   * Creates a new user and the respective keystore.
    * Loads new user into the state and returns the created user object.
    */
   public async create (): Promise<UserObject> {
@@ -55,7 +64,7 @@ export class User {
   /**
    * Loads an existing user and respective keystore.
    * Returns the loaded user object.
-   * @param serializedKeystore serialized eth-lightwallet key store object
+   * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) key store.
    */
   public async load (serializedKeystore: string): Promise<UserObject> {
     try {
@@ -81,7 +90,7 @@ export class User {
 
   /**
    * Takes a raw transaction and digitally signs it with the currently loaded keystore.
-   * @param rawTx rlp encoded hex string of transaction
+   * @param rawTx RLP encoded hex string of transaction.
    */
   public signTx (rawTx: any): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -100,8 +109,8 @@ export class User {
   }
 
   /**
-   * Digitally signs a message hash with the currently loaded keystore.
-   * @param msgHash hash of message that should be signed
+   * Digitally signs a message hash with the currently loaded user/keystore.
+   * @param msgHash Hash of message that should be signed.
    */
   public signMsgHash (msgHash: string): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -131,11 +140,11 @@ export class User {
 
   /**
    * Returns a shareable link, which can be opened by other users who already have ETH
-   * and are willing to send some of it to the new user. Called by a new user who wants
-   * to get onboarded, respectively has no ETH or trustline.
-   * @param username name of user who wants to get onboarded
-   * @param serializedKeystore serialized eth-lightwallet keystore object
-   *                           of new user who wants to get onboarded
+   * and are willing to send some of it to the new user. The function is called by a
+   * new user who wants to get onboarded, respectively has no ETH or trustline.
+   * @param username Name of new user who wants to get onboarded.
+   * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet)
+   *                           keystore of new user who wants to get onboarded.
    */
   public async createOnboardingMsg (
     username: string,
@@ -151,10 +160,10 @@ export class User {
   }
 
   /**
-   * Returns a tx object for onboarding a new user. Called by a user who already has ETH
+   * Returns an ethereum transaction object for onboarding a new user. Called by a user who already has ETH
    * and wants to onboard a new user by sending some of it.
-   * @param newUserAddress address of new user who wants to get onboarded
-   * @param initialValue (optional) value of ETH to send, default is 0.1
+   * @param newUserAddress Address of new user who wants to get onboarded.
+   * @param initialValue Value of ETH to send, default is 0.1 ETH.
    */
   public async prepOnboarding (
     newUserAddress: string,
@@ -168,8 +177,8 @@ export class User {
   }
 
   /**
-   * Posts raw onboarding tx to relay server and returns the tx hash.
-   * @param rawTx hex string of raw tx returned by prepOnboarding
+   * Posts a raw onboarding ethereum transaction to the relay server and returns the transaction hash.
+   * @param rawTx RLP encoded hex string of the ethereum transaction returned by `prepOnboarding`.
    */
   public async confirmOnboarding (rawTx: string): Promise<string> {
     try {
@@ -195,6 +204,7 @@ export class User {
   }
 
   /**
+   * @hidden
    * Creates an Observable for polling the ETH balance of user.
    */
   public balanceObservable (): Observable<any> {
@@ -203,8 +213,8 @@ export class User {
 
   /**
    * Encrypts a message with the public key of another user.
-   * @param msg plain text message that should get encrypted
-   * @param theirPubKey public key of receiver of message
+   * @param msg Plain text message that should get encrypted.
+   * @param theirPubKey Public key of receiver of message.
    */
   public encrypt (msg: string, theirPubKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -230,8 +240,8 @@ export class User {
 
   /**
    * Decrypts an encrypted message with the private key of loaded user.
-   * @param encMsg encrypted message
-   * @param theirPubKey public key of sender of message
+   * @param encMsg Encrypted message.
+   * @param theirPubKey Public key of sender of message.
    */
   public decrypt (encMsg: any, theirPubKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -280,7 +290,7 @@ export class User {
 
   /**
    * Recovers user / keystore from 12 word seed.
-   * @param seed 12 word seed phrase string
+   * @param seed 12 word seed phrase string.
    */
   public async recoverFromSeed (seed: string): Promise<UserObject> {
     try {
@@ -301,14 +311,18 @@ export class User {
   /**
    * Returns a shareable link which can be send to other users.
    * Contains username and address.
-   * @param username custom user name
+   * @param username Custom username.
    */
   public createLink (username: string): string {
     const params = ['contact', this.address, username]
     return this._utils.createLink(params)
   }
 
-  // NOTE: only for dev purposes
+  /**
+   * @hidden
+   * Gives some ETH to requesting address.
+   * NOTE: Used only for dev purposes.
+   */
   public requestEth (): Promise<string> {
     const options = {
       method: 'POST',
@@ -319,9 +333,10 @@ export class User {
   }
 
   /**
+   * @hidden
    * Verifies a signature.
-   * @param message signed message
-   * @param signature digital signature
+   * @param message Signed message
+   * @param signature Digital signature
    */
   public verifySignature (message: any, signature: string): boolean {
     const r = ethUtils.toBuffer(signature.slice(0, 66))

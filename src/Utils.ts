@@ -23,38 +23,20 @@ export class Utils {
   private _apiUrl: string
   private _wsApiUrl: string
   private _pollInterval: number
-  private _useWebSockets: boolean
 
   constructor (configuration: Configuration) {
     this._apiUrl = configuration.apiUrl
     this._wsApiUrl = configuration.wsApiUrl
     this._pollInterval = configuration.pollInterval
-    this._useWebSockets = configuration.useWebSockets
   }
 
   public createObservable (url: string): Observable<any> {
-    if (this._useWebSockets && 'WebSocket' in window) {
-      return Observable.create((observer: Observer<any>) => {
-        let ws = new ReconnectingWebSocket(`${this._wsApiUrl}${url}`)
-        ws.onmessage = (e: MessageEvent) => {
-          const json = JSON.parse(e.data)
-          observer.next(json)
-        }
-        ws.onerror = (e: ErrorEvent) => {
-          console.error('An web socket error occured')
-        }
-        return () => {
-          ws.close(1000, '', { keepClosed: true })
-        }
-      })
-    } else {
-      return TimerObservable.create(0, this._pollInterval)
-        .mergeMap(() =>
-          fetch(`${this._apiUrl}${url}`)
-            .then(res => res.json())
-            .catch(err => new Error(`Could not get events: ${err.message}`))
-        )
-    }
+    return TimerObservable.create(0, this._pollInterval)
+      .mergeMap(() =>
+        fetch(`${this._apiUrl}${url}`)
+          .then(res => res.json())
+          .catch(err => new Error(`Could not get events: ${err.message}`))
+      )
   }
 
   /**
@@ -169,7 +151,7 @@ export class Utils {
 
   /**
    * Formats number into an Amount object which includes the decimals,
-   * smmallest and biggest representation.
+   * smallest and biggest representation.
    * @param raw representation of number in smallest unit
    * @param decimals nubmer of decimals
    */

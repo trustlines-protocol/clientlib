@@ -17,24 +17,23 @@ export class Configuration {
    * Default poll interval in seconds for Observables
    */
   public pollInterval: number
-  /**
-   * Whether to use WebSockets or not
-   */
-  public useWebSockets: boolean
 
-  constructor ({
-    protocol = 'http',
-    host = 'localhost',
-    port = 80,
-    path = '',
-    pollInterval = 500,
-    useWebSockets = false,
-    wsProtocol = 'ws'
-  }: TLNetworkConfig) {
+  /**
+   * Contructs a Configuration instance that is used for interacting with a relay server.
+   * @param config Configuration object. See type `TLNetworkConfig` for more information.
+   */
+  constructor (config: TLNetworkConfig = {}) {
+    const {
+      protocol = 'http',
+      host = 'localhost',
+      port = '',
+      path = '',
+      pollInterval = 500,
+      wsProtocol = 'ws'
+    } = config
     this.apiUrl = this._buildApiUrl(protocol, host, port, path)
     this.wsApiUrl = this._buildApiUrl(wsProtocol, host, port, path)
     this.pollInterval = pollInterval
-    this.useWebSockets = useWebSockets
   }
 
   /**
@@ -47,9 +46,9 @@ export class Configuration {
   private _buildApiUrl (
     protocol: string,
     host: string,
-    port: number,
+    port: number | string,
     path: string
   ): string {
-    return `${protocol}://${host}:${port}/${path}`
+    return `${protocol}://${host}${port === '' ? '' : `:${port}`}/${path}`
   }
 }

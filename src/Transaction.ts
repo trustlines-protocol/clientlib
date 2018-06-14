@@ -29,6 +29,8 @@ export class Transaction {
    * @param parameters arguments of function in same order as in contract
    * @param gasPrice (optional)
    * @param gasLimit (optional)
+   * @returns A ethereum transaction object containing the RLP encoded hex string of the
+   *          transaction and the estimated transaction fees in ETH.
    */
   public async prepFuncTx (
     userAddress: string,
@@ -36,13 +38,13 @@ export class Transaction {
     contractName: string,
     functionName: string,
     parameters: any[],
-    { gasPrice, gasLimit }: TxOptions = {}
+    options: TxOptions = {}
   ): Promise<TxObject> {
     try {
       const txInfos = await this._getTxInfos(userAddress)
       const txOptions = {
-        gasPrice: gasPrice || txInfos.gasPrice,
-        gasLimit: gasLimit || 600000,
+        gasPrice: options.gasPrice || txInfos.gasPrice,
+        gasLimit: options.gasLimit || 600000,
         value: 0,
         nonce: txInfos.nonce,
         to: contractAddress.toLowerCase()
@@ -67,18 +69,20 @@ export class Transaction {
    * @param rawValue transfer amount in wei
    * @param gasPrice (optional)
    * @param gasLimit (optional)
+   * @returns A ethereum transaction object containing the RLP encoded hex string of the
+   *          transaction and the estimated transaction fees in ETH.
    */
   public async prepValueTx (
     from: string,
     to: string,
     rawValue: string,
-    { gasPrice, gasLimit }: TxOptions = {}
+    options: TxOptions = {}
   ): Promise<TxObject> {
     try {
       const txInfos = await this._getTxInfos(from)
       const txOptions = {
-        gasPrice: gasPrice || txInfos.gasPrice,
-        gasLimit: gasLimit || 21000,
+        gasPrice: options.gasPrice || txInfos.gasPrice,
+        gasLimit: options.gasLimit || 21000,
         value: rawValue,
         nonce: txInfos.nonce,
         to: to.toLowerCase()
@@ -96,28 +100,30 @@ export class Transaction {
 
   /**
    * Relays signed raw transactions.
-   * @param signedRawTx signed raw transaction
+   * @param signedTx signed ethereum transaction
    */
-  public relayTx (signedRawTx: string): Promise<string> {
+  public relayTx (signedTx: string): Promise<string> {
     const headers = new Headers({'Content-Type': 'application/json'})
     const options = {
       method: 'POST',
       headers,
-      body: JSON.stringify({rawTransaction: `0x${signedRawTx}`})
+      body: JSON.stringify({rawTransaction: `0x${signedTx}`})
     }
     return this._utils.fetchUrl<string>('relay', options)
   }
 
   /**
-   * Returns the latest block number.
+   * Returns the latest block number of the underlying blockchain.
    */
   public getBlockNumber (): Promise<number> {
     return this._utils.fetchUrl<number>('blocknumber')
   }
 
   /**
-   * Returns needed information for creating a transaction.
+   * Returns needed information for creating an ethereum transaction.
    * @param userAddress address of user creating the transaction
+   * @returns Information for creating an ethereum transaction for the given user address.
+   *          See tyoe `TxInfos` for more details.
    */
   private _getTxInfos (userAddress: string): Promise<TxInfos> {
     return this._utils.fetchUrl<TxInfos>(`users/${userAddress}/txinfos`)

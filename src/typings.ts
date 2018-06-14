@@ -1,15 +1,32 @@
 import { BigNumber } from 'bignumber.js'
 
 /**
- * GENERAL
+ * Configuration object for a TLNetwork instance
  */
 export interface TLNetworkConfig {
+  /**
+   * Protocol for communicating with a relay server
+   */
   protocol?: string,
+  /**
+   * Host of a relay server
+   */
   host?: string,
+  /**
+   * Port for communcation
+   */
   port?: number,
+  /**
+   * Base path for the relay api
+   */
   path?: string,
+  /**
+   * Polling interval in ms for HTTP/HTTPS Oberservables
+   */
   pollInterval?: number,
-  useWebSockets?: boolean,
+  /**
+   * Protocol for websockets
+   */
   wsProtocol?: string
 }
 
@@ -33,14 +50,10 @@ export interface Amount {
   decimals: number
 }
 
-/**
- * EVENTS
- */
-
+// EVENTS
 export interface EventFilterOptions {
   type?: string,
-  fromBlock?: number,
-  toBlock?: number
+  fromBlock?: number
 }
 
 export interface TLEvent {
@@ -61,23 +74,32 @@ export interface TLEvent {
   amount?: Amount
 }
 
-/**
- * TRANSACTION
- */
+// TRANSACTION
 export interface TxObject {
   rawTx: string,
   ethFees: Amount
 }
 
+/**
+ * Information for creating an ethereum transaction of a given user address
+ * as returned by the relay server.
+ */
 export interface TxInfos {
+  /**
+   * Amount of ETH in gwei for every unit of gas user is willing to pay
+   */
   gasPrice: number,
+  /**
+   * Balance of given user address in ETH
+   */
   balance: number,
+  /**
+   * Transaction count of given user address
+   */
   nonce: number
 }
 
-/**
- * PAYMENT
- */
+// PAYMENT
 export interface TLTxObject extends TxObject {
   path: string[],
   maxFees: Amount
@@ -96,9 +118,7 @@ export interface PathRaw {
   estimatedGas: number
 }
 
-/**
- * CURRENCY NETWORK
- */
+// CURRENCY NETWORK
 export interface Network {
   name: string,
   abbreviation: string,
@@ -126,18 +146,14 @@ export interface UserOverviewRaw {
   leftGiven: string
 }
 
-/**
- * USER
- */
+// USER
 export interface UserObject {
   address: string,
   pubKey: string,
   keystore: string
 }
 
-/**
- * TRUSTLINE
- */
+// TRUSTLINE
 export interface TrustlineObject {
   id: string,
   address: string,
@@ -158,9 +174,7 @@ export interface TrustlineRaw {
   leftReceived: string
 }
 
-/**
- * EXCHANGE
- */
+// EXCHANGE
 export interface Order {
   maker: string // this.user.address
   taker: string // optional

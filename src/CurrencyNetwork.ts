@@ -10,7 +10,8 @@ import {
 } from './typings'
 
 /**
- * The CurrencyNetwork contains all functions relevant in the currency network context.
+ * The CurrencyNetwork class contains all functions relevant for retrieving
+ * currency network related information.
  */
 export class CurrencyNetwork {
   private _utils: Utils
@@ -28,7 +29,8 @@ export class CurrencyNetwork {
 
   /**
    * Returns detailed information of specific currency network.
-   * @param networkAddress address of currency network
+   * @param networkAddress Address of a currency network.
+   * @returns A network object with information about name, decimals, number of users and address.
    */
   public async getInfo (networkAddress: string): Promise<NetworkDetails> {
     try {
@@ -41,7 +43,7 @@ export class CurrencyNetwork {
 
   /**
    * Returns all addresses of users in a currency network.
-   * @param networkAddress address of currency network
+   * @param networkAddress Address of a currency network.
    */
   public async getUsers (networkAddress: string): Promise<string[]> {
     try {
@@ -54,8 +56,8 @@ export class CurrencyNetwork {
 
   /**
    * Returns overview of a user in a specific currency network.
-   * @param networkAddress address of currency network
-   * @param userAddress address of user
+   * @param networkAddress Address of a currency network.
+   * @param userAddress Address of a user.
    */
   public async getUserOverview (
     networkAddress: string,
@@ -81,8 +83,8 @@ export class CurrencyNetwork {
 
   /**
    * Returns the decimals specified in a currency network.
-   * @param networkAddress address of currency network
-   * @param decimals (optional) if decimals are known they can be provided manually
+   * @param networkAddress Address of currency network.
+   * @param decimals If decimals are known they can be provided manually.
    */
   public async getDecimals (networkAddress: string, decimals?: number): Promise<number> {
     try {
@@ -109,7 +111,7 @@ export class CurrencyNetwork {
 
   /**
    * Returns true or false whether given address is a registered currency network.
-   * @param contractAddress address which should be checked
+   * @param contractAddress Address which should be checked.
    */
   public async isNetwork (contractAddress: string): Promise<boolean> {
     try {
@@ -125,7 +127,7 @@ export class CurrencyNetwork {
 
   /**
    * Checks if given addresses are valid ethereum addresses.
-   * @param addresses array of addresses that should be checked
+   * @param addresses Array of addresses that should be checked.
    */
   private _checkAddresses (addresses: string[]): Promise<boolean> {
     for (let address of addresses) {

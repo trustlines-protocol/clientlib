@@ -28,6 +28,7 @@ export class Event {
   }
 
   /**
+   * @hidden
    * Creates and Observable for events.
    * @param networkAddress address of currency network
    * @param type type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`
@@ -35,28 +36,28 @@ export class Event {
    */
   public createObservable (
     networkAddress: string,
-    { type, fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Observable<any> {
     const { _user, _utils } = this
     const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
-    const parameterUrl = _utils.buildUrl(baseUrl, { type, fromBlock })
+    const parameterUrl = _utils.buildUrl(baseUrl, filter)
     return _utils.createObservable(parameterUrl)
   }
 
   /**
    * Returns event logs of loaded user in a specified currency network.
-   * @param networkAddress address of currency network
-   * @param type type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`
-   * @param fromBlock start of block range
+   * @param networkAddress Address of a currency network.
+   * @param type Type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public async get (
     networkAddress: string,
-    { type, fromBlock }: EventFilterOptions = {}
+    filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
     try {
       const { _currencyNetwork, _user, _utils } = this
       const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
-      const parameterUrl = _utils.buildUrl(baseUrl, { type, fromBlock })
+      const parameterUrl = _utils.buildUrl(baseUrl, filter)
       const [ events, decimals ] = await Promise.all([
         _utils.fetchUrl<TLEvent[]>(parameterUrl),
         _currencyNetwork.getDecimals(networkAddress)
@@ -69,14 +70,13 @@ export class Event {
 
   /**
    * Returns event logs of loaded user in all currency networks.
-   * @param type type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`
-   * @param fromBlock start of block range
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
-  public async getAll ({ type, fromBlock }: EventFilterOptions = {}): Promise<TLEvent[]> {
+  public async getAll (filter: EventFilterOptions = {}): Promise<TLEvent[]> {
     try {
       const { _currencyNetwork, _user, _utils } = this
       const baseUrl = `users/${_user.address}/events`
-      const parameterUrl = _utils.buildUrl(baseUrl, { type, fromBlock })
+      const parameterUrl = _utils.buildUrl(baseUrl, filter)
       const events = await _utils.fetchUrl<TLEvent[]>(parameterUrl)
       const networks = this._getUniqueNetworksFromEvents(events)
       const decimalsMap = await this._getDecimalsMap(networks)
@@ -89,6 +89,9 @@ export class Event {
     }
   }
 
+  /**
+   * @hidden
+   */
   public updateStream (): Observable<any> {
     return this._utils.websocketStream(
       'streams/events',
