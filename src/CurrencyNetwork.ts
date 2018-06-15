@@ -75,21 +75,19 @@ export class CurrencyNetwork {
    * @param decimals If decimals are known they can be provided manually.
    */
   public async getDecimals (networkAddress: string, decimals?: number): Promise<number> {
-    await this._checkAddresses([networkAddress])
-    const isNetwork = await this.isNetwork(networkAddress)
-    if (isNetwork) {
-      return Promise.resolve(
-        ((typeof decimals === 'number') && decimals) ||
-        // TODO replace with list of known currency network in clientlib
-        this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
-          .then(network => network.decimals)
-      )
-    } else {
-      if ((typeof decimals === 'number') && decimals) {
+    try {
+      await this._checkAddresses([networkAddress])
+      if (decimals && typeof decimals === 'number') {
         return decimals
-      } else {
-        return Promise.reject(`${networkAddress} is a token address. Decimals have to be explicit.`)
       }
+      // TODO replace with list of known currency network in clientlib
+      const network = await this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
+      return network.decimals
+    } catch (error) {
+      if (error.message.includes('Status 404')) {
+        throw new Error(`${networkAddress} seems not to be a network address. Decimals have to be explicit.`)
+      }
+      throw error
     }
   }
 
@@ -115,6 +113,6 @@ export class CurrencyNetwork {
         throw new Error(`${address} is not a valid address.`)
       }
     }
-    return
+    return true
   }
 }
