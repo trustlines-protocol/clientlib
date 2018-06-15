@@ -69,7 +69,7 @@ describe('e2e', () => {
     describe('#getAll()', async () => {
       before(async () => {
         const [ txObj1, txObj2 ] = await Promise.all([
-          tl1.trustline.prepareUpdate(network1.address, user2.address, 1000, 500),
+          tl1.trustline.prepareUpdate(network2.address, user2.address, 1000, 500),
           tl2.trustline.prepareUpdate(network2.address, user1.address, 500, 1000)
         ])
         await Promise.all([

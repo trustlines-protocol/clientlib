@@ -117,18 +117,17 @@ describe('e2e', () => {
     })
 
     describe('#getUpdates()', () => {
-      const given = 123
-      const received = 321
-      let txId1
+      const given = 1234
+      const received = 4321
 
       before(async () => {
-        const [ tx1, tx2 ] = await Promise.all([
-          tl1.trustline.prepareUpdate(network.address, user2.address, given, received),
-          tl2.trustline.prepareUpdate(network.address, user1.address, received, given)
-        ])
-        txId1 = await tl1.trustline.confirm(tx1.rawTx)
-        console.log(txId1)
-        await tl2.trustline.confirm(tx2.rawTx)
+        const { rawTx } = await tl1.trustline.prepareUpdate(
+          network.address,
+          user2.address,
+          given,
+          received
+        )
+        await tl1.trustline.confirm(rawTx)
         await wait(1000)
       })
 
@@ -138,21 +137,29 @@ describe('e2e', () => {
       })
 
       it('should return latest update', async () => {
+        const { rawTx } = await tl2.trustline.prepareAccept(
+          network.address,
+          user1.address,
+          received,
+          given
+        )
+        const txId = await tl2.trustline.confirm(rawTx)
+        await wait(1000)
         const updates = await tl1.trustline.getUpdates(network.address)
         const latestUpdate = updates[updates.length - 1]
-        expect(latestUpdate.direction).to.equal('sent')
-        expect(latestUpdate.from).to.equal(user1.address)
-        expect(latestUpdate.transactionId).to.equal(txId1)
-        expect(latestUpdate.to).to.equal(user2.address)
+        expect(latestUpdate.direction).to.equal('received')
+        expect(latestUpdate.from).to.equal(user2.address)
+        expect(latestUpdate.to).to.equal(user1.address)
         expect(latestUpdate.blockNumber).to.be.a('number')
         expect(latestUpdate.timestamp).to.be.a('number')
         expect(latestUpdate.networkAddress).to.equal(network.address)
         expect(latestUpdate.status).to.be.a('string')
+        expect(latestUpdate.transactionId).to.equal(txId)
         expect(latestUpdate.type).to.equal('TrustlineUpdate')
         expect(latestUpdate.received).to.have.keys('raw', 'value', 'decimals')
-        expect(latestUpdate.received.value).to.eq(received.toString())
+        expect(latestUpdate.received.value).to.eq(given.toString())
         expect(latestUpdate.given).to.have.keys('raw', 'value', 'decimals')
-        expect(latestUpdate.given.value).to.eq(given.toString())
+        expect(latestUpdate.given.value).to.eq(received.toString())
       })
     })
 
