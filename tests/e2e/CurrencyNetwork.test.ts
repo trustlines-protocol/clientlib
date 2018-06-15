@@ -83,11 +83,9 @@ describe('e2e', () => {
 
       it('should throw error', async () => {
         const errMsg = [
-          `${configuration.apiUrl}networks/${notRegisteredAddress}`,
-          `Status 404`,
-          // typo will be fixed as soon as relay returns correct message
-          `Unkown network: ${notRegisteredAddress}`
-        ].join(' | ')
+          `${notRegisteredAddress} seems not to be a network address.`,
+          'Decimals have to be explicit.'
+        ].join(' ')
         await expect(currencyNetwork.getDecimals(notRegisteredAddress))
           .to.be.rejectedWith(errMsg)
       })

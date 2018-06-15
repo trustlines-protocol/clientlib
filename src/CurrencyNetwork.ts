@@ -84,6 +84,9 @@ export class CurrencyNetwork {
       const network = await this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
       return network.decimals
     } catch (error) {
+      if (error.message.includes('Status 404')) {
+        throw new Error(`${networkAddress} seems not to be a network address. Decimals have to be explicit.`)
+      }
       throw error
     }
   }
