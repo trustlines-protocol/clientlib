@@ -11,16 +11,15 @@ describe('integration', () => {
     const { expect } = chai
     const tlNew = new TLNetwork(config)
     const tlExisting = new TLNetwork(config)
+    const seedUser1 = 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
     let newUser
     let existingUser
 
-    before(done => {
-      Promise.all([tlNew.user.create(), tlExisting.user.load(keystore1)])
-        .then(users => {
-          newUser = users[0]
-          existingUser = users[1]
-          done()
-        })
+    before(async () => {
+      [ newUser, existingUser ] = await Promise.all([
+        tlNew.user.create(),
+        tlExisting.user.load(keystore1)
+      ])
     })
 
     describe('#create()', () => {
@@ -32,7 +31,7 @@ describe('integration', () => {
     describe('#load()', () => {
       it('should load existing user/keystore', () => {
         expect(existingUser).to.have.keys('address', 'keystore', 'pubKey')
-        expect(existingUser.address.toLowerCase()).to.equal(user1.address.toLowerCase())
+        expect(existingUser.address).to.eq(user1.address)
       })
     })
 
@@ -44,20 +43,16 @@ describe('integration', () => {
 
     describe('#showSeed()', () => {
       it('should show seed of loaded user', () => {
-        expect(tlExisting.user.showSeed()).to.eventually
-          .equal('mesh park casual casino sorry giraffe half shrug wool anger chef amateur')
+        expect(tlExisting.user.showSeed()).to.eventually.eq(seedUser1)
       })
     })
 
     describe('#recoverFromSeed()', () => {
-      it('should recover from seed words', done => {
-        tlExisting.user.recoverFromSeed('mesh park casual casino sorry giraffe half shrug wool anger chef amateur')
-          .then(recoveredUser => {
-            expect(recoveredUser.address).to.equal(user1.address)
-            expect(recoveredUser.pubKey).to.equal(user1.pubKey)
-            expect(recoveredUser.keystore).to.be.a('string')
-            done()
-          })
+      it('should recover from seed words', async () => {
+        const recoveredUser = await tlExisting.user.recoverFromSeed(seedUser1)
+        expect(recoveredUser.address).to.equal(user1.address)
+        expect(recoveredUser.pubKey).to.equal(user1.pubKey)
+        expect(recoveredUser.keystore).to.be.a('string')
       })
     })
 
@@ -69,13 +64,11 @@ describe('integration', () => {
     })
 
     describe('#decrypt()', () => {
-      it('should decrypt message', () => {
+      it('should decrypt message', async () => {
         const message = 'hello world!'
-        tlNew.user.encrypt(message, existingUser.pubKey)
-          .then(encrypt => {
-            expect(tlExisting.user.decrypt(encrypt, newUser.pubKey))
-              .to.eventually.equal('hello world!')
-          })
+        const cipherText = await tlNew.user.encrypt(message, existingUser.pubKey)
+        expect(tlExisting.user.decrypt(cipherText, newUser.pubKey))
+          .to.eventually.equal('hello world!')
       })
     })
   })
