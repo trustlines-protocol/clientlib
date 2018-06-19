@@ -24,7 +24,7 @@ describe('e2e', () => {
       ])
       // make sure users have eth
       await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
-      wait(1000)
+      await wait()
     })
 
     describe('#prepareUpdate()', () => {
@@ -40,7 +40,7 @@ describe('e2e', () => {
 
       before(async () => {
         tx = await tl1.trustline.prepareUpdate(network.address, user2.address, 1300, 1000)
-        await wait(1000)
+        await wait()
       })
 
       it('should return txId', () => {
@@ -50,7 +50,7 @@ describe('e2e', () => {
 
       after(async () => {
         // make sure tx is mined
-        await wait(1000)
+        await wait()
       })
     })
 
@@ -62,7 +62,7 @@ describe('e2e', () => {
       before(async () => {
         const { rawTx } = await tl1.trustline.prepareUpdate(network.address, user2.address, given, received)
         txId = await tl1.trustline.confirm(rawTx)
-        await wait(1000)
+        await wait()
       })
 
       it('should return all requests', () => {
@@ -101,7 +101,7 @@ describe('e2e', () => {
       before(async () => {
         const { rawTx } = await tl1.trustline.prepareUpdate(network.address, user2.address, 1300, 123)
         await tl1.trustline.confirm(rawTx)
-        await wait(1000)
+        await wait()
       })
 
       it('should return txId', async () => {
@@ -112,13 +112,13 @@ describe('e2e', () => {
 
       after(async () => {
         // make sure tx got mined
-        await wait(1000)
+        await wait()
       })
     })
 
     describe('#getUpdates()', () => {
-      const given = 1234
-      const received = 4321
+      const given = 123
+      const received = 321
 
       before(async () => {
         const { rawTx } = await tl1.trustline.prepareUpdate(
@@ -128,7 +128,7 @@ describe('e2e', () => {
           received
         )
         await tl1.trustline.confirm(rawTx)
-        await wait(1000)
+        await wait()
       })
 
       it('should return all updates', () => {
@@ -144,12 +144,12 @@ describe('e2e', () => {
           given
         )
         const txId = await tl2.trustline.confirm(rawTx)
-        await wait(1000)
+        await wait()
         const updates = await tl1.trustline.getUpdates(network.address)
         const latestUpdate = updates[updates.length - 1]
-        expect(latestUpdate.direction).to.equal('received')
-        expect(latestUpdate.from).to.equal(user2.address)
-        expect(latestUpdate.to).to.equal(user1.address)
+        expect(latestUpdate.direction).to.equal('sent')
+        expect(latestUpdate.from).to.equal(user1.address)
+        expect(latestUpdate.to).to.equal(user2.address)
         expect(latestUpdate.blockNumber).to.be.a('number')
         expect(latestUpdate.timestamp).to.be.a('number')
         expect(latestUpdate.networkAddress).to.equal(network.address)
@@ -157,9 +157,9 @@ describe('e2e', () => {
         expect(latestUpdate.transactionId).to.equal(txId)
         expect(latestUpdate.type).to.equal('TrustlineUpdate')
         expect(latestUpdate.received).to.have.keys('raw', 'value', 'decimals')
-        expect(latestUpdate.received.value).to.eq(given.toString())
+        expect(latestUpdate.received.value).to.eq(received.toString())
         expect(latestUpdate.given).to.have.keys('raw', 'value', 'decimals')
-        expect(latestUpdate.given.value).to.eq(received.toString())
+        expect(latestUpdate.given.value).to.eq(given.toString())
       })
     })
 

@@ -46,7 +46,7 @@ describe('e2e', () => {
 
       it('should send eth to new user', async () => {
         await expect(tlNew.user.requestEth()).to.eventually.not.equal(null)
-        await wait(1000)
+        await wait()
         const balance = await tlNew.user.getBalance()
         expect(balance).to.have.keys('raw', 'value', 'decimals')
         expect(new BigNumber(balance.raw).toNumber()).to.be.above(0)

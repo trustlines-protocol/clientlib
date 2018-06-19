@@ -39,14 +39,14 @@ describe('e2e', () => {
         tl2.trustline.confirm(tx2.rawTx)
       ])
       // wait for tx to be mined
-      await wait(1000)
+      await wait()
     })
 
     describe('#get()', () => {
       before(async () => {
         const { rawTx } = await tl1.payment.prepare(network1.address, user2.address, 1.5)
         await tl1.payment.confirm(rawTx)
-        await wait(1000)
+        await wait()
       })
 
       it('should return latest transfer', async () => {
@@ -76,7 +76,7 @@ describe('e2e', () => {
           tl1.trustline.confirm(txObj1.rawTx),
           tl2.trustline.confirm(txObj2.rawTx)
         ])
-        await wait(1000)
+        await wait()
       })
 
       it('should return trustline updates from more than one network', async () => {
@@ -96,7 +96,7 @@ describe('e2e', () => {
         stream = await tl1.event.updateStream().subscribe(event => events.push(event))
         const { rawTx } = await tl1.payment.prepare(network1.address, user2.address, 2.5)
         await tl1.payment.confirm(rawTx)
-        await wait(1000)
+        await wait()
       })
 
       it('should receive transfer updates', () => {
@@ -135,7 +135,7 @@ describe('e2e', () => {
       after(async () => {
         stream.unsubscribe()
         // make sure stream unsubscribed
-        await wait(1000)
+        await wait()
       })
     })
 
@@ -147,7 +147,7 @@ describe('e2e', () => {
         stream = await tl2.event.updateStream().subscribe(event => events.push(event))
         const { rawTx } = await tl2.trustline.prepareUpdate(network1.address, user1.address, 4001, 4002)
         await tl2.trustline.confirm(rawTx)
-        await wait(1000)
+        await wait()
       })
 
       it('should receive trustline update request', () => {
@@ -171,7 +171,7 @@ describe('e2e', () => {
       after(async () => {
         stream.unsubscribe()
         // make sure stream unsubscribed
-        await wait(1000)
+        await wait()
       })
     })
   })

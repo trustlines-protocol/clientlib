@@ -36,7 +36,7 @@ describe('e2e', () => {
         tl2.trustline.confirm(tx2.rawTx)
       ])
       // wait for tx to be mined
-      await wait(1000)
+      await wait()
     })
 
     describe('#getPath()', () => {
@@ -80,7 +80,7 @@ describe('e2e', () => {
       before(async () => {
         const { rawTx } = await tl1.payment.prepare(network.address, user2.address, 1.5)
         await tl1.payment.confirm(rawTx)
-        await wait(1000)
+        await wait()
       })
 
       it('should return transfers array', () => {
@@ -121,7 +121,7 @@ describe('e2e', () => {
       it('should confirm eth transfer', async () => {
         const { rawTx } = await tl1.payment.prepareEth(user2.address, 0.0001)
         await tl1.payment.confirm(rawTx)
-        await wait(1000)
+        await wait()
         const afterBalance = await tl2.user.getBalance()
         const delta = new BigNumber(afterBalance.value).minus(beforeBalance.value)
         expect(delta.toNumber()).to.eq(0.0001)

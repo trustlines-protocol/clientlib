@@ -20,6 +20,6 @@ export const user2 = {
   keystore: keystore2
 }
 
-export function wait (ms) {
+export function wait (ms = 2000) {
   return new Promise(resolve => setTimeout(() => resolve(), ms))
 }

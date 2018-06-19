@@ -30,12 +30,12 @@ describe('e2e', () => {
       before(async () => {
         stream = tl1.messaging.messageStream()
           .subscribe(message => messages.push(message))
-        await wait(1000)
+        await wait()
       })
 
       it('should receive payment requests', async () => {
         tl2.messaging.paymentRequest(network.address, user1.address, 250)
-        await wait(1000)
+        await wait()
         expect(messages).to.have.lengthOf(2)
         expect(messages[1]).to.have.property('type', 'PaymentRequest')
         expect(messages[1].amount).to.have.keys('raw', 'value', 'decimals')
@@ -49,7 +49,7 @@ describe('e2e', () => {
 
       after(async () => {
         stream.unsubscribe()
-        wait(1000)
+        await wait()
       })
     })
   })
