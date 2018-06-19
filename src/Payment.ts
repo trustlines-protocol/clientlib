@@ -40,8 +40,8 @@ export class Payment {
 
   /**
    * Prepares ethereum transaction object for a trustlines transfer, where loaded user is sender.
-   * @param network Address of a currency network.
-   * @param to Address of receiver of transfer.
+   * @param networkAddress Address of a currency network.
+   * @param receiverAddress Address of receiver of transfer.
    * @param value Amount to transfer in biggest unit,
    *              i.e. 1.5 if currency network has 2 decimals.
    * @param options Optional payment options. See `PaymentOptions` for more information.
@@ -52,28 +52,28 @@ export class Payment {
    * @param options.gasLimit Custom gas limit.
    */
   public async prepare (
-    network: string,
-    to: string,
+    networkAddress: string,
+    receiverAddress: string,
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<TLTxObject> {
     const { _user, _currencyNetwork, _transaction, _utils } = this
     let { decimals } = options
-    decimals = await _currencyNetwork.getDecimals(network, decimals)
+    decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
     const { path, maxFees, estimatedGas } = await this.getPath(
-      network,
+      networkAddress,
       _user.address,
-      to,
+      receiverAddress,
       value,
       { ...options, decimals }
     )
     if (path.length > 0) {
       const { rawTx, ethFees } = await _transaction.prepFuncTx(
         _user.address,
-        network,
+        networkAddress,
         'CurrencyNetwork',
         'transfer',
-        [ to, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
+        [ receiverAddress, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
         {
           gasPrice: options.gasPrice,
           gasLimit: options.gasLimit || estimatedGas * 1.5
@@ -87,20 +87,20 @@ export class Payment {
 
   /**
    * Prepares a ethereum transaction object for a ETH transfer, where loaded user is the sender.
-   * @param to Address of receiver of transfer.
+   * @param receiverAddress Address of receiver of transfer.
    * @param value Amount of ETH to transfer.
    * @param options Payment options. See `PaymentOptions` for more information.
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
   public prepareEth (
-    to: string,
+    receiverAddress: string,
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<TxObject> {
     return this._transaction.prepValueTx(
       this._user.address,
-      to,
+      receiverAddress,
       this._utils.calcRaw(value, 18),
       options
     )
@@ -108,7 +108,7 @@ export class Payment {
 
   /**
    * Returns a path for a trustlines transfer.
-   * @param network Address of a currency network.
+   * @param networkAddress Address of a currency network.
    * @param senderAddress Address of sender of transfer.
    * @param receiverAddress Address of receiver of transfer.
    * @param value Amount to transfer in biggest unit,
@@ -119,7 +119,7 @@ export class Payment {
    * @param options.maximumFees Max. transfer fees user if willing to pay.
    */
   public async getPath (
-    network: string,
+    networkAddress: string,
     senderAddress: string,
     receiverAddress: string,
     value: number | string,
@@ -127,7 +127,7 @@ export class Payment {
   ): Promise<PathObject> {
     const { _currencyNetwork, _utils, _user } = this
     let { decimals, maximumHops, maximumFees} = options
-    decimals = await _currencyNetwork.getDecimals(network, decimals)
+    decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
     const data = {
       from: senderAddress,
       to: receiverAddress,
@@ -139,7 +139,7 @@ export class Payment {
     if (maximumHops) {
       data['maxHops'] = maximumHops
     }
-    const endpoint = `networks/${network}/path-info`
+    const endpoint = `networks/${networkAddress}/path-info`
     const { estimatedGas, fees, path } = await _utils.fetchUrl<PathRaw>(endpoint, {
       method: 'POST',
       headers: new Headers({ 'Content-Type': 'application/json' }),
@@ -154,14 +154,14 @@ export class Payment {
 
   /**
    * Returns transfer event logs of loaded user in a specified currency network.
-   * @param network Address of currency network.
+   * @param networkAddress Address of currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public get (
-    network: string,
+    networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<TLEvent[]> {
-    return this._event.get(network, {
+    return this._event.get(networkAddress, {
       ...filter,
       type: 'Transfer'
     })

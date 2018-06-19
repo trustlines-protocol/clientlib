@@ -28,23 +28,6 @@ export class Event {
   }
 
   /**
-   * @hidden
-   * Creates and Observable for events.
-   * @param networkAddress address of currency network
-   * @param type type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`
-   * @param fromBlock start of block range
-   */
-  public createObservable (
-    networkAddress: string,
-    filter: EventFilterOptions = {}
-  ): Observable<any> {
-    const { _user, _utils } = this
-    const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
-    const parameterUrl = _utils.buildUrl(baseUrl, filter)
-    return _utils.createObservable(parameterUrl)
-  }
-
-  /**
    * Returns event logs of loaded user in a specified currency network.
    * @param networkAddress Address of a currency network.
    * @param type Type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`.
@@ -114,13 +97,13 @@ export class Event {
 
   /**
    * Returns a mapping from currency network address to decimals
-   * @param networks array of unique currency network addresses
+   * @param networkAddresses array of unique currency network addresses
    */
-  private async _getDecimalsMap (networks: string[]): Promise<object> {
+  private async _getDecimalsMap (networkAddresses: string[]): Promise<object> {
     const decimalsList = await Promise.all(
-      networks.map(n => this._currencyNetwork.getDecimals(n))
+      networkAddresses.map(n => this._currencyNetwork.getDecimals(n))
     )
-    return networks.reduce((decimalsMap, network, i) => {
+    return networkAddresses.reduce((decimalsMap, network, i) => {
       decimalsMap[network] = decimalsList[i]
       return decimalsMap
     }, {})

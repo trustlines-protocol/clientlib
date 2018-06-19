@@ -13,10 +13,6 @@ export class Configuration {
    * Base URL of the relay WebSocket API endpoint
    */
   public wsApiUrl: string
-  /**
-   * Default poll interval in seconds for Observables
-   */
-  public pollInterval: number
 
   /**
    * Contructs a Configuration instance that is used for interacting with a relay server.
@@ -28,12 +24,10 @@ export class Configuration {
       host = 'localhost',
       port = '',
       path = '',
-      pollInterval = 500,
       wsProtocol = 'ws'
     } = config
     this.apiUrl = this._buildApiUrl(protocol, host, port, path)
     this.wsApiUrl = this._buildApiUrl(wsProtocol, host, port, path)
-    this.pollInterval = pollInterval
   }
 
   /**

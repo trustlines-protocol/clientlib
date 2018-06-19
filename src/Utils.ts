@@ -22,21 +22,10 @@ export class Utils {
 
   private _apiUrl: string
   private _wsApiUrl: string
-  private _pollInterval: number
 
   constructor (configuration: Configuration) {
     this._apiUrl = configuration.apiUrl
     this._wsApiUrl = configuration.wsApiUrl
-    this._pollInterval = configuration.pollInterval
-  }
-
-  public createObservable (url: string): Observable<any> {
-    return TimerObservable.create(0, this._pollInterval)
-      .mergeMap(() =>
-        fetch(`${this._apiUrl}${url}`)
-          .then(res => res.json())
-          .catch(err => new Error(`Could not get events: ${err.message}`))
-      )
   }
 
   /**
