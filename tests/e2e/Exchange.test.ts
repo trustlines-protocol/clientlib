@@ -118,13 +118,9 @@ describe('e2e', () => {
       })
 
       it('should return latest order by its hash', done => {
-        tl1.exchange.getOrderByHash(order.hash, {
-          includeCancelled: true,
-          includeFilled: true,
-          includeUnavailable: true
-        }).then(returnedOrder => {
+        tl1.exchange.getOrderByHash(order.hash).then(returnedOrder => {
           console.log(returnedOrder)
-          expect(returnedOrder).to.have.keys('filledTakerAmount', 'cancelledTakerAmount', 'unavailableTakerAmount')
+          expect(returnedOrder).to.have.keys('filledTakerTokenAmount', 'cancelledTakerTokenAmount', 'availableTakerTokenAmount')
           done()
         })
           .catch(e => console.error(e))

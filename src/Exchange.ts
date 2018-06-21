@@ -57,22 +57,14 @@ export class Exchange {
     return this._utils.fetchUrl<string[]>('exchange/exchanges')
   }
 
-  public async getOrderByHash (
-    orderHash: string,
-    {
-      includeFilled,
-      includeCancelled,
-      includeUnavailable,
-      makerTokenDecimals,
-      takerTokenDecimals
-    }: OrderOptions = {}
-  ): Promise<any> {
+  public async getOrderByHash (orderHash: string, {
+    makerTokenDecimals,
+    takerTokenDecimals
+  }: OrderOptions = {}): Promise<any> {
     const { _currencyNetwork, _user, _utils } = this
-    const baseUrl = `exchange/order/${orderHash}`
-    const parameterUrl = _utils.buildUrl(baseUrl, { includeFilled, includeCancelled, includeUnavailable })
 
     try {
-      const order = await _utils.fetchUrl<OrderRaw>(parameterUrl)
+      const order = await _utils.fetchUrl<OrderRaw>(`exchange/order/${orderHash}`)
       const [ makerDecimals, takerDecimals ] = await Promise.all([
         _currencyNetwork.getDecimals(order.makerTokenAddress, makerTokenDecimals),
         _currencyNetwork.getDecimals(order.takerTokenAddress, takerTokenDecimals)
