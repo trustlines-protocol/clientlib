@@ -1,6 +1,6 @@
 import { Utils } from './Utils'
 import { User } from './User'
-import { TxOptions, Amount, TLEvent } from './typings'
+import { TxOptions, Amount, TLEvent, TxObject } from './typings'
 import { Transaction } from './Transaction'
 import { EventFilterOptions } from './typings'
 
@@ -35,6 +35,27 @@ export class EthWrapper {
     return _utils.formatAmount(balance, ETH_DECIMALS)
   }
 
+  public async prepTransfer (
+    ethWrapperAddress: string,
+    receiverAddress: string,
+    value: number | string,
+    options: TxOptions = {}
+  ): Promise<TxObject> {
+    const { _transaction, _user, _utils } = this
+    const { gasPrice, gasLimit } = options
+    return _transaction.prepFuncTx(
+      _user.address,
+      ethWrapperAddress,
+      'UnwEth',
+      'transfer',
+      [ receiverAddress, _utils.calcRaw(value, ETH_DECIMALS) ],
+      {
+        gasPrice,
+        gasLimit
+      }
+    )
+  }
+
   public prepDeposit (
     ethWrapperAddress: string,
     value: number | string,
@@ -60,7 +81,7 @@ export class EthWrapper {
     ethWrapperAddress: string,
     value: number | string,
     options: TxOptions = {}
-  ): Promise<any> {
+  ): Promise<TxObject> {
     const { _transaction, _user, _utils } = this
     const { gasPrice, gasLimit } = options
     return _transaction.prepFuncTx(
@@ -84,7 +105,7 @@ export class EthWrapper {
   public async getLogs (
     ethWrapperAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<any> {
+  ): Promise<TLEvent[]> {
     const { _user, _utils } = this
     const { type, fromBlock } = filter
     const baseUrl = `tokens/${ethWrapperAddress}/users/${_user.address}/events`

@@ -15,6 +15,7 @@ describe('e2e', () => {
     const tl2 = new TLNetwork(config)
     const depositAmount = 0.002
     const withdrawAmount = 0.001
+    const transferAmount = 0.0001
     let user1
     let user2
     let ethWrapperAddress
@@ -79,6 +80,52 @@ describe('e2e', () => {
       })
     })
 
+    describe('#prepTransfer()', () => {
+      it('should prepare transfer tx', () => {
+        expect(tl1.ethWrapper.prepTransfer(ethWrapperAddress, tl2.user.address, transferAmount))
+          .to.eventually.have.keys('rawTx', 'ethFees')
+      })
+    })
+
+    describe('#confirm() - transfer', () => {
+      // wrapped eth balance of user 1
+      let wethBalanceBefore1
+      // eth balance of user 2
+      let ethBalanceBefore2
+      let tx
+
+      before(async () => {
+        // make sure already deposited
+        const { rawTx } = await tl1.ethWrapper.prepDeposit(ethWrapperAddress, depositAmount)
+        await tl1.ethWrapper.confirm(rawTx)
+        await wait()
+        // set balances before transfer
+        const balances = await Promise.all([
+          tl1.ethWrapper.getBalance(ethWrapperAddress),
+          tl2.user.getBalance()
+        ])
+        wethBalanceBefore1 = balances[0]
+        ethBalanceBefore2 = balances[1]
+        // prepare withdraw tx
+        tx = await tl1.ethWrapper.prepTransfer(ethWrapperAddress, tl2.user.address, transferAmount)
+      })
+
+      it('should confirm transfer tx', async () => {
+        expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a('string')
+        await wait()
+        const [ wethBalanceAfter1, ethBalanceAfter2 ] = await Promise.all([
+          tl1.ethWrapper.getBalance(ethWrapperAddress),
+          tl2.user.getBalance()
+        ])
+        const deltaWeth1 = Math.abs(new BigNumber(wethBalanceBefore1.value)
+          .minus(new BigNumber(wethBalanceAfter1.value)).toNumber())
+        const deltaEth2 = Math.abs(new BigNumber(ethBalanceBefore2.value)
+          .minus(new BigNumber(ethBalanceAfter2.value)).toNumber())
+        expect(deltaWeth1).to.eq(transferAmount)
+        expect(deltaEth2).to.eq(transferAmount)
+      })
+    })
+
     describe('#prepWithdraw()', () => {
       it('should prepare withdraw tx', () => {
         expect(tl1.ethWrapper.prepWithdraw(ethWrapperAddress, withdrawAmount))
@@ -131,6 +178,9 @@ describe('e2e', () => {
         tx = await tl1.ethWrapper.prepWithdraw(ethWrapperAddress, withdrawAmount)
         await tl1.ethWrapper.confirm(tx.rawTx)
         await wait()
+        tx = await tl1.ethWrapper.prepTransfer(ethWrapperAddress, tl2.user.address, transferAmount)
+        await tl1.ethWrapper.confirm(tx.rawTx)
+        await wait()
         logs = await tl1.ethWrapper.getLogs(ethWrapperAddress)
       })
 
@@ -164,6 +214,21 @@ describe('e2e', () => {
         expect(latestLog.timestamp).to.be.a('number')
         expect(latestLog.transactionId).to.be.a('string')
         expect(latestLog.type).to.equal('Withdrawal')
+      })
+
+      it('should return latest transfer log', async () => {
+        const transferLogs = logs.filter(log => log.type === 'Transfer')
+        const latestLog = transferLogs[transferLogs.length - 1]
+        expect(latestLog.amount).to.have.keys('decimals', 'raw', 'value')
+        expect(latestLog.blockNumber).to.be.a('number')
+        expect(latestLog.direction).to.equal('sent')
+        expect(latestLog.from).to.equal(tl1.user.address)
+        expect(latestLog.tokenAddress).to.equal(ethWrapperAddress)
+        expect(latestLog.status).to.be.a('string')
+        expect(latestLog.timestamp).to.be.a('number')
+        expect(latestLog.to).to.equal(tl2.user.address)
+        expect(latestLog.transactionId).to.be.a('string')
+        expect(latestLog.type).to.equal('Transfer')
       })
     })
 
