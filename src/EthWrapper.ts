@@ -1,94 +1,96 @@
 import { Utils } from './Utils'
 import { User } from './User'
-import { CurrencyNetwork } from './CurrencyNetwork'
-import { TxOptions } from './typings'
+import { TxOptions, Amount, TLEvent } from './typings'
 import { Transaction } from './Transaction'
 import { EventFilterOptions } from './typings'
 
-export class EthWrapper {
-  constructor (
-    private user: User,
-    private utils: Utils,
-    private currencyNetwork: CurrencyNetwork,
-    private transaction: Transaction
-  ) {}
+const ETH_DECIMALS = 18
 
-  public getAll (): Promise<any> {
-    return this.utils.fetchUrl('exchange/eth')
+/**
+ * The class EthWrapper contains all methods for depositing, withdrawing and transferring wrapped ETH.
+ */
+export class EthWrapper {
+  private _user: User
+  private _utils: Utils
+  private _transaction: Transaction
+
+  constructor (
+    user: User,
+    utils: Utils,
+    transaction: Transaction
+  ) {
+    this._user = user
+    this._utils = utils
+    this._transaction = transaction
   }
 
-  public async getBalance (tokenAddress: string): Promise<any> {
-    const { user, utils } = this
-    try {
-      const balance = await utils.fetchUrl<string>(`tokens/${tokenAddress}/users/${user.address}/balance`)
-      const rawBalance = utils.calcRaw(balance, 18)
-      return utils.formatAmount(rawBalance, 18)
-    } catch (error) {
-      return Promise.reject(error)
-    }
+  public getAddresses (): Promise<any> {
+    return this._utils.fetchUrl<string[]>('exchange/eth')
+  }
+
+  public async getBalance (ethWrapperAddress: string): Promise<Amount> {
+    const { _user, _utils } = this
+    const endpoint = `tokens/${ethWrapperAddress}/users/${_user.address}/balance`
+    const balance = await _utils.fetchUrl<string>(endpoint)
+    return _utils.formatAmount(balance, ETH_DECIMALS)
   }
 
   public prepDeposit (
-    tokenAddress: string,
+    ethWrapperAddress: string,
     value: number | string,
-    { gasPrice, gasLimit }: TxOptions = {}
+    options: TxOptions = {}
   ): Promise<any> {
-    const { transaction, user, utils } = this
-    return transaction.prepFuncTx(
-      user.address,
-      tokenAddress,
+    const { _transaction, _user, _utils } = this
+    const { gasPrice, gasLimit } = options
+    return _transaction.prepFuncTx(
+      _user.address,
+      ethWrapperAddress,
       'UnwEth',
       'deposit',
       [],
       {
         gasPrice,
         gasLimit,
-        value: utils.convertEthToWei(value)
+        value: _utils.calcRaw(value, ETH_DECIMALS)
       }
-    ).catch(e => Promise.reject(e))
+    )
   }
 
   public prepWithdraw (
-    tokenAddress: string,
+    ethWrapperAddress: string,
     value: number | string,
-    { gasPrice, gasLimit }: TxOptions = {}
+    options: TxOptions = {}
   ): Promise<any> {
-    const { transaction, user, utils } = this
-    return transaction.prepFuncTx(
-      user.address,
-      tokenAddress,
+    const { _transaction, _user, _utils } = this
+    const { gasPrice, gasLimit } = options
+    return _transaction.prepFuncTx(
+      _user.address,
+      ethWrapperAddress,
       'UnwEth',
       'withdraw',
-      [ utils.convertEthToWei(value) ],
+      [ _utils.calcRaw(value, ETH_DECIMALS) ],
       {
         gasPrice,
         gasLimit
       }
-    ).catch(e => Promise.reject(e))
+    )
   }
 
   public async confirm (rawTx): Promise<string> {
-    const { transaction, user } = this
-    try {
-      const signedTx = await user.signTx(rawTx)
-      return transaction.relayTx(signedTx)
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const signedTx = await this._user.signTx(rawTx)
+    return this._transaction.relayTx(signedTx)
   }
 
   public async getLogs (
-    tokenAddress: string,
-    { type, fromBlock }: EventFilterOptions = {}
+    ethWrapperAddress: string,
+    filter: EventFilterOptions = {}
   ): Promise<any> {
-    const { user, utils } = this
-    const baseUrl = `tokens/${tokenAddress}/users/${user.address}/events`
-    const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock })
-    try {
-      const events = await utils.fetchUrl<any[]>(parameterUrl)
-      return events.map(event => utils.formatEvent(event, 18))
-    } catch (error) {
-      return Promise.reject(error)
-    }
+    const { _user, _utils } = this
+    const { type, fromBlock } = filter
+    const baseUrl = `tokens/${ethWrapperAddress}/users/${_user.address}/events`
+    const events = await _utils.fetchUrl<TLEvent[]>(
+      _utils.buildUrl(baseUrl, { type, fromBlock })
+    )
+    return events.map(event => _utils.formatEvent(event, ETH_DECIMALS))
   }
 }

@@ -84,7 +84,7 @@ export class TLNetwork {
     this.payment = new Payment(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
     this.exchange = new Exchange(this.event, this.user, this.utils, this.transaction, this.currencyNetwork, this.payment)
     this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
-    this.ethWrapper = new EthWrapper(this.user, this.utils, this.currencyNetwork, this.transaction)
+    this.ethWrapper = new EthWrapper(this.user, this.utils, this.transaction)
   }
 
 }

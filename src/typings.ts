@@ -27,6 +27,7 @@ export interface TLNetworkConfig {
 }
 
 export interface TxOptions {
+  value?: number | string,
   gasPrice?: number,
   gasLimit?: number
 }

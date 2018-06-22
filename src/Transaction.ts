@@ -44,7 +44,7 @@ export class Transaction {
     const txOptions = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
       gasLimit: options.gasLimit || 600000,
-      value: 0,
+      value: options.value ? new BigNumber(options.value).toNumber() : 0,
       nonce: txInfos.nonce,
       to: contractAddress.toLowerCase()
     }
