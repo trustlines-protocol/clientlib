@@ -20,7 +20,7 @@ export class EthWrapper {
   public async getBalance (tokenAddress: string): Promise<any> {
     const { user, utils } = this
     try {
-      const balance = await utils.fetchUrl(`tokens/${tokenAddress}/users/${user.address}/balance`)
+      const balance = await utils.fetchUrl<string>(`tokens/${tokenAddress}/users/${user.address}/balance`)
       const rawBalance = utils.calcRaw(balance, 18)
       return utils.formatAmount(rawBalance, 18)
     } catch (error) {
@@ -79,13 +79,13 @@ export class EthWrapper {
 
   public async getLogs (
     tokenAddress: string,
-    { type, fromBlock, toBlock }: EventFilterOptions = {}
+    { type, fromBlock }: EventFilterOptions = {}
   ): Promise<any> {
     const { user, utils } = this
     const baseUrl = `tokens/${tokenAddress}/users/${user.address}/events`
-    const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock, toBlock })
+    const parameterUrl = utils.buildUrl(baseUrl, { type, fromBlock })
     try {
-      const events = await utils.fetchUrl(parameterUrl)
+      const events = await utils.fetchUrl<any[]>(parameterUrl)
       return events.map(event => utils.formatEvent(event, 18))
     } catch (error) {
       return Promise.reject(error)

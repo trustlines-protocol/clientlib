@@ -53,7 +53,10 @@ export interface EventFilterOptions {
 }
 
 export interface TLEvent {
-  networkAddress: string,
+  // NetworkEvents
+  networkAddress?: string,
+  // TokenEvents
+  tokenAddress?: string,
   type: string,
   timestamp: number,
   blockNumber: number,

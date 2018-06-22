@@ -9,6 +9,9 @@ import {
   TLEvent
 } from './typings'
 
+const CURRENCY_NETWORK_EVENT = 'CurrencyNetworkEvent'
+const TOKEN_EVENT = 'TokenEvent'
+
 /**
  * The Event class contains all methods related to retrieving event logs.
  */
@@ -52,16 +55,19 @@ export class Event {
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
   public async getAll (filter: EventFilterOptions = {}): Promise<TLEvent[]> {
-    const { _currencyNetwork, _user, _utils } = this
+    const { _user, _utils } = this
     const baseUrl = `users/${_user.address}/events`
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
     const events = await _utils.fetchUrl<TLEvent[]>(parameterUrl)
-    const networks = this._getUniqueNetworksFromEvents(events)
-    const decimalsMap = await this._getDecimalsMap(networks)
-    return events.map(event => _utils.formatEvent(
-      event,
-      decimalsMap[event.networkAddress]
-    ))
+    const addressesMap = this._getUniqueAddressesMap(events)
+    const decimalsMap = await this._getDecimalsMap(addressesMap)
+    return events.map(event => {
+      const address = event.networkAddress || event.tokenAddress
+      return _utils.formatEvent(
+        event,
+        decimalsMap[address]
+      )
+    })
   }
 
   /**
@@ -86,24 +92,39 @@ export class Event {
   }
 
   /**
-   * Returns unique network addresses from a list of event logs.
+   * Returns unique addresses from a list of event logs and maps to the event type.
+   * Currently there are `NetworkEvent` and `TokenEvent`.
    * @param events trustlines network events
    */
-  private _getUniqueNetworksFromEvents (events: TLEvent[]): string[] {
-    const networks = events.map(e => e.networkAddress)
-    const set = new Set(networks)
-    return Array.from(set)
+  private _getUniqueAddressesMap (events: TLEvent[]): object {
+    return events.reduce((result, e) => {
+      if (e.networkAddress) {
+        result[e.networkAddress] = CURRENCY_NETWORK_EVENT
+      } else if (e.tokenAddress) {
+        result[e.tokenAddress] = TOKEN_EVENT
+      }
+      return result
+    }, {})
   }
 
   /**
-   * Returns a mapping from currency network address to decimals
-   * @param networkAddresses array of unique currency network addresses
+   * Returns a mapping from address to decimals
+   * @param addressesMap mapping from address to event type
    */
-  private async _getDecimalsMap (networkAddresses: string[]): Promise<object> {
+  private async _getDecimalsMap (addressesMap: object): Promise<object> {
+    const addresses = Object.keys(addressesMap)
     const decimalsList = await Promise.all(
-      networkAddresses.map(n => this._currencyNetwork.getDecimals(n))
+      addresses.map(address => {
+        if (addressesMap[address] === CURRENCY_NETWORK_EVENT) {
+          return this._currencyNetwork.getDecimals(address)
+        }
+        if (addressesMap[address] === TOKEN_EVENT) {
+          // NOTE: only expecting WrappedEthEvents for now
+          return this._currencyNetwork.getDecimals(address, 18)
+        }
+      })
     )
-    return networkAddresses.reduce((decimalsMap, network, i) => {
+    return addresses.reduce((decimalsMap, network, i) => {
       decimalsMap[network] = decimalsList[i]
       return decimalsMap
     }, {})
