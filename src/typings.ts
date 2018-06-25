@@ -105,7 +105,7 @@ export interface PathObject {
   path: string[],
   maxFees: Amount,
   estimatedGas: number,
-  isNoNetwork?: boolean
+  isNetwork?: boolean
 }
 
 export interface PathRaw {
@@ -149,6 +149,11 @@ export interface UserObject {
   keystore: string
 }
 
+export interface Signature {
+  ecSignature: ECSignature,
+  concatSig: string
+}
+
 // TRUSTLINE
 export interface TrustlineObject {
   id: string,
@@ -184,11 +189,35 @@ export interface Order {
   exchangeContractAddress: string
   feeRecipient: string
   expirationUnixTimestampSec: string
+  hash?: string
+}
+
+/**
+ * Order object as returned by relay
+ */
+export interface OrderRaw {
+  maker: string // this.user.address
+  taker: string // optional
+  makerFee: string
+  takerFee: string
+  makerTokenAmount: string // required
+  takerTokenAmount: string // required
+  makerTokenAddress: string // required
+  takerTokenAddress: string // required
+  salt: string
+  exchangeContractAddress: string
+  feeRecipient: string
+  expirationUnixTimestampSec: string
 }
 
 export interface Orderbook {
   asks: Order[],
   bids: Order[]
+}
+
+export interface OrderbookRaw {
+  asks: OrderRaw[],
+  bids: OrderRaw[]
 }
 
 export interface SignedOrder extends Order {
@@ -228,4 +257,11 @@ export interface ExchangeOptions extends TxOptions {
 export interface OrderbookOptions {
   baseTokenDecimals?: number,
   quoteTokenDecimals?: number
+}
+
+export interface ExchangeTx extends TxObject {
+  makerMaxFees: Amount,
+  makerPath: string[],
+  takerMaxFees: Amount,
+  takerPath: string[]
 }

@@ -24,7 +24,7 @@ describe('e2e', () => {
       Promise.all([tl1.user.load(keystore1), tl2.user.load(keystore2)])
         .then(users => [ user1, user2 ] = users)
         // get availabe exchange contracts
-        .then(() => tl1.exchange.getExchanges())
+        .then(() => tl1.exchange.getExAddresses())
         .then(exchanges => {
           exchangeAddress = exchanges[0]
         })
@@ -64,13 +64,7 @@ describe('e2e', () => {
 
     describe('#getExchanges()', () => {
       it('should return array', () => {
-        expect(tl1.exchange.getExchanges()).to.eventually.be.an('array')
-      })
-    })
-
-    describe('#getEthWrappers()', () => {
-      it('should return array', () => {
-        expect(tl1.exchange.getEthWrappers()).to.eventually.be.an('array')
+        expect(tl1.exchange.getExAddresses()).to.eventually.be.an('array')
       })
     })
 

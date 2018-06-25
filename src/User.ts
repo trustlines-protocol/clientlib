@@ -6,7 +6,11 @@ import { Observable } from 'rxjs/Observable'
 import { Utils } from './Utils'
 import { Transaction } from './Transaction'
 
-import { Amount, UserObject } from './typings'
+import {
+  Amount,
+  UserObject,
+  Signature
+} from './typings'
 
 /**
  * The User class contains all user related functions, which also include keystore
@@ -104,7 +108,7 @@ export class User {
    * Digitally signs a message hash with the currently loaded user/keystore.
    * @param msgHash Hash of message that should be signed.
    */
-  public signMsgHash (msgHash: string): Promise<any> {
+  public signMsgHash (msgHash: string): Promise<Signature> {
     return new Promise((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
