@@ -1,22 +1,21 @@
 import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+
 import { TLNetwork } from '../../src/TLNetwork'
-import { config } from '../Fixtures'
+import { config, user1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
 describe('e2e', () => {
   describe('CurrencyNetwork', () => {
     const { expect } = chai
-    const { currencyNetwork } = new TLNetwork(config)
+    const { configuration, currencyNetwork } = new TLNetwork(config)
     let networks
+    const notRegisteredAddress = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
 
-    before(done => {
-      currencyNetwork.getAll().then(allNetworks => {
-        networks = allNetworks
-        done()
-      })
+    before(async () => {
+      networks = await currencyNetwork.getAll()
     })
 
     describe('#getAll()', () => {
@@ -28,22 +27,20 @@ describe('e2e', () => {
         expect(networks).to.have.length.above(0, 'No registered networks')
         expect(networks[0]).to.have.all.keys('name', 'abbreviation', 'address')
         expect(networks[0].name).to.be.a('string')
-        expect(networks[0].abbreviation).to.be.a('string').to.be.a('string').and.to.have.length.within(1, 3)
-        expect(networks[0].address).to.be.a('string').to.be.a('string').and.to.have.length(42)
+        expect(networks[0].abbreviation).to.be.a('string').and.to.have.length.within(1, 3)
+        expect(networks[0].address).to.be.a('string').and.to.have.length(42)
       })
     })
 
     describe('#getInfo()', () => {
-      it('should return detailed information of specific currency network', done => {
-        currencyNetwork.getInfo(networks[0].address).then(network => {
-          expect(network).to.have.all.keys('name', 'abbreviation', 'address', 'numUsers', 'decimals')
-          expect(network.abbreviation).to.be.a('string').and.to.have.length.within(1, 3)
-          expect(network.address).to.be.a('string').and.to.have.length(42)
-          expect(network.decimals).to.be.a('number')
-          expect(network.name).to.be.a('string')
-          expect(network.numUsers).to.be.a('number')
-          done()
-        })
+      it('should return detailed information of specific currency network', async () => {
+        const networkInfo = await currencyNetwork.getInfo(networks[0].address)
+        expect(networkInfo).to.have.all.keys('name', 'abbreviation', 'address', 'numUsers', 'decimals')
+        expect(networkInfo.abbreviation).to.be.a('string').and.to.have.length.within(1, 3)
+        expect(networkInfo.address).to.be.a('string').and.to.have.length(42)
+        expect(networkInfo.decimals).to.be.a('number')
+        expect(networkInfo.name).to.be.a('string')
+        expect(networkInfo.numUsers).to.be.a('number')
       })
     })
 
@@ -54,18 +51,18 @@ describe('e2e', () => {
     })
 
     describe('#getUserOverview()', () => {
-      it('should return overview of user in currency network context', done => {
-        currencyNetwork.getUserOverview(networks[0].address, '0xf8e191d2cd72ff35cb8f012685a29b31996614ea')
-          .then(overview => {
-            const { balance, given, received, leftGiven, leftReceived } = overview
-            expect(overview).to.have.all.keys('balance', 'given', 'received', 'leftGiven', 'leftReceived')
-            expect(balance).to.have.all.keys('decimals', 'raw', 'value')
-            expect(given).to.have.all.keys('decimals', 'raw', 'value')
-            expect(received).to.have.all.keys('decimals', 'raw', 'value')
-            expect(leftGiven).to.have.all.keys('decimals', 'raw', 'value')
-            expect(leftReceived).to.have.all.keys('decimals', 'raw', 'value')
-            done()
-          })
+      it('should return overview of user in currency network context', async () => {
+        const overview = await currencyNetwork.getUserOverview(
+          networks[0].address,
+          user1.address
+        )
+        const { balance, given, received, leftGiven, leftReceived } = overview
+        expect(overview).to.have.all.keys('balance', 'given', 'received', 'leftGiven', 'leftReceived')
+        expect(balance).to.have.all.keys('decimals', 'raw', 'value')
+        expect(given).to.have.all.keys('decimals', 'raw', 'value')
+        expect(received).to.have.all.keys('decimals', 'raw', 'value')
+        expect(leftGiven).to.have.all.keys('decimals', 'raw', 'value')
+        expect(leftReceived).to.have.all.keys('decimals', 'raw', 'value')
       })
     })
 
@@ -75,9 +72,18 @@ describe('e2e', () => {
           .to.eventually.be.a('number')
       })
 
-      it('should return decimals', () => {
+      it('should return provided decimals', () => {
         expect(currencyNetwork.getDecimals(networks[0].address, 2))
           .to.eventually.equal(2)
+      })
+
+      it('should throw error', async () => {
+        const errMsg = [
+          `${notRegisteredAddress} seems not to be a network address.`,
+          'Decimals have to be explicit.'
+        ].join(' ')
+        await expect(currencyNetwork.getDecimals(notRegisteredAddress))
+          .to.be.rejectedWith(errMsg)
       })
     })
   })

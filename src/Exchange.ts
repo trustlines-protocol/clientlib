@@ -52,7 +52,7 @@ export class Exchange {
       ])
       const params = { baseTokenAddress, quoteTokenAddress }
       const endpoint = utils.buildUrl('exchange/orderbook', params)
-      const orderbook = await utils.fetchUrl(endpoint)
+      const orderbook = await utils.fetchUrl<any>(endpoint)
       const { asks, bids } = orderbook
       return {
         asks: asks.map(a => ({

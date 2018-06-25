@@ -1,75 +1,118 @@
-import { Utils } from './Utils'
-
 import * as ethUtils from 'ethereumjs-util'
 
+import { Utils } from './Utils'
+
+import {
+  Network,
+  NetworkDetails,
+  UserOverview,
+  UserOverviewRaw
+} from './typings'
+
+/**
+ * The CurrencyNetwork class contains all functions relevant for retrieving
+ * currency network related information.
+ */
 export class CurrencyNetwork {
+  private _utils: Utils
 
-  constructor (private utils: Utils) {
+  constructor (utils: Utils) {
+    this._utils = utils
   }
 
-  public getAll (): Promise<any[]> {
-    return this.utils.fetchUrl(`networks`)
+  /**
+   * Returns all registered currency networks.
+   */
+  public getAll (): Promise<Network[]> {
+    return this._utils.fetchUrl<Network[]>(`networks`)
   }
 
-  public getInfo (networkAddress: string): Promise<any> {
-    if (!this.utils.checkAddress(networkAddress)) {
-      return Promise.reject(`${networkAddress} is not a valid address.`)
-    }
-    return this.utils.fetchUrl(`networks/${networkAddress}`)
+  /**
+   * Returns detailed information of specific currency network.
+   * @param networkAddress Address of a currency network.
+   * @returns A network object with information about name, decimals, number of users and address.
+   */
+  public async getInfo (networkAddress: string): Promise<NetworkDetails> {
+    await this._checkAddresses([networkAddress])
+    return this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
   }
 
-  public getUsers (networkAddress: string): Promise<string[]> {
-    if (!this.utils.checkAddress(networkAddress)) {
-      return Promise.reject(`${networkAddress} is not a valid address.`)
-    }
-    return this.utils.fetchUrl(`networks/${networkAddress}/users`)
+  /**
+   * Returns all addresses of users in a currency network.
+   * @param networkAddress Address of a currency network.
+   */
+  public async getUsers (networkAddress: string): Promise<string[]> {
+    await this._checkAddresses([networkAddress])
+    return this._utils.fetchUrl<string[]>(`networks/${networkAddress}/users`)
   }
 
-  public getUserOverview (networkAddress: string, userAddress: string): Promise<any> {
-    if (!this.utils.checkAddress(networkAddress)) {
-      return Promise.reject(`${networkAddress} is not a valid address.`)
-    }
-    return Promise.all([
-      this.utils.fetchUrl(`networks/${networkAddress}/users/${userAddress}`),
+  /**
+   * Returns overview of a user in a specific currency network.
+   * @param networkAddress Address of a currency network.
+   * @param userAddress Address of a user.
+   */
+  public async getUserOverview (
+    networkAddress: string,
+    userAddress: string
+  ): Promise<UserOverview> {
+    await this._checkAddresses([networkAddress, userAddress])
+    const [ overview, decimals ] = await Promise.all([
+      this._utils.fetchUrl<UserOverviewRaw>(`networks/${networkAddress}/users/${userAddress}`),
       this.getDecimals(networkAddress)
-    ]).then(([ overview, decimals ]) => ({
-      ...overview,
-      balance: this.utils.formatAmount(overview.balance, decimals),
-      given: this.utils.formatAmount(overview.given, decimals),
-      received: this.utils.formatAmount(overview.received, decimals),
-      leftGiven: this.utils.formatAmount(overview.leftGiven, decimals),
-      leftReceived: this.utils.formatAmount(overview.leftReceived, decimals)
-    }))
+    ])
+    return {
+      balance: this._utils.formatAmount(overview.balance, decimals),
+      given: this._utils.formatAmount(overview.given, decimals),
+      received: this._utils.formatAmount(overview.received, decimals),
+      leftGiven: this._utils.formatAmount(overview.leftGiven, decimals),
+      leftReceived: this._utils.formatAmount(overview.leftReceived, decimals)
+    }
   }
 
-  public async getDecimals (networkAddress: string, decimals?: number): Promise<any> {
-    const isNetwork = await this.isNetwork(networkAddress)
-    if (!this.utils.checkAddress(networkAddress)) {
-      return Promise.reject(`${networkAddress} is not a valid address.`)
-    }
-    if (isNetwork) {
-      return Promise.resolve(
-        ((typeof decimals === 'number') && decimals) ||
-        // TODO replace with list of known currency network in clientlib
-        this.utils.fetchUrl(`networks/${networkAddress}`)
-          .then(network => network.decimals)
-      )
-    } else {
-      if ((typeof decimals === 'number') && decimals) {
+  /**
+   * Returns the decimals specified in a currency network.
+   * @param networkAddress Address of currency network.
+   * @param decimals If decimals are known they can be provided manually.
+   */
+  public async getDecimals (networkAddress: string, decimals?: number): Promise<number> {
+    try {
+      await this._checkAddresses([networkAddress])
+      if (decimals && typeof decimals === 'number') {
         return decimals
-      } else {
-        return Promise.reject(`${networkAddress} is a token address. Decimals have to be explicit.`)
       }
+      // TODO replace with list of known currency network in clientlib
+      const network = await this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
+      return network.decimals
+    } catch (error) {
+      if (error.message.includes('Status 404')) {
+        throw new Error(`${networkAddress} seems not to be a network address. Decimals have to be explicit.`)
+      }
+      throw error
     }
   }
 
-  public async isNetwork (contractAddress: string): Promise<any> {
-    if (!this.utils.checkAddress(contractAddress)) {
-      return Promise.reject(`${contractAddress} is not a valid address.`)
-    }
+  /**
+   * Returns true or false whether given address is a registered currency network.
+   * @param contractAddress Address which should be checked.
+   */
+  public async isNetwork (contractAddress: string): Promise<boolean> {
+    await this._checkAddresses([contractAddress])
     // TODO find another to check if given address is a currency network
     const currencyNetworks = await this.getAll()
     const networkAddresses = currencyNetworks.map(c => ethUtils.toChecksumAddress(c.address))
     return networkAddresses.indexOf(ethUtils.toChecksumAddress(contractAddress)) !== -1
+  }
+
+  /**
+   * Checks if given addresses are valid ethereum addresses.
+   * @param addresses Array of addresses that should be checked.
+   */
+  private async _checkAddresses (addresses: string[]): Promise<boolean> {
+    for (let address of addresses) {
+      if (!this._utils.checkAddress(address)) {
+        throw new Error(`${address} is not a valid address.`)
+      }
+    }
+    return true
   }
 }
