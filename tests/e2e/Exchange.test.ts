@@ -160,94 +160,70 @@ describe('e2e', () => {
       })
     })
 
-    describe.skip('#confirm() - TL money <-> TL money', () => {
+    describe('#confirm() - TL money <-> TL money', () => {
       let makerTLBefore
       let takerTLBefore
+      let order
 
-      before(done => {
-        tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 1)
-          .then(order => latestOrder = order)
-          .then(() => Promise.all([
-            tl2.trustline.getAll(makerTokenAddress),
-            tl2.trustline.getAll(takerTokenAddress)
-          ])
-          .then(([ makerTrustlines, takerTrustlines ]) => {
-            makerTLBefore = makerTrustlines.find(tl => tl.address === tl1.user.address)
-            takerTLBefore = takerTrustlines.find(tl => tl.address === tl1.user.address)
-            done()
-          }))
-          .catch(e => done(e))
+      before(async () => {
+        order = await tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 1)
+        const trustlines = await Promise.all([
+          tl2.trustline.getAll(makerTokenAddress),
+          tl2.trustline.getAll(takerTokenAddress)
+        ])
+        makerTLBefore = trustlines[0].find(tl => tl.address === tl1.user.address)
+        takerTLBefore = trustlines[1].find(tl => tl.address === tl1.user.address)
       })
 
-      it('should confirm a signed fill order tx for TL money <-> TL money order', done => {
-        tl2.exchange.prepTakeOrder(latestOrder, 0.5)
-          .then(tx => tl2.exchange.confirm(tx.rawTx))
-          .then(txId => {
-            setTimeout(() => {
-              expect(txId).to.be.a('string')
-              Promise.all([
-                tl2.trustline.getAll(makerTokenAddress),
-                tl2.trustline.getAll(takerTokenAddress)
-              ]).then(([ makerTrustlines, takerTrustlines ]) => {
-                const makerTLAfter = makerTrustlines.find(tl => tl.address === tl1.user.address)
-                const takerTLAfter = takerTrustlines.find(tl => tl.address === tl1.user.address)
-                const makerBalanceDelta = Math.abs(
-                  parseInt(makerTLBefore.balance.raw, 10) - parseInt(makerTLAfter.balance.raw, 10)
-                )
-                const takerBalanceDelta = Math.abs(
-                  parseInt(takerTLBefore.balance.raw, 10) - parseInt(takerTLAfter.balance.raw, 10)
-                )
-                expect(makerTLAfter.balance.raw).to.be.above(0)
-                expect(takerTLAfter.balance.raw).to.be.below(0)
-                expect(makerBalanceDelta).to.equal(takerBalanceDelta)
-                done()
-              })
-            }, 3000)
-          })
+      it('should confirm a signed fill order tx for TL money <-> TL money order', async () => {
+        const tx = await tl2.exchange.prepTakeOrder(order, 0.5)
+        await tl2.exchange.confirm(tx.rawTx)
+        await wait()
+        const trustlines = await Promise.all([
+          tl2.trustline.getAll(makerTokenAddress),
+          tl2.trustline.getAll(takerTokenAddress)
+        ])
+        const makerTLAfter = trustlines[0].find(tl => tl.address === tl1.user.address)
+        const takerTLAfter = trustlines[1].find(tl => tl.address === tl1.user.address)
+        const makerBalanceDelta = Math.abs(
+          new BigNumber(makerTLBefore.balance.raw).minus(makerTLAfter.balance.raw).toNumber()
+        )
+        const takerBalanceDelta = Math.abs(
+          new BigNumber(takerTLBefore.balance.raw).minus(takerTLAfter.balance.raw).toNumber()
+        )
+        expect(new BigNumber(makerTLAfter.balance.raw).toNumber()).to.be.above(0)
+        expect(new BigNumber(takerTLAfter.balance.raw).toNumber()).to.be.below(0)
+        expect(makerBalanceDelta).to.equal(takerBalanceDelta)
       })
 
-      it('should return LogFill event', done => {
-        tl1.exchange.getLogs(exchangeAddress)
-          .then(logs => {
-            const latestLog = logs[logs.length - 1]
-            expect(latestLog.orderHash).to.eq(latestOrder.hash)
-            done()
-          })
+      it('should return LogFill event', async () => {
+        const logs = await tl1.exchange.getLogs(exchangeAddress)
+        const latestLog = await logs[logs.length - 1]
+        expect(latestLog.orderHash).to.equal(order.hash)
       })
     })
 
-    describe('#cancelOrder', () => {
-      let cancelTx
-      let cancelTxHash
+    describe('#prepCancelOrder', () => {
+      let order
+      let txId
 
-      before(done => {
-        tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 2)
-          .then(order => latestOrder = order)
-          .then(() => tl1.exchange.cancelOrder(latestOrder, 1))
-          .then(tx => cancelTx = tx)
-          .then(() => done())
-          .catch(e => done(e))
+      before(async () => {
+        order = await tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 2)
+        const { rawTx } = await tl1.exchange.prepCancelOrder(order, 1)
+        txId = await tl1.exchange.confirm(rawTx)
+        await wait()
       })
 
-      it('should return tx hash', done => {
-        tl1.exchange.confirm(cancelTx.rawTx)
-          .then(txHash => cancelTxHash = txHash)
-          .then(() => expect(cancelTxHash).to.be.a('string'))
-          .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
-          .then(() => done())
-          .catch(e => done(e))
+      it('should return tx hash', async () => {
+        expect(txId).to.be.a('string')
       })
 
-      it('should return LogCancel event', done => {
-        tl1.exchange.getLogs(exchangeAddress)
-          .then(logs => {
-            const latestLog = logs[logs.length - 1]
-            expect(latestLog.type).to.eq('LogCancel')
-            expect(latestLog.transactionId).to.eq(cancelTxHash)
-            expect(latestLog.orderHash).to.eq(latestOrder.hash)
-            done()
-          })
-          .catch(e => done(e))
+      it('should return LogCancel event', async () => {
+        const logs = await tl1.exchange.getLogs(exchangeAddress)
+        const latestLog = logs[logs.length - 1]
+        expect(latestLog.type).to.eq('LogCancel')
+        expect(latestLog.transactionId).to.eq(txId)
+        expect(latestLog.orderHash).to.eq(order.hash)
       })
     })
 
