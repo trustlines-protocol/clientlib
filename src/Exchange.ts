@@ -115,12 +115,16 @@ export class Exchange {
       maker: _user.address,
       makerFee: _utils.formatAmount(0, makerDecimals),
       makerTokenAddress: ethUtils.toChecksumAddress(makerTokenAddress),
-      makerTokenAmount: _utils.formatAmount(makerTokenValue, makerDecimals),
+      makerTokenAmount: _utils.formatAmount(
+        _utils.calcRaw(makerTokenValue, makerDecimals), makerDecimals
+      ),
       salt: Math.floor(Math.random() * 1000000000).toString(),
       taker: ZERO_ADDRESS,
       takerFee: _utils.formatAmount(0, makerDecimals),
       takerTokenAddress: ethUtils.toChecksumAddress(takerTokenAddress),
-      takerTokenAmount: _utils.formatAmount(takerTokenValue, takerDecimals)
+      takerTokenAmount: _utils.formatAmount(
+        _utils.calcRaw(takerTokenValue, takerDecimals), takerDecimals
+      )
     }
     const orderWithFees = await this._getFees(order)
     const orderHash = this._getOrderHashHex(orderWithFees)
