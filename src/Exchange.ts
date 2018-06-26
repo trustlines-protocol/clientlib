@@ -194,7 +194,13 @@ export class Exchange {
     })
     return ({
       ...signedOrder,
-      hash: orderHash
+      hash: orderHash,
+      filledMakerTokenAmount: _utils.formatAmount(0, makerDecimals),
+      filledTakerTokenAmount: _utils.formatAmount(0, takerDecimals),
+      cancelledMakerTokenAmount: _utils.formatAmount(0, makerDecimals),
+      cancelledTakerTokenAmount: _utils.formatAmount(0, takerDecimals),
+      availableMakerTokenAmount: signedOrder.makerTokenAmount,
+      availableTakerTokenAmount: signedOrder.takerTokenAmount
     })
   }
 

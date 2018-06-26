@@ -102,21 +102,35 @@ describe('e2e', () => {
     })
 
     describe('#getOrderByHash()', () => {
-      let order
+      const makerTokenValue = 1000
+      const takerTokenValue = 2000
+      let madeOrder
 
       before(async () => {
-        order = await tl1.exchange.makeOrder(
+        madeOrder = await tl1.exchange.makeOrder(
           exchangeAddress,
           makerTokenAddress,
           takerTokenAddress,
-          1000,
-          2000
+          makerTokenValue,
+          takerTokenValue
         )
       })
 
-      it('should return latest order by its hash', async () => {
-        const returnedOrder = await tl1.exchange.getOrderByHash(order.hash)
-        expect(returnedOrder).to.have.keys('filledTakerTokenAmount', 'cancelledTakerTokenAmount', 'availableTakerTokenAmount')
+      it('should return order by its hash', async () => {
+        const returnedOrder = await tl1.exchange.getOrderByHash(madeOrder.hash)
+        // NOTE: relay server reutrns ecSignature in upper case
+        const sigUpperCase = {
+          ...madeOrder.ecSignature,
+          r: `0x${madeOrder.ecSignature.r.substr(2).toUpperCase()}`,
+          s: `0x${madeOrder.ecSignature.s.substr(2).toUpperCase()}`
+        }
+        expect({
+          ...returnedOrder,
+          hash: madeOrder.hash
+        }).to.deep.equal({
+          ...madeOrder,
+          ecSignature: sigUpperCase
+        })
       })
     })
 
