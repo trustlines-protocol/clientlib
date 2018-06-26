@@ -1,8 +1,10 @@
 import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+import { BigNumber } from 'bignumber.js'
+
 import { TLNetwork } from '../../src/TLNetwork'
-import { config, keystore1, user1, keystore2 } from '../Fixtures'
+import { config, keystore1, keystore2, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -13,56 +15,48 @@ describe('e2e', () => {
     const tl2 = new TLNetwork(config)
     let user1
     let user2
+    let networks
     let exchangeAddress
     let dummyTokenAddress
     let makerTokenAddress
     let takerTokenAddress
     let latestOrder
 
-    before(done => {
-      // load users
-      Promise.all([tl1.user.load(keystore1), tl2.user.load(keystore2)])
-        .then(users => [ user1, user2 ] = users)
-        // get availabe exchange contracts
-        .then(() => tl1.exchange.getExAddresses())
-        .then(exchanges => {
-          exchangeAddress = exchanges[0]
-        })
-        // get all currency networks
-        .then(() => tl1.currencyNetwork.getAll())
-        .then(networks => {
-          const [ x, y ] = networks.filter(n => n.abbreviation === 'EUR' || n.abbreviation === 'USD')
-          makerTokenAddress = x.address
-          takerTokenAddress = y.address
-        })
-        // make sure users have eth
-        .then(() => Promise.all([tl1.user.requestEth(), tl2.user.requestEth()]))
-        // set up trustline in maker token network
-        .then(() => Promise.all([
-          tl1.trustline.prepareUpdate(makerTokenAddress, user2.address, 100, 200),
-          tl2.trustline.prepareAccept(makerTokenAddress, user1.address, 200, 100)
-        ]))
-        .then(([ tx1, tx2 ]) => Promise.all([
-          tl1.trustline.confirm(tx1.rawTx),
-          tl2.trustline.confirm(tx2.rawTx)
-        ]))
-        // wait for txs to be mined
-        .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
-        // set trustline in taker token network
-        .then(() => Promise.all([
-          tl1.trustline.prepareUpdate(takerTokenAddress, user2.address, 300, 400),
-          tl2.trustline.prepareAccept(takerTokenAddress, user1.address, 400, 300)
-        ]))
-        .then(([ tx1, tx2 ]) => Promise.all([
-          tl1.trustline.confirm(tx1.rawTx),
-          tl2.trustline.confirm(tx2.rawTx)
-        ]))
-        // wait for txs to be mined
-        .then(() => new Promise(resolve => setTimeout(resolve, 1000)))
-        .then(() => done())
+    before(async () => {
+      // load users, set exchange address and maker, taker tokens
+      [ user1, user2, [ exchangeAddress ], networks ] = await Promise.all([
+        tl1.user.load(keystore1),
+        tl2.user.load(keystore2),
+        tl1.exchange.getExAddresses(),
+        tl1.currencyNetwork.getAll()
+      ])
+      const [ eur, usd ] = networks.filter(n => n.abbreviation === 'EUR' || n.abbreviation === 'USD')
+      makerTokenAddress = eur.address
+      takerTokenAddress = usd.address
+      // make sure users have eth
+      await Promise.all([
+        tl1.user.requestEth(),
+        tl2.user.requestEth()
+      ])
+      await wait()
+      const [ tx1, tx2, tx3, tx4 ] = await Promise.all([
+        // set trustlines in maker token
+        tl1.trustline.prepareUpdate(makerTokenAddress, user2.address, 100, 200),
+        tl2.trustline.prepareAccept(makerTokenAddress, user1.address, 200, 100),
+        // set trustlines in taker token
+        tl1.trustline.prepareUpdate(takerTokenAddress, user2.address, 300, 400),
+        tl2.trustline.prepareAccept(takerTokenAddress, user1.address, 400, 300)
+      ])
+      await Promise.all([
+        tl1.trustline.confirm(tx1.rawTx),
+        tl2.trustline.confirm(tx2.rawTx),
+        tl1.trustline.confirm(tx3.rawTx),
+        tl2.trustline.confirm(tx4.rawTx)
+      ])
+      await wait()
     })
 
-    describe('#getExchanges()', () => {
+    describe('#getExAddresses()', () => {
       it('should return array', () => {
         expect(tl1.exchange.getExAddresses()).to.eventually.be.an('array')
       })
@@ -76,38 +70,47 @@ describe('e2e', () => {
     })
 
     describe('#makeOrder()', () => {
-      it('should make order', done => {
-        tl1.exchange.makeOrder(
+      it('should make order', async () => {
+        const makerTokenValue = 1000
+        const takerTokenValue = 2000
+        const order = await tl1.exchange.makeOrder(
           exchangeAddress,
           makerTokenAddress,
           takerTokenAddress,
-          1000,
-          2000
-        ).then(order => {
-          expect(order.exchangeContractAddress).to.equal(exchangeAddress)
-          expect(order.maker).to.equal(tl1.user.address)
-          expect(order.makerTokenAddress).to.equal(makerTokenAddress)
-          expect(order.takerTokenAddress).to.equal(takerTokenAddress)
-          expect(order.makerTokenAmount).to.have.keys('raw', 'value', 'decimals')
-          expect(order.takerTokenAmount).to.have.keys('raw', 'value', 'decimals')
-          expect(order.salt).to.be.a('string')
-          expect(order.expirationUnixTimestampSec).to.be.a('string')
-          expect(order.ecSignature).to.have.keys('r', 's', 'v')
-          done()
-        })
+          makerTokenValue,
+          takerTokenValue
+        )
+        expect(order.exchangeContractAddress).to.equal(exchangeAddress)
+        expect(order.maker).to.equal(tl1.user.address)
+        expect(order.makerTokenAddress).to.equal(makerTokenAddress)
+        expect(order.takerTokenAddress).to.equal(takerTokenAddress)
+        expect(order.makerTokenAmount).to.have.keys('raw', 'value', 'decimals')
+        expect(order.makerTokenAmount.value).to.equal(new BigNumber(makerTokenValue).toString())
+        expect(order.makerTokenAmount.decimals).to.equal(2)
+        expect(order.takerTokenAmount).to.have.keys('raw', 'value', 'decimals')
+        expect(order.takerTokenAmount.value).to.equal(new BigNumber(takerTokenValue).toString())
+        expect(order.takerTokenAmount.decimals).to.equal(2)
+        expect(order.salt).to.be.a('string')
+        expect(order.expirationUnixTimestampSec).to.be.a('string')
+        expect(order.ecSignature).to.have.keys('r', 's', 'v')
       })
     })
 
     describe('#prepTakeOrder()', () => {
-      before(done => {
-        tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 2)
-          .then(order => latestOrder = order)
-          .then(() => done())
-          .catch(e => done(e))
+      let order
+
+      before(async () => {
+        order = await tl1.exchange.makeOrder(
+          exchangeAddress,
+          makerTokenAddress,
+          takerTokenAddress,
+          1,
+          2
+        )
       })
 
       it('should prepare a fill order tx for latest order', () => {
-        expect(tl2.exchange.prepTakeOrder(latestOrder, 1))
+        expect(tl2.exchange.prepTakeOrder(order, 1))
           .to.eventually.have.keys(
             'rawTx',
             'ethFees',
