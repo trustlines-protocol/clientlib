@@ -104,26 +104,19 @@ describe('e2e', () => {
     describe('#getOrderByHash()', () => {
       let order
 
-      before(done => {
-        tl1.exchange.makeOrder(
+      before(async () => {
+        order = await tl1.exchange.makeOrder(
           exchangeAddress,
           makerTokenAddress,
           takerTokenAddress,
           1000,
           2000
-        ).then(latestOrder => {
-          order = latestOrder
-          done()
-        })
+        )
       })
 
-      it('should return latest order by its hash', done => {
-        tl1.exchange.getOrderByHash(order.hash).then(returnedOrder => {
-          console.log(returnedOrder)
-          expect(returnedOrder).to.have.keys('filledTakerTokenAmount', 'cancelledTakerTokenAmount', 'availableTakerTokenAmount')
-          done()
-        })
-          .catch(e => console.error(e))
+      it('should return latest order by its hash', async () => {
+        const returnedOrder = await tl1.exchange.getOrderByHash(order.hash)
+        expect(returnedOrder).to.have.keys('filledTakerTokenAmount', 'cancelledTakerTokenAmount', 'availableTakerTokenAmount')
       })
     })
 
