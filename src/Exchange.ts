@@ -57,45 +57,41 @@ export class Exchange {
     return this._utils.fetchUrl<string[]>('exchange/exchanges')
   }
 
-  public async getOrderByHash (orderHash: string, {
-    makerTokenDecimals,
-    takerTokenDecimals
-  }: OrderOptions = {}): Promise<any> {
+  public async getOrderByHash (
+    orderHash: string,
+    options: OrderOptions = {}
+  ): Promise<any> {
     const { _currencyNetwork, _user, _utils } = this
-
-    try {
-      const order = await _utils.fetchUrl<OrderRaw>(`exchange/order/${orderHash}`)
-      const [ makerDecimals, takerDecimals ] = await Promise.all([
-        _currencyNetwork.getDecimals(order.makerTokenAddress, makerTokenDecimals),
-        _currencyNetwork.getDecimals(order.takerTokenAddress, takerTokenDecimals)
-      ])
-      const {
-        makerTokenAmount,
-        takerTokenAmount,
-        makerFee,
-        takerFee,
-        filledMakerTokenAmount,
-        filledTakerTokenAmount,
-        cancelledMakerTokenAmount,
-        cancelledTakerTokenAmount,
-        availableMakerTokenAmount,
-        availableTakerTokenAmount
-       } = order
-      return {
-        ...order,
-        makerTokenAmount: _utils.formatAmount(makerTokenAmount, makerDecimals),
-        takerTokenAmount: _utils.formatAmount(takerTokenAmount, takerDecimals),
-        makerFee: _utils.formatAmount(makerFee, makerDecimals),
-        takerFee: _utils.formatAmount(takerFee, takerDecimals),
-        filledMakerTokenAmount: _utils.formatAmount(filledMakerTokenAmount, makerDecimals),
-        filledTakerTokenAmount: _utils.formatAmount(filledTakerTokenAmount, takerDecimals),
-        cancelledMakerTokenAmount: _utils.formatAmount(cancelledMakerTokenAmount, makerDecimals),
-        cancelledTakerTokenAmount: _utils.formatAmount(cancelledTakerTokenAmount, takerDecimals),
-        availableMakerTokenAmount: _utils.formatAmount(availableMakerTokenAmount, makerDecimals),
-        availableTakerTokenAmount: _utils.formatAmount(availableTakerTokenAmount, takerDecimals)
-      }
-    } catch (error) {
-      return Promise.reject(error)
+    const { makerTokenDecimals, takerTokenDecimals } = options
+    const order = await _utils.fetchUrl<OrderRaw>(`exchange/order/${orderHash}`)
+    const [ makerDecimals, takerDecimals ] = await Promise.all([
+      _currencyNetwork.getDecimals(order.makerTokenAddress, makerTokenDecimals),
+      _currencyNetwork.getDecimals(order.takerTokenAddress, takerTokenDecimals)
+    ])
+    const {
+      makerTokenAmount,
+      takerTokenAmount,
+      makerFee,
+      takerFee,
+      filledMakerTokenAmount,
+      filledTakerTokenAmount,
+      cancelledMakerTokenAmount,
+      cancelledTakerTokenAmount,
+      availableMakerTokenAmount,
+      availableTakerTokenAmount
+      } = order
+    return {
+      ...order,
+      makerTokenAmount: _utils.formatAmount(makerTokenAmount, makerDecimals),
+      takerTokenAmount: _utils.formatAmount(takerTokenAmount, takerDecimals),
+      makerFee: _utils.formatAmount(makerFee, makerDecimals),
+      takerFee: _utils.formatAmount(takerFee, takerDecimals),
+      filledMakerTokenAmount: _utils.formatAmount(filledMakerTokenAmount, makerDecimals),
+      filledTakerTokenAmount: _utils.formatAmount(filledTakerTokenAmount, takerDecimals),
+      cancelledMakerTokenAmount: _utils.formatAmount(cancelledMakerTokenAmount, makerDecimals),
+      cancelledTakerTokenAmount: _utils.formatAmount(cancelledTakerTokenAmount, takerDecimals),
+      availableMakerTokenAmount: _utils.formatAmount(availableMakerTokenAmount, makerDecimals),
+      availableTakerTokenAmount: _utils.formatAmount(availableTakerTokenAmount, takerDecimals)
     }
   }
 
