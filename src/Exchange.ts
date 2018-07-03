@@ -60,8 +60,8 @@ export class Exchange {
   public async getOrderByHash (
     orderHash: string,
     options: OrderOptions = {}
-  ): Promise<any> {
-    const { _currencyNetwork, _user, _utils } = this
+  ): Promise<Order> {
+    const { _currencyNetwork, _utils } = this
     const { makerTokenDecimals, takerTokenDecimals } = options
     const order = await _utils.fetchUrl<OrderRaw>(`exchange/order/${orderHash}`)
     const [ makerDecimals, takerDecimals ] = await Promise.all([
