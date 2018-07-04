@@ -8,13 +8,15 @@ import {
   ExchangeOptions,
   ExchangeTx,
   Order,
+  OrderRaw,
   Orderbook,
   OrderbookRaw,
   OrderbookOptions,
   SignedOrder,
   TLOptions,
   PathObject,
-  TxObject
+  TxObject,
+  OrderOptions
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -55,6 +57,44 @@ export class Exchange {
     return this._utils.fetchUrl<string[]>('exchange/exchanges')
   }
 
+  public async getOrderByHash (
+    orderHash: string,
+    options: OrderOptions = {}
+  ): Promise<Order> {
+    const { _currencyNetwork, _utils } = this
+    const { makerTokenDecimals, takerTokenDecimals } = options
+    const order = await _utils.fetchUrl<OrderRaw>(`exchange/order/${orderHash}`)
+    const [ makerDecimals, takerDecimals ] = await Promise.all([
+      _currencyNetwork.getDecimals(order.makerTokenAddress, makerTokenDecimals),
+      _currencyNetwork.getDecimals(order.takerTokenAddress, takerTokenDecimals)
+    ])
+    const {
+      makerTokenAmount,
+      takerTokenAmount,
+      makerFee,
+      takerFee,
+      filledMakerTokenAmount,
+      filledTakerTokenAmount,
+      cancelledMakerTokenAmount,
+      cancelledTakerTokenAmount,
+      availableMakerTokenAmount,
+      availableTakerTokenAmount
+      } = order
+    return {
+      ...order,
+      makerTokenAmount: _utils.formatAmount(makerTokenAmount, makerDecimals),
+      takerTokenAmount: _utils.formatAmount(takerTokenAmount, takerDecimals),
+      makerFee: _utils.formatAmount(makerFee, makerDecimals),
+      takerFee: _utils.formatAmount(takerFee, takerDecimals),
+      filledMakerTokenAmount: _utils.formatAmount(filledMakerTokenAmount, makerDecimals),
+      filledTakerTokenAmount: _utils.formatAmount(filledTakerTokenAmount, takerDecimals),
+      cancelledMakerTokenAmount: _utils.formatAmount(cancelledMakerTokenAmount, makerDecimals),
+      cancelledTakerTokenAmount: _utils.formatAmount(cancelledTakerTokenAmount, takerDecimals),
+      availableMakerTokenAmount: _utils.formatAmount(availableMakerTokenAmount, makerDecimals),
+      availableTakerTokenAmount: _utils.formatAmount(availableTakerTokenAmount, takerDecimals)
+    }
+  }
+
   public async getOrderbook (
     baseTokenAddress: string,
     quoteTokenAddress: string,
@@ -77,7 +117,13 @@ export class Exchange {
         makerTokenAmount: _utils.formatAmount(a.makerTokenAmount, baseDecimals),
         takerTokenAmount: _utils.formatAmount(a.takerTokenAmount, quoteDecimals),
         makerFee: _utils.formatAmount(a.makerFee, baseDecimals),
-        takerFee: _utils.formatAmount(a.takerFee, quoteDecimals)
+        takerFee: _utils.formatAmount(a.takerFee, quoteDecimals),
+        filledMakerTokenAmount: _utils.formatAmount(a.filledMakerTokenAmount, baseDecimals),
+        filledTakerTokenAmount: _utils.formatAmount(a.filledTakerTokenAmount, quoteDecimals),
+        cancelledMakerTokenAmount: _utils.formatAmount(a.cancelledMakerTokenAmount, baseDecimals),
+        cancelledTakerTokenAmount: _utils.formatAmount(a.cancelledTakerTokenAmount, quoteDecimals),
+        availableMakerTokenAmount: _utils.formatAmount(a.availableMakerTokenAmount, baseDecimals),
+        availableTakerTokenAmount: _utils.formatAmount(a.availableTakerTokenAmount, quoteDecimals)
       })),
       bids: bids.map(b => ({
         ...b,
@@ -85,7 +131,13 @@ export class Exchange {
         makerTokenAmount: _utils.formatAmount(b.makerTokenAmount, quoteDecimals),
         takerTokenAmount: _utils.formatAmount(b.takerTokenAmount, baseDecimals),
         makerFee: _utils.formatAmount(b.makerFee, quoteDecimals),
-        takerFee: _utils.formatAmount(b.takerFee, baseDecimals)
+        takerFee: _utils.formatAmount(b.takerFee, baseDecimals),
+        filledMakerTokenAmount: _utils.formatAmount(b.filledMakerTokenAmount, quoteDecimals),
+        filledTakerTokenAmount: _utils.formatAmount(b.filledTakerTokenAmount, baseDecimals),
+        cancelledMakerTokenAmount: _utils.formatAmount(b.cancelledMakerTokenAmount, quoteDecimals),
+        cancelledTakerTokenAmount: _utils.formatAmount(b.cancelledTakerTokenAmount, baseDecimals),
+        availableMakerTokenAmount: _utils.formatAmount(b.availableMakerTokenAmount, quoteDecimals),
+        availableTakerTokenAmount: _utils.formatAmount(b.availableTakerTokenAmount, baseDecimals)
       }))
     }
   }
@@ -142,7 +194,13 @@ export class Exchange {
     })
     return ({
       ...signedOrder,
-      hash: orderHash
+      hash: orderHash,
+      filledMakerTokenAmount: _utils.formatAmount(0, makerDecimals),
+      filledTakerTokenAmount: _utils.formatAmount(0, takerDecimals),
+      cancelledMakerTokenAmount: _utils.formatAmount(0, makerDecimals),
+      cancelledTakerTokenAmount: _utils.formatAmount(0, takerDecimals),
+      availableMakerTokenAmount: signedOrder.makerTokenAmount,
+      availableTakerTokenAmount: signedOrder.takerTokenAmount
     })
   }
 
