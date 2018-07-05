@@ -153,8 +153,11 @@ export interface ExchangeCancelEventRaw extends ExchangeEvent {
   cancelledTakerAmount: Amount
 }
 
-export type AnyEvent = AnyNetworkEvent | AnyTokenEvent
-export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw
+export type AnyExchangeEvent = ExchangeFillEvent | ExchangeCancelEvent
+export type AnyExchangeEventRaw = ExchangeFillEventRaw | ExchangeCancelEventRaw
+
+export type AnyEvent = AnyNetworkEvent | AnyTokenEvent | AnyExchangeEvent
+export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw | AnyExchangeEventRaw
 
 // TRANSACTION
 export interface TxObject {
