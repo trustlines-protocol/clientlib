@@ -1,0 +1,7 @@
+{
+  "mode": "modules",
+  "json": "./docs/doc.json",
+  "excludePrivate": true,
+  "module": "commonjs",
+  "target": "ES5"
+}

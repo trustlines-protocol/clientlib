@@ -1,0 +1,41 @@
+version: "2"
+services:
+  relay:
+    build:
+      context: https://github.com/trustlines-network/relay.git#develop
+    container_name: relay
+    links:
+      - "parity:node"
+    volumes:
+      - ./config.json:/relay/config.json
+      - ./addresses.json:/relay/addresses.json
+    ports:
+      - "127.0.0.1:5000:5000"
+    networks:
+      - internal
+    restart: unless-stopped
+      
+  parity:
+    build:
+      context: ./parity
+    container_name: parity
+    restart: unless-stopped
+    networks:
+      - internal
+    
+  contracts:
+    build:
+      context: https://github.com/trustlines-network/contracts.git#develop
+    command: ["deploy/deploy_docker.py"]
+    container_name: contracts
+    links:
+      - "parity:node"
+    volumes:
+      - ./addresses.json:/contracts/addresses.json
+    networks:
+      - internal
+       
+networks:
+  internal:
+    external: false
+

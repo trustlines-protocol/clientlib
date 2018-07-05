@@ -1,2 +1,7 @@
 node_modules
-dist
+lib
+lib-esm
+_bundles
+.idea
+npm-debug.log
+docs

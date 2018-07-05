@@ -1,22 +1,48 @@
-export class Configuration {
-    // url of rest api
-    private apiUrl: string
-    // url of websocket api
-    private wsApiUrl: string
+import { TLNetworkConfig } from './typings'
+import { TLNetwork } from './TLNetwork'
 
-    constructor(
-        // host of the REST relay server
-        private host: string = "localhost",
-        // port of REST relay server
-        private port: number = 5000,
-        // address of the token
-        private tokenAddress: string = "0x61f3a6deebc44c0421f5d8e5a34cf5f21e862b39",
-        // poll interval
-        private pollInterval: number = 500,
-        // use websockets?
-        private useWebSockets: boolean = false
-    ) {
-        this.apiUrl = `http://${this.host}:${this.port}/api/`
-        this.wsApiUrl = `ws://${this.host}:${this.port}/api/`
-    }
+/**
+ * The Configuration class contains all configurable variables of the TLNetwork instance.
+ */
+export class Configuration {
+  /**
+   *  Base URL of the relay REST API endpoint
+   */
+  public apiUrl: string
+  /**
+   * Base URL of the relay WebSocket API endpoint
+   */
+  public wsApiUrl: string
+
+  /**
+   * Contructs a Configuration instance that is used for interacting with a relay server.
+   * @param config Configuration object. See type `TLNetworkConfig` for more information.
+   */
+  constructor (config: TLNetworkConfig = {}) {
+    const {
+      protocol = 'http',
+      host = 'localhost',
+      port = '',
+      path = '',
+      wsProtocol = 'ws'
+    } = config
+    this.apiUrl = this._buildApiUrl(protocol, host, port, path)
+    this.wsApiUrl = this._buildApiUrl(wsProtocol, host, port, path)
+  }
+
+  /**
+   * Returns URL by concatenating protocol, host, port and path.
+   * @param protocol relay api endpoint protocol
+   * @param host relay api host address
+   * @param port relay api port
+   * @param path relay api base endpoint
+   */
+  private _buildApiUrl (
+    protocol: string,
+    host: string,
+    port: number | string,
+    path: string
+  ): string {
+    return `${protocol}://${host}${port === '' ? '' : `:${port}`}/${path}`
+  }
 }
