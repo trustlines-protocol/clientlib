@@ -325,12 +325,12 @@ export interface OrderRaw {
   exchangeContractAddress: string
   feeRecipient: string
   expirationUnixTimestampSec: string,
-  filledMakerTokenAmount: string,
-  filledTakerTokenAmount: string,
-  cancelledMakerTokenAmount: string,
-  cancelledTakerTokenAmount: string,
-  availableMakerTokenAmount: string,
-  availableTakerTokenAmount: string
+  filledMakerTokenAmount?: string,
+  filledTakerTokenAmount?: string,
+  cancelledMakerTokenAmount?: string,
+  cancelledTakerTokenAmount?: string,
+  availableMakerTokenAmount?: string,
+  availableTakerTokenAmount?: string
 }
 
 export interface Orderbook {

@@ -176,8 +176,8 @@ describe('e2e', () => {
       })
 
       it('should confirm a signed fill order tx for TL money <-> TL money order', async () => {
-        const tx = await tl2.exchange.prepTakeOrder(order, 0.5)
-        await tl2.exchange.confirm(tx.rawTx)
+        const { rawTx } = await tl2.exchange.prepTakeOrder(order, 0.5)
+        await tl2.exchange.confirm(rawTx)
         await wait()
         const trustlines = await Promise.all([
           tl2.trustline.getAll(makerTokenAddress),
@@ -191,9 +191,8 @@ describe('e2e', () => {
         const takerBalanceDelta = Math.abs(
           new BigNumber(takerTLBefore.balance.raw).minus(takerTLAfter.balance.raw).toNumber()
         )
-        expect(new BigNumber(makerTLAfter.balance.raw).toNumber()).to.be.above(0)
-        expect(new BigNumber(takerTLAfter.balance.raw).toNumber()).to.be.below(0)
-        expect(makerBalanceDelta).to.equal(takerBalanceDelta)
+        expect(makerBalanceDelta).to.be.at.least(0.5)
+        expect(takerBalanceDelta).to.be.at.least(0.5)
       })
 
       it('should return LogFill event', async () => {
