@@ -6,7 +6,7 @@ import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 
 import { Configuration } from './Configuration'
-import { TLEvent, Amount } from './typings'
+import { Amount } from './typings'
 
 let __DEV__
 
@@ -151,7 +151,7 @@ export class Utils {
    * @param event raw event
    * @param decimals nubmer of decimals
    */
-  public formatEvent (event: any, decimals: number): TLEvent {
+  public formatEvent<T> (event: any, decimals: number): T {
     if (event.amount) {
       event = {
         ...event,

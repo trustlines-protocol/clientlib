@@ -10,7 +10,7 @@ import {
   PathRaw,
   PaymentOptions,
   EventFilterOptions,
-  TLEvent
+  NetworkTransferEvent
 } from './typings'
 
 /**
@@ -160,8 +160,8 @@ export class Payment {
   public get (
     networkAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<TLEvent[]> {
-    return this._event.get(networkAddress, {
+  ): Promise<NetworkTransferEvent[]> {
+    return this._event.get<NetworkTransferEvent>(networkAddress, {
       ...filter,
       type: 'Transfer'
     })

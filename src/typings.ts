@@ -82,16 +82,12 @@ export interface NetworkTransferEvent extends NetworkEvent {
 
 export interface NetworkTrustlineEventRaw extends NetworkEvent {
   given: string,
-  leftGiven: string,
-  received: string,
-  leftReceived: string
+  received: string
 }
 
 export interface NetworkTrustlineEvent extends NetworkEvent {
   given: Amount,
-  leftGiven: Amount,
-  received: Amount,
-  leftReceived: Amount
+  received: Amount
 }
 
 export type AnyNetworkEvent = NetworkTransferEvent | NetworkTrustlineEvent
