@@ -17,7 +17,9 @@ import {
   PathObject,
   TxObject,
   OrderOptions,
-  EventFilterOptions
+  EventFilterOptions,
+  AnyExchangeEvent,
+  AnyExchangeEventRaw
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -332,48 +334,12 @@ export class Exchange {
   public async getLogs (
     exchangeAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<any[]> {
-    const { _currencyNetwork, _user, _utils } = this
+  ): Promise<AnyExchangeEvent[]> {
+    const { _event, _user, _utils } = this
     const baseUrl = `exchange/${exchangeAddress}/users/${_user.address}/events`
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
-    const events = await _utils.fetchUrl<any>(parameterUrl)
-    const networkAddresses = this.getUniqueAddresses(events)
-    const decimalPromises = networkAddresses.map(address => _currencyNetwork.getDecimals(address))
-    const decimals = await Promise.all(decimalPromises)
-    return events.map(event => {
-      const {
-        makerTokenAddress,
-        takerTokenAddress,
-        filledMakerAmount,
-        filledTakerAmount,
-        cancelledMakerAmount,
-        cancelledTakerAmount
-      } = event
-      if (filledMakerAmount && filledTakerAmount) {
-        event.filledMakerAmount = _utils.formatAmount(
-          filledMakerAmount,
-          decimals[networkAddresses.indexOf(makerTokenAddress)]
-        )
-        event.filledTakerAmount = _utils.formatAmount(
-          filledTakerAmount,
-          decimals[networkAddresses.indexOf(takerTokenAddress)]
-        )
-      }
-      if (cancelledMakerAmount && cancelledTakerAmount) {
-        event.cancelledMakerAmount = _utils.formatAmount(
-          cancelledMakerAmount,
-          decimals[networkAddresses.indexOf(makerTokenAddress)]
-        )
-        event.cancelledTakerAmount = _utils.formatAmount(
-          cancelledMakerAmount,
-          decimals[networkAddresses.indexOf(takerTokenAddress)]
-        )
-      }
-      return {
-        ...event,
-        orderHash: event.orderHash.toLowerCase()
-      }
-    })
+    const rawExEvents = await _utils.fetchUrl<AnyExchangeEventRaw[]>(parameterUrl)
+    return await _event.setDecimalsAndFormat<AnyExchangeEvent>(rawExEvents)
   }
 
   private async _getPathObj (
