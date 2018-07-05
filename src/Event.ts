@@ -122,7 +122,7 @@ export class Event {
             : TOKEN_ADDRESS
         }
         if (!result[takerTokenAddress]) {
-          result[makerTokenAddress] = this._currencyNetwork.isNetwork(makerTokenAddress)
+          result[takerTokenAddress] = this._currencyNetwork.isNetwork(takerTokenAddress)
             ? CURRENCY_NETWORK_ADDRESS
             : TOKEN_ADDRESS
         }
