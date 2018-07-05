@@ -123,6 +123,36 @@ export interface TokenAmountEvent extends TLEvent {
 export type AnyTokenEvent = TokenAmountEvent
 export type AnyTokenEventRaw = TokenAmountEventRaw
 
+export interface ExchangeEvent extends TLEvent {
+  exchangeAddress: string,
+  makerTokenAddress: string,
+  takerTokenAddress: string,
+  from: string,
+  to: string,
+  direction: string,
+  orderHash: string
+}
+
+export interface ExchangeFillEvent extends ExchangeEvent {
+  filledMakerAmount: string,
+  filledTakerAmount: string
+}
+
+export interface ExchangeFillEventRaw extends ExchangeEvent {
+  filledMakerAmount: Amount,
+  filledTakerAmount: Amount
+}
+
+export interface ExchangeCancelEvent extends ExchangeEvent {
+  cancelledMakerAmount: string,
+  cancelledTakerAmount: string
+}
+
+export interface ExchangeCancelEventRaw extends ExchangeEvent {
+  cancelledMakerAmount: Amount,
+  cancelledTakerAmount: Amount
+}
+
 export type AnyEvent = AnyNetworkEvent | AnyTokenEvent
 export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw
 
