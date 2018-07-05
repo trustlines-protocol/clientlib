@@ -339,7 +339,11 @@ export class Exchange {
     const baseUrl = `exchange/${exchangeAddress}/users/${_user.address}/events`
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
     const rawExEvents = await _utils.fetchUrl<AnyExchangeEventRaw[]>(parameterUrl)
-    return await _event.setDecimalsAndFormat<AnyExchangeEvent>(rawExEvents)
+    const formattedEvents = await _event.setDecimalsAndFormat<AnyExchangeEvent>(rawExEvents)
+    return formattedEvents.map(e => ({
+      ...e,
+      orderHash: e.orderHash.toLowerCase()
+    }))
   }
 
   private async _getPathObj (
@@ -473,17 +477,5 @@ export class Exchange {
     const values = orderParts.map(part => part.value)
     const hashBuff = ethABI.soliditySHA3(types, values)
     return ethUtils.bufferToHex(hashBuff)
-  }
-
-  private getUniqueAddresses (events: Array<any>): Array<any> {
-    return events.reduce((result, event) => {
-      if (result.indexOf(event.makerTokenAddress) === -1) {
-        result.push(event.makerTokenAddress)
-      }
-      if (result.indexOf(event.takerTokenAddress) === -1) {
-        result.push(event.takerTokenAddress)
-      }
-      return result
-    }, [])
   }
 }
