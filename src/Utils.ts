@@ -1,5 +1,4 @@
 import { Observable } from 'rxjs/Observable'
-import { TimerObservable } from 'rxjs/observable/TimerObservable'
 import 'rxjs/add/operator/mergeMap'
 import 'rxjs/add/operator/map'
 import { Observer } from 'rxjs/Observer'

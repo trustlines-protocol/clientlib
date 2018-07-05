@@ -81,7 +81,7 @@ describe('e2e', () => {
 
       it('should return trustline updates from more than one network', async () => {
         const allEvents = await tl1.event.getAll({ type: 'TrustlineUpdate' })
-        const networks = allEvents.map(e => e.networkAddress)
+        const networks = allEvents.map(e => e.networkAddress && e.networkAddress)
         const set = new Set(networks)
         const uniqueNetworks = Array.from(set)
         expect(uniqueNetworks.length).to.be.above(1)

@@ -27,6 +27,7 @@ export interface TLNetworkConfig {
 }
 
 export interface TxOptions {
+  value?: number | string,
   gasPrice?: number,
   gasLimit?: number
 }
@@ -53,7 +54,10 @@ export interface EventFilterOptions {
 }
 
 export interface TLEvent {
-  networkAddress: string,
+  // NetworkEvents
+  networkAddress?: string,
+  // TokenEvents
+  tokenAddress?: string,
   type: string,
   timestamp: number,
   blockNumber: number,
@@ -243,15 +247,15 @@ export interface ECSignature {
 }
 
 export interface FeesRequest {
-	 exchangeContractAddress: string,
-	 expirationUnixTimestampSec: BigNumber,
-	 maker: string,
-	 makerTokenAddress: string,
-	 makerTokenAmount: BigNumber,
-	 salt: BigNumber,
-	 taker: string,
-	 takerTokenAddress: string,
-	 takerTokenAmount: BigNumber,
+  exchangeContractAddress: string,
+  expirationUnixTimestampSec: BigNumber,
+  maker: string,
+  makerTokenAddress: string,
+  makerTokenAmount: BigNumber,
+  salt: BigNumber,
+  taker: string,
+  takerTokenAddress: string,
+  takerTokenAmount: BigNumber
 }
 
 export interface FeesResponse {
