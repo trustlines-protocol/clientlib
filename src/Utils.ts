@@ -6,7 +6,15 @@ import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 
 import { Configuration } from './Configuration'
-import { Amount, AmountInternal } from './typings'
+import {
+  Amount,
+  AmountInternal,
+  AnyExchangeEvent,
+  AnyExchangeEventRaw,
+  ExchangeFillEventRaw,
+  ExchangeCancelEventRaw,
+  ExchangeEvent
+} from './typings'
 
 let __DEV__
 
@@ -197,11 +205,7 @@ export class Utils {
       'given',
       'received',
       'leftGiven',
-      'leftReceived',
-      'filledMakerAmount',
-      'filledTakerAmount',
-      'cancelledMakerAmount',
-      'cancelledTakerAmount'
+      'leftReceived'
     ]
     for (const key of keys) {
       if (event[key]) {
@@ -209,6 +213,43 @@ export class Utils {
       }
     }
     return event
+  }
+
+  /**
+   * Formats the number values of a raw Exchange event as returned by the relay.
+   * @param exchangeEvent raw exchange event: `LogFill` or `LogCancel`
+   * @param makerDecimals decimals in maker token
+   * @param takerDecimals decimals in taker token
+   */
+  public formatExchangeEvent (
+    exchangeEvent: AnyExchangeEventRaw,
+    makerDecimals: number,
+    takerDecimals: number
+  ): AnyExchangeEvent {
+    if (exchangeEvent.type === 'LogFill') {
+      const fillEventRaw = exchangeEvent as ExchangeFillEventRaw
+      return {
+        ...fillEventRaw,
+        filledMakerAmount: this.formatToAmount(
+          fillEventRaw.filledMakerAmount, makerDecimals
+        ),
+        filledTakerAmount: this.formatToAmount(
+          fillEventRaw.filledTakerAmount, takerDecimals
+        )
+      }
+    } else if (exchangeEvent.type === 'LogCancel') {
+      const cancelEventRaw = exchangeEvent as ExchangeCancelEventRaw
+      return {
+        ...cancelEventRaw,
+        cancelledMakerAmount: this.formatToAmount(
+          cancelEventRaw.cancelledMakerAmount, makerDecimals
+        ),
+        cancelledTakerAmount: this.formatToAmount(
+          cancelEventRaw.cancelledTakerAmount, takerDecimals
+        )
+      }
+    }
+    throw new Error('Provided event is not a ExchangeEvent!')
   }
 
   /**
