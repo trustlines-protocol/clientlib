@@ -279,8 +279,8 @@ export class Exchange {
     const { _event, _user, _utils } = this
     const baseUrl = `exchange/${exchangeAddress}/users/${_user.address}/events`
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
-    const rawExEvents = await _utils.fetchUrl<AnyExchangeEventRaw[]>(parameterUrl)
-    const formattedEvents = await _event.setDecimalsAndFormat<AnyExchangeEvent>(rawExEvents)
+    const rawEvents = await _utils.fetchUrl<AnyExchangeEventRaw[]>(parameterUrl)
+    const formattedEvents = await _event.setDecimalsAndFormat(rawEvents)
     return formattedEvents.map(e => ({
       ...e,
       orderHash: e.orderHash.toLowerCase()

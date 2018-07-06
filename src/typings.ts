@@ -127,28 +127,25 @@ export interface ExchangeEvent extends TLEvent {
   exchangeAddress: string,
   makerTokenAddress: string,
   takerTokenAddress: string,
-  from: string,
-  to: string,
-  direction: string,
   orderHash: string
 }
 
-export interface ExchangeFillEvent extends ExchangeEvent {
+export interface ExchangeFillEventRaw extends ExchangeEvent {
   filledMakerAmount: string,
   filledTakerAmount: string
 }
 
-export interface ExchangeFillEventRaw extends ExchangeEvent {
+export interface ExchangeFillEvent extends ExchangeEvent {
   filledMakerAmount: Amount,
   filledTakerAmount: Amount
 }
 
-export interface ExchangeCancelEvent extends ExchangeEvent {
+export interface ExchangeCancelEventRaw extends ExchangeEvent {
   cancelledMakerAmount: string,
   cancelledTakerAmount: string
 }
 
-export interface ExchangeCancelEventRaw extends ExchangeEvent {
+export interface ExchangeCancelEvent extends ExchangeEvent {
   cancelledMakerAmount: Amount,
   cancelledTakerAmount: Amount
 }

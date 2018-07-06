@@ -63,7 +63,7 @@ export class Event {
     const baseUrl = `users/${_user.address}/events`
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
     const events = await _utils.fetchUrl<AnyEventRaw[]>(parameterUrl)
-    return this.setDecimalsAndFormat<AnyEvent>(events)
+    return this.setDecimalsAndFormat(events)
   }
 
   /**
@@ -92,14 +92,34 @@ export class Event {
    * values are `Amount` objects.
    * @param rawEvents trustlines network events
    */
-  public async setDecimalsAndFormat<T> (rawEvents: AnyEventRaw[]): Promise<T[]> {
+  public async setDecimalsAndFormat (rawEvents: AnyEventRaw[]): Promise<any[]> {
     const addressesMap = this._getUniqueAddressesMap(rawEvents)
     const decimalsMap = await this._getDecimalsMap(addressesMap)
     return rawEvents.map(event => {
-      const address = (event as AnyNetworkEventRaw).networkAddress ||
-                      (event as AnyTokenEventRaw).tokenAddress ||
-                      (event as AnyExchangeEventRaw).exchangeAddress
-      return this._utils.formatEvent<T>(event, decimalsMap[address])
+      if ((event as AnyNetworkEventRaw).networkAddress) {
+        return this._utils.formatEvent<AnyNetworkEventRaw>(
+          event,
+          decimalsMap[(event as AnyNetworkEventRaw).networkAddress]
+        )
+      }
+      if ((event as AnyTokenEventRaw).tokenAddress) {
+        return this._utils.formatEvent<AnyTokenEventRaw>(
+          event,
+          decimalsMap[(event as AnyTokenEventRaw).tokenAddress]
+        )
+      }
+      if ((event as AnyExchangeEventRaw).exchangeAddress) {
+        const {
+          makerTokenAddress,
+          takerTokenAddress
+        } = event as AnyExchangeEventRaw
+        return this._utils.formatExchangeEvent(
+          event as AnyExchangeEventRaw,
+          decimalsMap[makerTokenAddress],
+          decimalsMap[takerTokenAddress]
+        )
+      }
+      return event
     })
   }
 
