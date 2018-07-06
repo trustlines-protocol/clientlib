@@ -2,6 +2,7 @@ import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
 import { TLNetwork } from '../../src/TLNetwork'
+import { AnyNetworkEvent, NetworkTransferEvent } from '../../src/typings'
 import { config, keystore1, keystore2, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
@@ -50,7 +51,7 @@ describe('e2e', () => {
       })
 
       it('should return latest transfer', async () => {
-        const events = await tl1.event.get(network1.address)
+        const events = await tl1.event.get<NetworkTransferEvent>(network1.address)
         const last = events[events.length - 1]
         expect(last.type).to.equal('Transfer')
         expect(last.direction).to.equal('sent')
@@ -81,7 +82,11 @@ describe('e2e', () => {
 
       it('should return trustline updates from more than one network', async () => {
         const allEvents = await tl1.event.getAll({ type: 'TrustlineUpdate' })
-        const networks = allEvents.map(e => e.networkAddress && e.networkAddress)
+        const networks = allEvents.map(e => {
+          if ((e as AnyNetworkEvent).networkAddress) {
+            return (e as AnyNetworkEvent).networkAddress
+          }
+        })
         const set = new Set(networks)
         const uniqueNetworks = Array.from(set)
         expect(uniqueNetworks.length).to.be.above(1)

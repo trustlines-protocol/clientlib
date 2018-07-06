@@ -53,32 +53,71 @@ export interface EventFilterOptions {
   fromBlock?: number
 }
 
-export interface TLEvent {
-  // NetworkEvents
-  networkAddress?: string,
-  // TokenEvents
-  tokenAddress?: string,
+export interface BlockchainEvent {
   type: string,
   timestamp: number,
   blockNumber: number,
   status: string,
   transactionId: string,
+}
+
+export interface TLEvent extends BlockchainEvent {
   from: string,
   to: string,
   direction: string,
-  address?: string,
-  // only on TrustlineUpdateRequest and TrustlineUpdate
-  given?: Amount,
-  received?: Amount,
-  // only on Transfer
-  amount?: Amount
+  address: string
 }
+
+export interface NetworkEvent extends TLEvent {
+  networkAddress: string
+}
+
+export interface NetworkTransferEventRaw extends NetworkEvent {
+  amount: string
+}
+
+export interface NetworkTransferEvent extends NetworkEvent {
+  amount: Amount
+}
+
+export interface NetworkTrustlineEventRaw extends NetworkEvent {
+  given: string,
+  received: string
+}
+
+export interface NetworkTrustlineEvent extends NetworkEvent {
+  given: Amount,
+  received: Amount
+}
+
+export type AnyNetworkEvent = NetworkTransferEvent | NetworkTrustlineEvent
+export type AnyNetworkEventRaw = NetworkTransferEventRaw | NetworkTrustlineEventRaw
+
+export interface TokenEvent extends TLEvent {
+  tokenAddress: string,
+}
+
+export interface TokenAmountEventRaw extends TokenEvent {
+  amount: string
+}
+
+export interface TokenAmountEvent extends TLEvent {
+  amount: Amount
+}
+
+export type AnyTokenEvent = TokenAmountEvent
+export type AnyTokenEventRaw = TokenAmountEventRaw
+
+export type AnyEvent = AnyNetworkEvent | AnyTokenEvent
+export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw
 
 // TRANSACTION
 export interface TxObject {
   rawTx: string,
   ethFees: Amount
 }
+
+export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
 
 /**
  * Information for creating an ethereum transaction of a given user address
