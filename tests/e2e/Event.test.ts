@@ -16,15 +16,21 @@ describe('e2e', () => {
     let user2
     let network1
     let network2
+    let ethWrapperAddress
+    let exchangeAddress
 
     before(async () => {
       // fetch networks and load users
       [
         [network1, network2],
+        [ethWrapperAddress],
+        [exchangeAddress],
         user1,
         user2
       ] = await Promise.all([
         tl1.currencyNetwork.getAll(),
+        tl1.ethWrapper.getAddresses(),
+        tl1.exchange.getExAddresses(),
         tl1.user.load(keystore1),
         tl2.user.load(keystore2)
       ])
@@ -68,16 +74,96 @@ describe('e2e', () => {
     })
 
     describe('#getAll()', async () => {
+      let updateTxId
+      let tlTransferTxId
+      let depositTxId
+      let withdrawTxId
+      let transferTxId
+      let fillTxId
+      let cancelTxId
+
       before(async () => {
-        const [ txObj1, txObj2 ] = await Promise.all([
+        // CurrencyNetwork events
+        const [ updateTx1, updateTx2 ] = await Promise.all([
           tl1.trustline.prepareUpdate(network2.address, user2.address, 1000, 500),
           tl2.trustline.prepareUpdate(network2.address, user1.address, 500, 1000)
         ])
-        await Promise.all([
-          tl1.trustline.confirm(txObj1.rawTx),
-          tl2.trustline.confirm(txObj2.rawTx)
+        const txIds = await Promise.all([
+          tl1.trustline.confirm(updateTx1.rawTx),
+          tl2.trustline.confirm(updateTx2.rawTx)
         ])
+        updateTxId = txIds[0]
         await wait()
+        const tlTransferTx = await tl1.payment.prepare(network2.address, user2.address, 1)
+        tlTransferTxId = await tl1.payment.confirm(tlTransferTx.rawTx)
+        await wait()
+        // Token events
+        const depositTx = await tl1.ethWrapper.prepDeposit(ethWrapperAddress, 0.005)
+        depositTxId = await tl1.ethWrapper.confirm(depositTx.rawTx)
+        await wait()
+        const withdrawTx = await tl1.ethWrapper.prepWithdraw(ethWrapperAddress, 0.001)
+        withdrawTxId = await tl1.ethWrapper.confirm(withdrawTx.rawTx)
+        await wait()
+        const transferTx = await tl1.ethWrapper.prepTransfer(ethWrapperAddress, tl2.user.address, 0.002)
+        transferTxId = await tl1.ethWrapper.confirm(transferTx.rawTx)
+        await wait()
+        // Exchange events
+        const order = await tl1.exchange.makeOrder(
+          exchangeAddress,
+          network1.address,
+          network2.address,
+          3,
+          3
+        )
+        const [ fillTx, cancelTx ] = await Promise.all([
+          tl2.exchange.prepTakeOrder(order, 1),
+          tl1.exchange.prepCancelOrder(order, 1)
+        ])
+        const exTxIds = await Promise.all([
+          tl2.exchange.confirm(fillTx.rawTx),
+          tl1.exchange.confirm(cancelTx.rawTx)
+        ])
+        fillTxId = exTxIds[0]
+        cancelTxId = exTxIds[1]
+      })
+
+      it('should return all events', async () => {
+        const allEvents = await tl1.event.getAll()
+        // events thrown on trustline update
+        const updateEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === updateTxId
+        )
+        expect(updateEvents).to.have.length(1)
+        // events thrown on trustline transfer
+        const tlTransferEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === tlTransferTxId
+        )
+        expect(tlTransferEvents).to.have.length(1)
+        // events thrown on deposit
+        const depositEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === depositTxId
+        )
+        expect(depositEvents).to.have.length(1)
+        // events thrown on withdraw
+        const withdrawEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === withdrawTxId
+        )
+        expect(withdrawEvents).to.have.length(1)
+        // events thrown on wrapped eth transfer
+        const wethTransferEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === transferTxId
+        )
+        expect(wethTransferEvents).to.have.length(2)
+        // events thrown on fill order
+        const fillEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === fillTxId
+        )
+        expect(fillEvents).to.have.length(3)
+        // events thrown on cancel transfer
+        const cancelEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === cancelTxId
+        )
+        expect(cancelEvents).to.have.length(1)
       })
 
       it('should return trustline updates from more than one network', async () => {

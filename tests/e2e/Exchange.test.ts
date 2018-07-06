@@ -226,6 +226,75 @@ describe('e2e', () => {
       })
     })
 
+    describe('#getLogs', () => {
+      const exEventKeys = [
+        'exchangeAddress',
+        'makerTokenAddress',
+        'takerTokenAddress',
+        'orderHash',
+        'type',
+        'timestamp',
+        'blockNumber',
+        'status',
+        'transactionId',
+        'from',
+        'to',
+        'direction'
+      ]
+      const fillEventKeys = exEventKeys.concat([
+        'filledMakerAmount',
+        'filledTakerAmount'
+      ])
+      const cancelEventKeys = exEventKeys.concat([
+        'cancelledMakerAmount',
+        'cancelledTakerAmount'
+      ])
+      let order
+      let fillTxId
+      let cancelTxId
+
+      before(async () => {
+        order = await tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 3, 3)
+        const [ fillTx, cancelTx ] = await Promise.all([
+          tl2.exchange.prepTakeOrder(order, 1),
+          tl1.exchange.prepCancelOrder(order, 1)
+        ])
+        const txIds = await Promise.all([
+          tl2.exchange.confirm(fillTx.rawTx),
+          tl1.exchange.confirm(cancelTx.rawTx)
+        ])
+        fillTxId = txIds[0]
+        cancelTxId = txIds[1]
+        await wait()
+      })
+
+      it('should return all exchange events', async () => {
+        const events = await tl1.exchange.getLogs(exchangeAddress)
+        const filteredEvents = events.filter(e => e.orderHash === order.hash)
+        const fillEvent = filteredEvents.find(e => e.type === 'LogFill')
+        const cancelEvent = filteredEvents.find(e => e.type === 'LogCancel')
+        expect(filteredEvents).to.have.length(2)
+        expect(fillEvent).to.have.keys(fillEventKeys)
+        expect(fillEvent.transactionId).to.equal(fillTxId)
+        expect(cancelEvent).to.have.keys(cancelEventKeys)
+        expect(cancelEvent.transactionId).to.equal(cancelTxId)
+      })
+
+      it('should return LogFill events', async () => {
+        const events = await tl1.exchange.getLogs(exchangeAddress, { type: 'LogFill' })
+        const fillEvent = events.find(e => e.orderHash === order.hash)
+        expect(fillEvent).to.have.keys(fillEventKeys)
+        expect(fillEvent.transactionId).to.equal(fillTxId)
+      })
+
+      it('should return LogCancel events', async () => {
+        const events = await tl1.exchange.getLogs(exchangeAddress, { type: 'LogCancel' })
+        const cancelEvent = events.find(e => e.orderHash === order.hash)
+        expect(cancelEvent).to.have.keys(cancelEventKeys)
+        expect(cancelEvent.transactionId).to.equal(cancelTxId)
+      })
+    })
+
     // TODO scenario for TL money <-> token
     describe.skip('#confirm() - TL money <-> token', () => {
       let makerTLBefore
