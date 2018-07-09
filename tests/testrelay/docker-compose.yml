@@ -2,10 +2,17 @@ version: "2"
 services:
   relay:
     build:
-      context: https://github.com/trustlines-network/relay.git#develop
+      context: https://github.com/trustlines-network/relay.git#feature/ethindex-integration
     container_name: relay
+    environment:
+      - ETHINDEX=1
+      - PGHOST
+      - PGUSER
+      - PGDATABASE
+      - PGPASSWORD
     links:
       - "parity:node"
+      - "postgres:db"
     volumes:
       - ./config.json:/relay/config.json
       - ./addresses.json:/relay/addresses.json
@@ -14,6 +21,48 @@ services:
     networks:
       - internal
     restart: unless-stopped
+
+  index:
+    build:
+      context: https://github.com/trustlines-network/py-eth-index.git#wip/master
+    networks:
+      - internal
+    links:
+      - "postgres:db"
+      - "parity:node"
+    environment:
+      - PGHOST
+      - PGUSER
+      - PGDATABASE
+      - PGPASSWORD
+    restart: unless-stopped
+    command: bash -c "sleep 5 && /opt/ethindex/bin/ethindex runsync --jsonrpc http://node:8545 --waittime 200"
+
+  init:
+    build:
+      context: https://github.com/trustlines-network/py-eth-index.git#wip/master
+    networks:
+      - internal
+    links:
+      - "postgres:db"
+    environment:
+      - PGHOST
+      - PGUSER
+      - PGDATABASE
+      - PGPASSWORD
+    volumes:
+      - ./addresses.json:/opt/ethindex/addresses.json
+      - ../../contracts.json:/opt/ethindex/contracts.json
+    command: bash -c "sleep 2 && /opt/ethindex/bin/ethindex createtables && /opt/ethindex/bin/ethindex importabi"
+
+  postgres:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    networks:
+      - internal
       
   parity:
     build:
