@@ -2,7 +2,7 @@ version: "2"
 services:
   relay:
     build:
-      context: https://github.com/trustlines-network/relay.git#feature/ethindex-integration
+      context: https://github.com/trustlines-network/relay.git#develop
     container_name: relay
     environment:
       - ETHINDEX=1
@@ -24,7 +24,7 @@ services:
 
   index:
     build:
-      context: https://github.com/trustlines-network/py-eth-index.git#wip/master
+      context: https://github.com/trustlines-network/py-eth-index.git#develop
     networks:
       - internal
     links:
@@ -40,7 +40,7 @@ services:
 
   init:
     build:
-      context: https://github.com/trustlines-network/py-eth-index.git#wip/master
+      context: https://github.com/trustlines-network/py-eth-index.git#develop
     networks:
       - internal
     links:
