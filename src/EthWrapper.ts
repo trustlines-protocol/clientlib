@@ -32,10 +32,17 @@ export class EthWrapper {
     this._transaction = transaction
   }
 
-  public getAddresses (): Promise<any> {
+  /**
+   * Returns all known ETH wrapper contract addresses from the relay server.
+   */
+  public getAddresses (): Promise<string[]> {
     return this._utils.fetchUrl<string[]>('exchange/eth')
   }
 
+  /**
+   * Returns the amount of already wrapped ETH on the given ETH wrapper contract.
+   * @param ethWrapperAddress Address of ETH wrapper contract.
+   */
   public async getBalance (ethWrapperAddress: string): Promise<Amount> {
     const { _user, _utils } = this
     const endpoint = `tokens/${ethWrapperAddress}/users/${_user.address}/balance`
@@ -43,6 +50,16 @@ export class EthWrapper {
     return _utils.formatToAmount(balance, ETH_DECIMALS)
   }
 
+  /**
+   * Prepares an ethereum transaction object for transffering wrapped ETH where the
+   * loaded user is the sender.
+   * @param ethWrapperAddress Address of ETH wrapper contract.
+   * @param receiverAddress Address of receiver of transfer.
+   * @param value Amount of wrapped ETH to transfer.
+   * @param options Transaction options. See `TxOptions` for more information.
+   * @param options.gasPrice Custom gas price.
+   * @param options.gasLimit Custom gas limit.
+   */
   public async prepTransfer (
     ethWrapperAddress: string,
     receiverAddress: string,
@@ -71,11 +88,19 @@ export class EthWrapper {
     }
   }
 
+  /**
+   * Prepares an ethereum transaction object for depositing/wrapping ETH.
+   * @param ethWrapperAddress Address of ETH wrapper contract.
+   * @param value Amount of ETH to deposit/wrap.
+   * @param options Tansaction options. See `TxOptions` for more information.
+   * @param options.gasPrice Custom gas price.
+   * @param options.gasLimit Custom gas limit.
+   */
   public prepDeposit (
     ethWrapperAddress: string,
     value: number | string,
     options: TxOptions = {}
-  ): Promise<any> {
+  ): Promise<TxObject> {
     const { _transaction, _user, _utils } = this
     const { gasPrice, gasLimit } = options
     return _transaction.prepFuncTx(
@@ -92,6 +117,14 @@ export class EthWrapper {
     )
   }
 
+  /**
+   * Prepares an ethereum transaction object for withdrawing/unwrapping ETH.
+   * @param ethWrapperAddress Address of ETH wrapper contract.
+   * @param value Amount of ETH to withdraw/unwrap.
+   * @param options Transaction options. See `TxOptions` for more information.
+   * @param options.gasPrice Custom gas price.
+   * @param options.gasLimit Custom gas limit.
+   */
   public async prepWithdraw (
     ethWrapperAddress: string,
     value: number | string,
@@ -116,11 +149,23 @@ export class EthWrapper {
     }
   }
 
+  /**
+   * Signs a raw transaction as returned by `prepTransfer`, `prepDeposit` or `prepWithdraw`
+   * and relays the signed transaction.
+   * @param rawTx RLP encoded hex string defining the transaction.
+   */
   public async confirm (rawTx): Promise<string> {
     const signedTx = await this._user.signTx(rawTx)
     return this._transaction.relayTx(signedTx)
   }
 
+  /**
+   * Returns event logs of the ETH wrapper contract.
+   * @param ethWrapperAddress Address of the ETH wrapper contract.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
+   * @param filter.type Available event types are `Transfer`, `Deposit` and `Withdrawal`.
+   * @param filter.fromBlock Start of block range for event logs.
+   */
   public async getLogs (
     ethWrapperAddress: string,
     filter: EventFilterOptions = {}
