@@ -19,13 +19,16 @@ import {
   OrderOptions,
   EventFilterOptions,
   AnyExchangeEvent,
-  AnyExchangeEventRaw
+  AnyExchangeEventRaw,
+  OrdersQuery
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 import * as ethABI from 'ethereumjs-abi'
 
+const CURRENCY_NETWORK_ADDRESS = 'CurrencyNetwork'
+const TOKEN_ADDRESS = 'Token'
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 /**
@@ -72,6 +75,28 @@ export class Exchange {
       _currencyNetwork.getDecimals(order.takerTokenAddress, takerTokenDecimals)
     ])
     return this._formatOrderRaw(order, makerDecimals, takerDecimals)
+  }
+
+  public async getOrders (query: OrdersQuery = {}): Promise<Order[]> {
+    const { _event, _utils } = this
+    const queryEndpoint = _utils.buildUrl('exchange/orders', {
+      exchangeContractAddress: query.exchangeContractAddress,
+      tokenAddress: query.tokenAddress,
+      makerTokenAddress: query.makerTokenAddress,
+      takerTokenAddress: query.takerTokenAddress,
+      trader: query.trader,
+      maker: query.maker,
+      taker: query.taker,
+      feeRecipient: query.feeRecipient
+    })
+    const orders = await _utils.fetchUrl<OrderRaw[]>(queryEndpoint)
+    const addressesMap = this._getUniqueTokenAddresses(orders)
+    const decimalsMap = await _event.getDecimalsMap(addressesMap)
+    return orders.map(order => this._formatRawOrder(
+      order,
+      decimalsMap[order.makerTokenAddress],
+      decimalsMap[order.takerTokenAddress]
+    ))
   }
 
   public async getOrderbook (
@@ -441,5 +466,22 @@ export class Exchange {
       availableMakerTokenAmount: _utils.formatToAmount(orderRaw.availableMakerTokenAmount, makerDecimals),
       availableTakerTokenAmount: _utils.formatToAmount(orderRaw.availableTakerTokenAmount, takerDecimals)
     }
+  }
+
+  private _getUniqueTokenAddresses (orders: OrderRaw[]): object {
+    return orders.reduce((result, order) => {
+      const { makerTokenAddress, takerTokenAddress } = order
+      if (!result[makerTokenAddress]) {
+        result[makerTokenAddress] = this._currencyNetwork.isNetwork(makerTokenAddress)
+          ? CURRENCY_NETWORK_ADDRESS
+          : TOKEN_ADDRESS
+      }
+      if (!result[takerTokenAddress]) {
+        result[takerTokenAddress] = this._currencyNetwork.isNetwork(takerTokenAddress)
+          ? CURRENCY_NETWORK_ADDRESS
+          : TOKEN_ADDRESS
+      }
+      return result
+    }, {})
   }
 }

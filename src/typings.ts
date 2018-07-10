@@ -393,3 +393,14 @@ export interface OrderOptions {
   makerTokenDecimals?: number,
   takerTokenDecimals?: number
 }
+
+export interface OrdersQuery {
+  exchangeContractAddress?: string,
+  tokenAddress?: string,
+  makerTokenAddress?: string,
+  takerTokenAddress?: string,
+  trader?: string,
+  maker?: string,
+  taker?: string,
+  feeRecipient?: string
+}
