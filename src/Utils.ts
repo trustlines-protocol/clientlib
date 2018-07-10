@@ -205,4 +205,12 @@ export class Utils {
     const wei = new BigNumber(1000000000000000000)
     return eth.times(wei).toNumber()
   }
+
+  /**
+   * Returns the hexdecimal representation of given decimal string.
+   * @param decimalStr Decimal string representation of number.
+   */
+  public convertDecToHex (decimalStr: string): string {
+    return new BigNumber(decimalStr).toString(16)
+  }
 }
