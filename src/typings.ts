@@ -27,9 +27,9 @@ export interface TLNetworkConfig {
 }
 
 export interface TxOptions {
-  value?: number | string,
-  gasPrice?: number,
-  gasLimit?: number
+  value?: string,
+  gasPrice?: string,
+  gasLimit?: string
 }
 
 export interface TLOptions extends TxOptions {
@@ -127,11 +127,11 @@ export interface TxInfos {
   /**
    * Amount of ETH in gwei for every unit of gas user is willing to pay
    */
-  gasPrice: number,
+  gasPrice: string,
   /**
    * Balance of given user address in ETH
    */
-  balance: number,
+  balance: string,
   /**
    * Transaction count of given user address
    */
