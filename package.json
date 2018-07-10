@@ -41,14 +41,14 @@
     "ts-node": "^3.3.0",
     "tslint": "^5.5.0",
     "tslint-config-standard": "^6.0.1",
-    "typedoc": "^0.11.1",    
+    "typedoc": "^0.11.1",
     "types-ethereumjs-util": "0.0.5",
     "typescript": "^2.4.1",
     "typings": "^2.1.1",
     "webpack": "^2.7.0"
   },
   "dependencies": {
-    "bignumber.js": "^5.0.0",
+    "bignumber.js": "7.2.1",
     "eth-lightwallet": "^3.0.1",
     "ethereumjs-abi": "^0.6.5",
     "ethereumjs-util": "^5.2.0",
