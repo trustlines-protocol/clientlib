@@ -210,7 +210,7 @@ export class Utils {
    * Returns the hexdecimal representation of given decimal string.
    * @param decimalStr Decimal string representation of number.
    */
-  public convertDecToHex (decimalStr: string): string {
+  public convertDecToHex (decimalStr: string | number): string {
     return new BigNumber(decimalStr).toString(16)
   }
 }

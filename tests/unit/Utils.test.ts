@@ -68,5 +68,26 @@ describe('unit', () => {
           .to.equal(url)
       })
     })
+
+    describe('#convertDecToHex()', () => {
+      const num = 123
+      const numDecStr = '123'
+      const numHexStr = '7b'
+
+      it('should convert decimal string to hex', () => {
+        const convertedHex = tl.utils.convertDecToHex(numDecStr)
+        expect(convertedHex).to.equal('7b')
+      })
+
+      it('should convert hex string to hex', () => {
+        const convertedHex = tl.utils.convertDecToHex(`0x${numHexStr}`)
+        expect(convertedHex).to.equal(numHexStr)
+      })
+
+      it('should convert number to hex', () => {
+        const convertedHex = tl.utils.convertDecToHex(num)
+        expect(convertedHex).to.equal('7b')
+      })
+    })
   })
 })
