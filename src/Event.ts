@@ -94,7 +94,7 @@ export class Event {
    */
   public async setDecimalsAndFormat (rawEvents: AnyEventRaw[]): Promise<any[]> {
     const addressesMap = this._getUniqueAddressesMap(rawEvents)
-    const decimalsMap = await this._getDecimalsMap(addressesMap)
+    const decimalsMap = await this.getDecimalsMap(addressesMap)
     return rawEvents.map(event => {
       if ((event as AnyNetworkEventRaw).networkAddress) {
         return this._utils.formatEvent<AnyNetworkEventRaw>(
@@ -121,6 +121,31 @@ export class Event {
       }
       return event
     })
+  }
+
+  /**
+   * Returns a mapping from address to decimals
+   * @param addressesMap mapping from address to whether given address is a CurrencyNetwork
+   *                     or Token contract.
+   */
+  public async getDecimalsMap (addressesMap: object): Promise<object> {
+    const addresses = Object.keys(addressesMap)
+    const decimalsList = await Promise.all(
+      addresses.map(address => {
+        if (addressesMap[address] === CURRENCY_NETWORK_ADDRESS) {
+          return this._currencyNetwork.getDecimals(address)
+        }
+        if (addressesMap[address] === TOKEN_ADDRESS) {
+          // TODO: find different way to get decimals of token
+          // NOTE: only expecting WrappedEthEvents for now
+          return this._currencyNetwork.getDecimals(address, 18)
+        }
+      })
+    )
+    return addresses.reduce((decimalsMap, network, i) => {
+      decimalsMap[network] = decimalsList[i]
+      return decimalsMap
+    }, {})
   }
 
   /**
