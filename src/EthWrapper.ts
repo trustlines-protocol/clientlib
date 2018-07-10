@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
@@ -56,8 +58,8 @@ export class EthWrapper {
       'transfer',
       [ receiverAddress, _utils.calcRaw(value, ETH_DECIMALS) ],
       {
-        gasPrice,
-        gasLimit
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined
       }
     )
   }
@@ -76,9 +78,9 @@ export class EthWrapper {
       'deposit',
       [],
       {
-        gasPrice,
-        gasLimit,
-        value: _utils.calcRaw(value, ETH_DECIMALS)
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined,
+        value: new BigNumber(_utils.calcRaw(value, ETH_DECIMALS))
       }
     )
   }
@@ -97,8 +99,8 @@ export class EthWrapper {
       'withdraw',
       [ _utils.calcRaw(value, ETH_DECIMALS) ],
       {
-        gasPrice,
-        gasLimit
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined
       }
     )
   }
