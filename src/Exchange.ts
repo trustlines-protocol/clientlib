@@ -22,7 +22,8 @@ import {
   EventFilterOptions,
   AnyExchangeEvent,
   AnyExchangeEventRaw,
-  OrdersQuery
+  OrdersQuery,
+  SignedOrderRaw
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -486,6 +487,10 @@ export class Exchange {
     })
   }
 
+  /**
+   * Return keccak-256 hash of given order.
+   * @param order Order object.
+   */
   private _getOrderHashHex (order: OrderRaw | SignedOrderRaw): string {
     const orderParts = [
       {
@@ -543,6 +548,12 @@ export class Exchange {
     return ethUtils.bufferToHex(hashBuff)
   }
 
+  /**
+   * Formats number values of given order to Amount objects and calculates the hash of given order.
+   * @param signedOrderRaw Signed order object unformatted.
+   * @param makerDecimals Decimals of maker token.
+   * @param takerDecimals Decimals of taker token.
+   */
   private _formatOrderRaw (
     signedOrderRaw: SignedOrderRaw,
     makerDecimals: number,
