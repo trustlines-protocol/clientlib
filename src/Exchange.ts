@@ -92,6 +92,17 @@ export class Exchange {
     return this._formatOrderRaw(order, makerDecimals, takerDecimals)
   }
 
+  /**
+   * Returns orders that match given query parameters.
+   * @param query See `OrdersQuery` for more information.
+   * @param query.exchangeContractAddress Orders for this exchange address.
+   * @param query.tokenAddress Orders where `makerTokenAddress` or `takerTokenAddress` is `tokenAddress`.
+   * @param query.makerTokenAddress Orders with specified makerTokenAddress.
+   * @param query.takerTokenAddress Orders with specified takerTokenAddress.
+   * @param query.maker Orders with specified maker address.
+   * @param query.taker Orders with specified taker address.
+   * @param query.trader Orders where `maker` or `taker` is `trader`.
+   */
   public async getOrders (query: OrdersQuery = {}): Promise<SignedOrder[]> {
     const { _event, _utils } = this
     const queryEndpoint = _utils.buildUrl('exchange/orders', {
