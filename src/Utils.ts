@@ -114,22 +114,22 @@ export class Utils {
 
   /**
    * Returns the smallest representation of a number.
-   * @param value representation of number in biggest unit
-   * @param decimals number of decimals
+   * @param value Representation of number in biggest unit.
+   * @param decimals Number of decimals.
    */
   public calcRaw (value: number | string, decimals: number): string {
-    const x = new BigNumber(value)
-    return x.times(Math.pow(10, decimals)).toString()
+    const factor = new BigNumber(10).exponentiatedBy(decimals)
+    return new BigNumber(value).multipliedBy(factor).toString()
   }
 
   /**
    * Returns the biggest representation of a number.
-   * @param raw representation of number in smallest unit
-   * @param decimals nuber of decimals
+   * @param raw Representation of number in smallest unit.
+   * @param decimals Number of decimals.
    */
   public calcValue (raw: number | string, decimals: number): string {
-    const x = new BigNumber(raw)
-    return x.div(Math.pow(10, decimals)).toString()
+    const divisor = new BigNumber(10).exponentiatedBy(decimals)
+    return new BigNumber(raw).dividedBy(divisor).toString()
   }
 
   /**
