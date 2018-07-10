@@ -267,12 +267,10 @@ export class Exchange {
         ecSignature.r,
         ecSignature.s
       ], {
-        gasPrice,
-        gasLimit: gasLimit ||
-          new BigNumber(takerPathObj.estimatedGas)
-            .plus(new BigNumber(makerPathObj.estimatedGas))
-            .multipliedBy(1.5)
-            .toString()
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasLimit
+          ? new BigNumber(gasLimit)
+          : takerPathObj.estimatedGas.plus(makerPathObj.estimatedGas).multipliedBy(1.5)
       }
     )
     return {
@@ -315,8 +313,8 @@ export class Exchange {
         orderValues,
         this._utils.calcRaw(cancelTakerTokenValue, takerDecimals)
       ], {
-        gasPrice,
-        gasLimit
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined
       }
     )
     return {
@@ -351,7 +349,7 @@ export class Exchange {
     return {
       path: [],
       maxFees: this._utils.formatAmount(0, decimals),
-      estimatedGas: 40000,
+      estimatedGas: new BigNumber(40000),
       isNetwork: false
     }
   }

@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 import { Event } from './Event'
 import { Utils } from './Utils'
 import { User } from './User'
@@ -71,7 +73,10 @@ export class Trustline {
         _utils.calcRaw(creditlineGiven, decimals),
         _utils.calcRaw(creditlineReceived, decimals)
       ],
-      { gasPrice, gasLimit }
+      {
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined
+      }
     )
   }
 

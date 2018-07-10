@@ -1,5 +1,11 @@
 import { Utils } from './Utils'
-import { TxObject, TxOptions, TxInfos } from './typings'
+import {
+  TxObject,
+  TxOptions,
+  TxInfos,
+  TxInfosRaw,
+  RawTxOptions
+} from './typings'
 
 import { BigNumber } from 'bignumber.js'
 import * as lightwallet from 'eth-lightwallet'
@@ -39,19 +45,17 @@ export class Transaction {
     contractName: string,
     functionName: string,
     parameters: any[],
-    options: TxOptions = {}
+    options: RawTxOptions = {}
   ): Promise<TxObject> {
     const txInfos = await this._getTxInfos(userAddress)
     const txOptions = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
-      gasLimit: options.gasLimit || '600000',
-      value: options.value || '0',
+      gasLimit: options.gasLimit || new BigNumber(600000),
+      value: options.value || new BigNumber(0),
       nonce: txInfos.nonce,
       to: contractAddress.toLowerCase()
     }
-    const ethFeesRaw = new BigNumber(txOptions.gasLimit)
-      .multipliedBy(new BigNumber(txOptions.gasPrice))
-      .toString()
+    const ethFees = txOptions.gasLimit.multipliedBy(txOptions.gasPrice)
     return {
       rawTx: lightwallet.txutils.functionTx(
         CONTRACTS[ contractName ].abi, functionName, parameters, {
@@ -61,7 +65,7 @@ export class Transaction {
           value: this._utils.convertDecToHex(txOptions.value)
         }
       ),
-      ethFees: this._utils.formatAmount(ethFeesRaw, ETH_DECIMALS)
+      ethFees: this._utils.formatAmount(ethFees, ETH_DECIMALS)
     }
   }
 
@@ -79,19 +83,17 @@ export class Transaction {
     senderAddress: string,
     receiverAddress: string,
     rawValue: string,
-    options: TxOptions = {}
+    options: RawTxOptions = {}
   ): Promise<TxObject> {
     const txInfos = await this._getTxInfos(senderAddress)
     const txOptions = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
-      gasLimit: options.gasLimit || '21000',
+      gasLimit: options.gasLimit || new BigNumber(21000),
       value: rawValue,
       nonce: txInfos.nonce,
       to: receiverAddress.toLowerCase()
     }
-    const ethFeesRaw = new BigNumber(txOptions.gasLimit)
-      .multipliedBy(new BigNumber(txOptions.gasPrice))
-      .toString()
+    const ethFees = txOptions.gasLimit.multipliedBy(txOptions.gasPrice)
     return {
       rawTx: lightwallet.txutils.valueTx({
         ...txOptions,
@@ -99,7 +101,7 @@ export class Transaction {
         gasLimit: this._utils.convertDecToHex(txOptions.gasLimit),
         value: this._utils.convertDecToHex(txOptions.value)
       }),
-      ethFees: this._utils.formatAmount(ethFeesRaw, ETH_DECIMALS)
+      ethFees: this._utils.formatAmount(ethFees, ETH_DECIMALS)
     }
   }
 
@@ -130,7 +132,12 @@ export class Transaction {
    * @returns Information for creating an ethereum transaction for the given user address.
    *          See tyoe `TxInfos` for more details.
    */
-  private _getTxInfos (userAddress: string): Promise<TxInfos> {
-    return this._utils.fetchUrl<TxInfos>(`users/${userAddress}/txinfos`)
+  private async _getTxInfos (userAddress: string): Promise<TxInfos> {
+    const txInfos = await this._utils.fetchUrl<TxInfosRaw>(`users/${userAddress}/txinfos`)
+    return {
+      ...txInfos,
+      gasPrice: new BigNumber(txInfos.gasPrice),
+      balance: new BigNumber(txInfos.balance)
+    }
   }
 }

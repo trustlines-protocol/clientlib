@@ -60,7 +60,7 @@ export class Payment {
     options: PaymentOptions = {}
   ): Promise<TLTxObject> {
     const { _user, _currencyNetwork, _transaction, _utils } = this
-    let { decimals } = options
+    let { gasPrice, gasLimit, decimals } = options
     decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
     const { path, maxFees, estimatedGas } = await this.getPath(
       networkAddress,
@@ -77,9 +77,8 @@ export class Payment {
         'transfer',
         [ receiverAddress, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
         {
-          gasPrice: options.gasPrice,
-          gasLimit: options.gasLimit ||
-            new BigNumber(estimatedGas).multipliedBy(1.5).toString()
+          gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+          gasLimit: gasLimit ? new BigNumber(gasLimit) : new BigNumber(estimatedGas).multipliedBy(1.5)
         }
       )
       return { rawTx, path, maxFees, ethFees }
@@ -101,11 +100,15 @@ export class Payment {
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<TxObject> {
+    const { gasLimit, gasPrice } = options
     return this._transaction.prepValueTx(
       this._user.address,
       receiverAddress,
       this._utils.calcRaw(value, 18),
-      options
+      {
+        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
+      }
     )
   }
 
@@ -128,7 +131,7 @@ export class Payment {
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<PathObject> {
-    const { _currencyNetwork, _utils, _user } = this
+    const { _currencyNetwork, _utils } = this
     let { decimals, maximumHops, maximumFees} = options
     decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
     const data = {
@@ -149,7 +152,7 @@ export class Payment {
       body: JSON.stringify(data)
     })
     return {
-      estimatedGas,
+      estimatedGas: new BigNumber(estimatedGas),
       path,
       maxFees: _utils.formatAmount(fees, decimals)
     }

@@ -42,7 +42,6 @@ describe('e2e', () => {
     describe('#getPath()', () => {
       it('should return path', async () => {
         const pathObj = await tl1.payment.getPath(network.address, user1.address, user2.address, 1.5)
-        expect(pathObj.estimatedGas).to.not.equal(0)
         expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
         expect(pathObj.maxFees.raw).to.not.equal('0')
         expect(pathObj.path).to.not.equal([])
@@ -50,7 +49,6 @@ describe('e2e', () => {
 
       it('should return no path', async () => {
         const pathObj = await tl1.payment.getPath(network.address, user1.address, user2.address, 1000)
-        expect(pathObj.estimatedGas).to.equal(0)
         expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
         expect(pathObj.maxFees.raw).to.equal('0')
         expect(pathObj.path).to.deep.equal([])
