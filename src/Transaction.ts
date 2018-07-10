@@ -9,6 +9,7 @@ import * as lightwallet from 'eth-lightwallet'
  * Contract ABIs
  */
 const CONTRACTS = require('../contracts.json')
+const ETH_DECIMALS = 18
 
 /**
  * The Transaction class contains functions that are needed for Ethereum transactions.
@@ -43,18 +44,24 @@ export class Transaction {
     const txInfos = await this._getTxInfos(userAddress)
     const txOptions = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
-      gasLimit: options.gasLimit || 600000,
-      value: options.value ? new BigNumber(options.value).toNumber() : 0,
+      gasLimit: options.gasLimit || '600000',
+      value: options.value || '0',
       nonce: txInfos.nonce,
       to: contractAddress.toLowerCase()
     }
+    const ethFeesRaw = new BigNumber(txOptions.gasLimit)
+      .multipliedBy(new BigNumber(txOptions.gasPrice))
+      .toString()
     return {
       rawTx: lightwallet.txutils.functionTx(
-        CONTRACTS[ contractName ].abi, functionName, parameters, txOptions
+        CONTRACTS[ contractName ].abi, functionName, parameters, {
+          ...txOptions,
+          gasPrice: this._utils.convertDecToHex(txOptions.gasPrice),
+          gasLimit: this._utils.convertDecToHex(txOptions.gasLimit),
+          value: this._utils.convertDecToHex(txOptions.value)
+        }
       ),
-      ethFees: this._utils.formatAmount(
-        txOptions.gasLimit * txOptions.gasPrice, 18
-      )
+      ethFees: this._utils.formatAmount(ethFeesRaw, ETH_DECIMALS)
     }
   }
 
@@ -77,16 +84,22 @@ export class Transaction {
     const txInfos = await this._getTxInfos(senderAddress)
     const txOptions = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
-      gasLimit: options.gasLimit || 21000,
-      value: new BigNumber(rawValue).toNumber(),
+      gasLimit: options.gasLimit || '21000',
+      value: rawValue,
       nonce: txInfos.nonce,
       to: receiverAddress.toLowerCase()
     }
+    const ethFeesRaw = new BigNumber(txOptions.gasLimit)
+      .multipliedBy(new BigNumber(txOptions.gasPrice))
+      .toString()
     return {
-      rawTx: lightwallet.txutils.valueTx(txOptions),
-      ethFees: this._utils.formatAmount(
-        txOptions.gasLimit * txOptions.gasPrice, 18
-      )
+      rawTx: lightwallet.txutils.valueTx({
+        ...txOptions,
+        gasPrice: this._utils.convertDecToHex(txOptions.gasPrice),
+        gasLimit: this._utils.convertDecToHex(txOptions.gasLimit),
+        value: this._utils.convertDecToHex(txOptions.value)
+      }),
+      ethFees: this._utils.formatAmount(ethFeesRaw, ETH_DECIMALS)
     }
   }
 
