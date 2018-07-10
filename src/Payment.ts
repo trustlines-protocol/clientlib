@@ -1,3 +1,5 @@
+import { BigNumber } from 'bignumber.js'
+
 import { Event } from './Event'
 import { Utils } from './Utils'
 import { User } from './User'
@@ -76,7 +78,8 @@ export class Payment {
         [ receiverAddress, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
         {
           gasPrice: options.gasPrice,
-          gasLimit: options.gasLimit || estimatedGas * 1.5
+          gasLimit: options.gasLimit ||
+            new BigNumber(estimatedGas).multipliedBy(1.5).toString()
         }
       )
       return { rawTx, path, maxFees, ethFees }
