@@ -117,7 +117,7 @@ export class Utils {
    * @param value Representation of number in biggest unit.
    * @param decimals Number of decimals.
    */
-  public calcRaw (value: number | string, decimals: number): string {
+  public calcRaw (value: number | string | BigNumber, decimals: number): string {
     const factor = new BigNumber(10).exponentiatedBy(decimals)
     return new BigNumber(value).multipliedBy(factor).toString()
   }
@@ -127,7 +127,7 @@ export class Utils {
    * @param raw Representation of number in smallest unit.
    * @param decimals Number of decimals.
    */
-  public calcValue (raw: number | string, decimals: number): string {
+  public calcValue (raw: number | string | BigNumber, decimals: number): string {
     const divisor = new BigNumber(10).exponentiatedBy(decimals)
     return new BigNumber(raw).dividedBy(divisor).toString()
   }
@@ -138,7 +138,7 @@ export class Utils {
    * @param raw representation of number in smallest unit
    * @param decimals nubmer of decimals
    */
-  public formatAmount (raw: number | string, decimals: number): Amount {
+  public formatAmount (raw: number | string | BigNumber, decimals: number): Amount {
     return {
       decimals,
       raw: new BigNumber(raw).toString(),
@@ -210,7 +210,7 @@ export class Utils {
    * Returns the hexdecimal representation of given decimal string.
    * @param decimalStr Decimal string representation of number.
    */
-  public convertDecToHex (decimalStr: string | number): string {
+  public convertDecToHex (decimalStr: string | number | BigNumber): string {
     return new BigNumber(decimalStr).toString(16)
   }
 }
