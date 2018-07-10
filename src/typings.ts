@@ -355,6 +355,8 @@ export interface ECSignature {
   s: string
 }
 
+export type AnyOrder = Order | OrderRaw | SignedOrder | SignedOrderRaw
+
 export interface FeesRequest {
   exchangeContractAddress: string,
   expirationUnixTimestampSec: BigNumber,
@@ -373,11 +375,13 @@ export interface FeesResponse {
   takerFee: BigNumber
 }
 
-export interface ExchangeOptions extends TxOptions {
+export interface ExchangeOptions {
   makerTokenDecimals?: number,
   takerTokenDecimals?: number,
   expirationUnixTimestampSec?: number
 }
+
+export type ExchangeTxOptions = TxOptions & ExchangeOptions
 
 export interface OrderbookOptions {
   baseTokenDecimals?: number,
@@ -392,9 +396,6 @@ export interface ExchangeTx extends TxObject {
 }
 
 export interface OrderOptions {
-  includeFilled?: boolean,
-  includeCancelled?: boolean,
-  includeUnavailable?: boolean,
   makerTokenDecimals?: number,
   takerTokenDecimals?: number
 }
