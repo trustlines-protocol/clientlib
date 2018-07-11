@@ -10,24 +10,52 @@ describe('unit', () => {
     const { expect } = chai
     const tl = new TLNetwork(config)
 
+    const numValue = 123
+    const strValue = numValue.toString()
+    const bnValue = new BigNumber(numValue)
+    const decimals = 2
+
     describe('#calcRaw()', () => {
-      it('should return raw value', () => {
-        expect(tl.utils.calcRaw(1.23, 2)).to.equal('123')
+      it('should return raw value for number', () => {
+        const raw = tl.utils.calcRaw(numValue, 2)
+        expect(raw).to.be.instanceof(BigNumber)
+        expect(raw.toString()).to.equal('12300')
+      })
+
+      it('should return raw value for string', () => {
+        const raw = tl.utils.calcRaw(strValue, 2)
+        expect(raw).to.be.instanceof(BigNumber)
+        expect(raw.toString()).to.equal('12300')
+      })
+
+      it('should return raw value for BigNumber', () => {
+        const raw = tl.utils.calcRaw(bnValue, 2)
+        expect(raw).to.be.instanceof(BigNumber)
+        expect(raw.toString()).to.equal('12300')
       })
     })
 
     describe('#calcValue()', () => {
-      it('should return value from raw', () => {
-        expect(tl.utils.calcValue(100, 2)).to.equal('1')
+      it('should return value for number', () => {
+        const value = tl.utils.calcValue(numValue, 2)
+        expect(value).to.be.instanceof(BigNumber)
+        expect(value.toString()).to.equal('1.23')
+      })
+
+      it('should return value for string', () => {
+        const value = tl.utils.calcValue(strValue, 2)
+        expect(value).to.be.instanceof(BigNumber)
+        expect(value.toString()).to.equal('1.23')
+      })
+
+      it('should return value for BigNumber', () => {
+        const value = tl.utils.calcValue(bnValue, 2)
+        expect(value).to.be.instanceof(BigNumber)
+        expect(value.toString()).to.equal('1.23')
       })
     })
 
     describe('#formatToAmount()', () => {
-      const numValue = 123
-      const strValue = numValue.toString()
-      const bnValue = new BigNumber(numValue)
-      const decimals = 2
-
       it('should format number to Amount object', () => {
         const amount = tl.utils.formatToAmount(numValue, decimals)
         expect(amount).to.have.keys('decimals', 'raw', 'value')
@@ -54,11 +82,6 @@ describe('unit', () => {
     })
 
     describe('#formatToAmountInternal()', () => {
-      const numValue = 123
-      const strValue = numValue.toString()
-      const bnValue = new BigNumber(numValue)
-      const decimals = 2
-
       it('should format number to AmountInternal object', () => {
         const amount = tl.utils.formatToAmountInternal(numValue, decimals)
         expect(amount).to.have.keys('decimals', 'raw', 'value')

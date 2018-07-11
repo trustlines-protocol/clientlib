@@ -164,7 +164,7 @@ export class Utils {
     return {
       ...amount,
       raw: amount.raw.toString(),
-      value: amount.raw.toString()
+      value: amount.value.toString()
     }
   }
 
