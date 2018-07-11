@@ -1,5 +1,7 @@
 import 'mocha'
 import * as chai from 'chai'
+import BigNumber from 'bignumber.js'
+
 import { TLNetwork } from '../../src/TLNetwork'
 import { config } from '../Fixtures'
 
@@ -20,9 +22,79 @@ describe('unit', () => {
       })
     })
 
-    describe('#formatAmount()', () => {
-      const amount = tl.utils.formatAmount(123, 2)
-      it('should return amount object', () => {
+    describe('#formatToAmount()', () => {
+      const numValue = 123
+      const strValue = numValue.toString()
+      const bnValue = new BigNumber(numValue)
+      const decimals = 2
+
+      it('should format number to Amount object', () => {
+        const amount = tl.utils.formatToAmount(numValue, decimals)
+        expect(amount).to.have.keys('decimals', 'raw', 'value')
+        expect(amount.decimals).to.equal(2)
+        expect(amount.raw).to.equal('123')
+        expect(amount.value).to.equal('1.23')
+      })
+
+      it('should format string to Amount object', () => {
+        const amount = tl.utils.formatToAmount(strValue, decimals)
+        expect(amount).to.have.keys('decimals', 'raw', 'value')
+        expect(amount.decimals).to.equal(2)
+        expect(amount.raw).to.equal('123')
+        expect(amount.value).to.equal('1.23')
+      })
+
+      it('should format BigNumber to Amount object', () => {
+        const amount = tl.utils.formatToAmount(bnValue, decimals)
+        expect(amount).to.have.keys('decimals', 'raw', 'value')
+        expect(amount.decimals).to.equal(2)
+        expect(amount.raw).to.equal('123')
+        expect(amount.value).to.equal('1.23')
+      })
+    })
+
+    describe('#formatToAmountInternal()', () => {
+      const numValue = 123
+      const strValue = numValue.toString()
+      const bnValue = new BigNumber(numValue)
+      const decimals = 2
+
+      it('should format number to AmountInternal object', () => {
+        const amount = tl.utils.formatToAmountInternal(numValue, decimals)
+        expect(amount).to.have.keys('decimals', 'raw', 'value')
+        expect(amount.decimals).to.equal(2)
+        expect(amount.raw).to.be.instanceof(BigNumber)
+        expect(amount.raw.toString()).to.equal('123')
+        expect(amount.value).to.be.instanceof(BigNumber)
+        expect(amount.value.toString()).to.equal('1.23')
+      })
+
+      it('should format string to Amount object', () => {
+        const amount = tl.utils.formatToAmountInternal(strValue, decimals)
+        expect(amount).to.have.keys('decimals', 'raw', 'value')
+        expect(amount.decimals).to.equal(2)
+        expect(amount.raw).to.be.instanceof(BigNumber)
+        expect(amount.raw.toString()).to.equal('123')
+        expect(amount.value).to.be.instanceof(BigNumber)
+        expect(amount.value.toString()).to.equal('1.23')
+      })
+
+      it('should format BigNumber to Amount object', () => {
+        const amount = tl.utils.formatToAmountInternal(bnValue, decimals)
+        expect(amount).to.have.keys('decimals', 'raw', 'value')
+        expect(amount.decimals).to.equal(2)
+        expect(amount.raw).to.be.instanceof(BigNumber)
+        expect(amount.raw.toString()).to.equal('123')
+        expect(amount.value).to.be.instanceof(BigNumber)
+        expect(amount.value.toString()).to.equal('1.23')
+      })
+    })
+
+    describe('#convertToAmount()', () => {
+      const amountInternal = tl.utils.formatToAmountInternal(123, 2)
+
+      it('should convert AmountInternal to Amount object', () => {
+        const amount = tl.utils.convertToAmount(amountInternal)
         expect(amount).to.have.keys('decimals', 'raw', 'value')
         expect(amount.decimals).to.equal(2)
         expect(amount.raw).to.equal('123')
@@ -69,7 +141,7 @@ describe('unit', () => {
       })
     })
 
-    describe('#convertDecToHex()', () => {
+    describe('#convertToHexString()', () => {
       const num = 123
       const numDecStr = '123'
       const numHexStr = '0x7b'
