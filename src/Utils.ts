@@ -6,7 +6,7 @@ import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 
 import { Configuration } from './Configuration'
-import { Amount } from './typings'
+import { Amount, AmountInternal } from './typings'
 
 let __DEV__
 
@@ -117,9 +117,12 @@ export class Utils {
    * @param value Representation of number in biggest unit.
    * @param decimals Number of decimals.
    */
-  public calcRaw (value: number | string | BigNumber, decimals: number): string {
+  public calcRaw (
+    value: number | string | BigNumber,
+    decimals: number
+  ): BigNumber {
     const factor = new BigNumber(10).exponentiatedBy(decimals)
-    return new BigNumber(value).multipliedBy(factor).toString()
+    return new BigNumber(value).multipliedBy(factor)
   }
 
   /**
@@ -127,22 +130,57 @@ export class Utils {
    * @param raw Representation of number in smallest unit.
    * @param decimals Number of decimals.
    */
-  public calcValue (raw: number | string | BigNumber, decimals: number): string {
+  public calcValue (
+    raw: number | string | BigNumber,
+    decimals: number
+  ): BigNumber {
     const divisor = new BigNumber(10).exponentiatedBy(decimals)
-    return new BigNumber(raw).dividedBy(divisor).toString()
+    return new BigNumber(raw).dividedBy(divisor)
   }
 
   /**
-   * Formats number into an Amount object which includes the decimals,
-   * smallest and biggest representation.
-   * @param raw representation of number in smallest unit
-   * @param decimals nubmer of decimals
+   * Formats number into an AmountInternal object which is intended for internal use.
+   * @param raw Representation of number in smallest unit.
+   * @param decimals Number of decimals.
    */
-  public formatAmount (raw: number | string | BigNumber, decimals: number): Amount {
+  public formatToAmountInternal (
+    raw: number | string | BigNumber,
+    decimals: number
+  ): AmountInternal {
+    return {
+      decimals,
+      raw: new BigNumber(raw),
+      value: this.calcValue(raw, decimals)
+    }
+  }
+
+  /**
+   * Converts an AmountInternal to Amount object.
+   * @param amount AmountInternal object.
+   */
+  public convertToAmount (
+    amount: AmountInternal
+  ): Amount {
+    return {
+      ...amount,
+      raw: amount.raw.toString(),
+      value: amount.raw.toString()
+    }
+  }
+
+  /**
+   * Formats raw representation of number into a Amount object.
+   * @param raw Representation of number in smallest unit.
+   * @param decimals Number of decimals.
+   */
+  public formatToAmount (
+    raw: number | string | BigNumber,
+    decimals: number
+  ): Amount {
     return {
       decimals,
       raw: new BigNumber(raw).toString(),
-      value: this.calcValue(raw, decimals)
+      value: this.calcValue(raw, decimals).toString()
     }
   }
 
@@ -155,30 +193,30 @@ export class Utils {
     if (event.amount) {
       event = {
         ...event,
-        amount: this.formatAmount(event.amount, decimals)
+        amount: this.formatToAmount(event.amount, decimals)
       }
     }
 
     if (event.balance) {
       event = {
         ...event,
-        balance: this.formatAmount(event.balance, decimals)
+        balance: this.formatToAmount(event.balance, decimals)
       }
     }
 
     if (event.received && event.given) {
       event = {
         ...event,
-        given: this.formatAmount(event.given, decimals),
-        received: this.formatAmount(event.received, decimals)
+        given: this.formatToAmount(event.given, decimals),
+        received: this.formatToAmount(event.received, decimals)
       }
     }
 
     if (event.leftReceived && event.leftGiven) {
       event = {
         ...event,
-        leftGiven: this.formatAmount(event.leftGiven, decimals),
-        leftReceived: this.formatAmount(event.leftReceived, decimals)
+        leftGiven: this.formatToAmount(event.leftGiven, decimals),
+        leftReceived: this.formatToAmount(event.leftReceived, decimals)
       }
     }
     return event
