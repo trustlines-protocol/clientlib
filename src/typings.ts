@@ -29,7 +29,7 @@ export interface TLNetworkConfig {
 /**
  * For internal use of `prepFuncTx` and `prepValueTx`.
  */
-export interface RawTxOptions {
+export interface TxOptionsInternal {
   value?: BigNumber,
   gasPrice?: BigNumber,
   gasLimit?: BigNumber

@@ -4,7 +4,7 @@ import {
   TxOptions,
   TxInfos,
   TxInfosRaw,
-  RawTxOptions
+  TxOptionsInternal
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -45,7 +45,7 @@ export class Transaction {
     contractName: string,
     functionName: string,
     parameters: any[],
-    options: RawTxOptions = {}
+    options: TxOptionsInternal = {}
   ): Promise<TxObject> {
     const txInfos = await this._getTxInfos(userAddress)
     const txOptions = {
@@ -83,7 +83,7 @@ export class Transaction {
     senderAddress: string,
     receiverAddress: string,
     rawValue: string,
-    options: RawTxOptions = {}
+    options: TxOptionsInternal = {}
   ): Promise<TxObject> {
     const txInfos = await this._getTxInfos(senderAddress)
     const txOptions = {
