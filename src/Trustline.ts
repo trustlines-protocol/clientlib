@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 import { Event } from './Event'
 import { Utils } from './Utils'
 import { User } from './User'
@@ -61,18 +63,25 @@ export class Trustline {
     const { _currencyNetwork, _transaction, _user, _utils } = this
     let { decimals, gasLimit, gasPrice } = options
     decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
-    return _transaction.prepFuncTx(
+    const { rawTx, ethFees } = await _transaction.prepFuncTx(
       _user.address,
       networkAddress,
       'CurrencyNetwork',
       'updateTrustline',
       [
         counterpartyAddress,
-        _utils.calcRaw(creditlineGiven, decimals),
-        _utils.calcRaw(creditlineReceived, decimals)
+        _utils.convertToHexString(_utils.calcRaw(creditlineGiven, decimals)),
+        _utils.convertToHexString(_utils.calcRaw(creditlineReceived, decimals))
       ],
-      { gasPrice, gasLimit }
+      {
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined
+      }
     )
+    return {
+      rawTx,
+      ethFees: _utils.convertToAmount(ethFees)
+    }
   }
 
   /**
@@ -189,11 +198,11 @@ export class Trustline {
   ): TrustlineObject {
     return {
       ...trustline,
-      balance: this._utils.formatAmount(trustline.balance, decimals),
-      given: this._utils.formatAmount(trustline.given, decimals),
-      leftGiven: this._utils.formatAmount(trustline.leftGiven, decimals),
-      leftReceived: this._utils.formatAmount(trustline.leftReceived, decimals),
-      received: this._utils.formatAmount(trustline.received, decimals)
+      balance: this._utils.formatToAmount(trustline.balance, decimals),
+      given: this._utils.formatToAmount(trustline.given, decimals),
+      leftGiven: this._utils.formatToAmount(trustline.leftGiven, decimals),
+      leftReceived: this._utils.formatToAmount(trustline.leftReceived, decimals),
+      received: this._utils.formatToAmount(trustline.received, decimals)
     }
   }
 }

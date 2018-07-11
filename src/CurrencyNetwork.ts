@@ -61,11 +61,11 @@ export class CurrencyNetwork {
       this.getDecimals(networkAddress)
     ])
     return {
-      balance: this._utils.formatAmount(overview.balance, decimals),
-      given: this._utils.formatAmount(overview.given, decimals),
-      received: this._utils.formatAmount(overview.received, decimals),
-      leftGiven: this._utils.formatAmount(overview.leftGiven, decimals),
-      leftReceived: this._utils.formatAmount(overview.leftReceived, decimals)
+      balance: this._utils.formatToAmount(overview.balance, decimals),
+      given: this._utils.formatToAmount(overview.given, decimals),
+      received: this._utils.formatToAmount(overview.received, decimals),
+      leftGiven: this._utils.formatToAmount(overview.leftGiven, decimals),
+      leftReceived: this._utils.formatToAmount(overview.leftReceived, decimals)
     }
   }
 

@@ -182,7 +182,7 @@ export class User {
    */
   public async getBalance (): Promise<Amount> {
     const balance = await this._utils.fetchUrl<string>(`users/${this.address}/balance`)
-    return this._utils.formatAmount(
+    return this._utils.formatToAmount(
       this._utils.calcRaw(balance, 18), 18
     )
   }

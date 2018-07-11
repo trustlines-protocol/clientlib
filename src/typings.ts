@@ -26,10 +26,19 @@ export interface TLNetworkConfig {
   wsProtocol?: string
 }
 
+/**
+ * For internal use of `prepFuncTx` and `prepValueTx`.
+ */
+export interface TxOptionsInternal {
+  value?: BigNumber,
+  gasPrice?: BigNumber,
+  gasLimit?: BigNumber
+}
+
 export interface TxOptions {
-  value?: number | string,
-  gasPrice?: number,
-  gasLimit?: number
+  value?: string,
+  gasPrice?: string,
+  gasLimit?: string
 }
 
 export interface TLOptions extends TxOptions {
@@ -39,6 +48,12 @@ export interface TLOptions extends TxOptions {
 export interface PaymentOptions extends TLOptions {
   maximumHops?: number,
   maximumFees?: number
+}
+
+export interface AmountInternal {
+  raw: BigNumber,
+  value: BigNumber,
+  decimals: number
 }
 
 export interface Amount {
@@ -117,21 +132,41 @@ export interface TxObject {
   ethFees: Amount
 }
 
+export interface TxObjectInternal {
+  rawTx: string,
+  ethFees: AmountInternal
+}
+
 export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
 
 /**
  * Information for creating an ethereum transaction of a given user address
  * as returned by the relay server.
  */
+export interface TxInfosRaw {
+  /**
+   * Amount of ETH in gwei for every unit of gas user is willing to pay
+   */
+  gasPrice: string,
+  /**
+   * Balance of given user address in ETH
+   */
+  balance: string,
+  /**
+   * Transaction count of given user address
+   */
+  nonce: number
+}
+
 export interface TxInfos {
   /**
    * Amount of ETH in gwei for every unit of gas user is willing to pay
    */
-  gasPrice: number,
+  gasPrice: BigNumber,
   /**
    * Balance of given user address in ETH
    */
-  balance: number,
+  balance: BigNumber,
   /**
    * Transaction count of given user address
    */
@@ -147,7 +182,7 @@ export interface TLTxObject extends TxObject {
 export interface PathObject {
   path: string[],
   maxFees: Amount,
-  estimatedGas: number,
+  estimatedGas: BigNumber,
   isNetwork?: boolean
 }
 
