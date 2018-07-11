@@ -6,7 +6,11 @@ import { CurrencyNetwork } from './CurrencyNetwork'
 
 import {
   EventFilterOptions,
-  TLEvent
+  AnyNetworkEvent,
+  AnyNetworkEventRaw,
+  AnyEvent,
+  AnyEventRaw,
+  AnyTokenEventRaw
 } from './typings'
 
 const CURRENCY_NETWORK_EVENT = 'CurrencyNetworkEvent'
@@ -36,37 +40,35 @@ export class Event {
    * @param type Type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
-  public async get (
+  public async get<T> (
     networkAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<TLEvent[]> {
+  ): Promise<T[]> {
     const { _currencyNetwork, _user, _utils } = this
     const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
     const [ events, decimals ] = await Promise.all([
-      _utils.fetchUrl<TLEvent[]>(parameterUrl),
+      _utils.fetchUrl<AnyNetworkEventRaw[]>(parameterUrl),
       _currencyNetwork.getDecimals(networkAddress)
     ])
-    return events.map(event => _utils.formatEvent(event, decimals))
+    return events.map(event => _utils.formatEvent<T>(event, decimals))
   }
 
   /**
    * Returns event logs of loaded user in all currency networks.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
-  public async getAll (filter: EventFilterOptions = {}): Promise<TLEvent[]> {
+  public async getAll (filter: EventFilterOptions = {}): Promise<AnyEvent[]> {
     const { _user, _utils } = this
     const baseUrl = `users/${_user.address}/events`
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
-    const events = await _utils.fetchUrl<TLEvent[]>(parameterUrl)
+    const events = await _utils.fetchUrl<AnyEventRaw[]>(parameterUrl)
     const addressesMap = this._getUniqueAddressesMap(events)
     const decimalsMap = await this._getDecimalsMap(addressesMap)
     return events.map(event => {
-      const address = event.networkAddress || event.tokenAddress
-      return _utils.formatEvent(
-        event,
-        decimalsMap[address]
-      )
+      const address = (event as AnyNetworkEventRaw).networkAddress ||
+                      (event as AnyTokenEventRaw).tokenAddress
+      return _utils.formatEvent(event, decimalsMap[address])
     })
   }
 
@@ -96,12 +98,12 @@ export class Event {
    * Currently there are `NetworkEvent` and `TokenEvent`.
    * @param events trustlines network events
    */
-  private _getUniqueAddressesMap (events: TLEvent[]): object {
+  private _getUniqueAddressesMap (events: AnyEventRaw[]): object {
     return events.reduce((result, e) => {
-      if (e.networkAddress) {
-        result[e.networkAddress] = CURRENCY_NETWORK_EVENT
-      } else if (e.tokenAddress) {
-        result[e.tokenAddress] = TOKEN_EVENT
+      if ((e as AnyNetworkEventRaw).networkAddress) {
+        result[(e as AnyNetworkEventRaw).networkAddress] = CURRENCY_NETWORK_EVENT
+      } else if ((e as AnyTokenEventRaw).tokenAddress) {
+        result[(e as AnyTokenEventRaw).tokenAddress] = TOKEN_EVENT
       }
       return result
     }, {})

@@ -1,8 +1,14 @@
 import { Utils } from './Utils'
 import { User } from './User'
-import { TxOptions, Amount, TLEvent, TxObject } from './typings'
 import { Transaction } from './Transaction'
-import { EventFilterOptions } from './typings'
+import {
+  EventFilterOptions,
+  TxOptions,
+  Amount,
+  TxObject,
+  AnyTokenEventRaw,
+  AnyTokenEvent
+} from './typings'
 
 const ETH_DECIMALS = 18
 
@@ -105,11 +111,11 @@ export class EthWrapper {
   public async getLogs (
     ethWrapperAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<TLEvent[]> {
+  ): Promise<AnyTokenEvent[]> {
     const { _user, _utils } = this
     const { type, fromBlock } = filter
     const baseUrl = `tokens/${ethWrapperAddress}/users/${_user.address}/events`
-    const events = await _utils.fetchUrl<TLEvent[]>(
+    const events = await _utils.fetchUrl<AnyTokenEventRaw[]>(
       _utils.buildUrl(baseUrl, { type, fromBlock })
     )
     return events.map(event => _utils.formatEvent(event, ETH_DECIMALS))

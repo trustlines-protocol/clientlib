@@ -6,10 +6,10 @@ import { CurrencyNetwork } from './CurrencyNetwork'
 import {
   TLOptions,
   EventFilterOptions,
-  TLEvent,
   TxObject,
   TrustlineObject,
-  TrustlineRaw
+  TrustlineRaw,
+  NetworkTrustlineEvent
 } from './typings'
 
 /**
@@ -155,8 +155,8 @@ export class Trustline {
   public getRequests (
     networkAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<TLEvent[]> {
-    return this._event.get(networkAddress, {
+  ): Promise<NetworkTrustlineEvent[]> {
+    return this._event.get<NetworkTrustlineEvent>(networkAddress, {
       ...filter,
       type: 'TrustlineUpdateRequest'
     })
@@ -171,8 +171,8 @@ export class Trustline {
   public getUpdates (
     networkAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<TLEvent[]> {
-    return this._event.get(networkAddress, {
+  ): Promise<NetworkTrustlineEvent[]> {
+    return this._event.get<NetworkTrustlineEvent>(networkAddress, {
       ...filter,
       type: 'TrustlineUpdate'
     })
