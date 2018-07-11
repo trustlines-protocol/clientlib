@@ -1,21 +1,21 @@
 {
-    "compilerOptions": {
-        "moduleResolution": "node",
-        "module": "commonjs",
-        "target": "es5",
-        "lib": [ "es2015", "dom" ],
-        "outDir": "lib",
-        "allowSyntheticDefaultImports": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "forceConsistentCasingInFileNames": true,
-        "sourceMap": true,
-        "declaration": true,
-        "jsx": "react"
-    },
-    "include": [
-        "./src/TLNetwork.ts",
-        "./node_modules/types-ethereumjs-util/index.d.ts"
-    ],
-    "compileOnSave": false,
-    "buildOnSave": false
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["es2015", "dom"],
+    "outDir": "lib",
+    "allowSyntheticDefaultImports": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "declaration": true,
+    "jsx": "react"
+  },
+  "include": [
+    "./src/TLNetwork.ts",
+    "./node_modules/types-ethereumjs-util/index.d.ts"
+  ],
+  "compileOnSave": false,
+  "buildOnSave": false
 }

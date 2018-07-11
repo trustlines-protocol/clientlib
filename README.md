@@ -26,7 +26,7 @@ lib-esm/		// ES5(esmodule) + source + .d.ts
 ```
 #### Import UMD bundle in HTML
 ```html
-<script src="./_bundles/trustlines-network.min.js"></script>
+<script src="./_bundles/trustlines-network.js"></script>
 ```
 #### Import CommonJS module
 ```javascript
