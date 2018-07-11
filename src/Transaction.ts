@@ -60,9 +60,9 @@ export class Transaction {
       rawTx: lightwallet.txutils.functionTx(
         CONTRACTS[ contractName ].abi, functionName, parameters, {
           ...txOptions,
-          gasPrice: this._utils.convertDecToHex(txOptions.gasPrice),
-          gasLimit: this._utils.convertDecToHex(txOptions.gasLimit),
-          value: this._utils.convertDecToHex(txOptions.value)
+          gasPrice: this._utils.convertToHexString(txOptions.gasPrice),
+          gasLimit: this._utils.convertToHexString(txOptions.gasLimit),
+          value: this._utils.convertToHexString(txOptions.value)
         }
       ),
       ethFees: this._utils.formatAmount(ethFees, ETH_DECIMALS)
@@ -97,9 +97,9 @@ export class Transaction {
     return {
       rawTx: lightwallet.txutils.valueTx({
         ...txOptions,
-        gasPrice: this._utils.convertDecToHex(txOptions.gasPrice),
-        gasLimit: this._utils.convertDecToHex(txOptions.gasLimit),
-        value: this._utils.convertDecToHex(txOptions.value)
+        gasPrice: this._utils.convertToHexString(txOptions.gasPrice),
+        gasLimit: this._utils.convertToHexString(txOptions.gasLimit),
+        value: this._utils.convertToHexString(txOptions.value)
       }),
       ethFees: this._utils.formatAmount(ethFees, ETH_DECIMALS)
     }
