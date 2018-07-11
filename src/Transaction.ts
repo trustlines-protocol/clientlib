@@ -4,7 +4,8 @@ import {
   TxOptions,
   TxInfos,
   TxInfosRaw,
-  TxOptionsInternal
+  TxOptionsInternal,
+  TxObjectInternal
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -46,7 +47,7 @@ export class Transaction {
     functionName: string,
     parameters: any[],
     options: TxOptionsInternal = {}
-  ): Promise<TxObject> {
+  ): Promise<TxObjectInternal> {
     const txInfos = await this._getTxInfos(userAddress)
     const txOptions = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
@@ -58,14 +59,17 @@ export class Transaction {
     const ethFees = txOptions.gasLimit.multipliedBy(txOptions.gasPrice)
     return {
       rawTx: lightwallet.txutils.functionTx(
-        CONTRACTS[ contractName ].abi, functionName, parameters, {
+        CONTRACTS[ contractName ].abi,
+        functionName,
+        parameters,
+        {
           ...txOptions,
           gasPrice: this._utils.convertToHexString(txOptions.gasPrice),
           gasLimit: this._utils.convertToHexString(txOptions.gasLimit),
           value: this._utils.convertToHexString(txOptions.value)
         }
       ),
-      ethFees: this._utils.formatAmount(ethFees, ETH_DECIMALS)
+      ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
     }
   }
 
@@ -82,9 +86,9 @@ export class Transaction {
   public async prepValueTx (
     senderAddress: string,
     receiverAddress: string,
-    rawValue: string,
+    rawValue: BigNumber,
     options: TxOptionsInternal = {}
-  ): Promise<TxObject> {
+  ): Promise<TxObjectInternal> {
     const txInfos = await this._getTxInfos(senderAddress)
     const txOptions = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
@@ -101,7 +105,7 @@ export class Transaction {
         gasLimit: this._utils.convertToHexString(txOptions.gasLimit),
         value: this._utils.convertToHexString(txOptions.value)
       }),
-      ethFees: this._utils.formatAmount(ethFees, ETH_DECIMALS)
+      ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
     }
   }
 

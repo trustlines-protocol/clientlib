@@ -75,13 +75,23 @@ export class Payment {
         networkAddress,
         'CurrencyNetwork',
         'transfer',
-        [ receiverAddress, _utils.calcRaw(value, decimals), maxFees.raw, path.slice(1) ],
+        [
+          receiverAddress,
+          _utils.convertToHexString(_utils.calcRaw(value, decimals)),
+          _utils.convertToHexString(new BigNumber(maxFees.raw)),
+          path.slice(1)
+        ],
         {
           gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
           gasLimit: gasLimit ? new BigNumber(gasLimit) : new BigNumber(estimatedGas).multipliedBy(1.5)
         }
       )
-      return { rawTx, path, maxFees, ethFees }
+      return {
+        rawTx,
+        path,
+        maxFees,
+        ethFees: _utils.convertToAmount(ethFees)
+      }
     } else {
       throw new Error('Could not find a path with enough capacity.')
     }
@@ -95,21 +105,26 @@ export class Payment {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
-  public prepareEth (
+  public async prepareEth (
     receiverAddress: string,
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<TxObject> {
+    const { _user, _utils, _transaction } = this
     const { gasLimit, gasPrice } = options
-    return this._transaction.prepValueTx(
-      this._user.address,
+    const { ethFees, rawTx } = await _transaction.prepValueTx(
+      _user.address,
       receiverAddress,
-      this._utils.calcRaw(value, 18),
+      _utils.calcRaw(value, 18),
       {
         gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
+    return {
+      rawTx,
+      ethFees: _utils.convertToAmount(ethFees)
+    }
   }
 
   /**
@@ -154,7 +169,7 @@ export class Payment {
     return {
       estimatedGas: new BigNumber(estimatedGas),
       path,
-      maxFees: _utils.formatAmount(fees, decimals)
+      maxFees: _utils.formatToAmount(fees, decimals)
     }
   }
 

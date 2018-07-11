@@ -82,16 +82,16 @@ export class Exchange {
       } = order
     return {
       ...order,
-      makerTokenAmount: _utils.formatAmount(makerTokenAmount, makerDecimals),
-      takerTokenAmount: _utils.formatAmount(takerTokenAmount, takerDecimals),
-      makerFee: _utils.formatAmount(makerFee, makerDecimals),
-      takerFee: _utils.formatAmount(takerFee, takerDecimals),
-      filledMakerTokenAmount: _utils.formatAmount(filledMakerTokenAmount, makerDecimals),
-      filledTakerTokenAmount: _utils.formatAmount(filledTakerTokenAmount, takerDecimals),
-      cancelledMakerTokenAmount: _utils.formatAmount(cancelledMakerTokenAmount, makerDecimals),
-      cancelledTakerTokenAmount: _utils.formatAmount(cancelledTakerTokenAmount, takerDecimals),
-      availableMakerTokenAmount: _utils.formatAmount(availableMakerTokenAmount, makerDecimals),
-      availableTakerTokenAmount: _utils.formatAmount(availableTakerTokenAmount, takerDecimals)
+      makerTokenAmount: _utils.formatToAmount(makerTokenAmount, makerDecimals),
+      takerTokenAmount: _utils.formatToAmount(takerTokenAmount, takerDecimals),
+      makerFee: _utils.formatToAmount(makerFee, makerDecimals),
+      takerFee: _utils.formatToAmount(takerFee, takerDecimals),
+      filledMakerTokenAmount: _utils.formatToAmount(filledMakerTokenAmount, makerDecimals),
+      filledTakerTokenAmount: _utils.formatToAmount(filledTakerTokenAmount, takerDecimals),
+      cancelledMakerTokenAmount: _utils.formatToAmount(cancelledMakerTokenAmount, makerDecimals),
+      cancelledTakerTokenAmount: _utils.formatToAmount(cancelledTakerTokenAmount, takerDecimals),
+      availableMakerTokenAmount: _utils.formatToAmount(availableMakerTokenAmount, makerDecimals),
+      availableTakerTokenAmount: _utils.formatToAmount(availableTakerTokenAmount, takerDecimals)
     }
   }
 
@@ -114,30 +114,30 @@ export class Exchange {
       asks: asks.map(a => ({
         ...a,
         hash: this._getOrderHashHex(a),
-        makerTokenAmount: _utils.formatAmount(a.makerTokenAmount, baseDecimals),
-        takerTokenAmount: _utils.formatAmount(a.takerTokenAmount, quoteDecimals),
-        makerFee: _utils.formatAmount(a.makerFee, baseDecimals),
-        takerFee: _utils.formatAmount(a.takerFee, quoteDecimals),
-        filledMakerTokenAmount: _utils.formatAmount(a.filledMakerTokenAmount, baseDecimals),
-        filledTakerTokenAmount: _utils.formatAmount(a.filledTakerTokenAmount, quoteDecimals),
-        cancelledMakerTokenAmount: _utils.formatAmount(a.cancelledMakerTokenAmount, baseDecimals),
-        cancelledTakerTokenAmount: _utils.formatAmount(a.cancelledTakerTokenAmount, quoteDecimals),
-        availableMakerTokenAmount: _utils.formatAmount(a.availableMakerTokenAmount, baseDecimals),
-        availableTakerTokenAmount: _utils.formatAmount(a.availableTakerTokenAmount, quoteDecimals)
+        makerTokenAmount: _utils.formatToAmount(a.makerTokenAmount, baseDecimals),
+        takerTokenAmount: _utils.formatToAmount(a.takerTokenAmount, quoteDecimals),
+        makerFee: _utils.formatToAmount(a.makerFee, baseDecimals),
+        takerFee: _utils.formatToAmount(a.takerFee, quoteDecimals),
+        filledMakerTokenAmount: _utils.formatToAmount(a.filledMakerTokenAmount, baseDecimals),
+        filledTakerTokenAmount: _utils.formatToAmount(a.filledTakerTokenAmount, quoteDecimals),
+        cancelledMakerTokenAmount: _utils.formatToAmount(a.cancelledMakerTokenAmount, baseDecimals),
+        cancelledTakerTokenAmount: _utils.formatToAmount(a.cancelledTakerTokenAmount, quoteDecimals),
+        availableMakerTokenAmount: _utils.formatToAmount(a.availableMakerTokenAmount, baseDecimals),
+        availableTakerTokenAmount: _utils.formatToAmount(a.availableTakerTokenAmount, quoteDecimals)
       })),
       bids: bids.map(b => ({
         ...b,
         hash: this._getOrderHashHex(b),
-        makerTokenAmount: _utils.formatAmount(b.makerTokenAmount, quoteDecimals),
-        takerTokenAmount: _utils.formatAmount(b.takerTokenAmount, baseDecimals),
-        makerFee: _utils.formatAmount(b.makerFee, quoteDecimals),
-        takerFee: _utils.formatAmount(b.takerFee, baseDecimals),
-        filledMakerTokenAmount: _utils.formatAmount(b.filledMakerTokenAmount, quoteDecimals),
-        filledTakerTokenAmount: _utils.formatAmount(b.filledTakerTokenAmount, baseDecimals),
-        cancelledMakerTokenAmount: _utils.formatAmount(b.cancelledMakerTokenAmount, quoteDecimals),
-        cancelledTakerTokenAmount: _utils.formatAmount(b.cancelledTakerTokenAmount, baseDecimals),
-        availableMakerTokenAmount: _utils.formatAmount(b.availableMakerTokenAmount, quoteDecimals),
-        availableTakerTokenAmount: _utils.formatAmount(b.availableTakerTokenAmount, baseDecimals)
+        makerTokenAmount: _utils.formatToAmount(b.makerTokenAmount, quoteDecimals),
+        takerTokenAmount: _utils.formatToAmount(b.takerTokenAmount, baseDecimals),
+        makerFee: _utils.formatToAmount(b.makerFee, quoteDecimals),
+        takerFee: _utils.formatToAmount(b.takerFee, baseDecimals),
+        filledMakerTokenAmount: _utils.formatToAmount(b.filledMakerTokenAmount, quoteDecimals),
+        filledTakerTokenAmount: _utils.formatToAmount(b.filledTakerTokenAmount, baseDecimals),
+        cancelledMakerTokenAmount: _utils.formatToAmount(b.cancelledMakerTokenAmount, quoteDecimals),
+        cancelledTakerTokenAmount: _utils.formatToAmount(b.cancelledTakerTokenAmount, baseDecimals),
+        availableMakerTokenAmount: _utils.formatToAmount(b.availableMakerTokenAmount, quoteDecimals),
+        availableTakerTokenAmount: _utils.formatToAmount(b.availableTakerTokenAmount, baseDecimals)
       }))
     }
   }
@@ -165,16 +165,16 @@ export class Exchange {
       expirationUnixTimestampSec: expirationUnixTimestampSec.toString(),
       feeRecipient: ZERO_ADDRESS,
       maker: _user.address,
-      makerFee: _utils.formatAmount(0, makerDecimals),
+      makerFee: _utils.formatToAmount(0, makerDecimals),
       makerTokenAddress: ethUtils.toChecksumAddress(makerTokenAddress),
-      makerTokenAmount: _utils.formatAmount(
+      makerTokenAmount: _utils.formatToAmount(
         _utils.calcRaw(makerTokenValue, makerDecimals), makerDecimals
       ),
       salt: Math.floor(Math.random() * 1000000000).toString(),
       taker: ZERO_ADDRESS,
-      takerFee: _utils.formatAmount(0, makerDecimals),
+      takerFee: _utils.formatToAmount(0, makerDecimals),
       takerTokenAddress: ethUtils.toChecksumAddress(takerTokenAddress),
-      takerTokenAmount: _utils.formatAmount(
+      takerTokenAmount: _utils.formatToAmount(
         _utils.calcRaw(takerTokenValue, takerDecimals), takerDecimals
       )
     }
@@ -195,10 +195,10 @@ export class Exchange {
     return ({
       ...signedOrder,
       hash: orderHash,
-      filledMakerTokenAmount: _utils.formatAmount(0, makerDecimals),
-      filledTakerTokenAmount: _utils.formatAmount(0, takerDecimals),
-      cancelledMakerTokenAmount: _utils.formatAmount(0, makerDecimals),
-      cancelledTakerTokenAmount: _utils.formatAmount(0, takerDecimals),
+      filledMakerTokenAmount: _utils.formatToAmount(0, makerDecimals),
+      filledTakerTokenAmount: _utils.formatToAmount(0, takerDecimals),
+      cancelledMakerTokenAmount: _utils.formatToAmount(0, makerDecimals),
+      cancelledTakerTokenAmount: _utils.formatToAmount(0, takerDecimals),
       availableMakerTokenAmount: signedOrder.makerTokenAmount,
       availableTakerTokenAmount: signedOrder.takerTokenAmount
     })
@@ -275,7 +275,7 @@ export class Exchange {
     )
     return {
       rawTx,
-      ethFees,
+      ethFees: this._utils.convertToAmount(ethFees),
       makerMaxFees: makerPathObj.maxFees,
       makerPath: makerPathObj.path,
       takerMaxFees: takerPathObj.maxFees,
@@ -319,7 +319,7 @@ export class Exchange {
     )
     return {
       rawTx,
-      ethFees
+      ethFees: this._utils.convertToAmount(ethFees)
     }
   }
 
@@ -348,7 +348,7 @@ export class Exchange {
     }
     return {
       path: [],
-      maxFees: this._utils.formatAmount(0, decimals),
+      maxFees: this._utils.formatToAmount(0, decimals),
       estimatedGas: new BigNumber(40000),
       isNetwork: false
     }
@@ -391,8 +391,8 @@ export class Exchange {
     return Promise.resolve({
       ...order,
       feeRecipient: ZERO_ADDRESS,
-      makerFee: this._utils.formatAmount(0, 2),
-      takerFee: this._utils.formatAmount(0, 2)
+      makerFee: this._utils.formatToAmount(0, 2),
+      takerFee: this._utils.formatToAmount(0, 2)
     })
   }
 
