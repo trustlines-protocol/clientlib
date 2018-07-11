@@ -50,6 +50,12 @@ export interface PaymentOptions extends TLOptions {
   maximumFees?: number
 }
 
+export interface AmountInternal {
+  raw: BigNumber,
+  value: BigNumber,
+  decimals: number
+}
+
 export interface Amount {
   raw: string,
   value: string,
@@ -124,6 +130,11 @@ export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw
 export interface TxObject {
   rawTx: string,
   ethFees: Amount
+}
+
+export interface TxObjectInternal {
+  rawTx: string,
+  ethFees: AmountInternal
 }
 
 export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
