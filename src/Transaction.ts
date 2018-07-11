@@ -110,11 +110,11 @@ export class Transaction {
    * @param signedTx signed ethereum transaction
    */
   public relayTx (signedTx: string): Promise<string> {
-    const headers = new Headers({'Content-Type': 'application/json'})
+    const headers = new Headers({ 'Content-Type': 'application/json' })
     const options = {
       method: 'POST',
       headers,
-      body: JSON.stringify({rawTransaction: `0x${signedTx}`})
+      body: JSON.stringify({ rawTransaction: `0x${signedTx}` })
     }
     return this._utils.fetchUrl<string>('relay', options)
   }

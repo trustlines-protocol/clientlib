@@ -45,7 +45,7 @@ export class Utils {
 
   public websocketStream (endpoint: String, functionName: String, args: object): Observable<any> {
     return Observable.create((observer: Observer<any>) => {
-      const options = {constructor: WebSocket}
+      const options = { constructor: WebSocket }
       const ws = new ReconnectingWebSocket(`${this._wsApiUrl}${endpoint}`, undefined, options)
       const jrpc = new JsonRPC()
 

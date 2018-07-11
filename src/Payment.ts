@@ -132,7 +132,7 @@ export class Payment {
     options: PaymentOptions = {}
   ): Promise<PathObject> {
     const { _currencyNetwork, _utils } = this
-    let { decimals, maximumHops, maximumFees} = options
+    let { decimals, maximumHops, maximumFees } = options
     decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
     const data = {
       from: senderAddress,
