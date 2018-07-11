@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 import { Utils } from './Utils'
 import { User } from './User'
 import { Transaction } from './Transaction'
@@ -38,7 +40,7 @@ export class EthWrapper {
     const { _user, _utils } = this
     const endpoint = `tokens/${ethWrapperAddress}/users/${_user.address}/balance`
     const balance = await _utils.fetchUrl<string>(endpoint)
-    return _utils.formatAmount(balance, ETH_DECIMALS)
+    return _utils.formatToAmount(balance, ETH_DECIMALS)
   }
 
   public async prepTransfer (
@@ -49,17 +51,24 @@ export class EthWrapper {
   ): Promise<TxObject> {
     const { _transaction, _user, _utils } = this
     const { gasPrice, gasLimit } = options
-    return _transaction.prepFuncTx(
+    const { rawTx, ethFees } = await _transaction.prepFuncTx(
       _user.address,
       ethWrapperAddress,
       'UnwEth',
       'transfer',
-      [ receiverAddress, _utils.calcRaw(value, ETH_DECIMALS) ],
+      [
+        receiverAddress,
+        _utils.convertToHexString(_utils.calcRaw(value, ETH_DECIMALS))
+      ],
       {
-        gasPrice,
-        gasLimit
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined
       }
     )
+    return {
+      rawTx,
+      ethFees: _utils.convertToAmount(ethFees)
+    }
   }
 
   public prepDeposit (
@@ -76,31 +85,35 @@ export class EthWrapper {
       'deposit',
       [],
       {
-        gasPrice,
-        gasLimit,
-        value: _utils.calcRaw(value, ETH_DECIMALS)
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined,
+        value: new BigNumber(_utils.calcRaw(value, ETH_DECIMALS))
       }
     )
   }
 
-  public prepWithdraw (
+  public async prepWithdraw (
     ethWrapperAddress: string,
     value: number | string,
     options: TxOptions = {}
   ): Promise<TxObject> {
     const { _transaction, _user, _utils } = this
     const { gasPrice, gasLimit } = options
-    return _transaction.prepFuncTx(
+    const { rawTx, ethFees } = await _transaction.prepFuncTx(
       _user.address,
       ethWrapperAddress,
       'UnwEth',
       'withdraw',
-      [ _utils.calcRaw(value, ETH_DECIMALS) ],
+      [ _utils.convertToHexString(_utils.calcRaw(value, ETH_DECIMALS)) ],
       {
-        gasPrice,
-        gasLimit
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined
       }
     )
+    return {
+      rawTx,
+      ethFees: _utils.convertToAmount(ethFees)
+    }
   }
 
   public async confirm (rawTx): Promise<string> {
