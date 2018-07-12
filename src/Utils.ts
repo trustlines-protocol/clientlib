@@ -252,7 +252,7 @@ export class Utils {
     const bigNumber = new BigNumber(decimalStr)
     if (!bigNumber.isInteger()) {
       // Non integers values can not be processed by ethereum
-      throw new Error('Can not convert non integers.')
+      throw new Error('Can not convert non integer: ' + bigNumber.toString())
     }
     const hexStr = bigNumber.toString(16)
     return ethUtils.addHexPrefix(hexStr)

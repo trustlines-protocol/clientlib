@@ -270,7 +270,7 @@ export class Exchange {
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
         gasLimit: gasLimit
           ? new BigNumber(gasLimit)
-          : takerPathObj.estimatedGas.plus(makerPathObj.estimatedGas).multipliedBy(1.5)
+          : takerPathObj.estimatedGas.plus(makerPathObj.estimatedGas).multipliedBy(1.5).integerValue()
       }
     )
     return {
