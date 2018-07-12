@@ -120,18 +120,18 @@ export class Exchange {
       maker: _user.address,
       makerFee: '0',
       makerTokenAddress: ethUtils.toChecksumAddress(makerTokenAddress),
-      makerTokenAmount: _utils.calcRaw(makerTokenValue, makerDecimals),
+      makerTokenAmount: _utils.calcRaw(makerTokenValue, makerDecimals).toString(),
       salt: Math.floor(Math.random() * 1000000000).toString(),
       taker: ZERO_ADDRESS,
       takerFee: '0',
       takerTokenAddress: ethUtils.toChecksumAddress(takerTokenAddress),
-      takerTokenAmount: _utils.calcRaw(takerTokenValue, takerDecimals),
+      takerTokenAmount: _utils.calcRaw(takerTokenValue, takerDecimals).toString(),
       filledMakerTokenAmount: '0',
       filledTakerTokenAmount: '0',
       cancelledMakerTokenAmount: '0',
       cancelledTakerTokenAmount: '0',
-      availableMakerTokenAmount: _utils.calcRaw(makerTokenValue, makerDecimals),
-      availableTakerTokenAmount: _utils.calcRaw(takerTokenValue, takerDecimals)
+      availableMakerTokenAmount: _utils.calcRaw(makerTokenValue, makerDecimals).toString(),
+      availableTakerTokenAmount: _utils.calcRaw(takerTokenValue, takerDecimals).toString()
     }
     const orderWithFees = await this._getFees(rawOrder)
     const orderHash = this._getOrderHashHex(orderWithFees)
@@ -429,16 +429,16 @@ export class Exchange {
     return {
       ...rawOrder,
       hash: this._getOrderHashHex(rawOrder),
-      makerTokenAmount: _utils.formatAmount(rawOrder.makerTokenAmount, makerDecimals),
-      takerTokenAmount: _utils.formatAmount(rawOrder.takerTokenAmount, takerDecimals),
-      makerFee: _utils.formatAmount(rawOrder.makerFee, makerDecimals),
-      takerFee: _utils.formatAmount(rawOrder.takerFee, takerDecimals),
-      filledMakerTokenAmount: _utils.formatAmount(rawOrder.filledMakerTokenAmount, makerDecimals),
-      filledTakerTokenAmount: _utils.formatAmount(rawOrder.filledTakerTokenAmount, takerDecimals),
-      cancelledMakerTokenAmount: _utils.formatAmount(rawOrder.cancelledMakerTokenAmount, makerDecimals),
-      cancelledTakerTokenAmount: _utils.formatAmount(rawOrder.cancelledTakerTokenAmount, takerDecimals),
-      availableMakerTokenAmount: _utils.formatAmount(rawOrder.availableMakerTokenAmount, makerDecimals),
-      availableTakerTokenAmount: _utils.formatAmount(rawOrder.availableTakerTokenAmount, takerDecimals)
+      makerTokenAmount: _utils.formatToAmount(rawOrder.makerTokenAmount, makerDecimals),
+      takerTokenAmount: _utils.formatToAmount(rawOrder.takerTokenAmount, takerDecimals),
+      makerFee: _utils.formatToAmount(rawOrder.makerFee, makerDecimals),
+      takerFee: _utils.formatToAmount(rawOrder.takerFee, takerDecimals),
+      filledMakerTokenAmount: _utils.formatToAmount(rawOrder.filledMakerTokenAmount, makerDecimals),
+      filledTakerTokenAmount: _utils.formatToAmount(rawOrder.filledTakerTokenAmount, takerDecimals),
+      cancelledMakerTokenAmount: _utils.formatToAmount(rawOrder.cancelledMakerTokenAmount, makerDecimals),
+      cancelledTakerTokenAmount: _utils.formatToAmount(rawOrder.cancelledTakerTokenAmount, takerDecimals),
+      availableMakerTokenAmount: _utils.formatToAmount(rawOrder.availableMakerTokenAmount, makerDecimals),
+      availableTakerTokenAmount: _utils.formatToAmount(rawOrder.availableTakerTokenAmount, takerDecimals)
     }
   }
 }
