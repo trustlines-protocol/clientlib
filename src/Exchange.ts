@@ -260,7 +260,9 @@ export class Exchange {
       [
         orderAddresses,
         orderValues,
-        this._utils.calcRaw(fillTakerTokenValue, takerDecimals),
+        this._utils.convertToHexString(
+          this._utils.calcRaw(fillTakerTokenValue, takerDecimals)
+        ),
         makerPathObj.path.length === 1 ? makerPathObj.path : makerPathObj.path.slice(1),
         takerPathObj.path.length === 1 ? takerPathObj.path : takerPathObj.path.slice(1),
         ecSignature.v,
@@ -311,7 +313,9 @@ export class Exchange {
       [
         orderAddresses,
         orderValues,
-        this._utils.calcRaw(cancelTakerTokenValue, takerDecimals)
+        this._utils.convertToHexString(
+          this._utils.calcRaw(cancelTakerTokenValue, takerDecimals)
+        )
       ], {
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
         gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined
@@ -366,12 +370,12 @@ export class Exchange {
 
   private _getOrderValues (order: Order): string[] {
     return [
-      order.makerTokenAmount.raw,
-      order.takerTokenAmount.raw,
-      '0', // NOTE fees disabled
-      '0', // NOTE fees disabled
-      order.expirationUnixTimestampSec,
-      order.salt
+      this._utils.convertToHexString(new BigNumber(order.makerTokenAmount.raw)),
+      this._utils.convertToHexString(new BigNumber(order.takerTokenAmount.raw)),
+      this._utils.convertToHexString(new BigNumber('0')), // NOTE fees disabled
+      this._utils.convertToHexString(new BigNumber('0')), // NOTE fees disabled
+      this._utils.convertToHexString(new BigNumber(order.expirationUnixTimestampSec)),
+      this._utils.convertToHexString(new BigNumber(order.salt))
     ]
   }
 
