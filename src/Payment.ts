@@ -152,7 +152,7 @@ export class Payment {
     const data = {
       from: senderAddress,
       to: receiverAddress,
-      value: this._utils.calcRaw(value, decimals)
+      value: this._utils.calcRaw(value, decimals).toString()
     }
     if (maximumFees) {
       data['maxFees'] = maximumFees

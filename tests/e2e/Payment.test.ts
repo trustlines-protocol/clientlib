@@ -70,7 +70,9 @@ describe('e2e', () => {
     describe('#confirm()', () => {
       it('should confirm trustline transfer', async () => {
         const { rawTx } = await tl1.payment.prepare(network.address, user2.address, 1)
-        expect(tl1.payment.confirm(rawTx)).to.eventually.be.a('string')
+        const txId = await tl1.payment.confirm(rawTx)
+        await wait()
+        expect(txId).to.be.a('string')
       })
     })
 
