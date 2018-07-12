@@ -83,7 +83,7 @@ export class Payment {
         ],
         {
           gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
-          gasLimit: gasLimit ? new BigNumber(gasLimit) : new BigNumber(estimatedGas).multipliedBy(1.5)
+          gasLimit: gasLimit ? new BigNumber(gasLimit) : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue()
         }
       )
       return {
@@ -152,7 +152,7 @@ export class Payment {
     const data = {
       from: senderAddress,
       to: receiverAddress,
-      value: this._utils.calcRaw(value, decimals)
+      value: this._utils.calcRaw(value, decimals).toString()
     }
     if (maximumFees) {
       data['maxFees'] = maximumFees
