@@ -183,6 +183,10 @@ describe('unit', () => {
         const convertedHex = tl.utils.convertToHexString(num)
         expect(convertedHex).to.equal('0x7b')
       })
+
+      it('should throw on float', () => {
+        expect(() => tl.utils.convertToHexString(10.2)).to.throw()
+      })
     })
   })
 })

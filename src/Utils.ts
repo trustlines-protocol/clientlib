@@ -275,11 +275,16 @@ export class Utils {
   }
 
   /**
-   * Returns the hexdecimal representation of given decimal string.
+   * Returns the hexdecimal representation of given decimal string. The value has to be an integer.
    * @param decimalStr Decimal string representation of number.
    */
   public convertToHexString (decimalStr: string | number | BigNumber): string {
-    const hexStr = new BigNumber(decimalStr).toString(16)
+    const bigNumber = new BigNumber(decimalStr)
+    if (!bigNumber.isInteger()) {
+      // Non integers values can not be processed by ethereum
+      throw new Error('Can not convert non integer: ' + bigNumber.toString())
+    }
+    const hexStr = bigNumber.toString(16)
     return ethUtils.addHexPrefix(hexStr)
   }
 }
