@@ -297,13 +297,13 @@ export interface Order {
   exchangeContractAddress: string
   feeRecipient: string
   expirationUnixTimestampSec: string
-  hash?: string,
-  filledMakerTokenAmount?: Amount,
-  filledTakerTokenAmount?: Amount,
-  cancelledMakerTokenAmount?: Amount,
-  cancelledTakerTokenAmount?: Amount,
-  availableMakerTokenAmount?: Amount,
-  availableTakerTokenAmount?: Amount
+  hash: string,
+  filledMakerTokenAmount: Amount,
+  filledTakerTokenAmount: Amount,
+  cancelledMakerTokenAmount: Amount,
+  cancelledTakerTokenAmount: Amount,
+  availableMakerTokenAmount: Amount,
+  availableTakerTokenAmount: Amount
 }
 
 /**
@@ -322,25 +322,29 @@ export interface OrderRaw {
   exchangeContractAddress: string
   feeRecipient: string
   expirationUnixTimestampSec: string,
-  filledMakerTokenAmount?: string,
-  filledTakerTokenAmount?: string,
-  cancelledMakerTokenAmount?: string,
-  cancelledTakerTokenAmount?: string,
-  availableMakerTokenAmount?: string,
-  availableTakerTokenAmount?: string
+  filledMakerTokenAmount: string,
+  filledTakerTokenAmount: string,
+  cancelledMakerTokenAmount: string,
+  cancelledTakerTokenAmount: string,
+  availableMakerTokenAmount: string,
+  availableTakerTokenAmount: string
 }
 
 export interface Orderbook {
-  asks: Order[],
-  bids: Order[]
+  asks: SignedOrder[],
+  bids: SignedOrder[]
 }
 
 export interface OrderbookRaw {
-  asks: OrderRaw[],
-  bids: OrderRaw[]
+  asks: SignedOrderRaw[],
+  bids: SignedOrderRaw[]
 }
 
 export interface SignedOrder extends Order {
+  ecSignature: ECSignature
+}
+
+export interface SignedOrderRaw extends OrderRaw {
   ecSignature: ECSignature
 }
 
