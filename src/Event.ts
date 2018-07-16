@@ -35,6 +35,7 @@ export class Event {
   }
 
   /**
+   * @hidden
    * Returns event logs of loaded user in a specified currency network.
    * @param networkAddress Address of a currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
