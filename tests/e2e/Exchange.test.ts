@@ -118,19 +118,10 @@ describe('e2e', () => {
 
       it('should return order by its hash', async () => {
         const returnedOrder = await tl1.exchange.getOrderByHash(madeOrder.hash)
-        // NOTE: relay server reutrns ecSignature in upper case
-        const sigUpperCase = {
-          ...madeOrder.ecSignature,
-          r: `0x${madeOrder.ecSignature.r.substr(2).toUpperCase()}`,
-          s: `0x${madeOrder.ecSignature.s.substr(2).toUpperCase()}`
-        }
         expect({
           ...returnedOrder,
           hash: madeOrder.hash
-        }).to.deep.equal({
-          ...madeOrder,
-          ecSignature: sigUpperCase
-        })
+        }).to.deep.equal(madeOrder)
       })
     })
 
