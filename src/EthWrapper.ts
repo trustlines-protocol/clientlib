@@ -96,14 +96,14 @@ export class EthWrapper {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
-  public prepDeposit (
+  public async prepDeposit (
     ethWrapperAddress: string,
     value: number | string,
     options: TxOptions = {}
   ): Promise<TxObject> {
     const { _transaction, _user, _utils } = this
     const { gasPrice, gasLimit } = options
-    return _transaction.prepFuncTx(
+    const { rawTx, ethFees } = await _transaction.prepFuncTx(
       _user.address,
       ethWrapperAddress,
       'UnwEth',
@@ -115,6 +115,10 @@ export class EthWrapper {
         value: new BigNumber(_utils.calcRaw(value, ETH_DECIMALS))
       }
     )
+    return {
+      rawTx,
+      ethFees: _utils.convertToAmount(ethFees)
+    }
   }
 
   /**

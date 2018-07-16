@@ -22,8 +22,7 @@ import {
   EventFilterOptions,
   AnyExchangeEvent,
   AnyExchangeEventRaw,
-  OrdersQuery,
-  SignedOrderRaw
+  OrdersQuery
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
