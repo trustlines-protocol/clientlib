@@ -374,6 +374,13 @@ export class Exchange {
     return this._transaction.relayTx(signedTx)
   }
 
+  /**
+   * Returns event logs of the Exchange contract for the loaded user.
+   * @param exchangeAddress Address of Exchange contract.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
+   * @param filter.type Available event types are `LogFill` and `LogCancel`.
+   * @param filter.fromBlock Start of block range for event logs.
+   */
   public async getLogs (
     exchangeAddress: string,
     filter: EventFilterOptions = {}
@@ -586,6 +593,11 @@ export class Exchange {
     }
   }
 
+  /**
+   * Helper function for filtering all unique addresses from an array of orders.
+   * It also maps the unique addresses to whether it is a currency network or a token.
+   * @param orders Unformatted orders as returned by the relay.
+   */
   private _getUniqueTokenAddresses (orders: OrderRaw[]): object {
     return orders.reduce((result, order) => {
       const { makerTokenAddress, takerTokenAddress } = order

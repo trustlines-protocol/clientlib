@@ -164,7 +164,7 @@ export class EthWrapper {
   }
 
   /**
-   * Returns event logs of the ETH wrapper contract.
+   * Returns event logs of the ETH wrapper contract for the loaded user.
    * @param ethWrapperAddress Address of the ETH wrapper contract.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    * @param filter.type Available event types are `Transfer`, `Deposit` and `Withdrawal`.
