@@ -30,9 +30,9 @@ describe('e2e', () => {
         tl1.exchange.getExAddresses(),
         tl1.currencyNetwork.getAll()
       ])
-      const [ eur, usd ] = networks.filter(n => n.abbreviation === 'EUR' || n.abbreviation === 'USD')
-      makerTokenAddress = eur.address
-      takerTokenAddress = usd.address
+      const [ network1, network2 ] = networks.filter(n => n.decimals===2)
+      makerTokenAddress = network1.address
+      takerTokenAddress = network2.address
       // make sure users have eth
       await Promise.all([
         tl1.user.requestEth(),
