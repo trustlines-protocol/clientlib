@@ -1,5 +1,4 @@
 import { TLNetworkConfig } from './typings'
-import { TLNetwork } from './TLNetwork'
 
 /**
  * The Configuration class contains all configurable variables of the TLNetwork instance.
@@ -13,6 +12,7 @@ export class Configuration {
    * Base URL of the relay WebSocket API endpoint
    */
   public wsApiUrl: string
+  public web3Provider: any
 
   /**
    * Contructs a Configuration instance that is used for interacting with a relay server.
@@ -24,10 +24,12 @@ export class Configuration {
       host = 'localhost',
       port = '',
       path = '',
-      wsProtocol = 'ws'
+      wsProtocol = 'ws',
+      web3Provider
     } = config
     this.apiUrl = this._buildApiUrl(protocol, host, port, path)
     this.wsApiUrl = this._buildApiUrl(wsProtocol, host, port, path)
+    this.web3Provider = web3Provider
   }
 
   /**

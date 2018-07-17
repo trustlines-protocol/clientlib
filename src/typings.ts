@@ -23,7 +23,11 @@ export interface TLNetworkConfig {
   /**
    * Protocol for websockets
    */
-  wsProtocol?: string
+  wsProtocol?: string,
+  /**
+   * Web3 provider
+   */
+  web3Provider?: any
 }
 
 /**

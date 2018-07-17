@@ -13,6 +13,8 @@ import { EthWrapper } from './EthWrapper'
 
 import { TLNetworkConfig } from './typings'
 
+const Web3 = require('web3')
+
 /**
  * The TLNetwork class is the single entry-point into the trustline-network.js library.
  * It contains all of the library's functionality and all calls to the library should be made through a TLNetwork instance.
@@ -70,6 +72,7 @@ export class TLNetwork {
    * EthWrapper instance for wrapping and unwrapping ETH.
    */
   public ethWrapper: EthWrapper
+  public web3: any
 
   /**
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
@@ -88,6 +91,6 @@ export class TLNetwork {
     this.exchange = new Exchange(this.event, this.user, this.utils, this.transaction, this.currencyNetwork, this.payment)
     this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
     this.ethWrapper = new EthWrapper(this.user, this.utils, this.transaction)
+    this.web3 = new Web3(config.web3Provider)
   }
-
 }
