@@ -3,7 +3,7 @@ import {
   RawTxObject
 } from '../typings'
 
-export interface TxInterface {
+export interface TxSigner {
   getTxInfos (userAddress: string): Promise<TxInfos>,
   confirm (rawTx: RawTxObject)
 }

@@ -21,7 +21,7 @@ describe('unit', () => {
 
     describe('#createOnboardingMsg()', () => {
       it('should create onboarding message', done => {
-        tl2.user.createOnboardingMsg('testuser', keystore1).then(link => {
+        tl2.onboarding.createRequest('testuser', keystore1).then(link => {
           const splitLink = link.split('/')
           expect(splitLink[0]).to.equal('http:') // base url
           expect(splitLink[2]).to.equal('trustlines.network') // base url

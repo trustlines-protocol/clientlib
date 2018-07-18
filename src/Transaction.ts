@@ -1,5 +1,5 @@
 import { Utils } from './Utils'
-import { TxInterface } from './strategies/TxInterface'
+import { TxSigner } from './signers/TxSigner'
 import {
   TxOptionsInternal,
   TxObjectInternal,
@@ -19,14 +19,14 @@ const ETH_DECIMALS = 18
  */
 export class Transaction {
   private _utils: Utils
-  private _strategy: TxInterface
+  private _signer: TxSigner
 
   constructor (
     utils: Utils,
-    strategy: TxInterface
+    signer: TxSigner
   ) {
     this._utils = utils
-    this._strategy = strategy
+    this._signer = signer
   }
 
   /**
@@ -49,7 +49,7 @@ export class Transaction {
     args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const { gasPrice, nonce } = await this._strategy.getTxInfos(userAddress)
+    const { gasPrice, nonce } = await this._signer.getTxInfos(userAddress)
     const rawTx = {
       gasPrice: options.gasPrice || gasPrice,
       gasLimit: options.gasLimit || new BigNumber(600000),
@@ -86,7 +86,7 @@ export class Transaction {
     rawValue: BigNumber,
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this._strategy.getTxInfos(senderAddress)
+    const txInfos = await this._signer.getTxInfos(senderAddress)
     const rawTx = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
       gasLimit: options.gasLimit || new BigNumber(21000),
@@ -103,7 +103,7 @@ export class Transaction {
   }
 
   public async confirm (rawTx: RawTxObject): Promise<any> {
-    return this._strategy.confirm(rawTx)
+    return this._signer.confirm(rawTx)
   }
 
   /**
@@ -113,7 +113,7 @@ export class Transaction {
     return this._utils.fetchUrl<number>('blocknumber')
   }
 
-  public setStrategy (strategy: TxInterface) {
-    this._strategy = strategy
+  public setSigner (signer: TxSigner) {
+    this._signer = signer
   }
 }

@@ -1,19 +1,14 @@
 
-import { TxInterface } from './TxInterface'
-import { User } from '../User'
-import { Utils } from '../Utils'
-import {
-  TxInfos,
-  TxInfosRaw,
-  RawTxObject
-} from '../typings'
+import { TxSigner } from './TxSigner'
+
+import { TxInfos, RawTxObject } from '../typings'
 
 import { BigNumber } from 'bignumber.js'
 
 /**
  * The Transaction class contains functions that are needed for Ethereum transactions.
  */
-export class Web3Tx implements TxInterface {
+export class Web3Signer implements TxSigner {
   private _web3: any
 
   constructor (web3: any) {

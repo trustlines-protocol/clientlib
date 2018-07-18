@@ -12,8 +12,8 @@ import { Messaging } from './Messaging'
 import { EthWrapper } from './EthWrapper'
 import { Onboarding } from './Onboarding'
 
-import { LightwalletTx } from './strategies/LightwalletTx'
-import { Web3Tx } from './strategies/Web3Tx'
+import { LightwalletSigner } from './signers/LightwalletSigner'
+import { Web3Signer } from './signers/Web3Signer'
 
 import { TLNetworkConfig } from './typings'
 
@@ -90,8 +90,8 @@ export class TLNetwork {
     this.currencyNetwork = new CurrencyNetwork(this.utils)
     this.user = new User(this.utils, this.web3)
     this.transaction = this.web3.eth.currentProvider
-      ? new Transaction(this.utils, new Web3Tx(this.web3))
-      : new Transaction(this.utils, new LightwalletTx(this.user, this.utils))
+      ? new Transaction(this.utils, new Web3Signer(this.web3))
+      : new Transaction(this.utils, new LightwalletSigner(this.user, this.utils))
     this.contact = new Contact(this.user, this.utils)
     this.onboarding = new Onboarding(this.transaction, this.user, this.utils)
     this.event = new Event(this.user, this.utils, this.currencyNetwork)

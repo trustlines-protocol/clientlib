@@ -1,5 +1,5 @@
 
-import { TxInterface } from './TxInterface'
+import { TxSigner } from './TxSigner'
 import { User } from '../User'
 import { Utils } from '../Utils'
 import {
@@ -15,7 +15,7 @@ import * as lightwallet from 'eth-lightwallet'
 /**
  * The Transaction class contains functions that are needed for Ethereum transactions.
  */
-export class LightwalletTx implements TxInterface {
+export class LightwalletSigner implements TxSigner {
   private _user: User
   private _utils: Utils
 
