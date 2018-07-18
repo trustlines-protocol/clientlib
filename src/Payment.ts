@@ -190,10 +190,9 @@ export class Payment {
   }
 
   /**
-   * Signs a raw transaction as returned by `prepare` and relays the signed transaction.
-   * @param transaction Ethereum transaction object.
-   * @param transaction.rawTx RLP encoded hex string defining the transaction.
-   * @param transaction.web3Tx Plain transaction object. Used for web3.
+   * Signs a raw transaction object as returned by `prepare`
+   * and sends the signed transaction.
+   * @param rawTx Raw transaction object.
    */
   public async confirm (rawTx: RawTxObject): Promise<any> {
     return this._transaction.confirm(rawTx)

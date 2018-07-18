@@ -184,7 +184,7 @@ export interface RawTxObject {
 }
 
 export interface FunctionCallData {
-  abi: object,
+  abi: any[],
   functionName: string,
   args: string[]
 }

@@ -58,8 +58,9 @@ export class Onboarding {
   }
 
   /**
-   * Posts a raw onboarding ethereum transaction to the relay server and returns the transaction hash.
-   * @param rawTx RLP encoded hex string of the ethereum transaction returned by `prepOnboarding`.
+   * Signs a raw transaction object as returned by `prepare`
+   * and sends the signed transaction.
+   * @param rawTx Raw transaction object.
    */
   public async confirm (rawTx: RawTxObject): Promise<string> {
     return this._transaction.confirm(rawTx)

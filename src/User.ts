@@ -94,26 +94,21 @@ export class User {
 
   /**
    * Takes a raw transaction and digitally signs it with the currently loaded keystore.
-   * @param rawTx RLP encoded hex string of transaction.
+   * @param rlpHexTx RLP encoded hex string of transaction.
    */
-  public signTx (rawTx: string): Promise<string> {
+  public signTx (rlpHexTx: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      // NOTE: WIP -> only temporary for testing purposes
-      if (!this._web3.currentProvider) {
-        this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-          if (err) {
-            return reject(err)
-          }
-          resolve(lightwallet.signing.signTx(
-            this.keystore,
-            pwDerivedKey,
-            rawTx,
-            this.address.toLowerCase() // NOTE eth-lightwallet does not handle checksum addresses
-          ))
-        })
-      } else {
-        resolve(rawTx)
-      }
+      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+        if (err) {
+          return reject(err)
+        }
+        resolve(lightwallet.signing.signTx(
+          this.keystore,
+          pwDerivedKey,
+          rlpHexTx,
+          this.address.toLowerCase() // NOTE eth-lightwallet does not handle checksum addresses
+        ))
+      })
     })
   }
 

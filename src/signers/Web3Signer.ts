@@ -6,7 +6,7 @@ import { TxInfos, RawTxObject } from '../typings'
 import { BigNumber } from 'bignumber.js'
 
 /**
- * The Transaction class contains functions that are needed for Ethereum transactions.
+ * The Web3Signer class contains functions for signing transactions with a web3 provider.
  */
 export class Web3Signer implements TxSigner {
   private _web3: any
@@ -56,12 +56,18 @@ export class Web3Signer implements TxSigner {
     }
   }
 
+  /**
+   * Encode function call data to a ABI byte string.
+   * @param abi JSON ABI of contract.
+   * @param functionName Name of contract function to call.
+   * @param args Function arguments.
+   */
   private _encodeFunctionCall (
-    abi: any,
+    abi: any[],
     functionName: string,
-    parameters: string[]
+    args: string[]
   ): string {
     const [ functionAbi ] = abi.filter(({ name }) => name === functionName)
-    return this._web3.eth.abi.encodeFunctionCall(functionAbi, parameters)
+    return this._web3.eth.abi.encodeFunctionCall(functionAbi, args)
   }
 }

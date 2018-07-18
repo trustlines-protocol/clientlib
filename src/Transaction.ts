@@ -30,7 +30,7 @@ export class Transaction {
   }
 
   /**
-   * Returns transaction fees and the raw transaction for calling a contract function.
+   * Returns transaction fees and the raw transaction object for calling a contract function.
    * @param userAddress address of user that calls the contract function
    * @param contractAddress address of deployed contract
    * @param contractName name of deployed contract
@@ -38,8 +38,7 @@ export class Transaction {
    * @param parameters arguments of function in same order as in contract
    * @param gasPrice (optional)
    * @param gasLimit (optional)
-   * @returns A ethereum transaction object containing the RLP encoded hex string of the
-   *          transaction and the estimated transaction fees in ETH.
+   * @returns A ethereum transaction object and the estimated transaction fees in ETH.
    */
   public async prepFuncTx (
     userAddress: string,
@@ -71,14 +70,13 @@ export class Transaction {
   }
 
   /**
-   * Returns transaction fees and raw transaction for transferring ETH.
+   * Returns transaction fees and raw transaction object for transferring ETH.
    * @param senderAddress address of user sending the transfer
    * @param receiverAddress address of user receiving the transfer
    * @param rawValue transfer amount in wei
    * @param gasPrice (optional)
    * @param gasLimit (optional)
-   * @returns A ethereum transaction object containing the RLP encoded hex string of the
-   *          transaction and the estimated transaction fees in ETH.
+   * @returns A ethereum transaction object containing and the estimated transaction fees in ETH.
    */
   public async prepValueTx (
     senderAddress: string,
@@ -102,10 +100,21 @@ export class Transaction {
     }
   }
 
+  /**
+   * Signs and sends the given transaction object.
+   * @param rawTx Raw transaction object.
+   */
   public async confirm (rawTx: RawTxObject): Promise<any> {
     return this._signer.confirm(rawTx)
   }
 
+  /**
+   * Sets a new signer strategy for signing and sending transactions.
+   * @param signer New transaction signer.
+   */
+  public setSigner (signer: TxSigner) {
+    this._signer = signer
+  }
   /**
    * Returns the latest block number of the underlying blockchain.
    */
@@ -113,7 +122,4 @@ export class Transaction {
     return this._utils.fetchUrl<number>('blocknumber')
   }
 
-  public setSigner (signer: TxSigner) {
-    this._signer = signer
-  }
 }

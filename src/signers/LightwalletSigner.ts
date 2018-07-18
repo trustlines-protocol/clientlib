@@ -13,7 +13,7 @@ import * as lightwallet from 'eth-lightwallet'
 // declare let lightwallet
 
 /**
- * The Transaction class contains functions that are needed for Ethereum transactions.
+ * The LightwalletSigner class contains functions for signing transactions with eth-lightwallet.
  */
 export class LightwalletSigner implements TxSigner {
   private _user: User
@@ -55,7 +55,7 @@ export class LightwalletSigner implements TxSigner {
    * Returns needed information for creating an ethereum transaction.
    * @param userAddress address of user creating the transaction
    * @returns Information for creating an ethereum transaction for the given user address.
-   *          See tyoe `TxInfos` for more details.
+   *          See type `TxInfos` for more details.
    */
   public async getTxInfos (userAddress: string): Promise<TxInfos> {
     const endpoint = `users/${userAddress}/txinfos`

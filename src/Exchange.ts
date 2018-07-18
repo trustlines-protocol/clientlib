@@ -366,9 +366,9 @@ export class Exchange {
   }
 
   /**
-   * Signs a raw transaction as returned by `prepCancelOrder` or `prepFillOrder`
-   * and relays the signed transaction.
-   * @param rawTx RLP encoded hex string defining the transaction.
+   * Signs a raw transaction object as returned by `prepCancelOrder` or `prepFillOrder`
+   * and sends the signed transaction.
+   * @param rawTx Raw transaction object.
    */
   public async confirm (rawTx: RawTxObject): Promise<string> {
     return this._transaction.confirm(rawTx)
