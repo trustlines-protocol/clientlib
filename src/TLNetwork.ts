@@ -80,10 +80,11 @@ export class TLNetwork {
    */
   constructor (config: TLNetworkConfig = {}) {
     this.configuration = new Configuration(config)
+    this.web3 = new Web3(config.web3Provider)
     this.utils = new Utils(this.configuration)
-    this.transaction = new Transaction(this.utils)
+    this.transaction = new Transaction(this.utils, this.web3)
     this.currencyNetwork = new CurrencyNetwork(this.utils)
-    this.user = new User(this.transaction, this.utils)
+    this.user = new User(this.transaction, this.utils, this.web3)
     this.contact = new Contact(this.user, this.utils)
     this.event = new Event(this.user, this.utils, this.currencyNetwork)
     this.trustline = new Trustline(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
@@ -91,6 +92,5 @@ export class TLNetwork {
     this.exchange = new Exchange(this.event, this.user, this.utils, this.transaction, this.currencyNetwork, this.payment)
     this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
     this.ethWrapper = new EthWrapper(this.user, this.utils, this.transaction)
-    this.web3 = new Web3(config.web3Provider)
   }
 }

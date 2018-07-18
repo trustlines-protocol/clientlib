@@ -63,7 +63,7 @@ export class Trustline {
     const { _currencyNetwork, _transaction, _user, _utils } = this
     let { decimals, gasLimit, gasPrice } = options
     decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
-    const { rawTx, ethFees } = await _transaction.prepFuncTx(
+    const { rawTx, ethFees, web3Tx } = await _transaction.prepFuncTx(
       _user.address,
       networkAddress,
       'CurrencyNetwork',
@@ -79,6 +79,7 @@ export class Trustline {
       }
     )
     return {
+      web3Tx,
       rawTx,
       ethFees: _utils.convertToAmount(ethFees)
     }
@@ -119,9 +120,13 @@ export class Trustline {
    * the signed transaction.
    * @param rawTx RLP encoded hex string defining the transaction.
    */
-  public async confirm (rawTx: string): Promise<string> {
+  public async confirm (transaction: TxObject): Promise<string> {
+    const { rawTx, web3Tx } = transaction
     const signedTx = await this._user.signTx(rawTx)
-    return this._transaction.relayTx(signedTx)
+    return this._transaction.confirm({
+      web3Tx,
+      signedTx
+    })
   }
 
   /**

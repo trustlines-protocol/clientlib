@@ -5,7 +5,8 @@ import {
   TxInfos,
   TxInfosRaw,
   TxOptionsInternal,
-  TxObjectInternal
+  TxObjectInternal,
+  SignedTxObject
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -23,9 +24,14 @@ const ETH_DECIMALS = 18
  */
 export class Transaction {
   private _utils: Utils
+  private _web3: any
 
-  constructor (utils: Utils) {
+  constructor (
+    utils: Utils,
+    web3: any
+  ) {
     this._utils = utils
+    this._web3 = web3
   }
 
   /**
@@ -49,24 +55,31 @@ export class Transaction {
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
     const txInfos = await this._getTxInfos(userAddress)
-    const txOptions = {
+    const web3Tx = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
       gasLimit: options.gasLimit || new BigNumber(600000),
       value: options.value || new BigNumber(0),
       nonce: txInfos.nonce,
-      to: contractAddress.toLowerCase()
+      to: contractAddress.toLowerCase(),
+      from: userAddress,
+      data: this._encodeFunctionCall(
+        CONTRACTS[ contractName ].abi,
+        functionName,
+        parameters
+      )
     }
-    const ethFees = txOptions.gasLimit.multipliedBy(txOptions.gasPrice)
+    const ethFees = web3Tx.gasLimit.multipliedBy(web3Tx.gasPrice)
     return {
+      web3Tx,
       rawTx: lightwallet.txutils.functionTx(
         CONTRACTS[ contractName ].abi,
         functionName,
         parameters,
         {
-          ...txOptions,
-          gasPrice: this._utils.convertToHexString(txOptions.gasPrice),
-          gasLimit: this._utils.convertToHexString(txOptions.gasLimit),
-          value: this._utils.convertToHexString(txOptions.value)
+          ...web3Tx,
+          gasPrice: this._utils.convertToHexString(web3Tx.gasPrice),
+          gasLimit: this._utils.convertToHexString(web3Tx.gasLimit),
+          value: this._utils.convertToHexString(web3Tx.value)
         }
       ),
       ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
@@ -90,22 +103,33 @@ export class Transaction {
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
     const txInfos = await this._getTxInfos(senderAddress)
-    const txOptions = {
+    const web3Tx = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
       gasLimit: options.gasLimit || new BigNumber(21000),
       value: rawValue,
       nonce: txInfos.nonce,
-      to: receiverAddress.toLowerCase()
+      to: receiverAddress.toLowerCase(),
+      from: senderAddress
     }
-    const ethFees = txOptions.gasLimit.multipliedBy(txOptions.gasPrice)
+    const ethFees = web3Tx.gasLimit.multipliedBy(web3Tx.gasPrice)
     return {
+      web3Tx,
       rawTx: lightwallet.txutils.valueTx({
-        ...txOptions,
-        gasPrice: this._utils.convertToHexString(txOptions.gasPrice),
-        gasLimit: this._utils.convertToHexString(txOptions.gasLimit),
-        value: this._utils.convertToHexString(txOptions.value)
+        ...web3Tx,
+        gasPrice: this._utils.convertToHexString(web3Tx.gasPrice),
+        gasLimit: this._utils.convertToHexString(web3Tx.gasLimit),
+        value: this._utils.convertToHexString(web3Tx.value)
       }),
       ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
+    }
+  }
+
+  public async confirm (signedTxObject: SignedTxObject): Promise<any> {
+    const { web3Tx, signedTx } = signedTxObject
+    if (this._web3.currentProvider) {
+      return this._web3.eth.sendTransaction(web3Tx)
+    } else {
+      return this.relayTx(signedTx)
     }
   }
 
@@ -137,11 +161,33 @@ export class Transaction {
    *          See tyoe `TxInfos` for more details.
    */
   private async _getTxInfos (userAddress: string): Promise<TxInfos> {
-    const txInfos = await this._utils.fetchUrl<TxInfosRaw>(`users/${userAddress}/txinfos`)
+    let txInfos
+
+    if (this._web3.currentProvider) {
+      const [ gasPrice, nonce, balance ] = await Promise.all([
+        this._web3.eth.getGasPrice(),
+        this._web3.eth.getTransactionCount(userAddress),
+        this._web3.eth.getBalance(userAddress)
+      ])
+      txInfos = { gasPrice, nonce, balance }
+    } else {
+      txInfos = await this._utils.fetchUrl<TxInfosRaw>(`users/${userAddress}/txinfos`)
+    }
+
+    console.log(txInfos)
     return {
       ...txInfos,
       gasPrice: new BigNumber(txInfos.gasPrice),
       balance: new BigNumber(txInfos.balance)
     }
+  }
+
+  private _encodeFunctionCall (
+    abi: any,
+    functionName: string,
+    parameters: string[]
+  ): string {
+    const [ functionAbi ] = abi.filter(({ name }) => name === functionName)
+    return this._web3.eth._encodeFunctionCall(functionAbi, parameters)
   }
 }
