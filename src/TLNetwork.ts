@@ -10,6 +10,10 @@ import { Event } from './Event'
 import { Exchange } from './Exchange'
 import { Messaging } from './Messaging'
 import { EthWrapper } from './EthWrapper'
+import { Onboarding } from './Onboarding'
+
+import { LightwalletTx } from './strategies/LightwalletTx'
+import { Web3Tx } from './strategies/Web3Tx'
 
 import { TLNetworkConfig } from './typings'
 
@@ -73,6 +77,7 @@ export class TLNetwork {
    */
   public ethWrapper: EthWrapper
   public web3: any
+  public onboarding: Onboarding
 
   /**
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
@@ -82,10 +87,13 @@ export class TLNetwork {
     this.configuration = new Configuration(config)
     this.web3 = new Web3(config.web3Provider)
     this.utils = new Utils(this.configuration)
-    this.transaction = new Transaction(this.utils, this.web3)
     this.currencyNetwork = new CurrencyNetwork(this.utils)
-    this.user = new User(this.transaction, this.utils, this.web3)
+    this.user = new User(this.utils, this.web3)
+    this.transaction = this.web3.eth.currentProvider
+      ? new Transaction(this.utils, new Web3Tx(this.web3))
+      : new Transaction(this.utils, new LightwalletTx(this.user, this.utils))
     this.contact = new Contact(this.user, this.utils)
+    this.onboarding = new Onboarding(this.transaction, this.user, this.utils)
     this.event = new Event(this.user, this.utils, this.currencyNetwork)
     this.trustline = new Trustline(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
     this.payment = new Payment(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)

@@ -5,7 +5,7 @@ import { Utils } from '../Utils'
 import {
   TxInfos,
   TxInfosRaw,
-  RawTx
+  RawTxObject
 } from '../typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -24,7 +24,7 @@ export class Web3Tx implements TxInterface {
    * Signs a transaction using the web3 provider.
    * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx: RawTx): Promise<string> {
+  public async confirm (rawTx: RawTxObject): Promise<string> {
     const { functionCallData } = rawTx
     if (rawTx.functionCallData) {
       rawTx = {

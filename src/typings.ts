@@ -163,16 +163,16 @@ export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw | AnyExchangeEve
 
 // TRANSACTION
 export interface TxObject {
-  rawTx: RawTx,
+  rawTx: RawTxObject,
   ethFees: Amount
 }
 
 export interface TxObjectInternal {
-  rawTx: RawTx,
+  rawTx: RawTxObject,
   ethFees: AmountInternal
 }
 
-export interface RawTx {
+export interface RawTxObject {
   from: string,
   to?: string,
   value?: number | string | BigNumber,

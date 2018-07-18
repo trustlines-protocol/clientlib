@@ -1,17 +1,12 @@
 import { Utils } from './Utils'
+import { TxInterface } from './strategies/TxInterface'
 import {
-  TxObject,
-  TxOptions,
-  TxInfos,
-  TxInfosRaw,
   TxOptionsInternal,
   TxObjectInternal,
-  SignedTxObject
+  RawTxObject
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
-import * as lightwallet from 'eth-lightwallet'
-// declare let lightwallet
 
 /**
  * Contract ABIs
@@ -24,14 +19,14 @@ const ETH_DECIMALS = 18
  */
 export class Transaction {
   private _utils: Utils
-  private _web3: any
+  private _strategy: TxInterface
 
   constructor (
     utils: Utils,
-    web3: any
+    strategy: TxInterface
   ) {
     this._utils = utils
-    this._web3 = web3
+    this._strategy = strategy
   }
 
   /**
@@ -51,37 +46,26 @@ export class Transaction {
     contractAddress: string,
     contractName: string,
     functionName: string,
-    parameters: any[],
+    args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this._getTxInfos(userAddress)
-    const web3Tx = {
-      gasPrice: options.gasPrice || txInfos.gasPrice,
+    const { gasPrice, nonce } = await this._strategy.getTxInfos(userAddress)
+    const rawTx = {
+      gasPrice: options.gasPrice || gasPrice,
       gasLimit: options.gasLimit || new BigNumber(600000),
       value: options.value || new BigNumber(0),
-      nonce: txInfos.nonce,
+      nonce: nonce,
       to: contractAddress.toLowerCase(),
       from: userAddress,
-      data: this._encodeFunctionCall(
-        CONTRACTS[ contractName ].abi,
+      functionCallData: {
+        abi: CONTRACTS[ contractName ].abi,
         functionName,
-        parameters
-      )
+        args
+      }
     }
-    const ethFees = web3Tx.gasLimit.multipliedBy(web3Tx.gasPrice)
+    const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
     return {
-      web3Tx,
-      rawTx: lightwallet.txutils.functionTx(
-        CONTRACTS[ contractName ].abi,
-        functionName,
-        parameters,
-        {
-          ...web3Tx,
-          gasPrice: this._utils.convertToHexString(web3Tx.gasPrice),
-          gasLimit: this._utils.convertToHexString(web3Tx.gasLimit),
-          value: this._utils.convertToHexString(web3Tx.value)
-        }
-      ),
+      rawTx,
       ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
     }
   }
@@ -102,8 +86,8 @@ export class Transaction {
     rawValue: BigNumber,
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this._getTxInfos(senderAddress)
-    const web3Tx = {
+    const txInfos = await this._strategy.getTxInfos(senderAddress)
+    const rawTx = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
       gasLimit: options.gasLimit || new BigNumber(21000),
       value: rawValue,
@@ -111,40 +95,15 @@ export class Transaction {
       to: receiverAddress.toLowerCase(),
       from: senderAddress
     }
-    const ethFees = web3Tx.gasLimit.multipliedBy(web3Tx.gasPrice)
+    const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
     return {
-      web3Tx,
-      rawTx: lightwallet.txutils.valueTx({
-        ...web3Tx,
-        gasPrice: this._utils.convertToHexString(web3Tx.gasPrice),
-        gasLimit: this._utils.convertToHexString(web3Tx.gasLimit),
-        value: this._utils.convertToHexString(web3Tx.value)
-      }),
+      rawTx,
       ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
     }
   }
 
-  public async confirm (signedTxObject: SignedTxObject): Promise<any> {
-    const { web3Tx, signedTx } = signedTxObject
-    if (this._web3.currentProvider) {
-      return this._web3.eth.sendTransaction(web3Tx)
-    } else {
-      return this.relayTx(signedTx)
-    }
-  }
-
-  /**
-   * Relays signed raw transactions.
-   * @param signedTx signed ethereum transaction
-   */
-  public relayTx (signedTx: string): Promise<string> {
-    const headers = new Headers({ 'Content-Type': 'application/json' })
-    const options = {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ rawTransaction: `0x${signedTx}` })
-    }
-    return this._utils.fetchUrl<string>('relay', options)
+  public async confirm (rawTx: RawTxObject): Promise<any> {
+    return this._strategy.confirm(rawTx)
   }
 
   /**
@@ -154,39 +113,7 @@ export class Transaction {
     return this._utils.fetchUrl<number>('blocknumber')
   }
 
-  /**
-   * Returns needed information for creating an ethereum transaction.
-   * @param userAddress address of user creating the transaction
-   * @returns Information for creating an ethereum transaction for the given user address.
-   *          See tyoe `TxInfos` for more details.
-   */
-  private async _getTxInfos (userAddress: string): Promise<TxInfos> {
-    let txInfos
-
-    if (this._web3.currentProvider) {
-      const [ gasPrice, nonce, balance ] = await Promise.all([
-        this._web3.eth.getGasPrice(),
-        this._web3.eth.getTransactionCount(userAddress),
-        this._web3.eth.getBalance(userAddress)
-      ])
-      txInfos = { gasPrice, nonce, balance }
-    } else {
-      txInfos = await this._utils.fetchUrl<TxInfosRaw>(`users/${userAddress}/txinfos`)
-    }
-
-    return {
-      ...txInfos,
-      gasPrice: new BigNumber(txInfos.gasPrice),
-      balance: new BigNumber(txInfos.balance)
-    }
-  }
-
-  private _encodeFunctionCall (
-    abi: any,
-    functionName: string,
-    parameters: string[]
-  ): string {
-    const [ functionAbi ] = abi.filter(({ name }) => name === functionName)
-    return this._web3.eth.abi.encodeFunctionCall(functionAbi, parameters)
+  public setStrategy (strategy: TxInterface) {
+    this._strategy = strategy
   }
 }

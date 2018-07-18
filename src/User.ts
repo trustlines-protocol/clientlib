@@ -3,7 +3,6 @@ import * as lightwallet from 'eth-lightwallet'
 import * as ethUtils from 'ethereumjs-util'
 
 import { Utils } from './Utils'
-import { Transaction } from './Transaction'
 import {
   Amount,
   UserObject,
@@ -28,7 +27,6 @@ export class User {
    */
   public keystore: any
 
-  private _transaction: Transaction
   private _utils: Utils
   private _web3: any
 
@@ -36,11 +34,9 @@ export class User {
   private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
 
   constructor (
-    transaction: Transaction,
     utils: Utils,
     web3: any
   ) {
-    this._transaction = transaction
     this._utils = utils
     this._web3 = web3
     if (this._web3.currentProvider) {
@@ -149,49 +145,6 @@ export class User {
         })
       })
     })
-  }
-
-  /**
-   * Returns a shareable link, which can be opened by other users who already have ETH
-   * and are willing to send some of it to the new user. The function is called by a
-   * new user who wants to get onboarded, respectively has no ETH or trustline.
-   * @param username Name of new user who wants to get onboarded.
-   * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet)
-   *                           keystore of new user who wants to get onboarded.
-   */
-  public async createOnboardingMsg (
-    username: string,
-    serializedKeystore: string
-  ): Promise<string> {
-    const { address, pubKey } = await this.load(serializedKeystore)
-    const params = [ 'onboardingrequest', username, address, pubKey ]
-    return this._utils.createLink(params)
-  }
-
-  /**
-   * Returns an ethereum transaction object for onboarding a new user. Called by a user who already has ETH
-   * and wants to onboard a new user by sending some of it.
-   * @param newUserAddress Address of new user who wants to get onboarded.
-   * @param initialValue Value of ETH to send, default is 0.1 ETH.
-   */
-  public async prepOnboarding (
-    newUserAddress: string,
-    initialValue = 0.1
-  ): Promise<object> {
-    return this._transaction.prepValueTx(
-      this.address, // address of onboarder
-      newUserAddress, // address of new user who gets onboarded
-      this._utils.calcRaw(initialValue, 18)
-    )
-  }
-
-  /**
-   * Posts a raw onboarding ethereum transaction to the relay server and returns the transaction hash.
-   * @param rawTx RLP encoded hex string of the ethereum transaction returned by `prepOnboarding`.
-   */
-  public async confirmOnboarding (rawTx: string): Promise<string> {
-    const signedTx = await this.signTx(rawTx)
-    return this._transaction.relayTx(signedTx)
   }
 
   /**

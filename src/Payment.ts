@@ -12,7 +12,8 @@ import {
   PathRaw,
   PaymentOptions,
   EventFilterOptions,
-  NetworkTransferEvent
+  NetworkTransferEvent,
+  RawTxObject
 } from './typings'
 
 /**
@@ -112,7 +113,7 @@ export class Payment {
   ): Promise<TxObject> {
     const { _user, _utils, _transaction } = this
     const { gasLimit, gasPrice } = options
-    const { ethFees, rawTx, web3Tx } = await _transaction.prepValueTx(
+    const { ethFees, rawTx } = await _transaction.prepValueTx(
       _user.address,
       receiverAddress,
       _utils.calcRaw(value, 18),
@@ -123,7 +124,6 @@ export class Payment {
     )
     return {
       rawTx,
-      web3Tx,
       ethFees: _utils.convertToAmount(ethFees)
     }
   }
@@ -195,13 +195,8 @@ export class Payment {
    * @param transaction.rawTx RLP encoded hex string defining the transaction.
    * @param transaction.web3Tx Plain transaction object. Used for web3.
    */
-  public async confirm (transaction: TxObject): Promise<string> {
-    const { rawTx, web3Tx } = transaction
-    const signedTx = await this._user.signTx(rawTx)
-    return this._transaction.confirm({
-      web3Tx,
-      signedTx
-    })
+  public async confirm (rawTx: RawTxObject): Promise<any> {
+    return this._transaction.confirm(rawTx)
   }
 
   /**

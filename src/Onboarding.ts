@@ -1,16 +1,7 @@
-import * as lightwallet from 'eth-lightwallet'
-// declare let lightwallet
-import * as ethUtils from 'ethereumjs-util'
-
 import { User } from './User'
 import { Utils } from './Utils'
 import { Transaction } from './Transaction'
-import {
-  Amount,
-  UserObject,
-  Signature,
-  RawTxObject
-} from './typings'
+import { RawTxObject } from './typings'
 
 /**
  * The User class contains all user related functions, which also include keystore
