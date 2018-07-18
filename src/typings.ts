@@ -163,30 +163,30 @@ export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw | AnyExchangeEve
 
 // TRANSACTION
 export interface TxObject {
-  rawTx: string,
-  ethFees: Amount,
-  web3Tx?: Web3Tx
+  rawTx: RawTx,
+  ethFees: Amount
 }
 
 export interface TxObjectInternal {
-  rawTx: string,
-  ethFees: AmountInternal,
-  web3Tx?: Web3Tx
+  rawTx: RawTx,
+  ethFees: AmountInternal
 }
 
-export interface SignedTxObject {
-  signedTx: string,
-  web3Tx: Web3Tx
-}
-
-export interface Web3Tx {
+export interface RawTx {
   from: string,
   to?: string,
   value?: number | string | BigNumber,
-  gas?: number,
+  gasLimit?: number | string | BigNumber,
   gasPrice?: number | string | BigNumber,
   data?: string,
-  nonce?: number
+  nonce?: number,
+  functionCallData?: FunctionCallData
+}
+
+export interface FunctionCallData {
+  abi: object,
+  functionName: string,
+  args: string[]
 }
 
 export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
