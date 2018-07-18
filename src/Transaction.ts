@@ -174,7 +174,6 @@ export class Transaction {
       txInfos = await this._utils.fetchUrl<TxInfosRaw>(`users/${userAddress}/txinfos`)
     }
 
-    console.log(txInfos)
     return {
       ...txInfos,
       gasPrice: new BigNumber(txInfos.gasPrice),
@@ -188,6 +187,6 @@ export class Transaction {
     parameters: string[]
   ): string {
     const [ functionAbi ] = abi.filter(({ name }) => name === functionName)
-    return this._web3.eth._encodeFunctionCall(functionAbi, parameters)
+    return this._web3.eth.abi.encodeFunctionCall(functionAbi, parameters)
   }
 }

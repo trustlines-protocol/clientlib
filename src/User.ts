@@ -102,17 +102,22 @@ export class User {
    */
   public signTx (rawTx: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve(lightwallet.signing.signTx(
-          this.keystore,
-          pwDerivedKey,
-          rawTx,
-          this.address.toLowerCase() // NOTE eth-lightwallet does not handle checksum addresses
-        ))
-      })
+      // NOTE: WIP -> only temporary for testing purposes
+      if (!this._web3.currentProvider) {
+        this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(lightwallet.signing.signTx(
+            this.keystore,
+            pwDerivedKey,
+            rawTx,
+            this.address.toLowerCase() // NOTE eth-lightwallet does not handle checksum addresses
+          ))
+        })
+      } else {
+        resolve(rawTx)
+      }
     })
   }
 
