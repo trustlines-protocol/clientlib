@@ -1,11 +1,9 @@
 import * as lightwallet from 'eth-lightwallet'
 // declare let lightwallet
 import * as ethUtils from 'ethereumjs-util'
-import { Observable } from 'rxjs/Observable'
 
 import { Utils } from './Utils'
 import { Transaction } from './Transaction'
-
 import {
   Amount,
   UserObject,
@@ -32,16 +30,22 @@ export class User {
 
   private _transaction: Transaction
   private _utils: Utils
+  private _web3: any
 
   private _password = 'ts'
   private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
 
   constructor (
     transaction: Transaction,
-    utils: Utils
+    utils: Utils,
+    web3: any
   ) {
     this._transaction = transaction
     this._utils = utils
+    this._web3 = web3
+    if (this._web3.currentProvider) {
+      this.loadWeb3Account()
+    }
   }
 
   /**
@@ -84,11 +88,19 @@ export class User {
     }
   }
 
+  public async loadWeb3Account (): Promise<void> {
+    if (this._web3.eth.defaultAccount) {
+      this.address = this._web3.eth.defaultAccount
+    } else {
+      [ this.address ] = await this._web3.eth.getAccounts()
+    }
+  }
+
   /**
    * Takes a raw transaction and digitally signs it with the currently loaded keystore.
    * @param rawTx RLP encoded hex string of transaction.
    */
-  public signTx (rawTx: any): Promise<any> {
+  public signTx (rawTx: string): Promise<string> {
     return new Promise((resolve, reject) => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
