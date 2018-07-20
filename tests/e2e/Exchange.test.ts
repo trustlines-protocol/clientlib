@@ -30,7 +30,7 @@ describe('e2e', () => {
         tl1.exchange.getExAddresses(),
         tl1.currencyNetwork.getAll()
       ])
-      const [ network1, network2 ] = networks.filter(n => n.decimals===2)
+      const [ network1, network2 ] = networks.filter(n => n.decimals === 2)
       makerTokenAddress = network1.address
       takerTokenAddress = network2.address
       // make sure users have eth
