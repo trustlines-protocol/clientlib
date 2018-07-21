@@ -75,7 +75,7 @@ services:
   contracts:
     build:
       context: https://github.com/trustlines-network/contracts.git#develop
-    command: ["deploy/deploy_docker.py"]
+    command: ["test", "--file", "addresses.json", "--jsonrpc", "http://node:8545"]
     container_name: contracts
     links:
       - "parity:node"

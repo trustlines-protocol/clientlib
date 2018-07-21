@@ -19,7 +19,9 @@ describe('e2e', () => {
     let exchangeAddress
     let dummyTokenAddress
     let makerTokenAddress
+    let makerTokenDecimals
     let takerTokenAddress
+    let takerTokenDecimals
     let latestOrder
 
     before(async () => {
@@ -30,9 +32,14 @@ describe('e2e', () => {
         tl1.exchange.getExAddresses(),
         tl1.currencyNetwork.getAll()
       ])
-      const [ eur, usd ] = networks.filter(n => n.abbreviation === 'EUR' || n.abbreviation === 'USD')
-      makerTokenAddress = eur.address
-      takerTokenAddress = usd.address
+      const [ makerToken, takerToken ] = await Promise.all([
+        tl1.currencyNetwork.getInfo(networks[0].address),
+        tl1.currencyNetwork.getInfo(networks[1].address)
+      ])
+      makerTokenAddress = makerToken.address
+      makerTokenDecimals = makerToken.decimals
+      takerTokenAddress = takerToken.address
+      takerTokenDecimals = takerToken.decimals
       // make sure users have eth
       await Promise.all([
         tl1.user.requestEth(),
@@ -91,10 +98,10 @@ describe('e2e', () => {
         expect(order.takerTokenAddress).to.equal(takerTokenAddress)
         expect(order.makerTokenAmount).to.have.keys('raw', 'value', 'decimals')
         expect(order.makerTokenAmount.value).to.equal(new BigNumber(makerTokenValue).toString())
-        expect(order.makerTokenAmount.decimals).to.equal(2)
+        expect(order.makerTokenAmount.decimals).to.equal(makerTokenDecimals)
         expect(order.takerTokenAmount).to.have.keys('raw', 'value', 'decimals')
         expect(order.takerTokenAmount.value).to.equal(new BigNumber(takerTokenValue).toString())
-        expect(order.takerTokenAmount.decimals).to.equal(2)
+        expect(order.takerTokenAmount.decimals).to.equal(takerTokenDecimals)
         expect(order.salt).to.be.a('string')
         expect(order.expirationUnixTimestampSec).to.be.a('string')
         expect(order.ecSignature).to.have.keys('r', 's', 'v')
