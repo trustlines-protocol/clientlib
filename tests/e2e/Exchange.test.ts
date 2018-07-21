@@ -4,6 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import { BigNumber } from 'bignumber.js'
 
 import { TLNetwork } from '../../src/TLNetwork'
+import { NetworkDetails } from '../../src/typings'
 import { config, keystore1, keystore2, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
@@ -32,14 +33,16 @@ describe('e2e', () => {
         tl1.exchange.getExAddresses(),
         tl1.currencyNetwork.getAll()
       ])
-      const [ makerToken, takerToken ] = await Promise.all([
-        tl1.currencyNetwork.getInfo(networks[0].address),
-        tl1.currencyNetwork.getInfo(networks[1].address)
-      ])
-      makerTokenAddress = makerToken.address
-      makerTokenDecimals = makerToken.decimals
-      takerTokenAddress = takerToken.address
-      takerTokenDecimals = takerToken.decimals
+      const networksWithInfo = await Promise.all(
+        networks.map(network => tl1.currencyNetwork.getInfo(network.address))
+      )
+      const [ makerToken, takerToken ] = networksWithInfo.filter(
+        n => (n as NetworkDetails).decimals === 2
+      )
+      makerTokenAddress = (makerToken as NetworkDetails).address
+      makerTokenDecimals = (makerToken as NetworkDetails).decimals
+      takerTokenAddress = (takerToken as NetworkDetails).address
+      takerTokenDecimals = (takerToken as NetworkDetails).decimals
       // make sure users have eth
       await Promise.all([
         tl1.user.requestEth(),
@@ -162,6 +165,7 @@ describe('e2e', () => {
       let makerTLBefore
       let takerTLBefore
       let order
+      let fillTxId
 
       before(async () => {
         order = await tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 1)
@@ -175,7 +179,7 @@ describe('e2e', () => {
 
       it('should confirm a signed fill order tx for TL money <-> TL money order', async () => {
         const { rawTx } = await tl2.exchange.prepTakeOrder(order, 0.5)
-        await tl2.exchange.confirm(rawTx)
+        fillTxId = await tl2.exchange.confirm(rawTx)
         await wait()
         const trustlines = await Promise.all([
           tl2.trustline.getAll(makerTokenAddress),
@@ -195,8 +199,8 @@ describe('e2e', () => {
 
       it('should return LogFill event', async () => {
         const logs = await tl1.exchange.getLogs(exchangeAddress)
-        const latestLog = await logs[logs.length - 1]
-        expect(latestLog.orderHash).to.equal(order.hash)
+        const [ latestLogFill ] = logs.filter(({ transactionId }) => transactionId === fillTxId)
+        expect(latestLogFill.orderHash).to.equal(order.hash)
       })
     })
 

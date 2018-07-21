@@ -125,6 +125,7 @@ describe('e2e', () => {
         ])
         fillTxId = exTxIds[0]
         cancelTxId = exTxIds[1]
+        await wait()
       })
 
       it('should return all events', async () => {
