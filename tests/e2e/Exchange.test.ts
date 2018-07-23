@@ -170,11 +170,11 @@ describe('e2e', () => {
       before(async () => {
         order = await tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 1)
         const trustlines = await Promise.all([
-          tl2.trustline.getAll(makerTokenAddress),
-          tl2.trustline.getAll(takerTokenAddress)
+          tl2.trustline.get(makerTokenAddress, tl1.user.address),
+          tl2.trustline.get(takerTokenAddress, tl1.user.address)
         ])
-        makerTLBefore = trustlines[0].find(tl => tl.address === tl1.user.address)
-        takerTLBefore = trustlines[1].find(tl => tl.address === tl1.user.address)
+        makerTLBefore = trustlines[0]
+        takerTLBefore = trustlines[1]
       })
 
       it('should confirm a signed fill order tx for TL money <-> TL money order', async () => {
@@ -182,11 +182,11 @@ describe('e2e', () => {
         fillTxId = await tl2.exchange.confirm(rawTx)
         await wait()
         const trustlines = await Promise.all([
-          tl2.trustline.getAll(makerTokenAddress),
-          tl2.trustline.getAll(takerTokenAddress)
+          tl2.trustline.get(makerTokenAddress, tl1.user.address),
+          tl2.trustline.get(takerTokenAddress, tl1.user.address)
         ])
-        const makerTLAfter = trustlines[0].find(tl => tl.address === tl1.user.address)
-        const takerTLAfter = trustlines[1].find(tl => tl.address === tl1.user.address)
+        const makerTLAfter = trustlines[0]
+        const takerTLAfter = trustlines[1]
         const makerBalanceDelta = Math.abs(
           new BigNumber(makerTLBefore.balance.raw).minus(makerTLAfter.balance.raw).toNumber()
         )
