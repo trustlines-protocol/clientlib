@@ -71,7 +71,7 @@ export class Exchange {
       _currencyNetwork.getDecimals(order.makerTokenAddress, makerTokenDecimals),
       _currencyNetwork.getDecimals(order.takerTokenAddress, takerTokenDecimals)
     ])
-    return this._formatRawOrder(order, makerDecimals, takerDecimals)
+    return this._formatOrderRaw(order, makerDecimals, takerDecimals)
   }
 
   public async getOrderbook (
@@ -90,8 +90,8 @@ export class Exchange {
     const orderbook = await _utils.fetchUrl<OrderbookRaw>(endpoint)
     const { asks, bids } = orderbook
     return {
-      asks: asks.map(a => this._formatRawOrder(a, baseDecimals, quoteDecimals)),
-      bids: bids.map(b => this._formatRawOrder(b, quoteDecimals, baseDecimals))
+      asks: asks.map(a => this._formatOrderRaw(a, baseDecimals, quoteDecimals)),
+      bids: bids.map(b => this._formatOrderRaw(b, quoteDecimals, baseDecimals))
     }
   }
 
@@ -113,7 +113,7 @@ export class Exchange {
       _currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals),
       _currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
     ])
-    const rawOrder = {
+    const orderRaw = {
       exchangeContractAddress,
       expirationUnixTimestampSec: expirationUnixTimestampSec.toString(),
       feeRecipient: ZERO_ADDRESS,
@@ -133,7 +133,7 @@ export class Exchange {
       availableMakerTokenAmount: _utils.calcRaw(makerTokenValue, makerDecimals).toString(),
       availableTakerTokenAmount: _utils.calcRaw(takerTokenValue, takerDecimals).toString()
     }
-    const orderWithFees = await this._getFees(rawOrder)
+    const orderWithFees = await this._getFees(orderRaw)
     const orderHash = this._getOrderHashHex(orderWithFees)
     const { ecSignature } = await _user.signMsgHash(orderHash)
     const signedOrder = {
@@ -141,7 +141,7 @@ export class Exchange {
       ecSignature
     }
     await this._postRequest('exchange/order', signedOrder)
-    const formattedOrder = this._formatRawOrder(orderWithFees, makerDecimals, takerDecimals)
+    const formattedOrder = this._formatOrderRaw(orderWithFees, makerDecimals, takerDecimals)
     return ({
       ...formattedOrder,
       ecSignature,
@@ -424,25 +424,25 @@ export class Exchange {
     return ethUtils.bufferToHex(hashBuff)
   }
 
-  private _formatRawOrder (
-    rawOrder: OrderRaw,
+  private _formatOrderRaw (
+    orderRaw: OrderRaw,
     makerDecimals: number,
     takerDecimals: number
   ): Order {
     const { _utils } = this
     return {
-      ...rawOrder,
-      hash: this._getOrderHashHex(rawOrder),
-      makerTokenAmount: _utils.formatToAmount(rawOrder.makerTokenAmount, makerDecimals),
-      takerTokenAmount: _utils.formatToAmount(rawOrder.takerTokenAmount, takerDecimals),
-      makerFee: _utils.formatToAmount(rawOrder.makerFee, makerDecimals),
-      takerFee: _utils.formatToAmount(rawOrder.takerFee, takerDecimals),
-      filledMakerTokenAmount: _utils.formatToAmount(rawOrder.filledMakerTokenAmount, makerDecimals),
-      filledTakerTokenAmount: _utils.formatToAmount(rawOrder.filledTakerTokenAmount, takerDecimals),
-      cancelledMakerTokenAmount: _utils.formatToAmount(rawOrder.cancelledMakerTokenAmount, makerDecimals),
-      cancelledTakerTokenAmount: _utils.formatToAmount(rawOrder.cancelledTakerTokenAmount, takerDecimals),
-      availableMakerTokenAmount: _utils.formatToAmount(rawOrder.availableMakerTokenAmount, makerDecimals),
-      availableTakerTokenAmount: _utils.formatToAmount(rawOrder.availableTakerTokenAmount, takerDecimals)
+      ...orderRaw,
+      hash: this._getOrderHashHex(orderRaw),
+      makerTokenAmount: _utils.formatToAmount(orderRaw.makerTokenAmount, makerDecimals),
+      takerTokenAmount: _utils.formatToAmount(orderRaw.takerTokenAmount, takerDecimals),
+      makerFee: _utils.formatToAmount(orderRaw.makerFee, makerDecimals),
+      takerFee: _utils.formatToAmount(orderRaw.takerFee, takerDecimals),
+      filledMakerTokenAmount: _utils.formatToAmount(orderRaw.filledMakerTokenAmount, makerDecimals),
+      filledTakerTokenAmount: _utils.formatToAmount(orderRaw.filledTakerTokenAmount, takerDecimals),
+      cancelledMakerTokenAmount: _utils.formatToAmount(orderRaw.cancelledMakerTokenAmount, makerDecimals),
+      cancelledTakerTokenAmount: _utils.formatToAmount(orderRaw.cancelledTakerTokenAmount, takerDecimals),
+      availableMakerTokenAmount: _utils.formatToAmount(orderRaw.availableMakerTokenAmount, makerDecimals),
+      availableTakerTokenAmount: _utils.formatToAmount(orderRaw.availableTakerTokenAmount, takerDecimals)
     }
   }
 }
