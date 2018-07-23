@@ -13,8 +13,8 @@ import {
   AnyExchangeEventRaw
 } from './typings'
 
-const CURRENCY_NETWORK_ADDRESS = 'CurrencyNetwork'
-const TOKEN_ADDRESS = 'Token'
+const CURRENCY_NETWORK = 'CurrencyNetwork'
+const TOKEN = 'Token'
 
 /**
  * The Event class contains all methods related to retrieving event logs.
@@ -131,20 +131,20 @@ export class Event {
   private _getUniqueAddressesMap (events: AnyEventRaw[]): object {
     return events.reduce((result, e) => {
       if ((e as AnyNetworkEventRaw).networkAddress) {
-        result[(e as AnyNetworkEventRaw).networkAddress] = CURRENCY_NETWORK_ADDRESS
+        result[(e as AnyNetworkEventRaw).networkAddress] = CURRENCY_NETWORK
       } else if ((e as AnyTokenEventRaw).tokenAddress) {
-        result[(e as AnyTokenEventRaw).tokenAddress] = TOKEN_ADDRESS
+        result[(e as AnyTokenEventRaw).tokenAddress] = TOKEN
       } else if ((e as AnyExchangeEventRaw).exchangeAddress) {
         const { makerTokenAddress, takerTokenAddress } = (e as AnyExchangeEventRaw)
         if (!result[makerTokenAddress]) {
           result[makerTokenAddress] = this._currencyNetwork.isNetwork(makerTokenAddress)
-            ? CURRENCY_NETWORK_ADDRESS
-            : TOKEN_ADDRESS
+            ? CURRENCY_NETWORK
+            : TOKEN
         }
         if (!result[takerTokenAddress]) {
           result[takerTokenAddress] = this._currencyNetwork.isNetwork(takerTokenAddress)
-            ? CURRENCY_NETWORK_ADDRESS
-            : TOKEN_ADDRESS
+            ? CURRENCY_NETWORK
+            : TOKEN
         }
       }
       return result
@@ -159,10 +159,10 @@ export class Event {
     const addresses = Object.keys(addressesMap)
     const decimalsList = await Promise.all(
       addresses.map(address => {
-        if (addressesMap[address] === CURRENCY_NETWORK_ADDRESS) {
+        if (addressesMap[address] === CURRENCY_NETWORK) {
           return this._currencyNetwork.getDecimals(address)
         }
-        if (addressesMap[address] === TOKEN_ADDRESS) {
+        if (addressesMap[address] === TOKEN) {
           // TODO: find different way to get decimals of token
           // NOTE: only expecting WrappedEthEvents for now
           return this._currencyNetwork.getDecimals(address, 18)
