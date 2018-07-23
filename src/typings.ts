@@ -80,7 +80,8 @@ export interface TLEvent extends BlockchainEvent {
   from: string,
   to: string,
   direction: string,
-  address: string
+  counterParty: string,
+  user: string
 }
 
 export interface NetworkEvent extends TLEvent {

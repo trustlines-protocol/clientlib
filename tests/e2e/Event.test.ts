@@ -59,7 +59,8 @@ describe('e2e', () => {
         expect(last.to).to.equal(user2.address)
         expect(last.blockNumber).to.be.a('number')
         expect(last.timestamp).to.be.a('number')
-        expect(last.address).to.equal(user2.address)
+        expect(last.counterParty).to.equal(user2.address)
+        expect(last.user).to.equal(user1.address)
         expect(last.networkAddress).to.equal(network1.address)
         expect(last.status).to.be.a('string')
         expect(last.amount).to.have.keys('raw', 'value', 'decimals')
@@ -118,7 +119,8 @@ describe('e2e', () => {
         expect(transferEvent).to.have.property('direction', 'sent')
         expect(transferEvent).to.have.property('from', user1.address)
         expect(transferEvent).to.have.property('to', user2.address)
-        expect(transferEvent).to.have.property('address', user2.address)
+        expect(transferEvent).to.have.property('counterParty', user2.address)
+        expect(transferEvent).to.have.property('user', user1.address)
 
         let networkBalanceEvent = events.filter((event) => event.type === 'NetworkBalance')[0]
         expect(networkBalanceEvent.timestamp).to.be.a('number')
@@ -126,6 +128,7 @@ describe('e2e', () => {
         expect(networkBalanceEvent.received).to.have.keys('raw', 'value', 'decimals')
         expect(networkBalanceEvent.leftGiven).to.have.keys('raw', 'value', 'decimals')
         expect(networkBalanceEvent.leftReceived).to.have.keys('raw', 'value', 'decimals')
+        expect(networkBalanceEvent).to.have.property('user', user1.address)
 
         let balanceEvent = events.filter((event) => event.type === 'BalanceUpdate')[0]
         expect(balanceEvent.timestamp).to.be.a('number')
@@ -135,6 +138,8 @@ describe('e2e', () => {
         expect(balanceEvent.received).to.have.keys('raw', 'value', 'decimals')
         expect(balanceEvent.leftGiven).to.have.keys('raw', 'value', 'decimals')
         expect(balanceEvent.leftReceived).to.have.keys('raw', 'value', 'decimals')
+        expect(balanceEvent).to.have.property('counterParty', user2.address)
+        expect(balanceEvent).to.have.property('user', user1.address)
       })
 
       after(async () => {
@@ -165,7 +170,8 @@ describe('e2e', () => {
         expect(trustlineRequestEvent.timestamp).to.be.a('number')
         expect(trustlineRequestEvent.from).to.equal(user2.address)
         expect(trustlineRequestEvent.to).to.equal(user1.address)
-        expect(trustlineRequestEvent.address).to.equal(user1.address)
+        expect(trustlineRequestEvent.counterParty).to.equal(user1.address)
+        expect(trustlineRequestEvent.user).to.equal(user2.address)
         expect(trustlineRequestEvent.direction).to.equal('sent')
         expect(trustlineRequestEvent.given).to.have.keys('raw', 'value', 'decimals')
         expect(trustlineRequestEvent.received).to.have.keys('raw', 'value', 'decimals')

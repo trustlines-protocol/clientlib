@@ -191,7 +191,8 @@ describe('e2e', () => {
       it('should return latest deposit log', async () => {
         const depositLogs = logs.filter(log => log.type === 'Deposit')
         const latestLog = depositLogs[depositLogs.length - 1]
-        expect(latestLog.address).to.equal(tl1.user.address)
+        expect(latestLog.counterParty).to.equal(tl1.user.address)
+        expect(latestLog.user).to.equal(tl1.user.address)
         expect(latestLog.amount).to.have.keys('decimals', 'raw', 'value')
         expect(latestLog.blockNumber).to.be.a('number')
         expect(latestLog.direction).to.equal('sent')
@@ -205,7 +206,8 @@ describe('e2e', () => {
       it('should return latest withdrawal log', async () => {
         const withdrawalLogs = logs.filter(log => log.type === 'Withdrawal')
         const latestLog = withdrawalLogs[withdrawalLogs.length - 1]
-        expect(latestLog.address).to.equal(tl1.user.address)
+        expect(latestLog.counterParty).to.equal(tl1.user.address)
+        expect(latestLog.user).to.equal(tl1.user.address)
         expect(latestLog.amount).to.have.keys('decimals', 'raw', 'value')
         expect(latestLog.blockNumber).to.be.a('number')
         expect(latestLog.direction).to.equal('sent')
@@ -227,6 +229,8 @@ describe('e2e', () => {
         expect(latestLog.status).to.be.a('string')
         expect(latestLog.timestamp).to.be.a('number')
         expect(latestLog.to).to.equal(tl2.user.address)
+        expect(latestLog.counterParty).to.equal(tl2.user.address)
+        expect(latestLog.user).to.equal(tl1.user.address)
         expect(latestLog.transactionId).to.be.a('string')
         expect(latestLog.type).to.equal('Transfer')
       })

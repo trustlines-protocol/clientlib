@@ -91,7 +91,8 @@ describe('e2e', () => {
       it('should return latest transfer', async () => {
         const transfers = await tl1.payment.get(network.address)
         const latestTransfer = transfers[transfers.length - 1]
-        expect(latestTransfer.address).to.be.a('string')
+        expect(latestTransfer.user).to.be.equal(tl1.user.address)
+        expect(latestTransfer.counterParty).to.be.equal(tl2.user.address)
         expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
         expect(latestTransfer.amount.value).to.eq('1.5')
         expect(latestTransfer.blockNumber).to.be.a('number')
