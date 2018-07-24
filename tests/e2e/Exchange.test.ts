@@ -273,8 +273,8 @@ describe('e2e', () => {
       it('should return all exchange events', async () => {
         const events = await tl1.exchange.getLogs(exchangeAddress)
         const filteredEvents = events.filter(e => e.orderHash === order.hash)
-        const fillEvent = filteredEvents.find(e => e.type === 'LogFill')
-        const cancelEvent = filteredEvents.find(e => e.type === 'LogCancel')
+        const [ fillEvent ] = filteredEvents.filter(e => e.type === 'LogFill')
+        const [ cancelEvent ] = filteredEvents.filter(e => e.type === 'LogCancel')
         expect(filteredEvents).to.have.length(2)
         expect(fillEvent).to.have.keys(fillEventKeys)
         expect(fillEvent.transactionId).to.equal(fillTxId)
@@ -283,17 +283,21 @@ describe('e2e', () => {
       })
 
       it('should return LogFill events', async () => {
-        const events = await tl1.exchange.getLogs(exchangeAddress, { type: 'LogFill' })
-        const fillEvent = events.find(e => e.orderHash === order.hash)
-        expect(fillEvent).to.have.keys(fillEventKeys)
-        expect(fillEvent.transactionId).to.equal(fillTxId)
+        const fillEvents = await tl1.exchange.getLogs(exchangeAddress, { type: 'LogFill' })
+        const filteredEvents = fillEvents.filter(e => e.orderHash === order.hash)
+        expect(filteredEvents).to.have.length(1)
+        expect(filteredEvents[0]).to.have.keys(fillEventKeys)
+        expect(filteredEvents[0].type).to.equal('LogFill')
+        expect(filteredEvents[0].transactionId).to.equal(fillTxId)
       })
 
       it('should return LogCancel events', async () => {
-        const events = await tl1.exchange.getLogs(exchangeAddress, { type: 'LogCancel' })
-        const cancelEvent = events.find(e => e.orderHash === order.hash)
-        expect(cancelEvent).to.have.keys(cancelEventKeys)
-        expect(cancelEvent.transactionId).to.equal(cancelTxId)
+        const cancelEvents = await tl1.exchange.getLogs(exchangeAddress, { type: 'LogCancel' })
+        const filteredEvents = cancelEvents.filter(e => e.orderHash === order.hash)
+        expect(filteredEvents).to.have.length(1)
+        expect(filteredEvents[0]).to.have.keys(cancelEventKeys)
+        expect(filteredEvents[0].type).to.equal('LogCancel')
+        expect(filteredEvents[0].transactionId).to.equal(cancelTxId)
       })
     })
 
