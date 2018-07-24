@@ -6,7 +6,15 @@ import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 
 import { Configuration } from './Configuration'
-import { Amount, AmountInternal } from './typings'
+import {
+  Amount,
+  AmountInternal,
+  AnyExchangeEvent,
+  AnyExchangeEventRaw,
+  ExchangeFillEventRaw,
+  ExchangeCancelEventRaw,
+  ExchangeEvent
+} from './typings'
 
 let __DEV__
 
@@ -190,36 +198,58 @@ export class Utils {
    * @param decimals nubmer of decimals
    */
   public formatEvent<T> (event: any, decimals: number): T {
-    if (event.amount) {
-      event = {
-        ...event,
-        amount: this.formatToAmount(event.amount, decimals)
-      }
-    }
-
-    if (event.balance) {
-      event = {
-        ...event,
-        balance: this.formatToAmount(event.balance, decimals)
-      }
-    }
-
-    if (event.received && event.given) {
-      event = {
-        ...event,
-        given: this.formatToAmount(event.given, decimals),
-        received: this.formatToAmount(event.received, decimals)
-      }
-    }
-
-    if (event.leftReceived && event.leftGiven) {
-      event = {
-        ...event,
-        leftGiven: this.formatToAmount(event.leftGiven, decimals),
-        leftReceived: this.formatToAmount(event.leftReceived, decimals)
+    // key names whose values are numericals and should get formatted
+    const keys = [
+      'amount',
+      'balance',
+      'given',
+      'received',
+      'leftGiven',
+      'leftReceived'
+    ]
+    for (const key of keys) {
+      if (event[key]) {
+        event[key] = this.formatToAmount(event[key], decimals)
       }
     }
     return event
+  }
+
+  /**
+   * Formats the number values of a raw Exchange event as returned by the relay.
+   * @param exchangeEvent raw exchange event: `LogFill` or `LogCancel`
+   * @param makerDecimals decimals in maker token
+   * @param takerDecimals decimals in taker token
+   */
+  public formatExchangeEvent (
+    exchangeEvent: AnyExchangeEventRaw,
+    makerDecimals: number,
+    takerDecimals: number
+  ): AnyExchangeEvent {
+    if (exchangeEvent.type === 'LogFill') {
+      const fillEventRaw = exchangeEvent as ExchangeFillEventRaw
+      return {
+        ...fillEventRaw,
+        filledMakerAmount: this.formatToAmount(
+          fillEventRaw.filledMakerAmount, makerDecimals
+        ),
+        filledTakerAmount: this.formatToAmount(
+          fillEventRaw.filledTakerAmount, takerDecimals
+        )
+      }
+    } else if (exchangeEvent.type === 'LogCancel') {
+      const cancelEventRaw = exchangeEvent as ExchangeCancelEventRaw
+      return {
+        ...cancelEventRaw,
+        cancelledMakerAmount: this.formatToAmount(
+          cancelEventRaw.cancelledMakerAmount, makerDecimals
+        ),
+        cancelledTakerAmount: this.formatToAmount(
+          cancelEventRaw.cancelledTakerAmount, takerDecimals
+        )
+      }
+    }
+    throw new Error('Provided event is not a ExchangeEvent!')
   }
 
   /**

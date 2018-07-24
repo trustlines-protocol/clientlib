@@ -6,15 +6,15 @@ import { CurrencyNetwork } from './CurrencyNetwork'
 
 import {
   EventFilterOptions,
-  AnyNetworkEvent,
   AnyNetworkEventRaw,
   AnyEvent,
   AnyEventRaw,
-  AnyTokenEventRaw
+  AnyTokenEventRaw,
+  AnyExchangeEventRaw
 } from './typings'
 
-const CURRENCY_NETWORK_EVENT = 'CurrencyNetworkEvent'
-const TOKEN_EVENT = 'TokenEvent'
+const CURRENCY_NETWORK = 'CurrencyNetwork'
+const TOKEN = 'Token'
 
 /**
  * The Event class contains all methods related to retrieving event logs.
@@ -63,13 +63,7 @@ export class Event {
     const baseUrl = `users/${_user.address}/events`
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
     const events = await _utils.fetchUrl<AnyEventRaw[]>(parameterUrl)
-    const addressesMap = this._getUniqueAddressesMap(events)
-    const decimalsMap = await this._getDecimalsMap(addressesMap)
-    return events.map(event => {
-      const address = (event as AnyNetworkEventRaw).networkAddress ||
-                      (event as AnyTokenEventRaw).tokenAddress
-      return _utils.formatEvent(event, decimalsMap[address])
-    })
+    return this.setDecimalsAndFormat(events)
   }
 
   /**
@@ -94,16 +88,64 @@ export class Event {
   }
 
   /**
-   * Returns unique addresses from a list of event logs and maps to the event type.
-   * Currently there are `NetworkEvent` and `TokenEvent`.
+   * Fetches decimals for given event logs and formats them so that all numerical
+   * values are `Amount` objects.
+   * @param rawEvents trustlines network events
+   */
+  public async setDecimalsAndFormat (rawEvents: AnyEventRaw[]): Promise<any[]> {
+    const addressesMap = this._getUniqueAddressesMap(rawEvents)
+    const decimalsMap = await this._getDecimalsMap(addressesMap)
+    return rawEvents.map(event => {
+      if ((event as AnyNetworkEventRaw).networkAddress) {
+        return this._utils.formatEvent<AnyNetworkEventRaw>(
+          event,
+          decimalsMap[(event as AnyNetworkEventRaw).networkAddress]
+        )
+      }
+      if ((event as AnyTokenEventRaw).tokenAddress) {
+        return this._utils.formatEvent<AnyTokenEventRaw>(
+          event,
+          decimalsMap[(event as AnyTokenEventRaw).tokenAddress]
+        )
+      }
+      if ((event as AnyExchangeEventRaw).exchangeAddress) {
+        const {
+          makerTokenAddress,
+          takerTokenAddress
+        } = event as AnyExchangeEventRaw
+        return this._utils.formatExchangeEvent(
+          event as AnyExchangeEventRaw,
+          decimalsMap[makerTokenAddress],
+          decimalsMap[takerTokenAddress]
+        )
+      }
+      return event
+    })
+  }
+
+  /**
+   * Returns unique addresses from a list of event logs and maps to whether the address
+   * is a CurrencyNetwork or Token contract.
    * @param events trustlines network events
    */
   private _getUniqueAddressesMap (events: AnyEventRaw[]): object {
     return events.reduce((result, e) => {
       if ((e as AnyNetworkEventRaw).networkAddress) {
-        result[(e as AnyNetworkEventRaw).networkAddress] = CURRENCY_NETWORK_EVENT
+        result[(e as AnyNetworkEventRaw).networkAddress] = CURRENCY_NETWORK
       } else if ((e as AnyTokenEventRaw).tokenAddress) {
-        result[(e as AnyTokenEventRaw).tokenAddress] = TOKEN_EVENT
+        result[(e as AnyTokenEventRaw).tokenAddress] = TOKEN
+      } else if ((e as AnyExchangeEventRaw).exchangeAddress) {
+        const { makerTokenAddress, takerTokenAddress } = (e as AnyExchangeEventRaw)
+        if (!result[makerTokenAddress]) {
+          result[makerTokenAddress] = this._currencyNetwork.isNetwork(makerTokenAddress)
+            ? CURRENCY_NETWORK
+            : TOKEN
+        }
+        if (!result[takerTokenAddress]) {
+          result[takerTokenAddress] = this._currencyNetwork.isNetwork(takerTokenAddress)
+            ? CURRENCY_NETWORK
+            : TOKEN
+        }
       }
       return result
     }, {})
@@ -117,10 +159,11 @@ export class Event {
     const addresses = Object.keys(addressesMap)
     const decimalsList = await Promise.all(
       addresses.map(address => {
-        if (addressesMap[address] === CURRENCY_NETWORK_EVENT) {
+        if (addressesMap[address] === CURRENCY_NETWORK) {
           return this._currencyNetwork.getDecimals(address)
         }
-        if (addressesMap[address] === TOKEN_EVENT) {
+        if (addressesMap[address] === TOKEN) {
+          // TODO: find different way to get decimals of token
           // NOTE: only expecting WrappedEthEvents for now
           return this._currencyNetwork.getDecimals(address, 18)
         }

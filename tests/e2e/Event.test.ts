@@ -2,8 +2,22 @@ import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
 import { TLNetwork } from '../../src/TLNetwork'
-import { AnyNetworkEvent, NetworkTransferEvent } from '../../src/typings'
-import { config, keystore1, keystore2, wait } from '../Fixtures'
+import {
+  AnyNetworkEvent,
+  NetworkTransferEvent,
+  NetworkTrustlineEvent,
+  TokenAmountEvent,
+  ExchangeFillEvent,
+  ExchangeCancelEvent,
+  NetworkDetails
+} from '../../src/typings'
+import {
+  config,
+  createUsers,
+  requestEth,
+  setTrustlines,
+  wait
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -14,37 +28,42 @@ describe('e2e', () => {
     const tl2 = new TLNetwork(config)
     let user1
     let user2
+    let networks
     let network1
     let network2
+    let ethWrapperAddress
+    let exchangeAddress
 
     before(async () => {
-      // fetch networks and load users
+      // fetch networks and use only networks with 2 decimals
       [
-        [network1, network2],
-        user1,
-        user2
+        networks,
+        [ ethWrapperAddress ],
+        [ exchangeAddress ]
       ] = await Promise.all([
         tl1.currencyNetwork.getAll(),
-        tl1.user.load(keystore1),
-        tl2.user.load(keystore2)
+        tl1.ethWrapper.getAddresses(),
+        tl1.exchange.getExAddresses()
       ])
-      // make sure users have ETH
-      await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
-      // set up trustlines
-      const [ tx1, tx2 ] = await Promise.all([
-        tl1.trustline.prepareUpdate(network1.address, user2.address, 1000, 500),
-        tl2.trustline.prepareUpdate(network1.address, user1.address, 500, 1000)
-      ])
-      await Promise.all([
-        tl1.trustline.confirm(tx1.rawTx),
-        tl2.trustline.confirm(tx2.rawTx)
-      ])
-      // wait for tx to be mined
-      await wait()
+      const networksWithDetails = await Promise.all(
+        networks.map(n => tl1.currencyNetwork.getInfo(n.address))
+      )
+      const networksWith2Decimals = networksWithDetails.filter(
+        n => (n as NetworkDetails).decimals === 2
+      )
+      network1 = networksWith2Decimals[0]
+      network2 = networksWith2Decimals[1]
     })
 
     describe('#get()', () => {
       before(async () => {
+        // create new users
+        [ user1, user2 ] = await createUsers([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
+        // trustline transfer
         const { rawTx } = await tl1.payment.prepare(network1.address, user2.address, 1.5)
         await tl1.payment.confirm(rawTx)
         await wait()
@@ -68,16 +87,241 @@ describe('e2e', () => {
     })
 
     describe('#getAll()', async () => {
+      let updateTxId
+      let acceptTxId
+      let tlTransferTxId
+      let depositTxId
+      let withdrawTxId
+      let transferTxId
+      let fillTxId
+      let cancelTxId
+      let order
+
       before(async () => {
-        const [ txObj1, txObj2 ] = await Promise.all([
-          tl1.trustline.prepareUpdate(network2.address, user2.address, 1000, 500),
-          tl2.trustline.prepareUpdate(network2.address, user1.address, 500, 1000)
-        ])
-        await Promise.all([
-          tl1.trustline.confirm(txObj1.rawTx),
-          tl2.trustline.confirm(txObj2.rawTx)
-        ])
+        // create new users
+        [ user1, user2 ] = await createUsers([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
+
+        // CurrencyNetwork events
+        const updateTx = await tl1.trustline.prepareUpdate(network2.address, user2.address, 1000, 500)
+        updateTxId = await tl1.trustline.confirm(updateTx.rawTx)
         await wait()
+        const acceptTx = await tl2.trustline.prepareUpdate(network2.address, user1.address, 500, 1000)
+        acceptTxId = await tl2.trustline.confirm(acceptTx.rawTx)
+        await wait()
+        const tlTransferTx = await tl1.payment.prepare(network2.address, user2.address, 1)
+        tlTransferTxId = await tl1.payment.confirm(tlTransferTx.rawTx)
+        await wait()
+
+        // Token events
+        const depositTx = await tl1.ethWrapper.prepDeposit(ethWrapperAddress, 0.005)
+        depositTxId = await tl1.ethWrapper.confirm(depositTx.rawTx)
+        await wait()
+        const withdrawTx = await tl1.ethWrapper.prepWithdraw(ethWrapperAddress, 0.001)
+        withdrawTxId = await tl1.ethWrapper.confirm(withdrawTx.rawTx)
+        await wait()
+        const transferTx = await tl1.ethWrapper.prepTransfer(ethWrapperAddress, tl2.user.address, 0.002)
+        transferTxId = await tl1.ethWrapper.confirm(transferTx.rawTx)
+        await wait()
+
+        // Exchange events
+        order = await tl1.exchange.makeOrder(
+          exchangeAddress,
+          network1.address,
+          network2.address,
+          3,
+          3
+        )
+        const [ fillTx, cancelTx ] = await Promise.all([
+          tl2.exchange.prepTakeOrder(order, 1),
+          tl1.exchange.prepCancelOrder(order, 1)
+        ])
+        const exTxIds = await Promise.all([
+          tl2.exchange.confirm(fillTx.rawTx),
+          tl1.exchange.confirm(cancelTx.rawTx)
+        ])
+        fillTxId = exTxIds[0]
+        cancelTxId = exTxIds[1]
+        await wait()
+      })
+
+      it('should return all events', async () => {
+        const allEvents = await tl1.event.getAll()
+
+        // events thrown on trustline update request
+        const updateRequestEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === updateTxId
+        )
+        // check event TrustlineUpdateRequest
+        expect(updateRequestEvents).to.have.length(1)
+        expect(updateRequestEvents[0].type).to.equal('TrustlineUpdateRequest')
+        expect(updateRequestEvents[0].timestamp).to.be.a('number')
+        expect(updateRequestEvents[0].blockNumber).to.be.a('number')
+        expect(updateRequestEvents[0].status).to.be.a('string')
+        expect(updateRequestEvents[0].transactionId).to.equal(updateTxId)
+        expect(updateRequestEvents[0].direction).to.equal('sent')
+        expect(updateRequestEvents[0].from).to.equal(tl1.user.address)
+        expect(updateRequestEvents[0].to).to.equal(tl2.user.address)
+        expect(updateRequestEvents[0].address).to.equal(tl2.user.address)
+        expect((updateRequestEvents[0] as NetworkTrustlineEvent).networkAddress)
+          .to.equal(network2.address)
+        expect((updateRequestEvents[0] as NetworkTrustlineEvent).given)
+          .to.have.keys('raw', 'decimals', 'value')
+        expect((updateRequestEvents[0] as NetworkTrustlineEvent).received)
+          .to.have.keys('raw', 'decimals', 'value')
+
+        // events thrown on trustline update
+        const updateEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === acceptTxId
+        )
+        // check event TrustlineUpdate
+        expect(updateEvents).to.have.length(1)
+        expect(updateEvents[0].type).to.equal('TrustlineUpdate')
+        expect(updateEvents[0].timestamp).to.be.a('number')
+        expect(updateEvents[0].blockNumber).to.be.a('number')
+        expect(updateEvents[0].status).to.be.a('string')
+        expect(updateEvents[0].transactionId).to.equal(acceptTxId)
+        expect(updateEvents[0].direction).to.equal('sent')
+        expect(updateEvents[0].from).to.equal(tl1.user.address)
+        expect(updateEvents[0].to).to.equal(tl2.user.address)
+        expect(updateEvents[0].address).to.equal(tl2.user.address)
+        expect((updateEvents[0] as NetworkTrustlineEvent).networkAddress)
+          .to.equal(network2.address)
+        expect((updateEvents[0] as NetworkTrustlineEvent).given)
+          .to.have.keys('raw', 'decimals', 'value')
+        expect((updateEvents[0] as NetworkTrustlineEvent).received)
+          .to.have.keys('raw', 'decimals', 'value')
+
+        // events thrown on trustlines transfer
+        const tlTransferEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === tlTransferTxId
+        )
+        // check event Trustlines Transfer
+        expect(tlTransferEvents).to.have.length(1)
+        expect(tlTransferEvents[0].type).to.equal('Transfer')
+        expect(tlTransferEvents[0].timestamp).to.be.a('number')
+        expect(tlTransferEvents[0].blockNumber).to.be.a('number')
+        expect(tlTransferEvents[0].status).to.be.a('string')
+        expect(tlTransferEvents[0].transactionId).to.equal(tlTransferTxId)
+        expect(tlTransferEvents[0].from).to.equal(tl1.user.address)
+        expect(tlTransferEvents[0].to).to.equal(tl2.user.address)
+        expect(tlTransferEvents[0].direction).to.equal('sent')
+        expect(tlTransferEvents[0].address).to.equal(tl2.user.address)
+        expect((tlTransferEvents[0] as NetworkTransferEvent).networkAddress)
+          .to.equal(network2.address)
+        expect((tlTransferEvents[0] as NetworkTransferEvent).amount)
+          .to.have.keys('raw', 'decimals', 'value')
+
+        // events thrown on deposit
+        const depositEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === depositTxId
+        )
+        // check event Deposit
+        expect(depositEvents).to.have.length(1)
+        expect(depositEvents[0].type).to.equal('Deposit')
+        expect(depositEvents[0].timestamp).to.be.a('number')
+        expect(depositEvents[0].blockNumber).to.be.a('number')
+        expect(depositEvents[0].status).to.be.a('string')
+        expect(depositEvents[0].transactionId).to.equal(depositTxId)
+        expect(depositEvents[0].from).to.equal(tl1.user.address)
+        expect(depositEvents[0].to).to.equal(tl1.user.address)
+        expect((depositEvents[0] as TokenAmountEvent).tokenAddress)
+          .to.equal(ethWrapperAddress)
+        expect((depositEvents[0] as TokenAmountEvent).amount)
+          .to.have.keys('raw', 'decimals', 'value')
+
+        // events thrown on withdraw
+        const withdrawEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === withdrawTxId
+        )
+        // check event Withdraw
+        expect(withdrawEvents).to.have.length(1)
+        expect(withdrawEvents[0].type).to.equal('Withdrawal')
+        expect(withdrawEvents[0].timestamp).to.be.a('number')
+        expect(withdrawEvents[0].blockNumber).to.be.a('number')
+        expect(withdrawEvents[0].status).to.be.a('string')
+        expect(withdrawEvents[0].transactionId).to.equal(withdrawTxId)
+        expect(withdrawEvents[0].from).to.equal(tl1.user.address)
+        expect(withdrawEvents[0].to).to.equal(tl1.user.address)
+        expect((withdrawEvents[0] as TokenAmountEvent).tokenAddress)
+          .to.equal(ethWrapperAddress)
+        expect((withdrawEvents[0] as TokenAmountEvent).amount)
+          .to.have.keys('raw', 'decimals', 'value')
+
+        // events thrown on wrapped eth transfer
+        const wethTransferEvents = allEvents.filter(
+          ({ transactionId, type }) => transactionId === transferTxId && type === 'Transfer'
+        )
+        // check event Wrapped ETH Transfer
+        expect(wethTransferEvents).to.have.length(1)
+        expect(wethTransferEvents[0].type).to.equal('Transfer')
+        expect(wethTransferEvents[0].timestamp).to.be.a('number')
+        expect(wethTransferEvents[0].blockNumber).to.be.a('number')
+        expect(wethTransferEvents[0].status).to.be.a('string')
+        expect(wethTransferEvents[0].transactionId).to.equal(transferTxId)
+        expect(wethTransferEvents[0].from).to.equal(tl1.user.address)
+        expect(wethTransferEvents[0].to).to.equal(tl2.user.address)
+        expect(wethTransferEvents[0].direction).to.equal('sent')
+        expect(wethTransferEvents[0].address).to.equal(tl2.user.address)
+        expect((wethTransferEvents[0] as TokenAmountEvent).tokenAddress)
+          .to.equal(ethWrapperAddress)
+        expect((wethTransferEvents[0] as TokenAmountEvent).amount)
+          .to.have.keys('raw', 'decimals', 'value')
+
+        // events thrown on fill order
+        const fillEvents = allEvents.filter(
+          ({ transactionId, type }) => transactionId === fillTxId && type === 'LogFill'
+        )
+        // check event LogFill
+        expect(fillEvents).to.have.length(1)
+        expect(fillEvents[0].type).to.equal('LogFill')
+        expect(fillEvents[0].timestamp).to.be.a('number')
+        expect(fillEvents[0].blockNumber).to.be.a('number')
+        expect(fillEvents[0].status).to.be.a('string')
+        expect(fillEvents[0].transactionId).to.equal(fillTxId)
+        expect(fillEvents[0].from).to.equal(tl1.user.address)
+        expect(fillEvents[0].to).to.equal(tl2.user.address)
+        expect((fillEvents[0] as ExchangeFillEvent).exchangeAddress)
+          .to.equal(exchangeAddress)
+        expect((fillEvents[0] as ExchangeFillEvent).makerTokenAddress)
+          .to.equal(network1.address)
+        expect((fillEvents[0] as ExchangeFillEvent).takerTokenAddress)
+          .to.equal(network2.address)
+        expect((fillEvents[0] as ExchangeFillEvent).orderHash)
+          .to.equal(order.hash)
+        expect((fillEvents[0] as ExchangeFillEvent).filledMakerAmount)
+          .to.have.keys('raw', 'decimals', 'value')
+        expect((fillEvents[0] as ExchangeFillEvent).filledTakerAmount)
+          .to.have.keys('raw', 'decimals', 'value')
+
+        // events thrown on cancel order
+        const cancelEvents = allEvents.filter(
+          ({ transactionId, type }) => transactionId === cancelTxId && type === 'LogCancel'
+        )
+        // check event LogCancel
+        expect(cancelEvents).to.have.length(1)
+        expect(cancelEvents[0].type).to.equal('LogCancel')
+        expect(cancelEvents[0].timestamp).to.be.a('number')
+        expect(cancelEvents[0].blockNumber).to.be.a('number')
+        expect(cancelEvents[0].status).to.be.a('string')
+        expect(cancelEvents[0].transactionId).to.equal(cancelTxId)
+        expect(cancelEvents[0].from).to.equal(tl1.user.address)
+        expect(cancelEvents[0].to).to.equal(tl1.user.address)
+        expect((cancelEvents[0] as ExchangeCancelEvent).exchangeAddress)
+          .to.equal(exchangeAddress)
+        expect((cancelEvents[0] as ExchangeCancelEvent).makerTokenAddress)
+          .to.equal(network1.address)
+        expect((cancelEvents[0] as ExchangeCancelEvent).takerTokenAddress)
+          .to.equal(network2.address)
+        expect((cancelEvents[0] as ExchangeCancelEvent).orderHash)
+          .to.equal(order.hash)
+        expect((cancelEvents[0] as ExchangeCancelEvent).cancelledMakerAmount)
+          .to.have.keys('raw', 'decimals', 'value')
+        expect((cancelEvents[0] as ExchangeCancelEvent).cancelledTakerAmount)
+          .to.have.keys('raw', 'decimals', 'value')
       })
 
       it('should return trustline updates from more than one network', async () => {
@@ -98,6 +342,12 @@ describe('e2e', () => {
       let stream
 
       before(async () => {
+        // create new users
+        [user1, user2] = await createUsers([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
         stream = await tl1.event.updateStream().subscribe(event => events.push(event))
         const { rawTx } = await tl1.payment.prepare(network1.address, user2.address, 2.5)
         await tl1.payment.confirm(rawTx)
@@ -149,6 +399,12 @@ describe('e2e', () => {
       let stream
 
       before(async () => {
+        // create new users
+        [ user1, user2 ] = await createUsers([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
         stream = await tl2.event.updateStream().subscribe(event => events.push(event))
         const { rawTx } = await tl2.trustline.prepareUpdate(network1.address, user1.address, 4001, 4002)
         await tl2.trustline.confirm(rawTx)
