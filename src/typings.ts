@@ -117,15 +117,45 @@ export interface TokenAmountEventRaw extends TokenEvent {
   amount: string
 }
 
-export interface TokenAmountEvent extends TLEvent {
+export interface TokenAmountEvent extends TokenEvent {
   amount: Amount
 }
 
 export type AnyTokenEvent = TokenAmountEvent
 export type AnyTokenEventRaw = TokenAmountEventRaw
 
-export type AnyEvent = AnyNetworkEvent | AnyTokenEvent
-export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw
+export interface ExchangeEvent extends TLEvent {
+  exchangeAddress: string,
+  makerTokenAddress: string,
+  takerTokenAddress: string,
+  orderHash: string
+}
+
+export interface ExchangeFillEventRaw extends ExchangeEvent {
+  filledMakerAmount: string,
+  filledTakerAmount: string
+}
+
+export interface ExchangeFillEvent extends ExchangeEvent {
+  filledMakerAmount: Amount,
+  filledTakerAmount: Amount
+}
+
+export interface ExchangeCancelEventRaw extends ExchangeEvent {
+  cancelledMakerAmount: string,
+  cancelledTakerAmount: string
+}
+
+export interface ExchangeCancelEvent extends ExchangeEvent {
+  cancelledMakerAmount: Amount,
+  cancelledTakerAmount: Amount
+}
+
+export type AnyExchangeEvent = ExchangeFillEvent | ExchangeCancelEvent
+export type AnyExchangeEventRaw = ExchangeFillEventRaw | ExchangeCancelEventRaw
+
+export type AnyEvent = AnyNetworkEvent | AnyTokenEvent | AnyExchangeEvent
+export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw | AnyExchangeEventRaw
 
 // TRANSACTION
 export interface TxObject {
@@ -293,12 +323,12 @@ export interface OrderRaw {
   exchangeContractAddress: string
   feeRecipient: string
   expirationUnixTimestampSec: string,
-  filledMakerTokenAmount: string,
-  filledTakerTokenAmount: string,
-  cancelledMakerTokenAmount: string,
-  cancelledTakerTokenAmount: string,
-  availableMakerTokenAmount: string,
-  availableTakerTokenAmount: string
+  filledMakerTokenAmount?: string,
+  filledTakerTokenAmount?: string,
+  cancelledMakerTokenAmount?: string,
+  cancelledTakerTokenAmount?: string,
+  availableMakerTokenAmount?: string,
+  availableTakerTokenAmount?: string
 }
 
 export interface Orderbook {

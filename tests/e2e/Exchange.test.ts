@@ -4,6 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import { BigNumber } from 'bignumber.js'
 
 import { TLNetwork } from '../../src/TLNetwork'
+import { NetworkDetails } from '../../src/typings'
 import { config, keystore1, keystore2, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
@@ -32,14 +33,16 @@ describe('e2e', () => {
         tl1.exchange.getExAddresses(),
         tl1.currencyNetwork.getAll()
       ])
-      const [ makerToken, takerToken ] = await Promise.all([
-        tl1.currencyNetwork.getInfo(networks[0].address),
-        tl1.currencyNetwork.getInfo(networks[1].address)
-      ])
-      makerTokenAddress = makerToken.address
-      makerTokenDecimals = makerToken.decimals
-      takerTokenAddress = takerToken.address
-      takerTokenDecimals = takerToken.decimals
+      const networksWithInfo = await Promise.all(
+        networks.map(network => tl1.currencyNetwork.getInfo(network.address))
+      )
+      const [ makerToken, takerToken ] = networksWithInfo.filter(
+        n => (n as NetworkDetails).decimals === 2
+      )
+      makerTokenAddress = (makerToken as NetworkDetails).address
+      makerTokenDecimals = (makerToken as NetworkDetails).decimals
+      takerTokenAddress = (takerToken as NetworkDetails).address
+      takerTokenDecimals = (takerToken as NetworkDetails).decimals
       // make sure users have eth
       await Promise.all([
         tl1.user.requestEth(),
@@ -158,50 +161,143 @@ describe('e2e', () => {
       })
     })
 
-    describe.skip('#confirm() - TL money <-> TL money', () => {
+    describe('#confirm() - TL money <-> TL money', () => {
       let makerTLBefore
       let takerTLBefore
+      let order
+      let fillTxId
 
-      before(done => {
-        tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 1)
-          .then(order => latestOrder = order)
-          .then(() => Promise.all([
-            tl2.trustline.getAll(makerTokenAddress),
-            tl2.trustline.getAll(takerTokenAddress)
-          ])
-          .then(([ makerTrustlines, takerTrustlines ]) => {
-            makerTLBefore = makerTrustlines.find(tl => tl.address === tl1.user.address)
-            takerTLBefore = takerTrustlines.find(tl => tl.address === tl1.user.address)
-            done()
-          }))
-          .catch(e => done(e))
+      before(async () => {
+        order = await tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 1)
+        const trustlines = await Promise.all([
+          tl2.trustline.get(makerTokenAddress, tl1.user.address),
+          tl2.trustline.get(takerTokenAddress, tl1.user.address)
+        ])
+        makerTLBefore = trustlines[0]
+        takerTLBefore = trustlines[1]
       })
 
-      it('should confirm a signed fill order tx for TL money <-> TL money order', done => {
-        tl2.exchange.prepTakeOrder(latestOrder, 0.5)
-          .then(tx => tl2.exchange.confirm(tx.rawTx))
-          .then(txId => {
-            setTimeout(() => {
-              expect(txId).to.be.a('string')
-              Promise.all([
-                tl2.trustline.getAll(makerTokenAddress),
-                tl2.trustline.getAll(takerTokenAddress)
-              ]).then(([ makerTrustlines, takerTrustlines ]) => {
-                const makerTLAfter = makerTrustlines.find(tl => tl.address === tl1.user.address)
-                const takerTLAfter = takerTrustlines.find(tl => tl.address === tl1.user.address)
-                const makerBalanceDelta = Math.abs(
-                  parseInt(makerTLBefore.balance.raw, 10) - parseInt(makerTLAfter.balance.raw, 10)
-                )
-                const takerBalanceDelta = Math.abs(
-                  parseInt(takerTLBefore.balance.raw, 10) - parseInt(takerTLAfter.balance.raw, 10)
-                )
-                expect(makerTLAfter.balance.raw).to.be.above(0)
-                expect(takerTLAfter.balance.raw).to.be.below(0)
-                expect(makerBalanceDelta).to.equal(takerBalanceDelta)
-                done()
-              })
-            }, 3000)
-          })
+      it('should confirm a signed fill order tx for TL money <-> TL money order', async () => {
+        const { rawTx } = await tl2.exchange.prepTakeOrder(order, 0.5)
+        fillTxId = await tl2.exchange.confirm(rawTx)
+        await wait()
+        const trustlines = await Promise.all([
+          tl2.trustline.get(makerTokenAddress, tl1.user.address),
+          tl2.trustline.get(takerTokenAddress, tl1.user.address)
+        ])
+        const makerTLAfter = trustlines[0]
+        const takerTLAfter = trustlines[1]
+        const makerBalanceDelta = Math.abs(
+          new BigNumber(makerTLBefore.balance.raw).minus(makerTLAfter.balance.raw).toNumber()
+        )
+        const takerBalanceDelta = Math.abs(
+          new BigNumber(takerTLBefore.balance.raw).minus(takerTLAfter.balance.raw).toNumber()
+        )
+        expect(makerBalanceDelta).to.be.at.least(0.5)
+        expect(takerBalanceDelta).to.be.at.least(0.5)
+      })
+
+      it('should return LogFill event', async () => {
+        const logs = await tl1.exchange.getLogs(exchangeAddress)
+        const [ latestLogFill ] = logs.filter(({ transactionId }) => transactionId === fillTxId)
+        expect(latestLogFill.orderHash).to.equal(order.hash)
+      })
+    })
+
+    describe('#prepCancelOrder', () => {
+      let order
+      let txId
+
+      before(async () => {
+        order = await tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 1, 2)
+        const { rawTx } = await tl1.exchange.prepCancelOrder(order, 1)
+        txId = await tl1.exchange.confirm(rawTx)
+        await wait()
+      })
+
+      it('should return tx hash', async () => {
+        expect(txId).to.be.a('string')
+      })
+
+      it('should return LogCancel event', async () => {
+        const logs = await tl1.exchange.getLogs(exchangeAddress)
+        const latestLog = logs[logs.length - 1]
+        expect(latestLog.type).to.eq('LogCancel')
+        expect(latestLog.transactionId).to.eq(txId)
+        expect(latestLog.orderHash).to.eq(order.hash)
+      })
+    })
+
+    describe('#getLogs', () => {
+      const exEventKeys = [
+        'exchangeAddress',
+        'makerTokenAddress',
+        'takerTokenAddress',
+        'orderHash',
+        'type',
+        'timestamp',
+        'blockNumber',
+        'status',
+        'transactionId',
+        'from',
+        'to',
+        'direction'
+      ]
+      const fillEventKeys = exEventKeys.concat([
+        'filledMakerAmount',
+        'filledTakerAmount'
+      ])
+      const cancelEventKeys = exEventKeys.concat([
+        'cancelledMakerAmount',
+        'cancelledTakerAmount'
+      ])
+      let order
+      let fillTxId
+      let cancelTxId
+
+      before(async () => {
+        order = await tl1.exchange.makeOrder(exchangeAddress, makerTokenAddress, takerTokenAddress, 3, 3)
+        const [ fillTx, cancelTx ] = await Promise.all([
+          tl2.exchange.prepTakeOrder(order, 1),
+          tl1.exchange.prepCancelOrder(order, 1)
+        ])
+        const txIds = await Promise.all([
+          tl2.exchange.confirm(fillTx.rawTx),
+          tl1.exchange.confirm(cancelTx.rawTx)
+        ])
+        fillTxId = txIds[0]
+        cancelTxId = txIds[1]
+        await wait()
+      })
+
+      it('should return all exchange events', async () => {
+        const events = await tl1.exchange.getLogs(exchangeAddress)
+        const filteredEvents = events.filter(e => e.orderHash === order.hash)
+        const [ fillEvent ] = filteredEvents.filter(e => e.type === 'LogFill')
+        const [ cancelEvent ] = filteredEvents.filter(e => e.type === 'LogCancel')
+        expect(filteredEvents).to.have.length(2)
+        expect(fillEvent).to.have.keys(fillEventKeys)
+        expect(fillEvent.transactionId).to.equal(fillTxId)
+        expect(cancelEvent).to.have.keys(cancelEventKeys)
+        expect(cancelEvent.transactionId).to.equal(cancelTxId)
+      })
+
+      it('should return LogFill events', async () => {
+        const fillEvents = await tl1.exchange.getLogs(exchangeAddress, { type: 'LogFill' })
+        const filteredEvents = fillEvents.filter(e => e.orderHash === order.hash)
+        expect(filteredEvents).to.have.length(1)
+        expect(filteredEvents[0]).to.have.keys(fillEventKeys)
+        expect(filteredEvents[0].type).to.equal('LogFill')
+        expect(filteredEvents[0].transactionId).to.equal(fillTxId)
+      })
+
+      it('should return LogCancel events', async () => {
+        const cancelEvents = await tl1.exchange.getLogs(exchangeAddress, { type: 'LogCancel' })
+        const filteredEvents = cancelEvents.filter(e => e.orderHash === order.hash)
+        expect(filteredEvents).to.have.length(1)
+        expect(filteredEvents[0]).to.have.keys(cancelEventKeys)
+        expect(filteredEvents[0].type).to.equal('LogCancel')
+        expect(filteredEvents[0].transactionId).to.equal(cancelTxId)
       })
     })
 
