@@ -285,10 +285,7 @@ export class Exchange {
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
     const rawEvents = await _utils.fetchUrl<AnyExchangeEventRaw[]>(parameterUrl)
     const formattedEvents = await _event.setDecimalsAndFormat(rawEvents)
-    return formattedEvents.map(e => ({
-      ...e,
-      orderHash: e.orderHash.toLowerCase()
-    }))
+    return formattedEvents
   }
 
   private async _getPathObj (

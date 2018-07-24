@@ -116,7 +116,7 @@ export interface TokenAmountEventRaw extends TokenEvent {
   amount: string
 }
 
-export interface TokenAmountEvent extends TLEvent {
+export interface TokenAmountEvent extends TokenEvent {
   amount: Amount
 }
 
