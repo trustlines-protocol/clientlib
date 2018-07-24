@@ -20,6 +20,27 @@ export const user2 = {
   keystore: keystore2
 }
 
+export function createUsers (tlInstances) {
+  return Promise.all(tlInstances.map(tl => tl.user.create()))
+}
+
+export function requestEth (tlInstances) {
+  return Promise.all(tlInstances.map(tl => tl.user.requestEth()))
+}
+
+export async function setTrustlines (networkAddress, tl1, tl2, given, received) {
+  const [ tx1, tx2 ] = await Promise.all([
+    tl1.trustline.prepareUpdate(networkAddress, tl2.user.address, given, received),
+    tl2.trustline.prepareUpdate(networkAddress, tl1.user.address, received, given)
+  ])
+  await Promise.all([
+    tl1.trustline.confirm(tx1.rawTx),
+    tl2.trustline.confirm(tx2.rawTx)
+  ])
+  await wait()
+  return
+}
+
 export function wait (ms = 2000) {
   return new Promise(resolve => setTimeout(() => resolve(), ms))
 }
