@@ -11,7 +11,13 @@ import {
   ExchangeCancelEvent,
   NetworkDetails
 } from '../../src/typings'
-import { config, keystore1, keystore2, wait } from '../Fixtures'
+import {
+  config,
+  createUsers,
+  requestEth,
+  setTrustlines,
+  wait
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -29,19 +35,15 @@ describe('e2e', () => {
     let exchangeAddress
 
     before(async () => {
-      // fetch networks and load users
+      // fetch networks and use only networks with 2 decimals
       [
         networks,
         [ ethWrapperAddress ],
-        [ exchangeAddress ],
-        user1,
-        user2
+        [ exchangeAddress ]
       ] = await Promise.all([
         tl1.currencyNetwork.getAll(),
         tl1.ethWrapper.getAddresses(),
-        tl1.exchange.getExAddresses(),
-        tl1.user.load(keystore1),
-        tl2.user.load(keystore2)
+        tl1.exchange.getExAddresses()
       ])
       const networksWithDetails = await Promise.all(
         networks.map(n => tl1.currencyNetwork.getInfo(n.address))
@@ -51,23 +53,17 @@ describe('e2e', () => {
       )
       network1 = networksWith2Decimals[0]
       network2 = networksWith2Decimals[1]
-      // make sure users have ETH
-      await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
-      // set up trustlines
-      const [ tx1, tx2 ] = await Promise.all([
-        tl1.trustline.prepareUpdate(network1.address, user2.address, 1000, 500),
-        tl2.trustline.prepareUpdate(network1.address, user1.address, 500, 1000)
-      ])
-      await Promise.all([
-        tl1.trustline.confirm(tx1.rawTx),
-        tl2.trustline.confirm(tx2.rawTx)
-      ])
-      // wait for tx to be mined
-      await wait()
     })
 
     describe('#get()', () => {
       before(async () => {
+        // create new users
+        [ user1, user2 ] = await createUsers([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
+        // trustline transfer
         const { rawTx } = await tl1.payment.prepare(network1.address, user2.address, 1.5)
         await tl1.payment.confirm(rawTx)
         await wait()
@@ -102,6 +98,13 @@ describe('e2e', () => {
       let order
 
       before(async () => {
+        // create new users
+        [ user1, user2 ] = await createUsers([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
+
         // CurrencyNetwork events
         const updateTx = await tl1.trustline.prepareUpdate(network2.address, user2.address, 1000, 500)
         updateTxId = await tl1.trustline.confirm(updateTx.rawTx)
@@ -112,6 +115,7 @@ describe('e2e', () => {
         const tlTransferTx = await tl1.payment.prepare(network2.address, user2.address, 1)
         tlTransferTxId = await tl1.payment.confirm(tlTransferTx.rawTx)
         await wait()
+
         // Token events
         const depositTx = await tl1.ethWrapper.prepDeposit(ethWrapperAddress, 0.005)
         depositTxId = await tl1.ethWrapper.confirm(depositTx.rawTx)
@@ -122,6 +126,7 @@ describe('e2e', () => {
         const transferTx = await tl1.ethWrapper.prepTransfer(ethWrapperAddress, tl2.user.address, 0.002)
         transferTxId = await tl1.ethWrapper.confirm(transferTx.rawTx)
         await wait()
+
         // Exchange events
         order = await tl1.exchange.makeOrder(
           exchangeAddress,
@@ -152,14 +157,14 @@ describe('e2e', () => {
         )
         // check event TrustlineUpdateRequest
         expect(updateRequestEvents).to.have.length(1)
-        expect(updateRequestEvents[0].type)
-          // TODO: find out why relay sometimes returns `TrustlineUpdate` instead of `TrustlineUpdateRequest`
-          .to.satisfy(() => 'TrustlineUpdateRequest' || 'TrustlineUpdate')
+        expect(updateRequestEvents[0].type).to.equal('TrustlineUpdateRequest')
         expect(updateRequestEvents[0].timestamp).to.be.a('number')
         expect(updateRequestEvents[0].blockNumber).to.be.a('number')
         expect(updateRequestEvents[0].status).to.be.a('string')
         expect(updateRequestEvents[0].transactionId).to.equal(updateTxId)
         expect(updateRequestEvents[0].direction).to.equal('sent')
+        expect(updateRequestEvents[0].from).to.equal(tl1.user.address)
+        expect(updateRequestEvents[0].to).to.equal(tl2.user.address)
         expect(updateRequestEvents[0].address).to.equal(tl2.user.address)
         expect((updateRequestEvents[0] as NetworkTrustlineEvent).networkAddress)
           .to.equal(network2.address)
@@ -179,7 +184,9 @@ describe('e2e', () => {
         expect(updateEvents[0].blockNumber).to.be.a('number')
         expect(updateEvents[0].status).to.be.a('string')
         expect(updateEvents[0].transactionId).to.equal(acceptTxId)
-        expect(updateEvents[0].direction).to.equal('received')
+        expect(updateEvents[0].direction).to.equal('sent')
+        expect(updateEvents[0].from).to.equal(tl1.user.address)
+        expect(updateEvents[0].to).to.equal(tl2.user.address)
         expect(updateEvents[0].address).to.equal(tl2.user.address)
         expect((updateEvents[0] as NetworkTrustlineEvent).networkAddress)
           .to.equal(network2.address)
@@ -335,6 +342,12 @@ describe('e2e', () => {
       let stream
 
       before(async () => {
+        // create new users
+        [user1, user2] = await createUsers([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
         stream = await tl1.event.updateStream().subscribe(event => events.push(event))
         const { rawTx } = await tl1.payment.prepare(network1.address, user2.address, 2.5)
         await tl1.payment.confirm(rawTx)
@@ -386,6 +399,12 @@ describe('e2e', () => {
       let stream
 
       before(async () => {
+        // create new users
+        [ user1, user2 ] = await createUsers([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
         stream = await tl2.event.updateStream().subscribe(event => events.push(event))
         const { rawTx } = await tl2.trustline.prepareUpdate(network1.address, user1.address, 4001, 4002)
         await tl2.trustline.confirm(rawTx)
