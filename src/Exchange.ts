@@ -28,8 +28,8 @@ import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 import * as ethABI from 'ethereumjs-abi'
 
-const CURRENCY_NETWORK_ADDRESS = 'CurrencyNetwork'
-const TOKEN_ADDRESS = 'Token'
+const CURRENCY_NETWORK = 'CurrencyNetwork'
+const TOKEN = 'Token'
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 /**
@@ -469,13 +469,13 @@ export class Exchange {
       const { makerTokenAddress, takerTokenAddress } = order
       if (!result[makerTokenAddress]) {
         result[makerTokenAddress] = this._currencyNetwork.isNetwork(makerTokenAddress)
-          ? CURRENCY_NETWORK_ADDRESS
-          : TOKEN_ADDRESS
+          ? CURRENCY_NETWORK
+          : TOKEN
       }
       if (!result[takerTokenAddress]) {
         result[takerTokenAddress] = this._currencyNetwork.isNetwork(takerTokenAddress)
-          ? CURRENCY_NETWORK_ADDRESS
-          : TOKEN_ADDRESS
+          ? CURRENCY_NETWORK
+          : TOKEN
       }
       return result
     }, {})
