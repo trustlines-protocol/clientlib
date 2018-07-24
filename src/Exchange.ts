@@ -167,7 +167,7 @@ export class Exchange {
       ecSignature
     }
     await this._postRequest('exchange/order', signedOrderRaw)
-    return this._formatRawOrder(signedOrderRaw, makerDecimals, takerDecimals)
+    return this._formatOrderRaw(signedOrderRaw, makerDecimals, takerDecimals)
   }
 
   public async prepTakeOrder (
