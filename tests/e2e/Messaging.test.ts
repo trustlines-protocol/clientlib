@@ -43,7 +43,8 @@ describe('e2e', () => {
         expect(messages[1].timestamp).to.be.a('number')
         expect(messages[1]).to.have.property('from', user2.address)
         expect(messages[1]).to.have.property('to', user1.address)
-        expect(messages[1]).to.have.property('address', user2.address)
+        expect(messages[1]).to.have.property('counterParty', user2.address)
+        expect(messages[1]).to.have.property('user', user1.address)
         expect(messages[1]).to.have.property('direction', 'received')
       })
 

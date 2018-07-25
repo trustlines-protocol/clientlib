@@ -27,7 +27,8 @@ export class Messaging {
               "from": "${this.user.address}",
               "to": "${user}",
               "direction": "received",
-              "address": "${this.user.address}",
+              "user": "${user}",
+              "counterParty": "${this.user.address}",
               "amount": "${this.utils.calcRaw(value, dec).toString()}"
               }`
           })
