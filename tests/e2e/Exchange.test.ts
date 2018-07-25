@@ -23,15 +23,17 @@ describe('e2e', () => {
     let makerTokenDecimals
     let takerTokenAddress
     let takerTokenDecimals
+    let unwEthAddress
     let latestOrder
 
     before(async () => {
       // load users, set exchange address and maker, taker tokens
-      [ user1, user2, [ exchangeAddress ], networks ] = await Promise.all([
+      [ user1, user2, [ exchangeAddress ], networks, [ unwEthAddress ] ] = await Promise.all([
         tl1.user.load(keystore1),
         tl2.user.load(keystore2),
         tl1.exchange.getExAddresses(),
-        tl1.currencyNetwork.getAll()
+        tl1.currencyNetwork.getAll(),
+        tl1.ethWrapper.getAddresses()
       ])
       const networksWithInfo = await Promise.all(
         networks.map(network => tl1.currencyNetwork.getInfo(network.address))
@@ -132,6 +134,60 @@ describe('e2e', () => {
           ...returnedOrder,
           hash: madeOrder.hash
         }).to.deep.equal(madeOrder)
+      })
+    })
+
+    describe('getOrders()', () => {
+      const makerTokenValue = 100
+      const takerTokenValue = 200
+      let madeOrder1
+      let madeOrder2
+
+      before(async () => {
+        madeOrder1 = await tl1.exchange.makeOrder(
+          exchangeAddress,
+          makerTokenAddress,
+          takerTokenAddress,
+          makerTokenValue,
+          takerTokenValue
+        )
+        madeOrder2 = await tl2.exchange.makeOrder(
+          exchangeAddress,
+          takerTokenAddress,
+          makerTokenAddress,
+          takerTokenValue,
+          makerTokenValue
+        )
+      })
+
+      it('should return 2 already created orders', async () => {
+        const allOrders = await tl1.exchange.getOrders()
+        const filteredOrders = allOrders.filter(({ hash }) =>
+          hash === madeOrder1.hash || hash === madeOrder2.hash
+        )
+        expect(filteredOrders.length).to.equal(2)
+      })
+
+      it('should return only orders of specific user', async () => {
+        const ordersOfUser1 = await tl1.exchange.getOrders({
+          maker: tl1.user.address
+        })
+        const filteredOrders = ordersOfUser1.filter(({ hash }) =>
+          hash === madeOrder1.hash
+        )
+        expect(filteredOrders.length).to.equal(1)
+      })
+
+      it('should return one order', async () => {
+        const order1 = await tl1.exchange.getOrders({
+          exchangeContractAddress: exchangeAddress,
+          tokenAddress: makerTokenAddress,
+          trader: tl1.user.address
+        })
+        const filteredOrders = order1.filter(({ hash }) =>
+          hash === madeOrder1.hash
+        )
+        expect(filteredOrders.length).to.equal(1)
       })
     })
 
