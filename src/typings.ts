@@ -160,6 +160,7 @@ export type AnyExchangeEventRaw = ExchangeFillEventRaw | ExchangeCancelEventRaw
 
 export type AnyEvent = AnyNetworkEvent | AnyTokenEvent | AnyExchangeEvent
 export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw | AnyExchangeEventRaw
+export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
 
 // TRANSACTION
 export interface TxObject {
@@ -189,7 +190,30 @@ export interface FunctionCallData {
   args: string[]
 }
 
-export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
+export interface Web3TxReceipt {
+  status: boolean,
+  blockHash: string,
+  blockNumber: number,
+  transactionHash: string,
+  transactionIndex: number,
+  from: string,
+  to: string,
+  contractAddress: string,
+  cumulativeGasUsed: number,
+  gasUsed: number,
+  logs: Web3Log[]
+}
+
+export interface Web3Log {
+  address: string,
+  data: string,
+  topics: string[],
+  logIndex: number,
+  transactionIndex: number,
+  transactionHash: string,
+  blockHash: string,
+  blockNumber: number
+}
 
 /**
  * Information for creating an ethereum transaction of a given user address
