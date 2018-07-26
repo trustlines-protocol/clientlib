@@ -156,7 +156,7 @@ export class Exchange {
   }
 
   /**
-   * Creates an order and posts it to the relay server. If successfull, the method returns the created order.
+   * Creates an order and posts it to the relay server. If successful, the method returns the created order.
    * @param exchangeContractAddress Address of exchange contract.
    * @param makerTokenAddress Address of token the maker (loaded user) is offering.
    * @param takerTokenAddress Address of token the maker (loaded user) is requesting from the taker.

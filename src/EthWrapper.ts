@@ -51,7 +51,7 @@ export class EthWrapper {
   }
 
   /**
-   * Prepares an ethereum transaction object for transffering wrapped ETH where the
+   * Prepares an ethereum transaction object for transferring wrapped ETH where the
    * loaded user is the sender.
    * @param ethWrapperAddress Address of ETH wrapper contract.
    * @param receiverAddress Address of receiver of transfer.
@@ -92,7 +92,7 @@ export class EthWrapper {
    * Prepares an ethereum transaction object for depositing/wrapping ETH.
    * @param ethWrapperAddress Address of ETH wrapper contract.
    * @param value Amount of ETH to deposit/wrap.
-   * @param options Tansaction options. See `TxOptions` for more information.
+   * @param options Transaction options. See `TxOptions` for more information.
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
