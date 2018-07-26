@@ -1,7 +1,7 @@
 
 import { TxSigner } from './TxSigner'
 
-import { TxInfos, RawTxObject } from '../typings'
+import { TxInfos, RawTxObject, Web3TxReceipt } from '../typings'
 
 import { BigNumber } from 'bignumber.js'
 
@@ -19,7 +19,7 @@ export class Web3Signer implements TxSigner {
    * Signs a transaction using the web3 provider.
    * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx: RawTxObject): Promise<string> {
+  public async confirm (rawTx: RawTxObject): Promise<Web3TxReceipt> {
     const { functionCallData } = rawTx
     if (rawTx.functionCallData) {
       rawTx = {
@@ -41,7 +41,7 @@ export class Web3Signer implements TxSigner {
    * Returns needed information for creating an ethereum transaction.
    * @param userAddress address of user creating the transaction
    * @returns Information for creating an ethereum transaction for the given user address.
-   *          See tyoe `TxInfos` for more details.
+   *          See type `TxInfos` for more details.
    */
   public async getTxInfos (userAddress: string): Promise<TxInfos> {
     const [ gasPrice, nonce, balance ] = await Promise.all([
