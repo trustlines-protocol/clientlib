@@ -35,10 +35,12 @@ export class Event {
   }
 
   /**
+   * @hidden
    * Returns event logs of loaded user in a specified currency network.
    * @param networkAddress Address of a currency network.
-   * @param type Type of event `TrustlineUpdateRequest`, `TrustlineUpdate` or `Transfer`.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
+   * @param filter.type Available event types are `Transfer`, `TrustlineUpdateRequest` and `TrustlineUpdate`.
+   * @param filter.fromBlock Start of block range for event logs.
    */
   public async get<T> (
     networkAddress: string,
@@ -57,6 +59,11 @@ export class Event {
   /**
    * Returns event logs of loaded user in all currency networks.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
+   * @param filter.type Available event types are:
+   *                    CurrencyNetwork -> `Transfer`, `TrustlineUpdateRequest` and `TrustlineUpdate`
+   *                    EthWrapper -> `Transfer`, `Deposit` and `Withdrawal`
+   *                    Exchange -> `LogFill` and `LogCancel`
+   * @param filter.fromBlock Start of block range for event logs.
    */
   public async getAll (filter: EventFilterOptions = {}): Promise<AnyEvent[]> {
     const { _user, _utils } = this

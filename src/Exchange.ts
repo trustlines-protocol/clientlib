@@ -7,6 +7,7 @@ import { Payment } from './Payment'
 import {
   ExchangeOptions,
   ExchangeTx,
+  ExchangeTxOptions,
   Order,
   OrderRaw,
   Orderbook,
@@ -60,10 +61,22 @@ export class Exchange {
     this._payment = payment
   }
 
+  /**
+   * Returns all known exchange contract addresses.
+   */
   public getExAddresses (): Promise<string[]> {
     return this._utils.fetchUrl<string[]>('exchange/exchanges')
   }
 
+  /**
+   * Returns a specific order by its hash.
+   * @param orderHash keccak-256 hash of order.
+   * @param options See `OrderOptions` for more details.
+   * @param options.makerTokenDecimals Decimals of maker token can be provided manually.
+   *                                   NOTE: If maker token is NOT a currency network, then decimals have to be explicitly given.
+   * @param options.takerTokenDecimals Decimals of taker token can be provided manually.
+   *                                   NOTE: If taker token is NOT a currency network, then decimals have to be explicitly given.
+   */
   public async getOrderByHash (
     orderHash: string,
     options: OrderOptions = {}
@@ -78,6 +91,17 @@ export class Exchange {
     return this._formatOrderRaw(order, makerDecimals, takerDecimals)
   }
 
+  /**
+   * Returns orders that match given query parameters.
+   * @param query See `OrdersQuery` for more information.
+   * @param query.exchangeContractAddress Orders for this exchange address.
+   * @param query.tokenAddress Orders where `makerTokenAddress` or `takerTokenAddress` is `tokenAddress`.
+   * @param query.makerTokenAddress Orders with specified makerTokenAddress.
+   * @param query.takerTokenAddress Orders with specified takerTokenAddress.
+   * @param query.maker Orders with specified maker address.
+   * @param query.taker Orders with specified taker address.
+   * @param query.trader Orders where `maker` or `taker` is `trader`.
+   */
   public async getOrders (query: OrdersQuery = {}): Promise<SignedOrder[]> {
     const { _event, _utils } = this
     const queryEndpoint = _utils.buildUrl('exchange/orders', {
@@ -100,6 +124,16 @@ export class Exchange {
     ))
   }
 
+  /**
+   * Returns the orderbook for a given token pair.
+   * @param baseTokenAddress Address of base token.
+   * @param quoteTokenAddress Address of quote token.
+   * @param options See `OrderbookOptions` for more details.
+   * @param options.baseTokenDecimals Decimals of base token can be provided manually.
+   *                                  NOTE: If base token is NOT a currency network, then decimals have to be explicitly given.
+   * @param options.quoteTokenDecimals Decimals of quote token can be provided manually.
+   *                                   NOTE: If quote token is NOT a currency network, then decimals have to be explicitly given.
+   */
   public async getOrderbook (
     baseTokenAddress: string,
     quoteTokenAddress: string,
@@ -121,6 +155,20 @@ export class Exchange {
     }
   }
 
+  /**
+   * Creates an order and posts it to the relay server. If successful, the method returns the created order.
+   * @param exchangeContractAddress Address of exchange contract.
+   * @param makerTokenAddress Address of token the maker (loaded user) is offering.
+   * @param takerTokenAddress Address of token the maker (loaded user) is requesting from the taker.
+   * @param makerTokenValue Amount of token the maker (loaded user) is offering.
+   * @param takerTokenValue Amount of token the maker (loaded user) is requesting from the taker.
+   * @param options See `ExchangeOptions` for more information.
+   * @param options.makerTokenDecimals Decimals of maker token can be provided manually.
+   *                                   NOTE: If maker token is NOT a currency network, then decimals have to be explicitly given.
+   * @param options.takerTokenDecimals Decimals of taker token can be provided manually.
+   *                                   NOTE: If taker token is NOT a currency network, then decimals have to be explicitly given.
+   * @param options.expirationUnixTimestampSec Date on when the order will expire in UNIX time.
+   */
   public async makeOrder (
     exchangeContractAddress: string,
     makerTokenAddress: string,
@@ -170,10 +218,22 @@ export class Exchange {
     return this._formatOrderRaw(signedOrderRaw, makerDecimals, takerDecimals)
   }
 
+  /**
+   * Prepares an ethereum transaction object for taking an order.
+   * @param signedOrder The order to take as returned by `getOrderbook`, `getOrders` or `getOrderByHash`.
+   * @param fillTakerTokenValue Amount of tokens the taker (loaded user) wants to fill.
+   * @param options See `ExchangeTxOptions` for more information.
+   * @param options.gasLimit Custom gas limit.
+   * @param options.gasPrice Custom gas price.
+   * @param options.makerTokenDecimals Decimals of maker token can be provided manually.
+   *                                   NOTE: If maker token is NOT a currency network, then decimals have to be explicitly given.
+   * @param options.takerTokenDecimals Decimals of taker token can be provided manually.
+   *                                   NOTE: If taker token is NOT a currency network, then decimals have to be explicitly given.
+   */
   public async prepTakeOrder (
     signedOrder: SignedOrder,
     fillTakerTokenValue: number | string,
-    options: ExchangeOptions = {}
+    options: ExchangeTxOptions = {}
   ): Promise<ExchangeTx> {
     const {
       exchangeContractAddress,
@@ -250,10 +310,22 @@ export class Exchange {
     }
   }
 
+  /**
+   * Prepares an ethereum transaction for cancelling an order.
+   * @param signedOrder The order to cancel as returned by `getOrderbook`, `getOrders` or `getOrderByHash`.
+   * @param cancelTakerTokenValue Amount of tokens the maker (loaded user) wants to cancel.
+   * @param options See `ExchangeTxOptions` for more information.
+   * @param options.gasLimit Custom gas limit.
+   * @param options.gasPrice Custom gas price.
+   * @param options.makerTokenDecimals Decimals of maker token can be provided manually.
+   *                                   NOTE: If maker token is NOT a currency network, then decimals have to be explicitly given.
+   * @param options.takerTokenDecimals Decimals of taker token can be provided manually.
+   *                                   NOTE: If taker token is NOT a currency network, then decimals have to be explicitly given.
+   */
   public async prepCancelOrder (
     signedOrder: SignedOrder,
     cancelTakerTokenValue: number | string,
-    options: ExchangeOptions = {}
+    options: ExchangeTxOptions = {}
   ): Promise<TxObject> {
     const {
       exchangeContractAddress,
@@ -292,11 +364,23 @@ export class Exchange {
     }
   }
 
+  /**
+   * Signs a raw transaction as returned by `prepCancelOrder` or `prepFillOrder`
+   * and relays the signed transaction.
+   * @param rawTx RLP encoded hex string defining the transaction.
+   */
   public async confirm (rawTx: string): Promise<string> {
     const signedTx = await this._user.signTx(rawTx)
     return this._transaction.relayTx(signedTx)
   }
 
+  /**
+   * Returns event logs of the Exchange contract for the loaded user.
+   * @param exchangeAddress Address of Exchange contract.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
+   * @param filter.type Available event types are `LogFill` and `LogCancel`.
+   * @param filter.fromBlock Start of block range for event logs.
+   */
   public async getLogs (
     exchangeAddress: string,
     filter: EventFilterOptions = {}
@@ -309,6 +393,16 @@ export class Exchange {
     return formattedEvents
   }
 
+  /**
+   * Returns a path for a transfer and an empty path if given token address is not a currency network.
+   * @param tokenAddress Address of token.
+   * @param from Address of sender of transfer.
+   * @param to Address of receiver of transfer.
+   * @param value Amount to transfer.
+   * @param options See `TLOptions` for more information.
+   * @param options.decimals Decimals of token can be provided manually.
+   *                         NOTE: If token address is NOT a currency network, then decimals have to be explicit.
+   */
   private async _getPathObj (
     tokenAddress: string,
     from: string,
@@ -335,6 +429,11 @@ export class Exchange {
     }
   }
 
+  /**
+   * Helper function to retrieve all addresses of a given order and return them as an array:
+   * `[ makerAddress, takerAddress, makerTokenAddress, takerTokenAddress, feeRecipientAddress ]`
+   * @param order Order object to retrieve addresses from.
+   */
   private _getOrderAddresses (order: Order): Array<string> {
     return [
       order.maker,
@@ -345,6 +444,11 @@ export class Exchange {
     ]
   }
 
+  /**
+   * Helper function to retrieve all values of a given order and return them as an array.
+   * `[ makerTokenAmount, takerTokenAmount, makeFee, takerFee, expirationUnixTimestampSec, salt ]`
+   * @param order Order object to retrieve values from.
+   */
   private _getOrderValues (order: Order): string[] {
     return [
       this._utils.convertToHexString(new BigNumber(order.makerTokenAmount.raw)),
@@ -356,6 +460,12 @@ export class Exchange {
     ]
   }
 
+  /**
+   * Calculates partial value given a numerator and denominator.
+   * @param numerator Numerator.
+   * @param denominator Denominator.
+   * @param target Target to calculate partial of.
+   */
   private _getPartialAmount (
     numerator: number | string,
     denominator: number | string,
@@ -367,6 +477,10 @@ export class Exchange {
     return bnNumerator.times(bnTarget).dividedBy(bnDenominator).toNumber()
   }
 
+  /**
+   * Returns fees of a given order.
+   * @param order Unformatted Order object as returned by relay.
+   */
   private _getFees (order: OrderRaw): Promise<OrderRaw> {
     // NOTE: Fees are disabled for now
     return Promise.resolve({
@@ -377,6 +491,11 @@ export class Exchange {
     })
   }
 
+  /**
+   * Sends a POST request to given `path` with given `payload`.
+   * @param path Endpoint to send request to.
+   * @param payload Body of POST request.
+   */
   private _postRequest (path: string, payload: any): Promise<any> {
     return this._utils.fetchUrl(path, {
       method: 'POST',
@@ -385,6 +504,10 @@ export class Exchange {
     })
   }
 
+  /**
+   * Return keccak-256 hash of given order.
+   * @param order Order object.
+   */
   private _getOrderHashHex (order: OrderRaw | SignedOrderRaw): string {
     const orderParts = [
       {
@@ -442,6 +565,12 @@ export class Exchange {
     return ethUtils.bufferToHex(hashBuff)
   }
 
+  /**
+   * Formats number values of given order to Amount objects and calculates the hash of given order.
+   * @param signedOrderRaw Signed order object unformatted.
+   * @param makerDecimals Decimals of maker token.
+   * @param takerDecimals Decimals of taker token.
+   */
   private _formatOrderRaw (
     signedOrderRaw: SignedOrderRaw,
     makerDecimals: number,
@@ -464,6 +593,11 @@ export class Exchange {
     }
   }
 
+  /**
+   * Helper function for filtering all unique addresses from an array of orders.
+   * It also maps the unique addresses to whether it is a currency network or a token.
+   * @param orders Unformatted orders as returned by the relay.
+   */
   private _getUniqueTokenAddresses (orders: OrderRaw[]): object {
     return orders.reduce((result, order) => {
       const { makerTokenAddress, takerTokenAddress } = order

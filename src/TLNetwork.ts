@@ -55,17 +55,20 @@ export class TLNetwork {
    */
   public utils: Utils
   /**
-   * Event instance for retrieving event logs.
+   * Event instance for retrieving and formatting event logs.
    */
   public event: Event
   /**
-   * @hidden
+   * Exchange instance containing all methods for making and taking orders.
    */
   public exchange: Exchange
   /**
    * @hidden
    */
   public messaging: Messaging
+  /**
+   * EthWrapper instance for wrapping and unwrapping ETH.
+   */
   public ethWrapper: EthWrapper
 
   /**
