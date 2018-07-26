@@ -4,7 +4,7 @@ import { Web3Signer } from '../../src/signers/Web3Signer'
 import { FakeWeb3Provider } from '../helpers/FakeWeb3Provider'
 import { BigNumber } from 'bignumber.js'
 
-describe.only('unit', () => {
+describe('unit', () => {
   describe('Web3Signer', () => {
     // test object
     let web3Signer: Web3Signer
