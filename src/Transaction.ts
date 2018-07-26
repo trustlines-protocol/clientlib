@@ -54,7 +54,7 @@ export class Transaction {
       gasLimit: options.gasLimit || new BigNumber(600000),
       value: options.value || new BigNumber(0),
       nonce: nonce,
-      to: contractAddress.toLowerCase(),
+      to: contractAddress,
       from: userAddress,
       functionCallData: {
         abi: CONTRACTS[ contractName ].abi,
@@ -90,7 +90,7 @@ export class Transaction {
       gasLimit: options.gasLimit || new BigNumber(21000),
       value: rawValue,
       nonce: txInfos.nonce,
-      to: receiverAddress.toLowerCase(),
+      to: receiverAddress,
       from: senderAddress
     }
     const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
@@ -115,6 +115,7 @@ export class Transaction {
   public setSigner (signer: TxSigner) {
     this._signer = signer
   }
+
   /**
    * Returns the latest block number of the underlying blockchain.
    */

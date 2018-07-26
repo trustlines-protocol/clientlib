@@ -33,9 +33,13 @@ export class LightwalletSigner implements TxSigner {
     let rlpTx
     const txOptions = {
       ...rawTx,
+      from: rawTx.from.toLowerCase(),
       gasPrice: this._utils.convertToHexString(rawTx.gasPrice),
       gasLimit: this._utils.convertToHexString(rawTx.gasLimit),
       value: this._utils.convertToHexString(rawTx.value)
+    }
+    if (txOptions.to) {
+      txOptions.to = txOptions.to.toLowerCase()
     }
     if (rawTx.functionCallData) {
       rlpTx = lightwallet.txutils.functionTx(
