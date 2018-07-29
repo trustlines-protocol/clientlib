@@ -2,6 +2,7 @@ import * as lightwallet from 'eth-lightwallet'
 // declare let lightwallet
 import * as ethUtils from 'ethereumjs-util'
 
+import { TxSigner } from './signers/TxSigner'
 import { Utils } from './Utils'
 import {
   Amount,
@@ -27,21 +28,18 @@ export class User {
    */
   public keystore: any
 
+  private _signer: TxSigner
   private _utils: Utils
-  private _web3: any
 
   private _password = 'ts'
   private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
 
   constructor (
-    utils: Utils,
-    web3: any
+    signer: TxSigner,
+    utils: Utils
   ) {
+    this._signer = signer
     this._utils = utils
-    this._web3 = web3
-    if (this._web3.currentProvider) {
-      this.loadWeb3Account()
-    }
   }
 
   /**
@@ -81,14 +79,6 @@ export class User {
       address: this.address,
       keystore: this.keystore.serialize(),
       pubKey: this.pubKey
-    }
-  }
-
-  public async loadWeb3Account (): Promise<void> {
-    if (this._web3.eth.defaultAccount) {
-      this.address = this._web3.eth.defaultAccount
-    } else {
-      [ this.address ] = await this._web3.eth.getAccounts()
     }
   }
 
