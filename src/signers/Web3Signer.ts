@@ -1,7 +1,14 @@
 
 import { TxSigner } from './TxSigner'
 
-import { TxInfos, RawTxObject, Web3TxReceipt } from '../typings'
+import {
+  TxInfos,
+  RawTxObject,
+  Web3TxReceipt,
+  UserObject,
+  Signature,
+  Amount
+} from '../typings'
 
 import { BigNumber } from 'bignumber.js'
 
@@ -9,6 +16,8 @@ import { BigNumber } from 'bignumber.js'
  * The Web3Signer class contains functions for signing transactions with a web3 provider.
  */
 export class Web3Signer implements TxSigner {
+  public address: string
+  public pubKey: string
   private _web3: any
 
   constructor (web3: any) {
@@ -54,6 +63,69 @@ export class Web3Signer implements TxSigner {
       gasPrice: new BigNumber(gasPrice),
       balance: new BigNumber(balance)
     }
+  }
+
+  /**
+   * TODO
+   */
+  public async createAccount (): Promise<UserObject> {
+    throw new Error('Method for web3 signer not implemented yet.')
+  }
+
+  /**
+   * TODO
+   */
+  public async loadAccount (): Promise<UserObject> {
+    throw new Error('Method for web3 signer not implemented yet.')
+  }
+
+  /**
+   * TODO
+   */
+  public async signMsgHash (): Promise<Signature> {
+    throw new Error('Method for web3 signer not implemented yet.')
+  }
+
+  /**
+   * TODO
+   */
+  getBalance (): Promise<Amount> {
+    throw new Error('Method for web3 signer not implemented yet.')
+  }
+
+  /**
+   * TODO
+   */
+  encrypt (): Promise<any> {
+    throw new Error('Method for web3 signer not implemented yet.')
+  }
+
+  /**
+   * TODO
+   */
+  decrypt (): Promise<any> {
+    throw new Error('Method for web3 signer not implemented yet.')
+  }
+
+  /**
+   * TODO
+   */
+  showSeed (): Promise<string> {
+    throw new Error('Method for web3 signer not implemented yet.')
+  }
+
+  /**
+   * TODO
+   */
+  recoverFromSeed (): Promise<UserObject> {
+    throw new Error('Method for web3 signer not implemented yet.')
+  }
+
+  /**
+   * TODO
+   */
+  exportPrivateKey (): Promise<string> {
+    throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
