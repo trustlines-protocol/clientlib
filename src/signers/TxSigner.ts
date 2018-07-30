@@ -12,10 +12,8 @@ import {
 export interface TxSigner {
   address: string
   pubKey: string
-  keystore: any
   createAccount (): Promise<UserObject>
   loadAccount (serializedKeystore: string): Promise<UserObject>
-  signTx (rlpHexTx: string): Promise<string>
   signMsgHash (msgHash: string): Promise<Signature>
   getBalance (): Promise<Amount>
   encrypt (msg: string, theirPubKey: string): Promise<any>
