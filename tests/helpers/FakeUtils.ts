@@ -21,6 +21,8 @@ export class FakeUtils extends Utils {
       response = '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b'
     } else if (endpoint.includes('blocknumber')) {
       response = 123456
+    } else if (endpoint.includes('users') && endpoint.includes('balance')) {
+      response = '123456'
     }
     return Promise.resolve(response)
   }

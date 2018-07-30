@@ -1,11 +1,20 @@
 import { BigNumber } from 'bignumber.js'
 import { TxSigner } from '../../src/signers/TxSigner'
-import { TxInfos, RawTxObject } from '../../src/typings'
+import {
+  TxInfos,
+  RawTxObject,
+  Signature,
+  UserObject,
+  Amount
+} from '../../src/typings'
 
 /**
  * Mock TxSigner interface
  */
 export class FakeTxSigner implements TxSigner {
+  address: string
+  pubKey: string
+
   signer: string = 'lightwallet'
 
   /**
@@ -49,4 +58,41 @@ export class FakeTxSigner implements TxSigner {
       }
     )
   }
+
+  createAccount (): Promise<UserObject> {
+    return
+  }
+
+  loadAccount (serializedKeystore: string): Promise<UserObject> {
+    return
+  }
+
+  signMsgHash (msgHash: string): Promise<Signature> {
+    return
+  }
+
+  getBalance (): Promise<Amount> {
+    return
+  }
+
+  encrypt (msg: string, theirPubKey: string): Promise<any> {
+    return
+  }
+
+  decrypt (encMsg: any, theirPubKey: string): Promise<any> {
+    return
+  }
+
+  showSeed (): Promise<string> {
+    return
+  }
+
+  recoverFromSeed (seed: string): Promise<UserObject> {
+    return
+  }
+
+  exportPrivateKey (): Promise<string> {
+    return
+  }
+
 }

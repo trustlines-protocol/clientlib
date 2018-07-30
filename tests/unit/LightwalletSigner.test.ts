@@ -5,7 +5,6 @@ import { BigNumber } from 'bignumber.js'
 import { LightwalletSigner } from '../../src/signers/LightwalletSigner'
 import { FakeConfiguration } from '../helpers/FakeConfiguration'
 import { FakeUtils } from '../helpers/FakeUtils'
-import { FakeUser } from '../helpers/FakeUser'
 
 describe('unit', () => {
   describe('LightwalletSigner', () => {
@@ -27,8 +26,7 @@ describe('unit', () => {
     beforeEach(() => {
       const fakeConfiguration = new FakeConfiguration()
       const fakeUtils = new FakeUtils(fakeConfiguration)
-      const fakeUser = new FakeUser(fakeUtils, {})
-      lightwalletSigner = new LightwalletSigner(fakeUser, fakeUtils)
+      lightwalletSigner = new LightwalletSigner(fakeUtils)
     })
 
     describe('#getTxInfos()', () => {
@@ -41,38 +39,13 @@ describe('unit', () => {
       })
     })
 
-    describe('#confirm()', () => {
-      it('should return transaction hash for value tx', async () => {
-        const txHash = await lightwalletSigner.confirm(RAW_TX_OBJECT)
-        assert.isString(txHash)
-      })
-
-      it('should return transaction hash for function tx', async () => {
-        const txHash = await lightwalletSigner.confirm({
-          ...RAW_TX_OBJECT,
-          functionCallData: {
-            abi: [{
-              name: 'myMethod',
-              type: 'function',
-              inputs: [
-                {
-                  type: 'uint256',
-                  name: 'myNumber'
-                },
-                {
-                  type: 'string',
-                  name: 'myString'
-                }
-              ]
-            }],
-            functionName: 'myMethod',
-            args: [
-              '2345675643',
-              'Hello!%'
-            ]
-          }
-        })
-        assert.isString(txHash)
+    describe('#getBalance()', () => {
+      it('should return ETH balance for loaded user', async () => {
+        const balance = await lightwalletSigner.getBalance()
+        assert.hasAllKeys(balance, ['decimals', 'value', 'raw'])
+        assert.isNumber(balance.decimals)
+        assert.isString(balance.value)
+        assert.isString(balance.raw)
       })
     })
   })
