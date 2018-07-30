@@ -1,15 +1,20 @@
 language: node_js
 node_js:
   - "7"
-install:
-  - npm install
-  - ./.travis/build_e2e_tests.sh
-script:
-  - npm run build
-  - npm run lint
-  - npm run test:unit
-  - npm run test:integration
-  - ./.travis/run_e2e_tests.sh
+jobs:
+  include:
+    - stage: test
+      install: npm install
+      script:
+        - npm run build
+        - npm run lint
+        - npm run test:unit
+        - npm run test:integration
+    - stage: test
+      install:
+        - npm install
+        - ./.travis/build_e2e_tests.sh
+      script: ./.travis/run_e2e_tests.sh
 branches:
   only:
   - master
