@@ -15,19 +15,6 @@ import {
  * related methods.
  */
 export class User {
-  /**
-   * Checksummed Ethereum address of currently loaded user/keystore.
-   */
-  public address: string
-  /**
-   * Public key of currently loaded user/keystore.
-   */
-  public pubKey: string
-  /**
-   * Loaded keystore object.
-   */
-  public keystore: any
-
   private _signer: TxSigner
   private _transaction: Transaction
   private _utils: Utils
@@ -43,14 +30,25 @@ export class User {
   }
 
   /**
+   * Checksummed Ethereum address of currently loaded user/keystore.
+   */
+  public get address (): string {
+    return this._signer.address
+  }
+
+  /**
+   * Public key of currently loaded user/keystore.
+   */
+  public get pubKey (): string {
+    return this._signer.pubKey
+  }
+
+  /**
    * Creates a new user and the respective keystore using the configured signer.
    * Loads new user into the state and returns the created user object.
    */
   public async create (): Promise<UserObject> {
     const createdAccount = await this._signer.createAccount()
-    this.address = createdAccount.address
-    this.keystore = createdAccount.keystore
-    this.pubKey = createdAccount.pubKey
     return createdAccount
   }
 
@@ -61,9 +59,6 @@ export class User {
    */
   public async load (serializedKeystore: string): Promise<UserObject> {
     const loadedAccount = await this._signer.loadAccount(serializedKeystore)
-    this.address = loadedAccount.address
-    this.keystore = loadedAccount.keystore
-    this.pubKey = loadedAccount.pubKey
     return loadedAccount
   }
 
@@ -120,9 +115,6 @@ export class User {
    */
   public async recoverFromSeed (seed: string): Promise<UserObject> {
     const recoveredUser = await this._signer.recoverFromSeed(seed)
-    this.address = recoveredUser.address
-    this.keystore = recoveredUser.keystore
-    this.pubKey = recoveredUser.pubKey
     return recoveredUser
   }
 
