@@ -15,8 +15,6 @@ export class FakeTxSigner implements TxSigner {
   address: string
   pubKey: string
 
-  signer: string = 'lightwallet'
-
   /**
    * Mock txSigner.getTxInfos
    */
