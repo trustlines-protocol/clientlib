@@ -1,11 +1,12 @@
 import 'mocha'
 import * as chai from 'chai'
+import * as lightwallet from 'eth-lightwallet'
 
 import { Configuration } from '../../src/Configuration'
 import { Utils } from '../../src/Utils'
 
 import { LightwalletSigner } from '../../src/signers/LightwalletSigner'
-import { config, keystore1, user1, user2 } from '../Fixtures'
+import { config, keystore1, user1 } from '../Fixtures'
 
 const { assert } = chai
 
@@ -16,7 +17,7 @@ describe('integration', () => {
     before(async () => {
       const configuration = new Configuration(config)
       const utils = new Utils(configuration)
-      lightwalletSigner = new LightwalletSigner(utils)
+      lightwalletSigner = new LightwalletSigner(lightwallet, utils)
     })
 
     describe('#createAccount()', () => {

@@ -15,8 +15,9 @@ import { TxSigner } from './signers/TxSigner'
 import { LightwalletSigner } from './signers/LightwalletSigner'
 import { Web3Signer } from './signers/Web3Signer'
 
-import { TLNetworkConfig, TxOptionsInternal } from './typings'
+import { TLNetworkConfig } from './typings'
 
+import * as lightwallet from 'eth-lightwallet'
 const Web3 = require('web3')
 
 /**
@@ -96,7 +97,7 @@ export class TLNetwork {
     this.web3 = new Web3(config.web3Provider)
     this.signer = this.web3.eth.currentProvider
       ? new Web3Signer(this.web3)
-      : new LightwalletSigner(this.utils)
+      : new LightwalletSigner(lightwallet, this.utils)
     this.transaction = new Transaction(this.utils, this.signer)
     this.user = new User(this.signer, this.transaction, this.utils)
     this.contact = new Contact(this.user, this.utils)
