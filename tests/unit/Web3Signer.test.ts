@@ -40,32 +40,9 @@ describe('unit', () => {
     })
 
     describe('#confirm()', () => {
-      it('should return web3 transaction receipt', async () => {
-        const txReceipt = await web3Signer.confirm(RAW_TX_OBJECT)
-        assert.hasAllKeys(txReceipt, [
-          'status',
-          'blockHash',
-          'blockNumber',
-          'transactionHash',
-          'transactionIndex',
-          'from',
-          'to',
-          'contractAddress',
-          'cumulativeGasUsed',
-          'gasUsed',
-          'logs'
-        ])
-        assert.isBoolean(txReceipt.status)
-        assert.isString(txReceipt.blockHash)
-        assert.isNumber(txReceipt.blockNumber)
-        assert.isString(txReceipt.transactionHash)
-        assert.isNumber(txReceipt.transactionIndex)
-        assert.isString(txReceipt.from)
-        assert.isString(txReceipt.to)
-        assert.isString(txReceipt.contractAddress)
-        assert.isNumber(txReceipt.cumulativeGasUsed)
-        assert.isNumber(txReceipt.gasUsed)
-        assert.isArray(txReceipt.logs)
+      it('should return transaction hash', async () => {
+        const transactionHash = await web3Signer.confirm(RAW_TX_OBJECT)
+        assert.isString(transactionHash)
       })
     })
   })

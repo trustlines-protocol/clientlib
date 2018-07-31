@@ -22,5 +22,5 @@ export interface TxSigner {
   recoverFromSeed (seed: string): Promise<UserObject>
   exportPrivateKey (): Promise<string>
   getTxInfos (userAddress: string): Promise<TxInfos>
-  confirm (rawTx: RawTxObject)
+  confirm (rawTx: RawTxObject): Promise<string>
 }

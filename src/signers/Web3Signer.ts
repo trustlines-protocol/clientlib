@@ -28,7 +28,7 @@ export class Web3Signer implements TxSigner {
    * Signs a transaction using the web3 provider.
    * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx: RawTxObject): Promise<Web3TxReceipt> {
+  public async confirm (rawTx: RawTxObject): Promise<string> {
     const { functionCallData } = rawTx
     if (rawTx.functionCallData) {
       rawTx = {
@@ -40,10 +40,11 @@ export class Web3Signer implements TxSigner {
         )
       }
     }
-    return this._web3.eth.sendTransaction({
+    const { transactionHash } = await this._web3.eth.sendTransaction({
       ...rawTx,
       gas: new BigNumber(rawTx.gasLimit).toNumber()
     })
+    return transactionHash
   }
 
   /**
