@@ -1,6 +1,5 @@
 
 import { BigNumber } from 'bignumber.js'
-import * as lightwallet from 'eth-lightwallet'
 import * as ethUtils from 'ethereumjs-util'
 
 import { TxSigner } from './TxSigner'
@@ -22,12 +21,14 @@ export class LightwalletSigner implements TxSigner {
   public pubKey: string
   public keystore: any
 
+  private _lightwallet: any
   private _utils: Utils
 
   private _password = 'ts'
   private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
 
-  constructor (utils: Utils) {
+  constructor (lightwallet: any, utils: Utils) {
+    this._lightwallet = lightwallet
     this._utils = utils
   }
 
@@ -59,7 +60,7 @@ export class LightwalletSigner implements TxSigner {
     if (parsedKeystore.version < 3) {
       serializedKeystore = await this._updateKeystore(parsedKeystore)
     }
-    const deserialized = lightwallet.keystore.deserialize(serializedKeystore)
+    const deserialized = this._lightwallet.keystore.deserialize(serializedKeystore)
     const { address, keystore, pubKey } = await this._getUserObject(deserialized)
     this.address = address
     this.keystore = keystore
@@ -76,14 +77,14 @@ export class LightwalletSigner implements TxSigner {
    * @param msgHash Hash of message that should be signed.
    */
   public signMsgHash (msgHash: string): Promise<Signature> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
-          return reject(err)
+          throw err
         }
         const msgHashBuff = ethUtils.toBuffer(msgHash)
         const personalMsgHashBuff = ethUtils.hashPersonalMessage(msgHashBuff)
-        const signature = lightwallet.signing.signMsgHash(
+        const signature = this._lightwallet.signing.signMsgHash(
           this.keystore,
           pwDerivedKey,
           ethUtils.bufferToHex(personalMsgHashBuff),
@@ -95,7 +96,7 @@ export class LightwalletSigner implements TxSigner {
             s: ethUtils.bufferToHex(signature.s),
             v: signature.v
           },
-          concatSig: lightwallet.signing.concatSig(signature)
+          concatSig: this._lightwallet.signing.concatSig(signature)
         })
       })
     })
@@ -105,6 +106,9 @@ export class LightwalletSigner implements TxSigner {
    * Returns ETH balance of loaded user by querying the relay server.
    */
   public async getBalance (): Promise<Amount> {
+    if (!this.address) {
+      throw new Error('No user loaded.')
+    }
     const balance = await this._utils.fetchUrl<string>(`users/${this.address}/balance`)
     return this._utils.formatToAmount(
       this._utils.calcRaw(balance, 18), 18
@@ -122,18 +126,14 @@ export class LightwalletSigner implements TxSigner {
         if (err) {
           return reject(err)
         }
-        try {
-          const encrypted = lightwallet.encryption.multiEncryptString(
-            this.keystore,
-            pwDerivedKey,
-            msg,
-            this.address.toLowerCase(),
-            [ theirPubKey ]
-          )
-          resolve(encrypted)
-        } catch (error) {
-          return reject(err)
-        }
+        const encrypted = this._lightwallet.encryption.multiEncryptString(
+          this.keystore,
+          pwDerivedKey,
+          msg,
+          this.address.toLowerCase(),
+          [ theirPubKey ]
+        )
+        resolve(encrypted)
       })
     })
   }
@@ -149,13 +149,14 @@ export class LightwalletSigner implements TxSigner {
         if (err) {
           return reject(err)
         }
-        resolve(lightwallet.encryption.multiDecryptString(
+        const decryptedMsg = this._lightwallet.encryption.multiDecryptString(
           this.keystore,
           pwDerivedKey,
           encMsg,
           theirPubKey,
           this.address.toLowerCase()
-        ))
+        )
+        resolve(decryptedMsg)
       })
     })
   }
@@ -222,14 +223,14 @@ export class LightwalletSigner implements TxSigner {
       txOptions.to = txOptions.to.toLowerCase()
     }
     if (rawTx.functionCallData) {
-      rlpTx = lightwallet.txutils.functionTx(
+      rlpTx = this._lightwallet.txutils.functionTx(
         rawTx.functionCallData.abi,
         rawTx.functionCallData.functionName,
         rawTx.functionCallData.args,
         txOptions
       )
     } else {
-      rlpTx = lightwallet.txutils.valueTx(txOptions)
+      rlpTx = this._lightwallet.txutils.valueTx(txOptions)
     }
     const signedTx = await this._signTx(rlpTx)
     return this._relayTx(signedTx)
@@ -275,7 +276,7 @@ export class LightwalletSigner implements TxSigner {
         if (err) {
           return reject(err)
         }
-        resolve(lightwallet.signing.signTx(
+        resolve(this._lightwallet.signing.signTx(
           this.keystore,
           pwDerivedKey,
           rlpHexTx,
@@ -290,16 +291,17 @@ export class LightwalletSigner implements TxSigner {
    * @param seed (optional) 12 word seed string
    */
   private _generateKeys (seed?: string): Promise<UserObject> {
-    return new Promise((resolve, reject) => {
-      lightwallet.keystore.createVault({
+    return new Promise(resolve => {
+      this._lightwallet.keystore.createVault({
         password: this._password,
-        seedPhrase: seed || lightwallet.keystore.generateRandomSeed(),
+        seedPhrase: seed || this._lightwallet.keystore.generateRandomSeed(),
         hdPathString: this._signingPath
       }, (err: any, keystore: any) => {
         if (err) {
-          return reject(err)
+          throw err
         }
-        resolve(this._getUserObject(keystore))
+        const userObj = this._getUserObject(keystore)
+        resolve(userObj)
       })
     })
   }
@@ -309,14 +311,14 @@ export class LightwalletSigner implements TxSigner {
    * @param keystore deserialized keystore object
    */
   private _getUserObject (keystore: any): Promise<UserObject> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
-          return reject(err)
+          throw err
         }
         keystore.generateNewAddress(pwDerivedKey)
         const address = keystore.getAddresses()[0]
-        const pubKey = lightwallet.encryption.addressToPublicEncKey(
+        const pubKey = this._lightwallet.encryption.addressToPublicEncKey(
           keystore,
           pwDerivedKey,
           address
@@ -335,13 +337,18 @@ export class LightwalletSigner implements TxSigner {
    * @param parsedKeystore keystore as JSON object
    */
   private _updateKeystore (parsedKeystore: any): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       // remove encrypt path of HD wallet manually
       delete parsedKeystore.ksData['m/44\'/60\'/0\'/1']
-      lightwallet.upgrade.upgradeOldSerialized(
+      this._lightwallet.upgrade.upgradeOldSerialized(
         JSON.stringify(parsedKeystore),
         this._password,
-        (err, newSerialized) => err ? reject(err) : resolve(newSerialized)
+        (err, newSerialized) => {
+          if (err) {
+            throw err
+          }
+          resolve(newSerialized)
+        }
       )
     })
   }
