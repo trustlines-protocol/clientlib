@@ -11,7 +11,13 @@ import { Exchange } from './Exchange'
 import { Messaging } from './Messaging'
 import { EthWrapper } from './EthWrapper'
 
-import { TLNetworkConfig } from './typings'
+import { TxSigner } from './signers/TxSigner'
+import { LightwalletSigner } from './signers/LightwalletSigner'
+import { Web3Signer } from './signers/Web3Signer'
+
+import { TLNetworkConfig, TxOptionsInternal } from './typings'
+
+const Web3 = require('web3')
 
 /**
  * The TLNetwork class is the single entry-point into the trustline-network.js library.
@@ -70,6 +76,14 @@ export class TLNetwork {
    * EthWrapper instance for wrapping and unwrapping ETH.
    */
   public ethWrapper: EthWrapper
+  /**
+   * @hidden
+   */
+  public web3: any
+  /**
+   * @hidden
+   */
+  public signer: TxSigner
 
   /**
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
@@ -78,9 +92,13 @@ export class TLNetwork {
   constructor (config: TLNetworkConfig = {}) {
     this.configuration = new Configuration(config)
     this.utils = new Utils(this.configuration)
-    this.transaction = new Transaction(this.utils)
     this.currencyNetwork = new CurrencyNetwork(this.utils)
-    this.user = new User(this.transaction, this.utils)
+    this.web3 = new Web3(config.web3Provider)
+    this.signer = this.web3.eth.currentProvider
+      ? new Web3Signer(this.web3)
+      : new LightwalletSigner(this.utils)
+    this.transaction = new Transaction(this.utils, this.signer)
+    this.user = new User(this.signer, this.transaction, this.utils)
     this.contact = new Contact(this.user, this.utils)
     this.event = new Event(this.user, this.utils, this.currencyNetwork)
     this.trustline = new Trustline(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
@@ -89,5 +107,4 @@ export class TLNetwork {
     this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
     this.ethWrapper = new EthWrapper(this.user, this.utils, this.transaction)
   }
-
 }

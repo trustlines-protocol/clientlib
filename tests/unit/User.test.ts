@@ -46,16 +46,5 @@ describe('unit', () => {
         expect(splitLink[6]).to.equal('testuser') // username
       })
     })
-
-    // TODO
-    // it('should prepare onboarding', done => {
-    //   done()
-    // })
-
-    // TODO
-    // it('should confirm onboarding', done => {
-    //   done()
-    // })
-
   })
 })

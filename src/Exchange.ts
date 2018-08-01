@@ -22,7 +22,8 @@ import {
   EventFilterOptions,
   AnyExchangeEvent,
   AnyExchangeEventRaw,
-  OrdersQuery
+  OrdersQuery,
+  RawTxObject
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -365,13 +366,12 @@ export class Exchange {
   }
 
   /**
-   * Signs a raw transaction as returned by `prepCancelOrder` or `prepFillOrder`
-   * and relays the signed transaction.
-   * @param rawTx RLP encoded hex string defining the transaction.
+   * Signs a raw transaction object as returned by `prepCancelOrder` or `prepFillOrder`
+   * and sends the signed transaction.
+   * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx: string): Promise<string> {
-    const signedTx = await this._user.signTx(rawTx)
-    return this._transaction.relayTx(signedTx)
+  public async confirm (rawTx: RawTxObject): Promise<string> {
+    return this._transaction.confirm(rawTx)
   }
 
   /**

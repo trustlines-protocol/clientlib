@@ -9,7 +9,8 @@ import {
   Amount,
   TxObject,
   AnyTokenEventRaw,
-  AnyTokenEvent
+  AnyTokenEvent,
+  RawTxObject
 } from './typings'
 
 const ETH_DECIMALS = 18
@@ -154,13 +155,12 @@ export class EthWrapper {
   }
 
   /**
-   * Signs a raw transaction as returned by `prepTransfer`, `prepDeposit` or `prepWithdraw`
-   * and relays the signed transaction.
-   * @param rawTx RLP encoded hex string defining the transaction.
+   * Signs a raw transaction object as returned by `prepTransfer`, `prepDeposit` or `prepWithdraw`
+   * and sends the signed transaction.
+   * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx): Promise<string> {
-    const signedTx = await this._user.signTx(rawTx)
-    return this._transaction.relayTx(signedTx)
+  public async confirm (rawTx: RawTxObject): Promise<string> {
+    return this._transaction.confirm(rawTx)
   }
 
   /**

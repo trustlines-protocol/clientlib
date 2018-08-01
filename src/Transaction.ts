@@ -1,16 +1,12 @@
 import { Utils } from './Utils'
+import { TxSigner } from './signers/TxSigner'
 import {
-  TxObject,
-  TxOptions,
-  TxInfos,
-  TxInfosRaw,
   TxOptionsInternal,
-  TxObjectInternal
+  TxObjectInternal,
+  RawTxObject
 } from './typings'
 
 import { BigNumber } from 'bignumber.js'
-import * as lightwallet from 'eth-lightwallet'
-// declare let lightwallet
 
 /**
  * Contract ABIs
@@ -23,13 +19,18 @@ const ETH_DECIMALS = 18
  */
 export class Transaction {
   private _utils: Utils
+  private _signer: TxSigner
 
-  constructor (utils: Utils) {
+  constructor (
+    utils: Utils,
+    signer: TxSigner
+  ) {
     this._utils = utils
+    this._signer = signer
   }
 
   /**
-   * Returns transaction fees and the raw transaction for calling a contract function.
+   * Returns transaction fees and the raw transaction object for calling a contract function.
    * @param userAddress address of user that calls the contract function
    * @param contractAddress address of deployed contract
    * @param contractName name of deployed contract
@@ -37,51 +38,45 @@ export class Transaction {
    * @param parameters arguments of function in same order as in contract
    * @param gasPrice (optional)
    * @param gasLimit (optional)
-   * @returns A ethereum transaction object containing the RLP encoded hex string of the
-   *          transaction and the estimated transaction fees in ETH.
+   * @returns A ethereum transaction object and the estimated transaction fees in ETH.
    */
   public async prepFuncTx (
     userAddress: string,
     contractAddress: string,
     contractName: string,
     functionName: string,
-    parameters: any[],
+    args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this._getTxInfos(userAddress)
-    const txOptions = {
-      gasPrice: options.gasPrice || txInfos.gasPrice,
+    const { gasPrice, nonce } = await this._signer.getTxInfos(userAddress)
+    const rawTx = {
+      gasPrice: options.gasPrice || gasPrice,
       gasLimit: options.gasLimit || new BigNumber(600000),
       value: options.value || new BigNumber(0),
-      nonce: txInfos.nonce,
-      to: contractAddress.toLowerCase()
-    }
-    const ethFees = txOptions.gasLimit.multipliedBy(txOptions.gasPrice)
-    return {
-      rawTx: lightwallet.txutils.functionTx(
-        CONTRACTS[ contractName ].abi,
+      nonce: nonce,
+      to: contractAddress,
+      from: userAddress,
+      functionCallData: {
+        abi: CONTRACTS[ contractName ].abi,
         functionName,
-        parameters,
-        {
-          ...txOptions,
-          gasPrice: this._utils.convertToHexString(txOptions.gasPrice),
-          gasLimit: this._utils.convertToHexString(txOptions.gasLimit),
-          value: this._utils.convertToHexString(txOptions.value)
-        }
-      ),
+        args
+      }
+    }
+    const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
+    return {
+      rawTx,
       ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
     }
   }
 
   /**
-   * Returns transaction fees and raw transaction for transferring ETH.
+   * Returns transaction fees and raw transaction object for transferring ETH.
    * @param senderAddress address of user sending the transfer
    * @param receiverAddress address of user receiving the transfer
    * @param rawValue transfer amount in wei
    * @param gasPrice (optional)
    * @param gasLimit (optional)
-   * @returns A ethereum transaction object containing the RLP encoded hex string of the
-   *          transaction and the estimated transaction fees in ETH.
+   * @returns A ethereum transaction object containing and the estimated transaction fees in ETH.
    */
   public async prepValueTx (
     senderAddress: string,
@@ -89,38 +84,36 @@ export class Transaction {
     rawValue: BigNumber,
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this._getTxInfos(senderAddress)
-    const txOptions = {
+    const txInfos = await this._signer.getTxInfos(senderAddress)
+    const rawTx = {
       gasPrice: options.gasPrice || txInfos.gasPrice,
       gasLimit: options.gasLimit || new BigNumber(21000),
       value: rawValue,
       nonce: txInfos.nonce,
-      to: receiverAddress.toLowerCase()
+      to: receiverAddress,
+      from: senderAddress
     }
-    const ethFees = txOptions.gasLimit.multipliedBy(txOptions.gasPrice)
+    const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
     return {
-      rawTx: lightwallet.txutils.valueTx({
-        ...txOptions,
-        gasPrice: this._utils.convertToHexString(txOptions.gasPrice),
-        gasLimit: this._utils.convertToHexString(txOptions.gasLimit),
-        value: this._utils.convertToHexString(txOptions.value)
-      }),
+      rawTx,
       ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
     }
   }
 
   /**
-   * Relays signed raw transactions.
-   * @param signedTx signed ethereum transaction
+   * Signs and sends the given transaction object.
+   * @param rawTx Raw transaction object.
    */
-  public relayTx (signedTx: string): Promise<string> {
-    const headers = new Headers({ 'Content-Type': 'application/json' })
-    const options = {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ rawTransaction: `0x${signedTx}` })
-    }
-    return this._utils.fetchUrl<string>('relay', options)
+  public async confirm (rawTx: RawTxObject): Promise<any> {
+    return this._signer.confirm(rawTx)
+  }
+
+  /**
+   * Sets a new signer strategy for signing and sending transactions.
+   * @param signer New transaction signer.
+   */
+  public setSigner (signer: TxSigner) {
+    this._signer = signer
   }
 
   /**
@@ -130,18 +123,4 @@ export class Transaction {
     return this._utils.fetchUrl<number>('blocknumber')
   }
 
-  /**
-   * Returns needed information for creating an ethereum transaction.
-   * @param userAddress address of user creating the transaction
-   * @returns Information for creating an ethereum transaction for the given user address.
-   *          See tyoe `TxInfos` for more details.
-   */
-  private async _getTxInfos (userAddress: string): Promise<TxInfos> {
-    const txInfos = await this._utils.fetchUrl<TxInfosRaw>(`users/${userAddress}/txinfos`)
-    return {
-      ...txInfos,
-      gasPrice: new BigNumber(txInfos.gasPrice),
-      balance: new BigNumber(txInfos.balance)
-    }
-  }
 }

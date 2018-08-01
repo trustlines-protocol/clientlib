@@ -11,7 +11,8 @@ import {
   TxObject,
   TrustlineObject,
   TrustlineRaw,
-  NetworkTrustlineEvent
+  NetworkTrustlineEvent,
+  RawTxObject
 } from './typings'
 
 /**
@@ -115,13 +116,12 @@ export class Trustline {
   }
 
   /**
-   * Signs a raw transaction as returned by `prepareUpdate` or `prepareAccept` and relays
-   * the signed transaction.
-   * @param rawTx RLP encoded hex string defining the transaction.
+   * Signs a raw transaction object as returned by `prepareAccept` or `prepareUpdate`
+   * and sends the signed transaction.
+   * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx: string): Promise<string> {
-    const signedTx = await this._user.signTx(rawTx)
-    return this._transaction.relayTx(signedTx)
+  public async confirm (rawTx: RawTxObject): Promise<any> {
+    return this._transaction.confirm(rawTx)
   }
 
   /**

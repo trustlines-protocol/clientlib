@@ -1,15 +1,13 @@
-import * as lightwallet from 'eth-lightwallet'
-// declare let lightwallet
 import * as ethUtils from 'ethereumjs-util'
-import { Observable } from 'rxjs/Observable'
 
-import { Utils } from './Utils'
+import { TxSigner } from './signers/TxSigner'
 import { Transaction } from './Transaction'
-
+import { Utils } from './Utils'
 import {
   Amount,
   UserObject,
-  Signature
+  Signature,
+  RawTxObject
 } from './typings'
 
 /**
@@ -17,48 +15,41 @@ import {
  * related methods.
  */
 export class User {
-  /**
-   * Checksummed Ethereum address of currently loaded user/keystore.
-   */
-  public address: string
-  /**
-   * Public key of currently loaded user/keystore.
-   */
-  public pubKey: string
-  /**
-   * Loaded [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) Keystore object.
-   */
-  public keystore: any
-
+  private _signer: TxSigner
   private _transaction: Transaction
   private _utils: Utils
 
-  private _password = 'ts'
-  private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
-
   constructor (
+    signer: TxSigner,
     transaction: Transaction,
     utils: Utils
   ) {
+    this._signer = signer
     this._transaction = transaction
     this._utils = utils
   }
 
   /**
-   * Creates a new user and the respective keystore.
+   * Checksummed Ethereum address of currently loaded user/keystore.
+   */
+  public get address (): string {
+    return this._signer.address
+  }
+
+  /**
+   * Public key of currently loaded user/keystore.
+   */
+  public get pubKey (): string {
+    return this._signer.pubKey
+  }
+
+  /**
+   * Creates a new user and the respective keystore using the configured signer.
    * Loads new user into the state and returns the created user object.
    */
   public async create (): Promise<UserObject> {
-    // generate new keystore
-    const { address, keystore, pubKey } = await this._generateKeys()
-    this.address = address
-    this.keystore = keystore
-    this.pubKey = pubKey
-    return {
-      address: this.address,
-      keystore: this.keystore.serialize(),
-      pubKey: this.pubKey
-    }
+    const createdAccount = await this._signer.createAccount()
+    return createdAccount
   }
 
   /**
@@ -67,41 +58,8 @@ export class User {
    * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) key store.
    */
   public async load (serializedKeystore: string): Promise<UserObject> {
-    const parsedKeystore = JSON.parse(serializedKeystore)
-    // check if keystore version is old and update to new version
-    if (parsedKeystore.version < 3) {
-      serializedKeystore = await this._updateKeystore(parsedKeystore)
-    }
-    const deserialized = lightwallet.keystore.deserialize(serializedKeystore)
-    const { address, keystore, pubKey } = await this._getUserObject(deserialized)
-    this.address = address
-    this.keystore = keystore
-    this.pubKey = pubKey
-    return {
-      address: this.address,
-      keystore: this.keystore.serialize(),
-      pubKey: this.pubKey
-    }
-  }
-
-  /**
-   * Takes a raw transaction and digitally signs it with the currently loaded keystore.
-   * @param rawTx RLP encoded hex string of transaction.
-   */
-  public signTx (rawTx: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve(lightwallet.signing.signTx(
-          this.keystore,
-          pwDerivedKey,
-          rawTx,
-          this.address.toLowerCase() // NOTE eth-lightwallet does not handle checksum addresses
-        ))
-      })
-    })
+    const loadedAccount = await this._signer.loadAccount(serializedKeystore)
+    return loadedAccount
   }
 
   /**
@@ -109,29 +67,55 @@ export class User {
    * @param msgHash Hash of message that should be signed.
    */
   public signMsgHash (msgHash: string): Promise<Signature> {
-    return new Promise((resolve, reject) => {
-      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) {
-          return reject(err)
-        }
-        const msgHashBuff = ethUtils.toBuffer(msgHash)
-        const personalMsgHashBuff = ethUtils.hashPersonalMessage(msgHashBuff)
-        const signature = lightwallet.signing.signMsgHash(
-          this.keystore,
-          pwDerivedKey,
-          ethUtils.bufferToHex(personalMsgHashBuff),
-          this.address.toLowerCase()
-        )
-        resolve({
-          ecSignature: {
-            r: ethUtils.bufferToHex(signature.r),
-            s: ethUtils.bufferToHex(signature.s),
-            v: signature.v
-          },
-          concatSig: lightwallet.signing.concatSig(signature)
-        })
-      })
-    })
+    return this._signer.signMsgHash(msgHash)
+  }
+
+  /**
+   * Returns ETH balance of loaded user.
+   */
+  public async getBalance (): Promise<Amount> {
+    return this._signer.getBalance()
+  }
+
+  /**
+   * Encrypts a message with the public key of another user.
+   * @param msg Plain text message that should get encrypted.
+   * @param theirPubKey Public key of receiver of message.
+   */
+  public encrypt (msg: string, theirPubKey: string): Promise<any> {
+    return this._signer.encrypt(msg, theirPubKey)
+  }
+
+  /**
+   * Decrypts an encrypted message with the private key of loaded user.
+   * @param encMsg Encrypted message.
+   * @param theirPubKey Public key of sender of message.
+   */
+  public decrypt (encMsg: any, theirPubKey: string): Promise<any> {
+    return this._signer.decrypt(encMsg, theirPubKey)
+  }
+
+  /**
+   * Returns the 12 word seed of loaded user.
+   */
+  public showSeed (): Promise<string> {
+    return this._signer.showSeed()
+  }
+
+  /**
+   * Returns the private key of loaded user.
+   */
+  public exportPrivateKey (): Promise<string> {
+    return this._signer.exportPrivateKey()
+  }
+
+  /**
+   * Recovers user / keystore from 12 word seed.
+   * @param seed 12 word seed phrase string.
+   */
+  public async recoverFromSeed (seed: string): Promise<UserObject> {
+    const recoveredUser = await this._signer.recoverFromSeed(seed)
+    return recoveredUser
   }
 
   /**
@@ -146,7 +130,7 @@ export class User {
     username: string,
     serializedKeystore: string
   ): Promise<string> {
-    const { address, pubKey } = await this.load(serializedKeystore)
+    const { address, pubKey } = await this._signer.loadAccount(serializedKeystore)
     const params = [ 'onboardingrequest', username, address, pubKey ]
     return this._utils.createLink(params)
   }
@@ -169,115 +153,12 @@ export class User {
   }
 
   /**
-   * Posts a raw onboarding ethereum transaction to the relay server and returns the transaction hash.
-   * @param rawTx RLP encoded hex string of the ethereum transaction returned by `prepOnboarding`.
+   * Signs a raw transaction object as returned by `prepOnboarding`
+   * and sends the signed transaction.
+   * @param rawTx Raw transaction object.
    */
-  public async confirmOnboarding (rawTx: string): Promise<string> {
-    const signedTx = await this.signTx(rawTx)
-    return this._transaction.relayTx(signedTx)
-  }
-
-  /**
-   * Returns ETH balance of loaded user.
-   */
-  public async getBalance (): Promise<Amount> {
-    const balance = await this._utils.fetchUrl<string>(`users/${this.address}/balance`)
-    return this._utils.formatToAmount(
-      this._utils.calcRaw(balance, 18), 18
-    )
-  }
-
-  /**
-   * Encrypts a message with the public key of another user.
-   * @param msg Plain text message that should get encrypted.
-   * @param theirPubKey Public key of receiver of message.
-   */
-  public encrypt (msg: string, theirPubKey: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) {
-          return reject(err)
-        }
-        try {
-          const encrypted = lightwallet.encryption.multiEncryptString(
-            this.keystore,
-            pwDerivedKey,
-            msg,
-            this.address.toLowerCase(),
-            [ theirPubKey ]
-          )
-          resolve(encrypted)
-        } catch (error) {
-          return reject(err)
-        }
-      })
-    })
-  }
-
-  /**
-   * Decrypts an encrypted message with the private key of loaded user.
-   * @param encMsg Encrypted message.
-   * @param theirPubKey Public key of sender of message.
-   */
-  public decrypt (encMsg: any, theirPubKey: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve(lightwallet.encryption.multiDecryptString(
-          this.keystore,
-          pwDerivedKey,
-          encMsg,
-          theirPubKey,
-          this.address.toLowerCase()
-        ))
-      })
-    })
-  }
-
-  /**
-   * Returns the 12 word seed of loaded user.
-   */
-  public showSeed (): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve(this.keystore.getSeed(pwDerivedKey))
-      })
-    })
-  }
-
-  /**
-   * Returns the private key of loaded user.
-   */
-  public exportPrivateKey (): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve(this.keystore.exportPrivateKey(this.address.toLowerCase(), pwDerivedKey))
-      })
-    })
-  }
-
-  /**
-   * Recovers user / keystore from 12 word seed.
-   * @param seed 12 word seed phrase string.
-   */
-  public async recoverFromSeed (seed: string): Promise<UserObject> {
-    const { address, keystore, pubKey } = await this._generateKeys(seed)
-    this.address = address
-    this.keystore = keystore
-    this.pubKey = pubKey
-    return {
-      address: this.address,
-      keystore: this.keystore.serialize(),
-      pubKey: this.pubKey
-    }
+  public async confirmOnboarding (rawTx: RawTxObject): Promise<string> {
+    return this._transaction.confirm(rawTx)
   }
 
   /**
@@ -320,66 +201,5 @@ export class User {
     console.log('Externally owned account: ', message.address)
     console.log('Recovered from signature: ', adr)
     return message.address === adr
-  }
-
-  /**
-   * Creates or recovers a keystore.
-   * @param seed (optional) 12 word seed string
-   */
-  private _generateKeys (seed?: string): Promise<UserObject> {
-    return new Promise((resolve, reject) => {
-      lightwallet.keystore.createVault({
-        password: this._password,
-        seedPhrase: seed || lightwallet.keystore.generateRandomSeed(),
-        hdPathString: this._signingPath
-      }, (err: any, keystore: any) => {
-        if (err) {
-          return reject(err)
-        }
-        resolve(this._getUserObject(keystore))
-      })
-    })
-  }
-
-  /**
-   * Returns address, keystore and public key of given keystore.
-   * @param keystore deserialized keystore object
-   */
-  private _getUserObject (keystore: any): Promise<UserObject> {
-    return new Promise((resolve, reject) => {
-      keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
-        if (err) {
-          return reject(err)
-        }
-        keystore.generateNewAddress(pwDerivedKey)
-        const address = keystore.getAddresses()[0]
-        const pubKey = lightwallet.encryption.addressToPublicEncKey(
-          keystore,
-          pwDerivedKey,
-          address
-        )
-        resolve({
-          address: ethUtils.toChecksumAddress(address),
-          keystore,
-          pubKey
-        })
-      })
-    })
-  }
-
-  /**
-   * Updates an old keystore to new version. Old version < 3
-   * @param parsedKeystore keystore as JSON object
-   */
-  private _updateKeystore (parsedKeystore: any): Promise<string> {
-    return new Promise((resolve, reject) => {
-      // remove encrypt path of HD wallet manually
-      delete parsedKeystore.ksData['m/44\'/60\'/0\'/1']
-      lightwallet.upgrade.upgradeOldSerialized(
-        JSON.stringify(parsedKeystore),
-        this._password,
-        (err, newSerialized) => err ? reject(err) : resolve(newSerialized)
-      )
-    })
   }
 }
