@@ -7,7 +7,7 @@ import { FakeConfiguration } from '../helpers/FakeConfiguration'
 import { FakeUtils } from '../helpers/FakeUtils'
 import { FakeEthLightwallet } from '../helpers/FakeEthLightwallet'
 
-import { keystore1, keystore2 } from '../Fixtures'
+import { keystore1, keystore2, user1 } from '../Fixtures'
 
 describe('unit', () => {
   describe('LightwalletSigner', () => {
@@ -168,6 +168,31 @@ describe('unit', () => {
       it('should throw error because there is no loaded user', async () => {
         const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
         await assert.isRejected(lightwalletSigner.getBalance())
+      })
+    })
+
+    describe('#encrypt()', () => {
+      const fakeEthLightwallet = new FakeEthLightwallet()
+      const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+
+      before(async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+      })
+
+      beforeEach(() => {
+        lightwalletSigner.keystore.removeErrors()
+      })
+
+      it('should return encryption object using mocked eth-lightwallet', async () => {
+        const encObj = await lightwalletSigner.encrypt('hello world!', user1.pubKey)
+        assert.hasAllKeys(encObj, [
+          'version',
+          'asymAlg',
+          'symAlg',
+          'symNonce',
+          'symEncMessage',
+          'encryptedSymKey'
+        ])
       })
     })
 
