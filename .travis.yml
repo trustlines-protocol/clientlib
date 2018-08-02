@@ -15,6 +15,22 @@ jobs:
         - npm install
         - ./.travis/build_e2e_tests.sh
       script: ./.travis/run_e2e_tests.sh
+    - stage: deploy
+      deploy:
+        - provider: npm
+          email: dongha.kim210@gmail.com
+          api_key: UB22o24ibbkVn2HCp7LZHrgp9rq6YenRPS92JrK3LqzAu2TNt3aAu+khDiydj9pA8BvzTrTj6PQkcK+v+Y6/RSDuylkl8QaqYlsGWpYCaqtALWD4MhnM8rZCR8zVqMTIySdfZ0sYuImhLxE1o3JkiMxWVNxwVsGsRHfm/LkpvJWVFGnxUQt/89KPkSQMDHloA5jjZw8wU1q2UZs/LW4GdLMr00kGrMuqVtrIzLUwxXNzjUKZvRv1jYPBwXrSddcixKwS7XuZk1/3ApD2khSm5aim19svjvNO26aj3h+N+kdp6Joya6qBaAKMN/Eaiuv/xTDG/M6E4QsAFWNZ4u/UrK2itPSFKJexqJjJGrd55MECNzvITk/sal5huxPKG7GXqRvJAdub9WaKzwH5prpkfD7S4/UkN18sUjTd/F/z3bAcUOszx3/bq12QDEmqGm3eNWkMW8bDIjhI+JE5AGo/7n21SQbE/fae/4gPzqcF0sGTRo8xioiAe9Fxs9xCBAceX317uTNWxqAVG9Zvsi95++agpTn5bkNeB/HS2yd7ovBrvDKum7WmqS3bQkkaYfKiI3aQUxz1HhByJIWhDKpDEUJfhkwX+5u87Lhzlk+rLltI4BhGjs0Pw73Fbm78tcAkY/WBwM+4KqUIkeY9++tu1IM6Owgg40SaHi3iruSJJZg=
+          tag: next
+          on:
+            branch: develop
+        - provider: npm
+          email: dongha.kim210@gmail.com
+          api_key: UB22o24ibbkVn2HCp7LZHrgp9rq6YenRPS92JrK3LqzAu2TNt3aAu+khDiydj9pA8BvzTrTj6PQkcK+v+Y6/RSDuylkl8QaqYlsGWpYCaqtALWD4MhnM8rZCR8zVqMTIySdfZ0sYuImhLxE1o3JkiMxWVNxwVsGsRHfm/LkpvJWVFGnxUQt/89KPkSQMDHloA5jjZw8wU1q2UZs/LW4GdLMr00kGrMuqVtrIzLUwxXNzjUKZvRv1jYPBwXrSddcixKwS7XuZk1/3ApD2khSm5aim19svjvNO26aj3h+N+kdp6Joya6qBaAKMN/Eaiuv/xTDG/M6E4QsAFWNZ4u/UrK2itPSFKJexqJjJGrd55MECNzvITk/sal5huxPKG7GXqRvJAdub9WaKzwH5prpkfD7S4/UkN18sUjTd/F/z3bAcUOszx3/bq12QDEmqGm3eNWkMW8bDIjhI+JE5AGo/7n21SQbE/fae/4gPzqcF0sGTRo8xioiAe9Fxs9xCBAceX317uTNWxqAVG9Zvsi95++agpTn5bkNeB/HS2yd7ovBrvDKum7WmqS3bQkkaYfKiI3aQUxz1HhByJIWhDKpDEUJfhkwX+5u87Lhzlk+rLltI4BhGjs0Pw73Fbm78tcAkY/WBwM+4KqUIkeY9++tu1IM6Owgg40SaHi3iruSJJZg=
+          on:
+            tags: true
+            branch: develop
+before_deploy:
+  - npm run build
 branches:
   only:
   - master
@@ -30,18 +46,3 @@ notifications:
       - secure: "R7leHfENzyd6mAIdDS1JUmwZnvuG8QSgQfcjH6QGzh7c1UlUJHrP+u5G5fiWGB4mBNQexh1nOpW8+JlYFyEnWrXUgg2wXDhLxM45jaVmgpYmusNvLC+fk70o4k6KksSYOkoo2pxcthlsp2BqCfkVA8f1dxy7Q6RxQBp4KBoWfh+qQ00fCp/OsL/UuPlYz5qWohxAVyulIVVfvEWlplH870nE/VZD+K91KIB6CDBR1REjx4ZBq904jsD4sg4cYua7Rik6F1grfA84Lt68s2gG89d11qhMtkEE6ROU++N3ziOFNbQIWVMTHW0JqcCLZ+cbvLH48m3IeOhttkdjE0JbzK3WsmYlHlxkZGmqyxucYxAd9nODkxKRjcrc+OFKgQ359HyWBwf9AtHi6mPhrMGrOEcTPxNi+ZGpnYQgqlJ+akW2cXO/fcw6bLYU+i535MgGG6oqotkfS6k7IkZBnkw3ly9AwJ1n9XUHALKF21GtcCMGdSkUtQtnLUFxO0Wg7GIbMXxDXrLw8CF56u6AQy75F+/5LDTdfLHWgZKO+G5HrHUsFuq6S6EydEH2WxVYaJ7XS5M8TIDzEr8ZQdtTG0LJA+Yb3YxzcPbIRomQrWIw8MXdk3eA5MjIZy0cwXMdNeqSgFpTba1Yg98HQfjjW78QV5VBAxXK+iv1T7oooChu51s="
     on_success: change
     on_failure: always
-before_deploy:
-  script: npm run build
-deploy:
-  - provider: npm
-    email: dongha.kim210@gmail.com
-    api_key: UB22o24ibbkVn2HCp7LZHrgp9rq6YenRPS92JrK3LqzAu2TNt3aAu+khDiydj9pA8BvzTrTj6PQkcK+v+Y6/RSDuylkl8QaqYlsGWpYCaqtALWD4MhnM8rZCR8zVqMTIySdfZ0sYuImhLxE1o3JkiMxWVNxwVsGsRHfm/LkpvJWVFGnxUQt/89KPkSQMDHloA5jjZw8wU1q2UZs/LW4GdLMr00kGrMuqVtrIzLUwxXNzjUKZvRv1jYPBwXrSddcixKwS7XuZk1/3ApD2khSm5aim19svjvNO26aj3h+N+kdp6Joya6qBaAKMN/Eaiuv/xTDG/M6E4QsAFWNZ4u/UrK2itPSFKJexqJjJGrd55MECNzvITk/sal5huxPKG7GXqRvJAdub9WaKzwH5prpkfD7S4/UkN18sUjTd/F/z3bAcUOszx3/bq12QDEmqGm3eNWkMW8bDIjhI+JE5AGo/7n21SQbE/fae/4gPzqcF0sGTRo8xioiAe9Fxs9xCBAceX317uTNWxqAVG9Zvsi95++agpTn5bkNeB/HS2yd7ovBrvDKum7WmqS3bQkkaYfKiI3aQUxz1HhByJIWhDKpDEUJfhkwX+5u87Lhzlk+rLltI4BhGjs0Pw73Fbm78tcAkY/WBwM+4KqUIkeY9++tu1IM6Owgg40SaHi3iruSJJZg=
-    tag: next
-    on:
-      branch: develop
-  - provider: npm
-    email: dongha.kim210@gmail.com
-    api_key: UB22o24ibbkVn2HCp7LZHrgp9rq6YenRPS92JrK3LqzAu2TNt3aAu+khDiydj9pA8BvzTrTj6PQkcK+v+Y6/RSDuylkl8QaqYlsGWpYCaqtALWD4MhnM8rZCR8zVqMTIySdfZ0sYuImhLxE1o3JkiMxWVNxwVsGsRHfm/LkpvJWVFGnxUQt/89KPkSQMDHloA5jjZw8wU1q2UZs/LW4GdLMr00kGrMuqVtrIzLUwxXNzjUKZvRv1jYPBwXrSddcixKwS7XuZk1/3ApD2khSm5aim19svjvNO26aj3h+N+kdp6Joya6qBaAKMN/Eaiuv/xTDG/M6E4QsAFWNZ4u/UrK2itPSFKJexqJjJGrd55MECNzvITk/sal5huxPKG7GXqRvJAdub9WaKzwH5prpkfD7S4/UkN18sUjTd/F/z3bAcUOszx3/bq12QDEmqGm3eNWkMW8bDIjhI+JE5AGo/7n21SQbE/fae/4gPzqcF0sGTRo8xioiAe9Fxs9xCBAceX317uTNWxqAVG9Zvsi95++agpTn5bkNeB/HS2yd7ovBrvDKum7WmqS3bQkkaYfKiI3aQUxz1HhByJIWhDKpDEUJfhkwX+5u87Lhzlk+rLltI4BhGjs0Pw73Fbm78tcAkY/WBwM+4KqUIkeY9++tu1IM6Owgg40SaHi3iruSJJZg=
-    on:
-      tags: true
-      branch: develop
