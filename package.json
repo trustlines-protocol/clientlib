@@ -1,7 +1,7 @@
 {
   "name": "trustlines-clientlib",
-  "version": "0.1.0",
-  "description": "Client library for trustlines network",
+  "version": "0.1.1",
+  "description": "Javascript library for interacting with the trustlines network protocol",
   "main": "lib-esm/TLNetwork.js",
   "scripts": {
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
