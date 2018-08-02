@@ -1,6 +1,6 @@
 {
   "name": "trustlines-clientlib",
-  "version": "1.0.1",
+  "version": "0.1.0",
   "description": "Client library for trustlines network",
   "main": "lib-esm/TLNetwork.js",
   "scripts": {
@@ -20,7 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/trustlines-network/clientlib.git"
   },
-  "author": "",
+  "author": "trustlines-network",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/trustlines-network/clientlib/issues"

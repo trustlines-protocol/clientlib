@@ -1,11 +1,21 @@
-.travis
-docs
+# ignore 
 node_modules
+docs
 tests
+src
+
+# ignore config files
+.travis
+.travis.yml
 .editorconfig
-package-lock.json
 tdconfig.json
 tsconfig.json
 tslint.json
-webpack.config.json
+webpack.config.js
+
+# ignore lock files
+package-lock.json
 yarn.lock
+
+# ignore es5 builds for now
+lib
