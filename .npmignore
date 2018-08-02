@@ -1,6 +1,11 @@
-.*
-**/tsconfig.json
-**/webpack.config.json
-
+.travis
+docs
 node_modules
-src
+tests
+.editorconfig
+package-lock.json
+tdconfig.json
+tsconfig.json
+tslint.json
+webpack.config.json
+yarn.lock
