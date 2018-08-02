@@ -1,6 +1,22 @@
-.*
-**/tsconfig.json
-**/webpack.config.json
-
+# ignore 
 node_modules
+docs
+tests
 src
+
+# ignore config files
+.travis
+.travis.yml
+.editorconfig
+tdconfig.json
+tsconfig.json
+tslint.json
+webpack.config.js
+
+# ignore lock files
+package-lock.json
+yarn.lock
+
+# ignore es5 and UMD module  builds for now
+lib
+_bundles

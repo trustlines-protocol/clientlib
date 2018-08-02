@@ -1,8 +1,8 @@
 {
   "name": "trustlines-clientlib",
-  "version": "1.0.1",
-  "description": "Client library for trustlines network",
-  "main": "dist/TLNetwork.js",
+  "version": "0.1.1",
+  "description": "Javascript library for interacting with the trustlines network protocol",
+  "main": "lib-esm/TLNetwork.js",
   "scripts": {
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
     "build:esm": "tsc -m es6 --outDir lib-esm",
@@ -13,13 +13,14 @@
     "test:e2e": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
     "test:integration": "mocha --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
     "test:unit": "mocha --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
-    "watch:esm": "tsc -w -m es6 --outDir lib-esm"
+    "watch:esm": "tsc -w -m es6 --outDir lib-esm",
+    "postversion": "git push --tags"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/trustlines-network/clientlib.git"
   },
-  "author": "",
+  "author": "trustlines-network",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/trustlines-network/clientlib/issues"
