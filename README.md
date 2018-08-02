@@ -10,10 +10,7 @@ $ npm install
 // OR
 $ yarn install
 ```
-#### Import UMD bundle in HTML
-```html
-<script src="./_bundles/trustlines-network.js"></script>
-```
+
 #### Import ES6 module
 ```javascript
 import { TLNetwork } from 'trustlines-clientlib'

@@ -17,5 +17,6 @@ webpack.config.js
 package-lock.json
 yarn.lock
 
-# ignore es5 builds for now
+# ignore es5 and UMD module  builds for now
 lib
+_bundles
