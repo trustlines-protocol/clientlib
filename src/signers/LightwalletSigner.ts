@@ -121,10 +121,10 @@ export class LightwalletSigner implements TxSigner {
    * @param theirPubKey Public key of receiver of message.
    */
   public encrypt (msg: string, theirPubKey: string): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
-          return reject(err)
+          throw err
         }
         const encrypted = this._lightwallet.encryption.multiEncryptString(
           this.keystore,
