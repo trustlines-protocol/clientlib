@@ -34,7 +34,7 @@ describe('e2e', () => {
       })
 
       it('should receive payment requests', async () => {
-        tl2.messaging.paymentRequest(network.address, user1.address, 250)
+        tl2.messaging.paymentRequest(network.address, user1.address, "250", "Hello")
         await wait()
         expect(messages).to.have.lengthOf(2)
         expect(messages[1]).to.have.property('type', 'PaymentRequest')
@@ -46,6 +46,7 @@ describe('e2e', () => {
         expect(messages[1]).to.have.property('counterParty', user2.address)
         expect(messages[1]).to.have.property('user', user1.address)
         expect(messages[1]).to.have.property('direction', 'received')
+        expect(messages[1]).to.have.property('subject', 'Hello')
       })
 
       after(async () => {

@@ -11,22 +11,20 @@ export class Messaging {
 
   public paymentRequest (network: string,
                          user: string,
-                         value: number,
+                         value: number | string,
                          subject?: string) {
     const headers = new Headers({
       'Content-Type': 'application/json'
     })
     return this.currencyNetwork.getDecimals(network)
       .then(dec => {
-
-        BigNumber.config({ CRYPTO: true })
-
+        const type = "PaymentRequest"
         const options = {
           method: 'POST',
           headers,
           body: JSON.stringify({
             message: `{
-              "type": "PaymentRequest",
+              "type": "${type}",
               "networkAddress": "${network}",
               "from": "${this.user.address}",
               "to": "${user}",
@@ -35,8 +33,9 @@ export class Messaging {
               "counterParty": "${this.user.address}",
               "amount": "${this.utils.calcRaw(value, dec).toString()}",
               "subject": "${subject}",
-              "nonce": "${BigNumber.random(40).multipliedBy(10e+39).integerValue()}"
-              }`
+              "nonce": "${this.utils.generateRandomNumber(40)}"
+              }`,
+            type: type,  // (optional) hint for notifications
           })
         }
         return this.utils.fetchUrl(`messages/${user}`, options)

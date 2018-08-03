@@ -22,6 +22,13 @@ const ReconnectingWebSocket = require('reconnecting-websocket')
 const JsonRPC = require('simple-jsonrpc-js')
 const WebSocket = require('html5-websocket')
 
+if (typeof module !== 'undefined' && module.exports && (typeof crypto === 'undefined')) {
+  // crypto not available
+  console.warn('Random numbers will not be cryptographically secure')
+} else {
+  BigNumber.config({ CRYPTO: true })
+}
+
 /**
  * The Utils class contains utility functions that are used in multiple classes.
  */
@@ -286,5 +293,9 @@ export class Utils {
     }
     const hexStr = bigNumber.toString(16)
     return ethUtils.addHexPrefix(hexStr)
+  }
+
+  public generateRandomNumber(decimals: number): BigNumber {
+    return BigNumber.random(decimals+1).multipliedBy(new BigNumber(10).pow(decimals)).integerValue()
   }
 }
