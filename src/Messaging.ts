@@ -1,6 +1,7 @@
 import { Utils } from './Utils'
 import { User } from './User'
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { BigNumber } from 'bignumber.js'
 
 import { Observable } from 'rxjs/Observable'
 
@@ -10,7 +11,8 @@ export class Messaging {
 
   public paymentRequest (network: string,
                          user: string,
-                         value: number) {
+                         value: number,
+                         subject?: string) {
     const headers = new Headers({
       'Content-Type': 'application/json'
     })
@@ -29,7 +31,9 @@ export class Messaging {
               "direction": "received",
               "user": "${user}",
               "counterParty": "${this.user.address}",
-              "amount": "${this.utils.calcRaw(value, dec).toString()}"
+              "amount": "${this.utils.calcRaw(value, dec).toString()}",
+              "subject": "${subject}",
+              "nonce": "${BigNumber.random(40).multipliedBy(10e+39).toFixed()}"
               }`
           })
         }
