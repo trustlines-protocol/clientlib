@@ -76,7 +76,7 @@ services:
     links:
       - "parity:node"
     volumes:
-      - ./addresses.json:/contracts/addresses.json
+      - ./addresses.json:/opt/contracts/addresses.json
     networks:
       - internal
        
