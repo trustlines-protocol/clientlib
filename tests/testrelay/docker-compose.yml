@@ -1,8 +1,7 @@
 version: "3"
 services:
   relay:
-    build:
-      context: https://github.com/trustlines-network/relay.git#develop
+    image: trustlines/relay
     container_name: relay
     environment:
       - ETHINDEX=1
@@ -14,8 +13,8 @@ services:
       - "parity:node"
       - "postgres:db"
     volumes:
-      - ./config.json:/relay/config.json
-      - ./addresses.json:/relay/addresses.json
+      - ./config.json:/opt/relay/config.json
+      - ./addresses.json:/opt/relay/addresses.json
     ports:
       - "127.0.0.1:5000:5000"
     networks:
@@ -23,8 +22,7 @@ services:
     restart: unless-stopped
 
   index:
-    build:
-      context: https://github.com/trustlines-network/py-eth-index.git#develop
+    image: trustlines/py-eth-index
     networks:
       - internal
     links:
@@ -39,8 +37,7 @@ services:
     command: bash -c "sleep 5 && /opt/ethindex/bin/ethindex runsync --jsonrpc http://node:8545 --waittime 200"
 
   init:
-    build:
-      context: https://github.com/trustlines-network/py-eth-index.git#develop
+    image: trustlines/py-eth-index
     networks:
       - internal
     links:
