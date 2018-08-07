@@ -14,7 +14,7 @@
     "test:integration": "mocha --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
     "test:unit": "mocha --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
     "watch:esm": "tsc -w -m es6 --outDir lib-esm",
-    "postversion": "git push --tags"
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
@@ -45,7 +45,6 @@
     "typedoc": "^0.11.1",
     "types-ethereumjs-util": "0.0.8",
     "typescript": "^2.9.2",
-    "typings": "^2.1.1",
     "webpack": "^4.16.0",
     "webpack-cli": "^3.0.8"
   },
