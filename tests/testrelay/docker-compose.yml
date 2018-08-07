@@ -13,8 +13,8 @@ services:
       - "parity:node"
       - "postgres:db"
     volumes:
-      - ./config.json:/relay/config.json
-      - ./addresses.json:/relay/addresses.json
+      - ./config.json:/opt/relay/config.json
+      - ./addresses.json:/opt/relay/addresses.json
     ports:
       - "127.0.0.1:5000:5000"
     networks:
