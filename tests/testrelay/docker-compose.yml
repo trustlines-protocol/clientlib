@@ -34,7 +34,7 @@ services:
       - PGDATABASE
       - PGPASSWORD
     restart: unless-stopped
-    command: bash -c "sleep 5 && /opt/ethindex/bin/ethindex runsync --jsonrpc http://node:8545 --waittime 200"
+    command: bash -c "sleep 15 && /opt/ethindex/bin/ethindex runsync --jsonrpc http://node:8545 --waittime 200"
 
   init:
     image: trustlines/py-eth-index
@@ -50,7 +50,7 @@ services:
     volumes:
       - ./addresses.json:/opt/ethindex/addresses.json
       - ../../contracts.json:/opt/ethindex/contracts.json
-    command: bash -c "sleep 2 && /opt/ethindex/bin/ethindex createtables && /opt/ethindex/bin/ethindex importabi"
+    command: bash -c "sleep 6 && /opt/ethindex/bin/ethindex createtables && /opt/ethindex/bin/ethindex importabi"
 
   postgres:
     image: postgres
@@ -70,8 +70,7 @@ services:
       - internal
     
   contracts:
-    build:
-      context: https://github.com/trustlines-network/contracts.git#develop
+    image: trustlines/contracts
     command: ["test", "--file", "addresses.json", "--jsonrpc", "http://node:8545"]
     container_name: contracts
     links:
