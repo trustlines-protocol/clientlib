@@ -16,21 +16,27 @@ jobs:
         - ./.travis/build_e2e_tests.sh
       script: ./.travis/run_e2e_tests.sh
     - stage: deploy
+      install: npm install
+      script: skip
+      before_deploy:
+        - npm run build
       deploy:
         - provider: npm
+          skip_cleanup: true
           email: dongha.kim210@gmail.com
-          api_key: UB22o24ibbkVn2HCp7LZHrgp9rq6YenRPS92JrK3LqzAu2TNt3aAu+khDiydj9pA8BvzTrTj6PQkcK+v+Y6/RSDuylkl8QaqYlsGWpYCaqtALWD4MhnM8rZCR8zVqMTIySdfZ0sYuImhLxE1o3JkiMxWVNxwVsGsRHfm/LkpvJWVFGnxUQt/89KPkSQMDHloA5jjZw8wU1q2UZs/LW4GdLMr00kGrMuqVtrIzLUwxXNzjUKZvRv1jYPBwXrSddcixKwS7XuZk1/3ApD2khSm5aim19svjvNO26aj3h+N+kdp6Joya6qBaAKMN/Eaiuv/xTDG/M6E4QsAFWNZ4u/UrK2itPSFKJexqJjJGrd55MECNzvITk/sal5huxPKG7GXqRvJAdub9WaKzwH5prpkfD7S4/UkN18sUjTd/F/z3bAcUOszx3/bq12QDEmqGm3eNWkMW8bDIjhI+JE5AGo/7n21SQbE/fae/4gPzqcF0sGTRo8xioiAe9Fxs9xCBAceX317uTNWxqAVG9Zvsi95++agpTn5bkNeB/HS2yd7ovBrvDKum7WmqS3bQkkaYfKiI3aQUxz1HhByJIWhDKpDEUJfhkwX+5u87Lhzlk+rLltI4BhGjs0Pw73Fbm78tcAkY/WBwM+4KqUIkeY9++tu1IM6Owgg40SaHi3iruSJJZg=
+          api_key:
+          - secure: UJCuatBn0Oencga2bUrtMkqZlCWtGyDPSOX+3hRcraWZ/k45Us3sWxpn0ttCOOrIjTlqkCVGD0od5CKNRNgQXeAsXqw6RgIYCKXiQCWubHqOdiUoJq3oPxp98wgTx2wZRkurJeSdk4dpWYZVJB4whGjitpjBGd3/HbirBU4j2m5jBWJCjTHeA0RA7QOTUk7KzNa9AgNoWM8sQuu9FbfRkmDv1YF6cWSFHyjSp9E/qU9nP82oA65tVasBdwSxEHHcTjry8YXKqhfMkieKOhGmyRwxI4HpEp57iW+4bfruFuBosNWkx9neNGuGHn9jxXxKKjk475GFSRzV2tF1uwYBY0cNDD98kxbwqmdmxyLskejCzEKhal61qrgeQNCcnBGwvtMYoptBJVtCt32/KvE8v4TdjQBRKsCXmmemN6mczttP6LAALDpOm+UkU+qBRUcxf4kRWkvkSOlBp5Q68Awv1tcPERsoYVo9wrCX29zOcn1Ngl0eVvfoV2djmXKAkIR6KGBvg3K3sD+K8qgTE2oXXX3SHGfzGQieTlgR8uJD9Y/ZrwCYXOEc+sWdLlXotk2UpgKPz3llSyVYV1pnwe7OURbsYxXR7Mr7CaUExUs8KQjMNpbGlW70+UOW0HOsYm/T+pNklfpNNnRPTKDuN0oTFqUN584vwYe52KcF/Z90jEA=
           tag: next
           on:
             branch: develop
         - provider: npm
+          skip_cleanup: true
           email: dongha.kim210@gmail.com
-          api_key: UB22o24ibbkVn2HCp7LZHrgp9rq6YenRPS92JrK3LqzAu2TNt3aAu+khDiydj9pA8BvzTrTj6PQkcK+v+Y6/RSDuylkl8QaqYlsGWpYCaqtALWD4MhnM8rZCR8zVqMTIySdfZ0sYuImhLxE1o3JkiMxWVNxwVsGsRHfm/LkpvJWVFGnxUQt/89KPkSQMDHloA5jjZw8wU1q2UZs/LW4GdLMr00kGrMuqVtrIzLUwxXNzjUKZvRv1jYPBwXrSddcixKwS7XuZk1/3ApD2khSm5aim19svjvNO26aj3h+N+kdp6Joya6qBaAKMN/Eaiuv/xTDG/M6E4QsAFWNZ4u/UrK2itPSFKJexqJjJGrd55MECNzvITk/sal5huxPKG7GXqRvJAdub9WaKzwH5prpkfD7S4/UkN18sUjTd/F/z3bAcUOszx3/bq12QDEmqGm3eNWkMW8bDIjhI+JE5AGo/7n21SQbE/fae/4gPzqcF0sGTRo8xioiAe9Fxs9xCBAceX317uTNWxqAVG9Zvsi95++agpTn5bkNeB/HS2yd7ovBrvDKum7WmqS3bQkkaYfKiI3aQUxz1HhByJIWhDKpDEUJfhkwX+5u87Lhzlk+rLltI4BhGjs0Pw73Fbm78tcAkY/WBwM+4KqUIkeY9++tu1IM6Owgg40SaHi3iruSJJZg=
+          api_key:
+          - secure: UJCuatBn0Oencga2bUrtMkqZlCWtGyDPSOX+3hRcraWZ/k45Us3sWxpn0ttCOOrIjTlqkCVGD0od5CKNRNgQXeAsXqw6RgIYCKXiQCWubHqOdiUoJq3oPxp98wgTx2wZRkurJeSdk4dpWYZVJB4whGjitpjBGd3/HbirBU4j2m5jBWJCjTHeA0RA7QOTUk7KzNa9AgNoWM8sQuu9FbfRkmDv1YF6cWSFHyjSp9E/qU9nP82oA65tVasBdwSxEHHcTjry8YXKqhfMkieKOhGmyRwxI4HpEp57iW+4bfruFuBosNWkx9neNGuGHn9jxXxKKjk475GFSRzV2tF1uwYBY0cNDD98kxbwqmdmxyLskejCzEKhal61qrgeQNCcnBGwvtMYoptBJVtCt32/KvE8v4TdjQBRKsCXmmemN6mczttP6LAALDpOm+UkU+qBRUcxf4kRWkvkSOlBp5Q68Awv1tcPERsoYVo9wrCX29zOcn1Ngl0eVvfoV2djmXKAkIR6KGBvg3K3sD+K8qgTE2oXXX3SHGfzGQieTlgR8uJD9Y/ZrwCYXOEc+sWdLlXotk2UpgKPz3llSyVYV1pnwe7OURbsYxXR7Mr7CaUExUs8KQjMNpbGlW70+UOW0HOsYm/T+pNklfpNNnRPTKDuN0oTFqUN584vwYe52KcF/Z90jEA=
           on:
             tags: true
             branch: develop
-before_deploy:
-  - npm run build
 branches:
   only:
   - master
