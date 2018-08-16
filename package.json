@@ -13,8 +13,7 @@
     "test:e2e": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
     "test:integration": "mocha --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
     "test:unit": "mocha --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
-    "watch:esm": "tsc -w -m es6 --outDir lib-esm",
-    "postversion": "git push && git push --tags"
+    "watch:esm": "tsc -w -m es6 --outDir lib-esm"
   },
   "repository": {
     "type": "git",
