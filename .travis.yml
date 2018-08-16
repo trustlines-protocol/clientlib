@@ -35,12 +35,11 @@ jobs:
           script: ./node_modules/.bin/fluid-publish
           tag: dev
           on:
-            branch: feature/fluid-publish-npm
+            branch: develop
 branches:
   only:
   - master
   - develop
-  - feature/fluid-publish-npm
 services:
   - docker
 cache:
