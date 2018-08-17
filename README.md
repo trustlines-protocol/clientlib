@@ -40,8 +40,7 @@ This library is a promise-based library. So every asynchronous call will return 
 ```javascript
 try {
   const networks = await tlNetwork.currencyNetwokr.getAll()
-}
-catch (error) {
+} catch (error) {
   console.log('Caught error:', error)
 }
 ```

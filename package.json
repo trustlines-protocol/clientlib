@@ -14,7 +14,8 @@
     "test:integration": "mocha --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
     "test:unit": "mocha --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
     "watch:esm": "tsc -w -m es6 --outDir lib-esm",
-    "postversion": "git push && git push --tags"
+    "bump:pre": "npm --no-git-tag-version version",
+    "bump": "./bump.sh"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "es6-promise": "^4.1.1",
+    "fluid-publish": "^2.2.0",
     "isomorphic-fetch": "^2.2.1",
     "mocha": "^5.2.0",
     "reconnecting-websocket": "^3.0.7",

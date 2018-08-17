@@ -16,9 +16,12 @@ jobs:
         - ./.travis/build_e2e_tests.sh
       script: ./.travis/run_e2e_tests.sh
     - stage: deploy
+      env:
+        - secure: rqGV+/s48b8gf9XB5tQ9iZN7gP1vT05Twtx9X8Cp2afuRgn+dKaAv23znhieFVZZjO3UCrwozIZpWymHiPL5uVSzYkURVlNaWyTttpO93uN2Ip/zuw/kEm9PNgyYHCgzhVKeE14GCirc2F7BY2aUKWnvgTX8pH1QSpPhrRUoovHpJscwbZRIAFWSD0EDJwdH/1PZv7iqGqbnffPrEy9cxyHQhJdMmZNEmdcMBM6hWpXWkAirNLKJGlvNmsWFoMpXzxGBjZn9ig8FoZGnA9wuHoL8qXnJN6D2Qv/ppATUitPwqMSugbJFACUsgXqGnItFxMyfOHwCviUnpSSAQJPn+vWaWFvYx1Yfb/J0bM9dKmgFHjsoRpanAIUow8iqKNkAQtM15llW7N2/wmVxKo0fCLXISc4Wlv/Szcud6rtB6oIQC3zNQUkIuY4nU3DZQHdmJW7HNLzv72VtoTL/WSayKFhzCuWHEXfCNFuETcIIcO1Bx62IaaAybZ6X2mBX+32P6MbjjMjBm3J+f0xu5+5zZ+Ns+WGHIhxpE1Zt69RP4Zl1RosNhPFKmPgxfGaQ8WZ0mXXg/MYYP5ittDdu0CqrmsppA+QlLekHrG7QHRWPYXguFT3xKBcQiPG5wgEEzPISy2i02l3tRrD8xrqZwGKROFHyj4kBo+iI24iuzYu3LKU=
       install: npm install
       script: skip
       before_deploy:
+        - cp ./.npmrc-template ./.npmrc
         - npm run build
       deploy:
         - provider: npm
@@ -26,8 +29,15 @@ jobs:
           email: dongha.kim210@gmail.com
           api_key:
           - secure: UJCuatBn0Oencga2bUrtMkqZlCWtGyDPSOX+3hRcraWZ/k45Us3sWxpn0ttCOOrIjTlqkCVGD0od5CKNRNgQXeAsXqw6RgIYCKXiQCWubHqOdiUoJq3oPxp98wgTx2wZRkurJeSdk4dpWYZVJB4whGjitpjBGd3/HbirBU4j2m5jBWJCjTHeA0RA7QOTUk7KzNa9AgNoWM8sQuu9FbfRkmDv1YF6cWSFHyjSp9E/qU9nP82oA65tVasBdwSxEHHcTjry8YXKqhfMkieKOhGmyRwxI4HpEp57iW+4bfruFuBosNWkx9neNGuGHn9jxXxKKjk475GFSRzV2tF1uwYBY0cNDD98kxbwqmdmxyLskejCzEKhal61qrgeQNCcnBGwvtMYoptBJVtCt32/KvE8v4TdjQBRKsCXmmemN6mczttP6LAALDpOm+UkU+qBRUcxf4kRWkvkSOlBp5Q68Awv1tcPERsoYVo9wrCX29zOcn1Ngl0eVvfoV2djmXKAkIR6KGBvg3K3sD+K8qgTE2oXXX3SHGfzGQieTlgR8uJD9Y/ZrwCYXOEc+sWdLlXotk2UpgKPz3llSyVYV1pnwe7OURbsYxXR7Mr7CaUExUs8KQjMNpbGlW70+UOW0HOsYm/T+pNklfpNNnRPTKDuN0oTFqUN584vwYe52KcF/Z90jEA=
+          tag: latest
           on:
             tags: true
+            branch: develop
+        - provider: script
+          skip_cleanup: true
+          script: ./node_modules/.bin/fluid-publish
+          tag: dev
+          on:
             branch: develop
 branches:
   only:
