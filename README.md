@@ -6,9 +6,9 @@ A TypeScript/Javascript library for interacting with the [trustlines-network pro
 ## Installation
 Install the library using `npm` or `yarn`
 ```bash
-$ npm install
+$ npm install trustlines-clientlib
 // OR
-$ yarn install
+$ yarn add trustlines-clientlib
 ```
 
 #### Import ES6 module
