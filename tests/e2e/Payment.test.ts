@@ -156,41 +156,37 @@ describe('e2e', () => {
       })
 
       describe('#getMaxAmount()', () => {
-        it('should return some result', async () => {
+        it('should return the max amount in formatted form', async () => {
           const result = await tl1.payment.getMaxAmount(network.address)
-          expect(result.amount.raw).to.eq('494949996')
-          expect(result.amount.value).to.eq('494.949996')
-          expect(result.amount.decimals).to.eq(6)
+          expect(result.amount).to.have.keys('decimals', 'raw', 'value')
         })
       })
 
       describe('#getMaxAmountToUser()', () => {
         it('should return a non zero value to an adjacent user', async () => {
           const result = await tl1.payment.getMaxAmountToUser(network.address, user2.address)
-          expect(result.amount.raw).to.eq('494949996')
-          expect(result.amount.value).to.eq('494.949996')
+          expect(result.amount).to.have.keys('decimals', 'raw', 'value')
         })
 
         it('should return zero for non adjacent user', async () => {
           const result = await tl1.payment.getMaxAmountToUser(network.address, user3.address)
+          expect(result.amount).to.have.keys('decimals', 'raw', 'value')
           expect(result.amount.raw).to.eq('0')
           expect(result.amount.value).to.eq('0')
         })
       })
 
       describe('#getMaxAmountAndPathInNetwork()', () => {
-        it('should return some result', async () => {
+        it('should return the path and the amount for adjacent users', async () => {
           const result = await tl1.payment.getMaxAmountAndPathInNetwork(network.address, user2.address)
           expect(result.path.length).to.eq(2)
-          expect(result.amount.raw).to.eq('490049500')
-          expect(result.amount.value).to.eq('490.0495')
+          expect(result.amount).to.have.keys('decimals', 'raw', 'value')
         })
 
-        it('should return some result', async () => {
+        it('should return the path and the amount for non-adjacent users', async () => {
           const result = await tl1.payment.getMaxAmountAndPathInNetwork(network.address, user3.address)
           expect(result.path.length).to.eq(3)
-          expect(result.amount.raw).to.eq('196039602')
-          expect(result.amount.value).to.eq('196.039602')
+          expect(result.amount).to.have.keys('decimals', 'raw', 'value')
         })
 
       })
