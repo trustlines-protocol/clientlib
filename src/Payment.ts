@@ -214,53 +214,6 @@ export class Payment {
   }
 
   /**
-   * Retrieve total spendable amount of user in currency network
-   *
-   * @param networkAddress
-   *
-   * @return {Promise<{amount: Amount}>}
-   */
-  public async getMaxAmount (
-    networkAddress: string
-  ): Promise<any> {
-    const decimals = await this._currencyNetwork.getDecimals(networkAddress)
-    const userAddress = this._user.address
-    const endpoint = `networks/${networkAddress}/users/${userAddress}/spendable`
-    const result = await this._utils.fetchUrl<number>(endpoint, {
-      method: 'GET',
-      headers: new Headers({ 'Content-Type': 'application/json' })
-    })
-
-    return {
-      amount: this._utils.formatToAmount(result, decimals)
-    }
-  }
-
-  /**
-   * Retrieve the maximum amount the user can transfer to a given receiver ina given network
-   * @param networkAddress Address of currency network
-   * @param receiverAddress Address of receiver
-   *
-   * @return {Promise<{amount: Amount}>}
-   */
-  public async getMaxAmountToUser (
-    networkAddress: string,
-    receiverAddress: string
-  ): Promise<any> {
-    const decimals = await this._currencyNetwork.getDecimals(networkAddress)
-    const userAddress = this._user.address
-    const endpoint = `networks/${networkAddress}/users/${userAddress}/spendables/${receiverAddress}`
-    const result = await this._utils.fetchUrl<number>(endpoint, {
-      method: 'GET',
-      headers: new Headers({ 'Content-Type': 'application/json' })
-    })
-
-    return {
-      amount: this._utils.formatToAmount(result, decimals)
-    }
-  }
-
-  /**
    * Retrieve the maximum spendable amount and path to user in a network
    *
    * @param networkAddress
