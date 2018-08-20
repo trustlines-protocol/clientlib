@@ -4,7 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import { BigNumber } from 'bignumber.js'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { config, keystore1, keystore2, wait } from '../Fixtures'
+import { config, keystore1, keystore2, keystore3, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -25,7 +25,7 @@ describe('e2e', () => {
         tl2.user.load(keystore2)
       ])
       // make sure users have eth
-      await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
+      await Promise.all([ tl1.user.requestEth(), tl2.user.requestEth() ])
       // set up trustlines
       const [ tx1, tx2 ] = await Promise.all([
         tl1.trustline.prepareUpdate(network.address, user2.address, 1000, 500),
@@ -90,7 +90,7 @@ describe('e2e', () => {
 
       it('should return latest transfer', async () => {
         const transfers = await tl1.payment.get(network.address)
-        const latestTransfer = transfers[transfers.length - 1]
+        const latestTransfer = transfers[ transfers.length - 1 ]
         expect(latestTransfer.user).to.be.equal(tl1.user.address)
         expect(latestTransfer.counterParty).to.be.equal(tl2.user.address)
         expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
@@ -128,5 +128,48 @@ describe('e2e', () => {
         expect(delta.toNumber()).to.eq(0.0001)
       })
     })
+
+    describe('Maximum spendable amount', () => {
+      const tl3 = new TLNetwork(config)
+      let user3
+
+      before(async () => {
+
+        user3 = await tl3.user.load(keystore3)
+        // make sure users have eth
+        await tl3.user.requestEth()
+        // set up trustlines
+        const [ tx1, tx2 ] = await
+          Promise.all([
+            tl2.trustline.prepareUpdate(network.address, user3.address, 300, 200),
+            tl3.trustline.prepareUpdate(network.address, user2.address, 200, 300)
+          ])
+
+        await
+          Promise.all([
+            tl2.trustline.confirm(tx1.rawTx),
+            tl3.trustline.confirm(tx2.rawTx)
+          ])
+        // wait for tx to be mined
+        await
+          wait()
+      })
+
+      describe('#getMaxAmountAndPathInNetwork()', () => {
+        it('should return the path and the amount for adjacent users', async () => {
+          const result = await tl1.payment.getMaxAmountAndPathInNetwork(network.address, user2.address)
+          expect(result.path.length).to.eq(2)
+          expect(result.amount).to.have.keys('decimals', 'raw', 'value')
+        })
+
+        it('should return the path and the amount for non-adjacent users', async () => {
+          const result = await tl1.payment.getMaxAmountAndPathInNetwork(network.address, user3.address)
+          expect(result.path.length).to.eq(3)
+          expect(result.amount).to.have.keys('decimals', 'raw', 'value')
+        })
+
+      })
+    })
+
   })
 })

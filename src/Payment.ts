@@ -156,10 +156,10 @@ export class Payment {
       value: this._utils.calcRaw(value, decimals).toString()
     }
     if (maximumFees) {
-      data['maxFees'] = maximumFees
+      data[ 'maxFees' ] = maximumFees
     }
     if (maximumHops) {
-      data['maxHops'] = maximumHops
+      data[ 'maxHops' ] = maximumHops
     }
     const endpoint = `networks/${networkAddress}/path-info`
     const { estimatedGas, fees, path } = await _utils.fetchUrl<PathRaw>(endpoint, {
@@ -211,5 +211,35 @@ export class Payment {
   ): Promise<string> {
     const params = [ 'paymentrequest', networkAddress, this._user.address, amount, subject ]
     return this._utils.createLink(params)
+  }
+
+  /**
+   * Retrieve the maximum spendable amount and path to user in a network
+   *
+   * @param networkAddress
+   * @param receiverAddress
+   *
+   * @return {Promise<{path: any, amount: Amount}>}
+   */
+  public async getMaxAmountAndPathInNetwork (
+    networkAddress: string,
+    receiverAddress: string
+  ): Promise<any> {
+    const decimals = await this._currencyNetwork.getDecimals(networkAddress)
+    const userAddress = this._user.address
+    const endpoint = `networks/${networkAddress}/max-capacity-path-info`
+    const result = await this._utils.fetchUrl<{ capacity: number, path: Array<string>}>(endpoint, {
+      method: 'post',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        from: userAddress,
+        to: receiverAddress
+      })
+    })
+
+    return {
+      path: result.path,
+      amount: this._utils.formatToAmount(result.capacity, decimals)
+    }
   }
 }
