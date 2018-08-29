@@ -14,7 +14,7 @@ export class FakeEthLightwallet {
 
   private _seed = 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
   private _pwDerivedKey = ''
-  private _pubKey = ''
+  private _pubKey = 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472'
   private _privateKey = ''
 
   constructor () {
