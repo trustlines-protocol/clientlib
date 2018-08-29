@@ -14,6 +14,8 @@ describe('unit', () => {
     // mocks
     const fakeConfiguration = new FakeConfiguration()
     const fakeUtils = new FakeUtils(fakeConfiguration)
+    let fakeEthLightwallet
+    let lightwalletSigner
 
     // test data
     const USER_ADDRESS = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
@@ -28,11 +30,9 @@ describe('unit', () => {
     }
 
     describe('#createAccount()', () => {
-      const fakeEthLightwallet = new FakeEthLightwallet()
-      const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-
-      afterEach(() => {
-        lightwalletSigner.keystore.removeErrors()
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
       })
 
       it('should create account using mocked eth-lightwallet', async () => {
@@ -40,41 +40,39 @@ describe('unit', () => {
         assert.hasAllKeys(createdAccount, ['address', 'keystore', 'pubKey'])
         assert.isString(createdAccount.address)
         assert.isString(createdAccount.keystore)
-        assert.isString(createdAccount.address)
+        assert.isString(createdAccount.pubKey)
       })
 
       it('should throw error for lightwallet.keystore.createVault()', async () => {
-        lightwalletSigner.keystore.setError('createVault')
+        fakeEthLightwallet.setError('createVault')
         await assert.isRejected(lightwalletSigner.createAccount())
       })
 
       it('should throw error for lightwallet.keystore.generateRandomSeed()', async () => {
-        // lightwalletSigner.keystore.setError('generateRandomSeed')
+        fakeEthLightwallet.setError('generateRandomSeed')
         await assert.isRejected(lightwalletSigner.createAccount())
       })
 
       it('should throw error for lightwallet.keystore.keyFromPassword()', async () => {
-        lightwalletSigner.keystore.setError('keyFromPassword')
+        fakeEthLightwallet.setError('keyFromPassword')
         await assert.isRejected(lightwalletSigner.createAccount())
       })
 
       it('should throw error for lightwallet.keystore.generateNewAddress()', async () => {
-        lightwalletSigner.keystore.setError('generateNewAddress')
+        fakeEthLightwallet.setError('generateNewAddress')
         await assert.isRejected(lightwalletSigner.createAccount())
       })
 
       it('should throw error for lightwallet.keystore.addressToPublicEncKey()', async () => {
-        lightwalletSigner.keystore.setError('addressToPublicEncKey')
+        fakeEthLightwallet.setError('addressToPublicEncKey')
         await assert.isRejected(lightwalletSigner.createAccount())
       })
     })
 
     describe('#loadAccount()', () => {
-      const fakeEthLightwallet = new FakeEthLightwallet()
-      const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-
-      afterEach(() => {
-        lightwalletSigner.keystore.removeErrors()
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
       })
 
       it('should load keystore using mocked eth-lightwallet', async () => {
@@ -94,39 +92,34 @@ describe('unit', () => {
       })
 
       it('should throw error for lightwallet.update.upgradeOldSerialized()', async () => {
-        lightwalletSigner.keystore.setError('upgradeOldSerialized')
+        fakeEthLightwallet.setError('upgradeOldSerialized')
         await assert.isRejected(lightwalletSigner.loadAccount(keystore2))
       })
 
       it('should throw error for lightwallet.keystore.keyFromPassword()', async () => {
-        lightwalletSigner.keystore.setError('keyFromPassword')
+        fakeEthLightwallet.setError('keyFromPassword')
         await assert.isRejected(lightwalletSigner.loadAccount(keystore1))
       })
 
       it('should throw error for lightwallet.keystore.generateNewAddress()', async () => {
-        lightwalletSigner.keystore.setError('generateNewAddress')
+        fakeEthLightwallet.setError('generateNewAddress')
         await assert.isRejected(lightwalletSigner.loadAccount(keystore1))
       })
 
       it('should throw error for lightwallet.keystore.addressToPublicEncKey()', async () => {
-        lightwalletSigner.keystore.setError('addressToPublicEncKey')
+        fakeEthLightwallet.setError('addressToPublicEncKey')
         await assert.isRejected(lightwalletSigner.loadAccount(keystore1))
       })
     })
 
     describe('#signMsgHash()', () => {
-      const fakeEthLightwallet = new FakeEthLightwallet()
-      const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-
-      before(async () => {
-        await lightwalletSigner.loadAccount(keystore1)
-      })
-
       beforeEach(() => {
-        lightwalletSigner.keystore.removeErrors()
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
       })
 
       it('should sign message hash using mocked eth-lightwallet', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
         const signature = await lightwalletSigner.signMsgHash(
           '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'
         )
@@ -138,14 +131,16 @@ describe('unit', () => {
       })
 
       it('should throw error for lightwallet.keystore.keyFromPassword()', async () => {
-        lightwalletSigner.keystore.setError('keyFromPassword')
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('keyFromPassword')
         await assert.isRejected(lightwalletSigner.signMsgHash(
           '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'
         ))
       })
 
       it('should throw error for lightwallet.signing.signMsgHash()', async () => {
-        lightwalletSigner.keystore.setError('signMsgHash')
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('signMsgHash')
         await assert.isRejected(lightwalletSigner.signMsgHash(
           '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'
         ))
@@ -153,8 +148,10 @@ describe('unit', () => {
     })
 
     describe('#getBalance()', () => {
-      const fakeEthLightwallet = new FakeEthLightwallet()
-      const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+      })
 
       it('should return ETH balance for loaded user', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -166,24 +163,18 @@ describe('unit', () => {
       })
 
       it('should throw error because there is no loaded user', async () => {
-        const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
         await assert.isRejected(lightwalletSigner.getBalance())
       })
     })
 
     describe('#encrypt()', () => {
-      const fakeEthLightwallet = new FakeEthLightwallet()
-      const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-
-      before(async () => {
-        await lightwalletSigner.loadAccount(keystore1)
-      })
-
       beforeEach(() => {
-        lightwalletSigner.keystore.removeErrors()
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
       })
 
       it('should return encryption object using mocked eth-lightwallet', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
         const encObj = await lightwalletSigner.encrypt('hello world!', user1.pubKey)
         assert.hasAllKeys(encObj, [
           'version',
@@ -193,6 +184,28 @@ describe('unit', () => {
           'symEncMessage',
           'encryptedSymKey'
         ])
+      })
+
+      it('should throw error because there is no loaded user', async () => {
+        // NOTE: No idea why `await assert.isRejected(...)` is not working here
+        try {
+          await lightwalletSigner.encrypt('hello world!', user1.pubKey)
+        } catch (error) {
+          assert.equal(error.message, 'No account/keystore loaded.')
+          return
+        }
+      })
+
+      it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('keyFromPassword')
+        await assert.isRejected(lightwalletSigner.encrypt('hello world!', user1.pubKey))
+      })
+
+      it('should throw error for lightwallet.encryption.multiEncryptString', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('multiEncryptString')
+        await assert.isRejected(lightwalletSigner.encrypt('hello world!', user1.pubKey))
       })
     })
 

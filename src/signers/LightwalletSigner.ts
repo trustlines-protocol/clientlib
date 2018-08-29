@@ -361,7 +361,7 @@ export class LightwalletSigner implements TxSigner {
 
   private _assertUserLoaded (): boolean {
     if (!this.address || !this.pubKey || !this.keystore) {
-      throw new Error('No user loaded.')
+      throw new Error('No account/keystore loaded.')
     }
     return
   }
