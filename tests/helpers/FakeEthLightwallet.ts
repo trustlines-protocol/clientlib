@@ -28,6 +28,7 @@ export class FakeEthLightwallet {
       generateRandomSeed: () => this._generateRandomSeed(),
       generateNewAddress: pwDerivedKey => this._generateNewAddress(pwDerivedKey),
       getAddresses: () => this._getAddresses(),
+      getSeed: () => this._getSeed(),
       setError: (name) => this.setError(name),
       removeErrors: () => this.removeErrors()
     }
@@ -208,6 +209,12 @@ export class FakeEthLightwallet {
   }
   private _getAddresses () {
     return ['0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe']
+  }
+  private _getSeed () {
+    if (this.errors['getSeed']) {
+      throw new Error('Mocked error in lightwallet.keystore.getSeed()')
+    }
+    return this._seed
   }
 
   /**
