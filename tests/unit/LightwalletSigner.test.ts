@@ -209,6 +209,85 @@ describe('unit', () => {
       })
     })
 
+    describe('#decrypt()', () => {
+      const ENC_MSG = {
+        version: 1,
+        asymAlg: 'Asym Algorithm',
+        symAlg: 'Sym Algorithm',
+        symNonce: 'Sym Nonce',
+        symEncMessage: 'Encrypted Message',
+        encryptedSymKey: 'Encrypted Symmetric Key'
+      }
+
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+      })
+
+      it('should decrypt message using mocked eth-lightwallet', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        const decryptedMsg = await lightwalletSigner.decrypt(ENC_MSG, user1.pubKey)
+        assert.equal(decryptedMsg, 'Decrypted Message!')
+      })
+
+      it('should throw error because there is no loaded user', async () => {
+        // NOTE: No idea why `await assert.isRejected(...)` is not working here
+        try {
+          await lightwalletSigner.decrypt(ENC_MSG, user1.pubKey)
+        } catch (error) {
+          assert.equal(error.message, 'No account/keystore loaded.')
+          return
+        }
+      })
+
+      it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('keyFromPassword')
+        await assert.isRejected(lightwalletSigner.decrypt(ENC_MSG, user1.pubKey))
+      })
+
+      it('should throw error for lightwallet.encryption.multiDecryptString', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('multiDecryptString')
+        await assert.isRejected(lightwalletSigner.decrypt(ENC_MSG, user1.pubKey))
+      })
+    })
+
+    describe('#showSeed()', () => {
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+      })
+
+      it('should show seed for loaded user', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        const seed = await lightwalletSigner.showSeed()
+        assert.equal(seed, 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur')
+      })
+
+      it('should throw error because there is no loaded user', async () => {
+        // NOTE: No idea why `await assert.isRejected(...)` is not working here
+        try {
+          await await lightwalletSigner.showSeed()
+        } catch (error) {
+          assert.equal(error.message, 'No account/keystore loaded.')
+          return
+        }
+      })
+
+      it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('keyFromPassword')
+        await assert.isRejected(lightwalletSigner.showSeed())
+      })
+
+      it('should throw error for lightwallet.keystore.getSeed', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('getSeed')
+        await assert.isRejected(lightwalletSigner.showSeed())
+      })
+    })
+
     describe('#getTxInfos()', () => {
       const fakeEthLightwallet = new FakeEthLightwallet()
       const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
