@@ -5,6 +5,7 @@ services:
     container_name: relay
     environment:
       - ETHINDEX=1
+      - TRUSTLINES_END2END=1
       - PGHOST
       - PGUSER
       - PGDATABASE
