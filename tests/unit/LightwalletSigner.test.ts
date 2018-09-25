@@ -288,6 +288,67 @@ describe('unit', () => {
       })
     })
 
+    describe('#exportPrivateKey()', () => {
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+      })
+
+      it('should return private key of loaded user', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        const privateKey = await lightwalletSigner.exportPrivateKey()
+        // NOTE: Mocked private key from FakeEthLightwallet.ts
+        assert.equal(privateKey, '3a1076bf45ab87712ad64ccb3b10217737f7faacbf2872e88fdd9a537d8fe266')
+      })
+
+      it('should throw error because there is no loaded user', async () => {
+        // NOTE: No idea why `await assert.isRejected(...)` is not working here
+        try {
+          await lightwalletSigner.exportPrivateKey()
+        } catch (error) {
+          assert.equal(error.message, 'No account/keystore loaded.')
+          return
+        }
+      })
+
+      it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('keyFromPassword')
+        await assert.isRejected(lightwalletSigner.exportPrivateKey())
+      })
+
+      it('should throw error for lightwallet.keystore.exportPrivateKey', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('exportPrivateKey')
+        await assert.isRejected(lightwalletSigner.exportPrivateKey())
+      })
+    })
+
+      })
+
+      it('should throw error because there is no loaded user', async () => {
+        // NOTE: No idea why `await assert.isRejected(...)` is not working here
+        try {
+          await await lightwalletSigner.exportPrivateKey()
+        } catch (error) {
+          assert.equal(error.message, 'No account/keystore loaded.')
+          return
+        }
+      })
+
+      it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('keyFromPassword')
+        await assert.isRejected(lightwalletSigner.exportPrivateKey())
+      })
+
+      it('should throw error for lightwallet.keystore.exportPrivateKey', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('exportPrivateKey')
+        await assert.isRejected(lightwalletSigner.exportPrivateKey())
+      })
+    })
+
     describe('#getTxInfos()', () => {
       const fakeEthLightwallet = new FakeEthLightwallet()
       const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
