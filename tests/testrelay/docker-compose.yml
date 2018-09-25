@@ -20,6 +20,8 @@ services:
     networks:
       - internal
     restart: unless-stopped
+    entrypoint: ""
+    command: bash -c "sleep 7; exec tl-relay"
 
   index:
     image: trustlines/py-eth-index
