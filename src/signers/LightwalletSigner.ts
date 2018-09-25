@@ -145,7 +145,7 @@ export class LightwalletSigner implements TxSigner {
    */
   public decrypt (encMsg: any, theirPubKey: string): Promise<any> {
     this._assertUserLoaded()
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           throw err
@@ -167,7 +167,7 @@ export class LightwalletSigner implements TxSigner {
    */
   public showSeed (): Promise<string> {
     this._assertUserLoaded()
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           throw err
@@ -182,7 +182,7 @@ export class LightwalletSigner implements TxSigner {
    */
   public exportPrivateKey (): Promise<string> {
     this._assertUserLoaded()
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           throw err
@@ -277,10 +277,10 @@ export class LightwalletSigner implements TxSigner {
    * @param rlpHexTx RLP encoded hex string of transaction.
    */
   private _signTx (rlpHexTx: string): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
-          return reject(err)
+          throw err
         }
         resolve(this._lightwallet.signing.signTx(
           this.keystore,
