@@ -70,6 +70,17 @@ export class FakeEthLightwallet {
       )
     }
     this.signing = {
+      signTx: (
+        keystore,
+        pwDerivedKey,
+        rlpHexTx,
+        address
+      ) => this._signTx(
+        keystore,
+        pwDerivedKey,
+        rlpHexTx,
+        address
+      ),
       signMsgHash: (
         keystore,
         pwDerivedKey,
@@ -149,6 +160,17 @@ export class FakeEthLightwallet {
   /**
    * Mocked lightwallet.signing methods
    */
+  private _signTx (
+    keystore,
+    pwDerivedKey,
+    rlpHexTx,
+    address
+  ) {
+    if (this.errors['signTx']) {
+      throw new Error('Mocked error in lightwallet.signing.signTx')
+    }
+    return '0xf86180808401ef364594f0109fc8df283027b6285cc889f5aa624eac1f5580801ca031573280d608f75137e33fc14655f097867d691d5c4c44ebe5ae186070ac3d5ea0524410802cdc025034daefcdfa08e7d2ee3f0b9d9ae184b2001fe0aff07603d9'
+  }
   private _signMsgHash (
     keystore,
     pwDerivedKey,

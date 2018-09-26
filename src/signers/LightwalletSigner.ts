@@ -261,7 +261,6 @@ export class LightwalletSigner implements TxSigner {
    * @param signedTx signed RLP encoded ethereum transaction
    */
   private _relayTx (signedTx: string): Promise<string> {
-    this._assertUserLoaded()
     const headers = new Headers({ 'Content-Type': 'application/json' })
     const options = {
       method: 'POST',
