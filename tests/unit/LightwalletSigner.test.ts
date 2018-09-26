@@ -324,28 +324,40 @@ describe('unit', () => {
       })
     })
 
+    describe('#recoverFromSeed()', () => {
+      const seed = 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
       })
 
-      it('should throw error because there is no loaded user', async () => {
-        // NOTE: No idea why `await assert.isRejected(...)` is not working here
-        try {
-          await await lightwalletSigner.exportPrivateKey()
-        } catch (error) {
-          assert.equal(error.message, 'No account/keystore loaded.')
-          return
-        }
+      it('should recover account from seed and return it', async () => {
+        const recoveredAccount = await lightwalletSigner.recoverFromSeed(seed)
+        assert.hasAllKeys(recoveredAccount, ['address', 'keystore', 'pubKey'])
+        assert.isString(recoveredAccount.address)
+        assert.isString(recoveredAccount.keystore)
+        assert.isString(recoveredAccount.pubKey)
       })
 
-      it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
-        await lightwalletSigner.loadAccount(keystore1)
+      it('should throw error for lightwallet.keystore.createVault()', async () => {
+        fakeEthLightwallet.setError('createVault')
+        await assert.isRejected(lightwalletSigner.recoverFromSeed(seed))
+      })
+
+      it('should throw error for lightwallet.keystore.keyFromPassword()', async () => {
         fakeEthLightwallet.setError('keyFromPassword')
-        await assert.isRejected(lightwalletSigner.exportPrivateKey())
+        await assert.isRejected(lightwalletSigner.recoverFromSeed(seed))
       })
 
-      it('should throw error for lightwallet.keystore.exportPrivateKey', async () => {
-        await lightwalletSigner.loadAccount(keystore1)
-        fakeEthLightwallet.setError('exportPrivateKey')
-        await assert.isRejected(lightwalletSigner.exportPrivateKey())
+      it('should throw error for lightwallet.keystore.generateNewAddress()', async () => {
+        fakeEthLightwallet.setError('generateNewAddress')
+        await assert.isRejected(lightwalletSigner.recoverFromSeed(seed))
+      })
+
+      it('should throw error for lightwallet.keystore.addressToPublicEncKey()', async () => {
+        fakeEthLightwallet.setError('addressToPublicEncKey')
+        await assert.isRejected(lightwalletSigner.recoverFromSeed(seed))
       })
     })
 

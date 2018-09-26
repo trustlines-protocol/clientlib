@@ -197,7 +197,6 @@ export class LightwalletSigner implements TxSigner {
    * @param seed 12 word seed phrase string.
    */
   public async recoverFromSeed (seed: string): Promise<UserObject> {
-    this._assertUserLoaded()
     const { address, keystore, pubKey } = await this._generateKeys(seed)
     this.address = address
     this.keystore = keystore
