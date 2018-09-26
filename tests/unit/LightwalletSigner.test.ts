@@ -21,12 +21,32 @@ describe('unit', () => {
     const USER_ADDRESS = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
     const RAW_TX_OBJECT = {
       from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-      to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
       value: 10000,
       gasLimit: 10000,
       gasPrice: 10000,
-      data: '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
       nonce: 5
+    }
+    const RAW_VALUE_TX_OBJECT = {
+      ...RAW_TX_OBJECT,
+      to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+    }
+    const RAW_FUNCTION_TX_OBJECT = {
+      ...RAW_TX_OBJECT,
+      functionCallData: {
+        abi: {
+          'type': 'function',
+          'inputs': [
+            {
+              'name': 'a',
+              'type': 'uint256'
+            }
+          ],
+          'name': 'foo',
+          'outputs': []
+        },
+        functionName: 'foo',
+        args: [ 123445 ]
+      }
     }
 
     describe('#createAccount()', () => {
@@ -358,6 +378,37 @@ describe('unit', () => {
       it('should throw error for lightwallet.keystore.addressToPublicEncKey()', async () => {
         fakeEthLightwallet.setError('addressToPublicEncKey')
         await assert.isRejected(lightwalletSigner.recoverFromSeed(seed))
+      })
+    })
+
+    describe('#confirm()', () => {
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+      })
+
+      it('should sign and relay a value transaction object and return the transaction hash', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        const txId = await lightwalletSigner.confirm(RAW_VALUE_TX_OBJECT)
+        assert.isString(txId)
+      })
+
+      it('should sign and relay a function transaction object and return the transaction hash', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        const txId = await lightwalletSigner.confirm(RAW_FUNCTION_TX_OBJECT)
+        assert.isString(txId)
+      })
+
+      it('should throw error for lightwallet.signing.valueTx()', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('valueTx')
+        await assert.isRejected(lightwalletSigner.confirm(RAW_VALUE_TX_OBJECT))
+      })
+
+      it('should throw error for lightwallet.signing.functionTx()', async () => {
+        await lightwalletSigner.loadAccount(keystore1)
+        fakeEthLightwallet.setError('functionTx')
+        await assert.isRejected(lightwalletSigner.confirm(RAW_FUNCTION_TX_OBJECT))
       })
     })
 
