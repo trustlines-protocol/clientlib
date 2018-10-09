@@ -4,7 +4,7 @@ services:
     image: trustlines/relay
     container_name: relay
     environment:
-      - TRUSTLINE_SYNC_TX_RELAY=1
+      - TRUSTLINES_SYNC_TX_RELAY=1
       - PGHOST
       - PGUSER
       - PGDATABASE
