@@ -1,4 +1,4 @@
-FROM parity/parity:beta
+FROM parity/parity:stable
 
 COPY pw /
 COPY blockchain /data
