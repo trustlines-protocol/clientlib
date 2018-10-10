@@ -83,22 +83,26 @@ export class LightwalletSigner implements TxSigner {
         if (err) {
           return reject(err)
         }
-        const msgHashBuff = ethUtils.toBuffer(msgHash)
-        const personalMsgHashBuff = ethUtils.hashPersonalMessage(msgHashBuff)
-        const signature = this._lightwallet.signing.signMsgHash(
-          this.keystore,
-          pwDerivedKey,
-          ethUtils.bufferToHex(personalMsgHashBuff),
-          this.address.toLowerCase()
-        )
-        resolve({
-          ecSignature: {
-            r: ethUtils.bufferToHex(signature.r),
-            s: ethUtils.bufferToHex(signature.s),
-            v: signature.v
-          },
-          concatSig: this._lightwallet.signing.concatSig(signature)
-        })
+        try {
+          const msgHashBuff = ethUtils.toBuffer(msgHash)
+          const personalMsgHashBuff = ethUtils.hashPersonalMessage(msgHashBuff)
+          const signature = this._lightwallet.signing.signMsgHash(
+            this.keystore,
+            pwDerivedKey,
+            ethUtils.bufferToHex(personalMsgHashBuff),
+            this.address.toLowerCase()
+          )
+          resolve({
+            ecSignature: {
+              r: ethUtils.bufferToHex(signature.r),
+              s: ethUtils.bufferToHex(signature.s),
+              v: signature.v
+            },
+            concatSig: this._lightwallet.signing.concatSig(signature)
+          })
+        } catch (error) {
+          reject(error)
+        }
       })
     })
   }
@@ -126,14 +130,18 @@ export class LightwalletSigner implements TxSigner {
         if (err) {
           return reject(err)
         }
-        const encrypted = this._lightwallet.encryption.multiEncryptString(
-          this.keystore,
-          pwDerivedKey,
-          msg,
-          this.address.toLowerCase(),
-          [ theirPubKey ]
-        )
-        resolve(encrypted)
+        try {
+          const encrypted = this._lightwallet.encryption.multiEncryptString(
+            this.keystore,
+            pwDerivedKey,
+            msg,
+            this.address.toLowerCase(),
+            [ theirPubKey ]
+          )
+          resolve(encrypted)
+        } catch (error) {
+          reject(error)
+        }
       })
     })
   }
@@ -150,14 +158,18 @@ export class LightwalletSigner implements TxSigner {
         if (err) {
           return reject(err)
         }
-        const decryptedMsg = this._lightwallet.encryption.multiDecryptString(
-          this.keystore,
-          pwDerivedKey,
-          encMsg,
-          theirPubKey,
-          this.address.toLowerCase()
-        )
-        resolve(decryptedMsg)
+        try {
+          const decryptedMsg = this._lightwallet.encryption.multiDecryptString(
+            this.keystore,
+            pwDerivedKey,
+            encMsg,
+            theirPubKey,
+            this.address.toLowerCase()
+          )
+          resolve(decryptedMsg)
+        } catch (error) {
+          reject(error)
+        }
       })
     })
   }
@@ -172,7 +184,12 @@ export class LightwalletSigner implements TxSigner {
         if (err) {
           return reject(err)
         }
-        resolve(this.keystore.getSeed(pwDerivedKey))
+        try {
+          const seed = this.keystore.getSeed(pwDerivedKey)
+          resolve(seed)
+        } catch (error) {
+          reject(error)
+        }
       })
     })
   }
@@ -187,7 +204,12 @@ export class LightwalletSigner implements TxSigner {
         if (err) {
           return reject(err)
         }
-        resolve(this.keystore.exportPrivateKey(this.address.toLowerCase(), pwDerivedKey))
+        try {
+          const privateKey = this.keystore.exportPrivateKey(this.address.toLowerCase(), pwDerivedKey)
+          resolve(privateKey)
+        } catch (error) {
+          reject(error)
+        }
       })
     })
   }
