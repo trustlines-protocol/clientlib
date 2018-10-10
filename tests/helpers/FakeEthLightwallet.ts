@@ -201,8 +201,8 @@ export class FakeEthLightwallet {
   }
   private _keyFromPassword (password, callback) {
     if (this.errors['keyFromPassword']) {
-        setTimeout(() => callback(new Error('Mocked error in lightwallet.keystore.keyFromPassword()'), undefined))
-        return
+      setTimeout(() => callback(new Error('Mocked error in lightwallet.keystore.keyFromPassword()'), undefined))
+      return
     }
     setTimeout(() => callback(undefined, this._pwDerivedKey))
     return
@@ -220,9 +220,6 @@ export class FakeEthLightwallet {
     return callback(undefined, this.keystore)
   }
   private _generateRandomSeed () {
-    if (this.errors['generateRandomSeed']) {
-      throw new Error('Mocked error in lightwallet.keystore.generateRandomSeed()')
-    }
     return this._seed
   }
   private _generateNewAddress (pwDerivedKey) {

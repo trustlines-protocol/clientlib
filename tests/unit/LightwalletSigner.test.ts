@@ -68,11 +68,6 @@ describe('unit', () => {
         await assert.isRejected(lightwalletSigner.createAccount())
       })
 
-      it('should throw error for lightwallet.keystore.generateRandomSeed()', async () => {
-        fakeEthLightwallet.setError('generateRandomSeed')
-        await assert.isRejected(lightwalletSigner.createAccount())
-      })
-
       it('should throw error for lightwallet.keystore.keyFromPassword()', async () => {
         fakeEthLightwallet.setError('keyFromPassword')
         await assert.isRejected(lightwalletSigner.createAccount())
