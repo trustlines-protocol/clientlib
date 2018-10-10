@@ -202,13 +202,7 @@ describe('unit', () => {
       })
 
       it('should throw error because there is no loaded user', async () => {
-        // NOTE: No idea why `await assert.isRejected(...)` is not working here
-        try {
-          await lightwalletSigner.encrypt('hello world!', user1.pubKey)
-        } catch (error) {
-          assert.equal(error.message, 'No account/keystore loaded.')
-          return
-        }
+        await assert.isRejected(lightwalletSigner.encrypt('hello world!', user1.pubKey))
       })
 
       it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
@@ -246,13 +240,7 @@ describe('unit', () => {
       })
 
       it('should throw error because there is no loaded user', async () => {
-        // NOTE: No idea why `await assert.isRejected(...)` is not working here
-        try {
-          await lightwalletSigner.decrypt(ENC_MSG, user1.pubKey)
-        } catch (error) {
-          assert.equal(error.message, 'No account/keystore loaded.')
-          return
-        }
+        await assert.isRejected(lightwalletSigner.decrypt(ENC_MSG, user1.pubKey))
       })
 
       it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
@@ -281,13 +269,7 @@ describe('unit', () => {
       })
 
       it('should throw error because there is no loaded user', async () => {
-        // NOTE: No idea why `await assert.isRejected(...)` is not working here
-        try {
-          await await lightwalletSigner.showSeed()
-        } catch (error) {
-          assert.equal(error.message, 'No account/keystore loaded.')
-          return
-        }
+        await assert.isRejected(lightwalletSigner.showSeed())
       })
 
       it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
@@ -317,13 +299,7 @@ describe('unit', () => {
       })
 
       it('should throw error because there is no loaded user', async () => {
-        // NOTE: No idea why `await assert.isRejected(...)` is not working here
-        try {
-          await lightwalletSigner.exportPrivateKey()
-        } catch (error) {
-          assert.equal(error.message, 'No account/keystore loaded.')
-          return
-        }
+        await assert.isRejected(lightwalletSigner.exportPrivateKey())
       })
 
       it('should throw error for lightwallet.keystore.keyFromPassword', async () => {

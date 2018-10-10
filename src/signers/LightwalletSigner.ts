@@ -26,6 +26,7 @@ export class LightwalletSigner implements TxSigner {
 
   private _password = 'ts'
   private _signingPath = 'm/44\'/60\'/0\'/0' // path for signing keys
+  private _userNotLoadedError = new Error('No account/keystore loaded.')
 
   constructor (lightwallet: any, utils: Utils) {
     this._lightwallet = lightwallet
@@ -77,8 +78,10 @@ export class LightwalletSigner implements TxSigner {
    * @param msgHash Hash of message that should be signed.
    */
   public signMsgHash (msgHash: string): Promise<Signature> {
-    this._assertUserLoaded()
     return new Promise((resolve, reject) => {
+      if (!this._isUserLoaded()) {
+        return reject(this._userNotLoadedError)
+      }
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           return reject(err)
@@ -111,7 +114,9 @@ export class LightwalletSigner implements TxSigner {
    * Returns ETH balance of loaded user by querying the relay server.
    */
   public async getBalance (): Promise<Amount> {
-    this._assertUserLoaded()
+    if (!this._isUserLoaded()) {
+      return Promise.reject(this._userNotLoadedError)
+    }
     const balance = await this._utils.fetchUrl<string>(`users/${this.address}/balance`)
     return this._utils.formatToAmount(
       this._utils.calcRaw(balance, 18), 18
@@ -124,8 +129,10 @@ export class LightwalletSigner implements TxSigner {
    * @param theirPubKey Public key of receiver of message.
    */
   public encrypt (msg: string, theirPubKey: string): Promise<any> {
-    this._assertUserLoaded()
     return new Promise((resolve, reject) => {
+      if (!this._isUserLoaded()) {
+        return reject(this._userNotLoadedError)
+      }
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           return reject(err)
@@ -152,8 +159,10 @@ export class LightwalletSigner implements TxSigner {
    * @param theirPubKey Public key of sender of message.
    */
   public decrypt (encMsg: any, theirPubKey: string): Promise<any> {
-    this._assertUserLoaded()
     return new Promise((resolve, reject) => {
+      if (!this._isUserLoaded()) {
+        return reject(this._userNotLoadedError)
+      }
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           return reject(err)
@@ -178,8 +187,10 @@ export class LightwalletSigner implements TxSigner {
    * Returns the 12 word seed of loaded user.
    */
   public showSeed (): Promise<string> {
-    this._assertUserLoaded()
     return new Promise((resolve, reject) => {
+      if (!this._isUserLoaded()) {
+        return reject(this._userNotLoadedError)
+      }
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           return reject(err)
@@ -198,8 +209,10 @@ export class LightwalletSigner implements TxSigner {
    * Returns the private key of loaded user.
    */
   public exportPrivateKey (): Promise<string> {
-    this._assertUserLoaded()
     return new Promise((resolve, reject) => {
+      if (!this._isUserLoaded()) {
+        return reject(this._userNotLoadedError)
+      }
       this.keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
           return reject(err)
@@ -236,7 +249,9 @@ export class LightwalletSigner implements TxSigner {
    * @param rawTx Raw transaction object.
    */
   public async confirm (rawTx: RawTxObject): Promise<string> {
-    this._assertUserLoaded()
+    if (!this._isUserLoaded()) {
+      return Promise.reject(this._userNotLoadedError)
+    }
     let rlpTx
     const txOptions = {
       ...rawTx,
@@ -383,10 +398,10 @@ export class LightwalletSigner implements TxSigner {
     })
   }
 
-  private _assertUserLoaded (): boolean {
-    if (!this.address || !this.pubKey || !this.keystore) {
-      throw new Error('No account/keystore loaded.')
-    }
-    return
+  /**
+   * Checks if account/keystore is loaded.
+   */
+  private _isUserLoaded (): boolean {
+    return this.address && this.pubKey && this.keystore
   }
 }
