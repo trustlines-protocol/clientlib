@@ -295,14 +295,14 @@ export class LightwalletSigner implements TxSigner {
    * @param seed (optional) 12 word seed string
    */
   private _generateKeys (seed?: string): Promise<UserObject> {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       this._lightwallet.keystore.createVault({
         password: this._password,
         seedPhrase: seed || this._lightwallet.keystore.generateRandomSeed(),
         hdPathString: this._signingPath
       }, (err: any, keystore: any) => {
         if (err) {
-          throw err
+          return reject(err)
         }
         const userObj = this._getUserObject(keystore)
         resolve(userObj)
@@ -315,10 +315,10 @@ export class LightwalletSigner implements TxSigner {
    * @param keystore deserialized keystore object
    */
   private _getUserObject (keystore: any): Promise<UserObject> {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       keystore.keyFromPassword(this._password, (err: any, pwDerivedKey: any) => {
         if (err) {
-          throw err
+          reject(err)
         }
         keystore.generateNewAddress(pwDerivedKey)
         const address = keystore.getAddresses()[0]

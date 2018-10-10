@@ -201,9 +201,11 @@ export class FakeEthLightwallet {
   }
   private _keyFromPassword (password, callback) {
     if (this.errors['keyFromPassword']) {
-      return callback(new Error('Mocked error in lightwallet.keystore.keyFromPassword()'), undefined)
+        setTimeout(() => callback(new Error('Mocked error in lightwallet.keystore.keyFromPassword()'), undefined))
+        return
     }
-    return callback(undefined, this._pwDerivedKey)
+    setTimeout(() => callback(undefined, this._pwDerivedKey))
+    return
   }
   private _exportPrivateKey (address, pwDerivedKey) {
     if (this.errors['exportPrivateKey']) {
