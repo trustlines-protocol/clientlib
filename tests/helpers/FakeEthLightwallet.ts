@@ -215,9 +215,11 @@ export class FakeEthLightwallet {
   }
   private _createVault (options, callback) {
     if (this.errors['createVault']) {
-      return callback(new Error('Mocked error in lightwallet.keystore.createVault()'), undefined)
+      setTimeout(() => callback(new Error('Mocked error in lightwallet.keystore.createVault()'), undefined))
+      return
     }
-    return callback(undefined, this.keystore)
+    setTimeout(() => callback(undefined, this.keystore))
+    return
   }
   private _generateRandomSeed () {
     return this._seed
