@@ -5,3 +5,4 @@ _bundles
 .idea
 npm-debug.log
 docs
+*~
