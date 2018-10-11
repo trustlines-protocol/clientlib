@@ -157,7 +157,7 @@ describe('e2e', () => {
           ({ transactionId }) => transactionId === updateTxId
         )
         // check event TrustlineUpdateRequest
-        expect(updateRequestEvents).to.have.length(1)
+        expect(updateRequestEvents, 'Trustline Update Request should exist').to.have.length(1)
         expect(updateRequestEvents[0].type).to.equal('TrustlineUpdateRequest')
         expect(updateRequestEvents[0].timestamp).to.be.a('number')
         expect(updateRequestEvents[0].blockNumber).to.be.a('number')
@@ -180,7 +180,7 @@ describe('e2e', () => {
           ({ transactionId }) => transactionId === acceptTxId
         )
         // check event TrustlineUpdate
-        expect(updateEvents).to.have.length(1)
+        expect(updateEvents, 'Trustline Update should exist').to.have.length(1)
         expect(updateEvents[0].type).to.equal('TrustlineUpdate')
         expect(updateEvents[0].timestamp).to.be.a('number')
         expect(updateEvents[0].blockNumber).to.be.a('number')
@@ -203,7 +203,7 @@ describe('e2e', () => {
           ({ transactionId }) => transactionId === tlTransferTxId
         )
         // check event Trustlines Transfer
-        expect(tlTransferEvents).to.have.length(1)
+        expect(tlTransferEvents, 'Trustline Transfer should exist').to.have.length(1)
         expect(tlTransferEvents[0].type).to.equal('Transfer')
         expect(tlTransferEvents[0].timestamp).to.be.a('number')
         expect(tlTransferEvents[0].blockNumber).to.be.a('number')
@@ -224,7 +224,7 @@ describe('e2e', () => {
           ({ transactionId }) => transactionId === depositTxId
         )
         // check event Deposit
-        expect(depositEvents).to.have.length(1)
+        expect(depositEvents, 'Deposit should exist').to.have.length(1)
         expect(depositEvents[0].type).to.equal('Deposit')
         expect(depositEvents[0].timestamp).to.be.a('number')
         expect(depositEvents[0].blockNumber).to.be.a('number')
@@ -244,7 +244,7 @@ describe('e2e', () => {
           ({ transactionId }) => transactionId === withdrawTxId
         )
         // check event Withdraw
-        expect(withdrawEvents).to.have.length(1)
+        expect(withdrawEvents, 'Withdraw should exist').to.have.length(1)
         expect(withdrawEvents[0].type).to.equal('Withdrawal')
         expect(withdrawEvents[0].timestamp).to.be.a('number')
         expect(withdrawEvents[0].blockNumber).to.be.a('number')
@@ -264,7 +264,7 @@ describe('e2e', () => {
           ({ transactionId, type }) => transactionId === transferTxId && type === 'Transfer'
         )
         // check event Wrapped ETH Transfer
-        expect(wethTransferEvents).to.have.length(1)
+        expect(wethTransferEvents, 'ETH Transfer should exist').to.have.length(1)
         expect(wethTransferEvents[0].type).to.equal('Transfer')
         expect(wethTransferEvents[0].timestamp).to.be.a('number')
         expect(wethTransferEvents[0].blockNumber).to.be.a('number')
@@ -285,7 +285,7 @@ describe('e2e', () => {
           ({ transactionId, type }) => transactionId === fillTxId && type === 'LogFill'
         )
         // check event LogFill
-        expect(fillEvents).to.have.length(1)
+        expect(fillEvents, 'Log Fill should exist').to.have.length(1)
         expect(fillEvents[0].type).to.equal('LogFill')
         expect(fillEvents[0].timestamp).to.be.a('number')
         expect(fillEvents[0].blockNumber).to.be.a('number')
@@ -311,7 +311,7 @@ describe('e2e', () => {
           ({ transactionId, type }) => transactionId === cancelTxId && type === 'LogCancel'
         )
         // check event LogCancel
-        expect(cancelEvents).to.have.length(1)
+        expect(cancelEvents, 'Log Cancel should exist').to.have.length(1)
         expect(cancelEvents[0].type).to.equal('LogCancel')
         expect(cancelEvents[0].timestamp).to.be.a('number')
         expect(cancelEvents[0].blockNumber).to.be.a('number')

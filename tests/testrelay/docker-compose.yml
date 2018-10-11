@@ -4,7 +4,7 @@ services:
     image: trustlines/relay
     container_name: relay
     environment:
-      - ETHINDEX=1
+      - TRUSTLINES_SYNC_TX_RELAY=1
       - PGHOST
       - PGUSER
       - PGDATABASE
@@ -20,6 +20,8 @@ services:
     networks:
       - internal
     restart: unless-stopped
+    entrypoint: ""
+    command: bash -c "sleep 7; exec tl-relay"
 
   index:
     image: trustlines/py-eth-index

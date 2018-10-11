@@ -167,9 +167,9 @@ describe('e2e', () => {
     })
 
     describe('#get()', () => {
-      it('should return trustline', () => {
-        expect(tl1.trustline.get(network.address, user2.address))
-          .to.eventually.have.keys('address', 'balance', 'given', 'id', 'leftGiven', 'leftReceived', 'received')
+      it('should return trustline', async () => {
+        const trustline = await tl1.trustline.get(network.address, user2.address)
+        expect(trustline).to.have.keys('counterParty', 'user', 'address', 'balance', 'given', 'id', 'leftGiven', 'leftReceived', 'received')
       })
     })
 
