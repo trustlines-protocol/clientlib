@@ -115,7 +115,7 @@ export class LightwalletSigner implements TxSigner {
    */
   public async getBalance (): Promise<Amount> {
     if (!this._isUserLoaded()) {
-      return Promise.reject(this._userNotLoadedError)
+      throw this._userNotLoadedError
     }
     const balance = await this._utils.fetchUrl<string>(`users/${this.address}/balance`)
     return this._utils.formatToAmount(
