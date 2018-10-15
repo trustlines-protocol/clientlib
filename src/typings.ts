@@ -277,15 +277,18 @@ export interface Network {
 
 export interface NetworkDetails extends Network {
   decimals: number,
-  numUsers: number
+  numUsers: number,
+  defaultInterests: number,
+  customInterests: boolean,
+  safeInterestRippling: boolean
 }
 
 export interface UserOverview {
-  leftReceived: Amount,
   balance: Amount,
   given: Amount,
   received: Amount,
-  leftGiven: Amount
+  leftGiven: Amount,
+  leftReceived: Amount
 }
 
 export interface UserOverviewRaw {
@@ -316,7 +319,9 @@ export interface TrustlineObject {
   given: Amount,
   received: Amount,
   leftGiven: Amount,
-  leftReceived: Amount
+  leftReceived: Amount,
+  interestGiven: Amount,
+  interestReceived: Amount
 }
 
 export interface TrustlineRaw {
@@ -326,7 +331,9 @@ export interface TrustlineRaw {
   given: string,
   received: string,
   leftGiven: string,
-  leftReceived: string
+  leftReceived: string,
+  interestGiven: string,
+  interestReceived: string
 }
 
 // EXCHANGE

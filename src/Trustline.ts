@@ -45,11 +45,13 @@ export class Trustline {
    * of update request.
    * @param networkAddress Address of a currency network.
    * @param counterpartyAddress Address of counterparty who receives trustline update request.
-   * @param creditlineGiven Proposed creditline limit given by iniator to counterparty,
-   *              i.e. 1.23 if network has to 2 decimals.
-   * @param creditlineReceived Proposed creditline limit received by iniator from counterparty,
-   *                 i.e. 1.23 if network has to 2 decimals.
-   * @param options Options for creating an ethereum transaction. See type `TLOptions` for more information.
+   * @param creditlineGiven Proposed creditline limit given by initiator to counterparty,
+   *                        i.e. 1.23 if network has to 2 decimals.
+   * @param creditlineReceived Proposed creditline limit received by initiator from counterparty,
+   *                           i.e. 1.23 if network has to 2 decimals.
+   * @param interestGiven Proposed interest rate given by initiator to counterparty in % per year.
+   * @param interestReceived Proposed interest rate received by initiator from counterparty in % per year.
+   * @param options Options for creating an ethereum transaction. See type `TrustlineUpdateOptions` for more information.
    * @param options.decimals Decimals of currency network can be provided manually if known.
    * @param options.gasLimit Custom gas limit.
    * @param options.gasPrice Custom gas price.
@@ -59,6 +61,8 @@ export class Trustline {
     counterpartyAddress: string,
     creditlineGiven: number | string,
     creditlineReceived: number | string,
+    interestGiven: number | string,
+    interestReceived: number | string,
     options: TLOptions = {}
   ): Promise<TxObject> {
     const { _currencyNetwork, _transaction, _user, _utils } = this
@@ -72,7 +76,10 @@ export class Trustline {
       [
         counterpartyAddress,
         _utils.convertToHexString(_utils.calcRaw(creditlineGiven, decimals)),
-        _utils.convertToHexString(_utils.calcRaw(creditlineReceived, decimals))
+        _utils.convertToHexString(_utils.calcRaw(creditlineReceived, decimals)),
+         // NOTE: Contract expects interest rate in 0.001% per year.
+        _utils.convertToHexString(_utils.calcRaw(interestGiven, 3)),
+        _utils.convertToHexString(_utils.calcRaw(interestReceived, 3))
       ],
       {
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
@@ -94,6 +101,8 @@ export class Trustline {
    *              i.e. 1.23 if network has to 2 decimals.
    * @param creditlineReceived Proposed creditline limit received by iniator from receiver,
    *                 i.e. 1.23 if network has to 2 decimals.
+   * @param interestGiven Proposed interest rate given by receiver to initiator in % per year.
+   * @param interestReceived Proposed interest rate received by initiator from receiver in % per year.
    * @param options Options for creating a ethereum transaction. See type `TLOptions` for more information.
    * @param options.decimals Decimals of currency network can be provided manually if known.
    * @param options.gasLimit Custom gas limit.
@@ -104,6 +113,8 @@ export class Trustline {
     initiatorAddress: string,
     creditlineGiven: number | string,
     creditlineReceived: number | string,
+    interestRateGiven: number | string,
+    interestRateReceived: number | string,
     options: TLOptions = {}
   ): Promise<TxObject> {
     return this.prepareUpdate(
@@ -111,6 +122,8 @@ export class Trustline {
       initiatorAddress,
       creditlineGiven,
       creditlineReceived,
+      interestRateGiven,
+      interestRateReceived,
       options
     )
   }
@@ -202,7 +215,10 @@ export class Trustline {
       given: this._utils.formatToAmount(trustline.given, decimals),
       leftGiven: this._utils.formatToAmount(trustline.leftGiven, decimals),
       leftReceived: this._utils.formatToAmount(trustline.leftReceived, decimals),
-      received: this._utils.formatToAmount(trustline.received, decimals)
+      received: this._utils.formatToAmount(trustline.received, decimals),
+      // NOTE: Relay returns interest rates in 0.001% per year
+      interestGiven: this._utils.formatToAmount(trustline.interestGiven, 3),
+      interestReceived: this._utils.formatToAmount(trustline.interestReceived, 3)
     }
   }
 }
