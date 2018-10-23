@@ -180,6 +180,9 @@ export class EthWrapper {
     const events = await _utils.fetchUrl<AnyTokenEventRaw[]>(
       _utils.buildUrl(baseUrl, { type, fromBlock })
     )
-    return events.map(event => _utils.formatEvent(event, ETH_DECIMALS))
+    return events.map(event => _utils.formatEvent(
+      event,
+      { networkDecimals: ETH_DECIMALS }
+    ))
   }
 }

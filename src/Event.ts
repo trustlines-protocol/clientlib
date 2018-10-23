@@ -145,7 +145,7 @@ export class Event {
         if (addressesMap[address] === TOKEN) {
           // TODO: find different way to get decimals of token
           // NOTE: only expecting WrappedEthEvents for now
-          return this._currencyNetwork.getDecimals(address, 18)
+          return this._currencyNetwork.getDecimals(address, { networkDecimals: 18 })
         }
       })
     )

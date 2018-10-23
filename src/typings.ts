@@ -45,9 +45,7 @@ export interface TxOptions {
   gasLimit?: string
 }
 
-export interface TLOptions extends TxOptions {
-  decimals?: number
-}
+export type TLOptions = TxOptions & DecimalsOptions
 
 export interface PaymentOptions extends TLOptions {
   maximumHops?: number,
@@ -280,7 +278,8 @@ export interface NetworkDetails extends Network {
   numUsers: number,
   defaultInterests: number,
   customInterests: boolean,
-  safeInterestRippling: boolean
+  safeInterestRippling: boolean,
+  interestDecimals: number
 }
 
 export interface UserOverview {
@@ -297,6 +296,16 @@ export interface UserOverviewRaw {
   given: string,
   received: string,
   leftGiven: string
+}
+
+export interface DecimalsOptions {
+  networkDecimals?: number,
+  interestDecimals?: number
+}
+
+export interface DecimalsObject {
+  networkDecimals: number,
+  interestDecimals?: number
 }
 
 // USER

@@ -6,7 +6,9 @@ import {
   Network,
   NetworkDetails,
   UserOverview,
-  UserOverviewRaw
+  UserOverviewRaw,
+  DecimalsOptions,
+  DecimalsObject
 } from './typings'
 
 /**
@@ -56,33 +58,42 @@ export class CurrencyNetwork {
     userAddress: string
   ): Promise<UserOverview> {
     await this._checkAddresses([networkAddress, userAddress])
-    const [ overview, decimals ] = await Promise.all([
+    const [
+      overview,
+      { networkDecimals }
+    ] = await Promise.all([
       this._utils.fetchUrl<UserOverviewRaw>(`networks/${networkAddress}/users/${userAddress}`),
       this.getDecimals(networkAddress)
     ])
     return {
-      balance: this._utils.formatToAmount(overview.balance, decimals),
-      given: this._utils.formatToAmount(overview.given, decimals),
-      received: this._utils.formatToAmount(overview.received, decimals),
-      leftGiven: this._utils.formatToAmount(overview.leftGiven, decimals),
-      leftReceived: this._utils.formatToAmount(overview.leftReceived, decimals)
+      balance: this._utils.formatToAmount(overview.balance, networkDecimals),
+      given: this._utils.formatToAmount(overview.given, networkDecimals),
+      received: this._utils.formatToAmount(overview.received, networkDecimals),
+      leftGiven: this._utils.formatToAmount(overview.leftGiven, networkDecimals),
+      leftReceived: this._utils.formatToAmount(overview.leftReceived, networkDecimals)
     }
   }
 
   /**
-   * Returns the decimals specified in a currency network.
+   * Returns the network decimals and interest decimals specified in a currency network.
    * @param networkAddress Address of currency network.
    * @param decimals If decimals are known they can be provided manually.
    */
-  public async getDecimals (networkAddress: string, decimals?: number): Promise<number> {
+  public async getDecimals (
+    networkAddress: string,
+    decimalsOptions?: DecimalsOptions
+    ): Promise<DecimalsObject> {
+    const { networkDecimals, interestDecimals } = decimalsOptions
+    const decimalsObject = { networkDecimals, interestDecimals }
     try {
       await this._checkAddresses([networkAddress])
-      if (decimals && typeof decimals === 'number') {
-        return decimals
+      if (!networkDecimals || typeof networkDecimals !== 'number') {
+        // TODO replace with local list of known currency networks
+        const network = await this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
+        decimalsObject.networkDecimals = network.decimals
+        decimalsObject.interestDecimals = network.interestDecimals
       }
-      // TODO replace with list of known currency network in clientlib
-      const network = await this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
-      return network.decimals
+      return decimalsObject
     } catch (error) {
       if (error.message.includes('Status 404')) {
         throw new Error(`${networkAddress} seems not to be a network address. Decimals have to be explicit.`)
