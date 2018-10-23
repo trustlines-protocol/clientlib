@@ -30,7 +30,7 @@ describe('e2e', () => {
     describe('#prepareUpdate()', () => {
       it('should prepare raw trustline update request tx', () => {
         expect(tl1.trustline.prepareUpdate(
-          network.address, user2.address, 1300, 1000
+          network.address, user2.address, 1300, 1000, 0, 0
         )).to.eventually.have.keys('rawTx', 'ethFees')
       })
     })
@@ -39,7 +39,7 @@ describe('e2e', () => {
       let tx
 
       before(async () => {
-        tx = await tl1.trustline.prepareUpdate(network.address, user2.address, 1300, 1000)
+        tx = await tl1.trustline.prepareUpdate(network.address, user2.address, 1300, 1000, 0, 0)
         await wait()
       })
 
@@ -60,7 +60,7 @@ describe('e2e', () => {
       let txId
 
       before(async () => {
-        const { rawTx } = await tl1.trustline.prepareUpdate(network.address, user2.address, given, received)
+        const { rawTx } = await tl1.trustline.prepareUpdate(network.address, user2.address, given, received, 0, 0)
         txId = await tl1.trustline.confirm(rawTx)
         await wait()
       })
@@ -93,20 +93,20 @@ describe('e2e', () => {
 
     describe('#prepareAccept()', () => {
       it('should prepare accept tx', () => {
-        expect(tl2.trustline.prepareAccept(network.address, user1.address, 1250, 1000))
+        expect(tl2.trustline.prepareAccept(network.address, user1.address, 1250, 1000, 0, 0))
           .to.eventually.have.keys('rawTx', 'ethFees')
       })
     })
 
     describe('#confirm() - trustline update accept tx', () => {
       before(async () => {
-        const { rawTx } = await tl1.trustline.prepareUpdate(network.address, user2.address, 1300, 123)
+        const { rawTx } = await tl1.trustline.prepareUpdate(network.address, user2.address, 1300, 123, 0, 0)
         await tl1.trustline.confirm(rawTx)
         await wait()
       })
 
       it('should return txId', async () => {
-        const { rawTx } = await tl2.trustline.prepareAccept(network.address, user1.address, 123, 1300)
+        const { rawTx } = await tl2.trustline.prepareAccept(network.address, user1.address, 123, 1300, 0, 0)
         expect(tl2.trustline.confirm(rawTx))
           .to.eventually.be.a('string')
       })
@@ -126,7 +126,9 @@ describe('e2e', () => {
           network.address,
           user2.address,
           given,
-          received
+          received,
+          0,
+          0
         )
         await tl1.trustline.confirm(rawTx)
         await wait()
@@ -142,7 +144,9 @@ describe('e2e', () => {
           network.address,
           user1.address,
           received,
-          given
+          given,
+          0,
+          0
         )
         const txId = await tl2.trustline.confirm(rawTx)
         await wait()

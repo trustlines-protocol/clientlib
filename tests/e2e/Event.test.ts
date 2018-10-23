@@ -107,10 +107,24 @@ describe('e2e', () => {
         await setTrustlines(network1.address, tl1, tl2, 100, 200)
 
         // CurrencyNetwork events
-        const updateTx = await tl1.trustline.prepareUpdate(network2.address, user2.address, 1000, 500)
+        const updateTx = await tl1.trustline.prepareUpdate(
+          network2.address,
+          user2.address,
+          1000,
+          500,
+          0,
+          0
+        )
         updateTxId = await tl1.trustline.confirm(updateTx.rawTx)
         await wait()
-        const acceptTx = await tl2.trustline.prepareUpdate(network2.address, user1.address, 500, 1000)
+        const acceptTx = await tl2.trustline.prepareUpdate(
+          network2.address,
+          user1.address,
+          500,
+          1000,
+          0,
+          0
+        )
         acceptTxId = await tl2.trustline.confirm(acceptTx.rawTx)
         await wait()
         const tlTransferTx = await tl1.payment.prepare(network2.address, user2.address, 1)
@@ -419,7 +433,7 @@ describe('e2e', () => {
         // set trustlines
         await setTrustlines(network1.address, tl1, tl2, 100, 200)
         stream = await tl2.event.updateStream().subscribe(event => events.push(event))
-        const { rawTx } = await tl2.trustline.prepareUpdate(network1.address, user1.address, 4001, 4002)
+        const { rawTx } = await tl2.trustline.prepareUpdate(network1.address, user1.address, 4001, 4002, 0, 0)
         await tl2.trustline.confirm(rawTx)
         await wait()
       })

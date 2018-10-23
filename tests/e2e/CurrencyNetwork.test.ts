@@ -67,14 +67,24 @@ describe('e2e', () => {
     })
 
     describe('#getDecimals()', () => {
-      it('should return decimals from relay server', () => {
-        expect(currencyNetwork.getDecimals(networks[0].address))
-          .to.eventually.be.a('number')
+      it('should return decimals from relay server', async () => {
+        const decimalsObject = await currencyNetwork.getDecimals(networks[0].address)
+        expect(decimalsObject).to.have.all.keys('networkDecimals', 'interestDecimals')
+        expect(decimalsObject.networkDecimals).to.be.a('number')
+        expect(decimalsObject.interestDecimals).to.be.a('number')
       })
 
-      it('should return provided decimals', () => {
-        expect(currencyNetwork.getDecimals(networks[0].address, 2))
-          .to.eventually.equal(2)
+      it('should return provided decimals', async () => {
+        const decimalsObject = await currencyNetwork.getDecimals(
+          networks[0].address,
+          {
+            networkDecimals: 2,
+            interestDecimals: 3
+          }
+        )
+        expect(decimalsObject).to.have.all.keys('networkDecimals', 'interestDecimals')
+        expect(decimalsObject.networkDecimals).to.equal(2)
+        expect(decimalsObject.interestDecimals).to.equal(3)
       })
 
       it('should throw error', async () => {

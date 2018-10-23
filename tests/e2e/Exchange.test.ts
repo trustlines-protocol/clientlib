@@ -53,8 +53,8 @@ describe('e2e', () => {
       await wait()
       const [ tx1, tx2 ] = await Promise.all([
         // set trustlines in maker token
-        tl1.trustline.prepareUpdate(makerTokenAddress, user2.address, 100, 200),
-        tl2.trustline.prepareAccept(makerTokenAddress, user1.address, 200, 100)
+        tl1.trustline.prepareUpdate(makerTokenAddress, user2.address, 100, 200, 0, 0),
+        tl2.trustline.prepareAccept(makerTokenAddress, user1.address, 200, 100, 0, 0)
       ])
       await Promise.all([
         tl1.trustline.confirm(tx1.rawTx),
@@ -63,8 +63,8 @@ describe('e2e', () => {
       await wait()
       const [ tx3, tx4 ] = await Promise.all([
         // set trustlines in taker token
-        tl1.trustline.prepareUpdate(takerTokenAddress, user2.address, 300, 400),
-        tl2.trustline.prepareAccept(takerTokenAddress, user1.address, 400, 300)
+        tl1.trustline.prepareUpdate(takerTokenAddress, user2.address, 300, 400, 0, 0),
+        tl2.trustline.prepareAccept(takerTokenAddress, user1.address, 400, 300, 0, 0)
       ])
       await Promise.all([
         tl1.trustline.confirm(tx3.rawTx),
