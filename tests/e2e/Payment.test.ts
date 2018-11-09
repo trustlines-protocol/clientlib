@@ -28,8 +28,8 @@ describe('e2e', () => {
       await Promise.all([ tl1.user.requestEth(), tl2.user.requestEth() ])
       // set up trustlines
       const [ tx1, tx2 ] = await Promise.all([
-        tl1.trustline.prepareUpdate(network.address, user2.address, 1000, 500, 0, 0),
-        tl2.trustline.prepareUpdate(network.address, user1.address, 500, 1000, 0, 0)
+        tl1.trustline.prepareUpdate(network.address, user2.address, 1000, 500),
+        tl2.trustline.prepareUpdate(network.address, user1.address, 500, 1000)
       ])
       await Promise.all([
         tl1.trustline.confirm(tx1.rawTx),
@@ -141,8 +141,8 @@ describe('e2e', () => {
         // set up trustlines
         const [ tx1, tx2 ] = await
           Promise.all([
-            tl2.trustline.prepareUpdate(network.address, user3.address, 300, 200, 0, 0),
-            tl3.trustline.prepareUpdate(network.address, user2.address, 200, 300, 0, 0)
+            tl2.trustline.prepareUpdate(network.address, user3.address, 300, 200),
+            tl3.trustline.prepareUpdate(network.address, user2.address, 200, 300)
           ])
 
         await

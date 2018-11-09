@@ -71,7 +71,7 @@ describe('e2e', () => {
         const decimalsObject = await currencyNetwork.getDecimals(networks[0].address)
         expect(decimalsObject).to.have.all.keys('networkDecimals', 'interestDecimals')
         expect(decimalsObject.networkDecimals).to.be.a('number')
-        expect(decimalsObject.interestDecimals).to.be.a('number')
+        expect(decimalsObject.interestRateDecimals).to.be.a('number')
       })
 
       it('should return provided decimals', async () => {
@@ -79,12 +79,12 @@ describe('e2e', () => {
           networks[0].address,
           {
             networkDecimals: 2,
-            interestDecimals: 3
+            interestRateDecimals: 3
           }
         )
         expect(decimalsObject).to.have.all.keys('networkDecimals', 'interestDecimals')
         expect(decimalsObject.networkDecimals).to.equal(2)
-        expect(decimalsObject.interestDecimals).to.equal(3)
+        expect(decimalsObject.interestRateDecimals).to.equal(3)
       })
 
       it('should throw error', async () => {

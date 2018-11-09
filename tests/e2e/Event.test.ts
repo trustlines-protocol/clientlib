@@ -111,9 +111,7 @@ describe('e2e', () => {
           network2.address,
           user2.address,
           1000,
-          500,
-          0,
-          0
+          500
         )
         updateTxId = await tl1.trustline.confirm(updateTx.rawTx)
         await wait()
@@ -121,9 +119,7 @@ describe('e2e', () => {
           network2.address,
           user1.address,
           500,
-          1000,
-          0,
-          0
+          1000
         )
         acceptTxId = await tl2.trustline.confirm(acceptTx.rawTx)
         await wait()
@@ -433,7 +429,7 @@ describe('e2e', () => {
         // set trustlines
         await setTrustlines(network1.address, tl1, tl2, 100, 200)
         stream = await tl2.event.updateStream().subscribe(event => events.push(event))
-        const { rawTx } = await tl2.trustline.prepareUpdate(network1.address, user1.address, 4001, 4002, 0, 0)
+        const { rawTx } = await tl2.trustline.prepareUpdate(network1.address, user1.address, 4001, 4002)
         await tl2.trustline.confirm(rawTx)
         await wait()
       })
