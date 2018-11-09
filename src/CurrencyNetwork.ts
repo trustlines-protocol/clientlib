@@ -5,6 +5,7 @@ import { Utils } from './Utils'
 import {
   Network,
   NetworkDetails,
+  NetworkDetailsRaw,
   UserOverview,
   UserOverviewRaw,
   DecimalsOptions,
@@ -36,7 +37,14 @@ export class CurrencyNetwork {
    */
   public async getInfo (networkAddress: string): Promise<NetworkDetails> {
     await this._checkAddresses([networkAddress])
-    return this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
+    const networkDetailsRaw = await this._utils.fetchUrl<NetworkDetailsRaw>(`networks/${networkAddress}`)
+    return {
+      ...networkDetailsRaw,
+      defaultInterestRate: this._utils.formatToAmount(
+        networkDetailsRaw.defaultInterestRate,
+        networkDetailsRaw.interestRateDecimals
+      )
+    }
   }
 
   /**
@@ -83,15 +91,18 @@ export class CurrencyNetwork {
     networkAddress: string,
     decimalsOptions?: DecimalsOptions
     ): Promise<DecimalsObject> {
-    const { networkDecimals, interestDecimals } = decimalsOptions
-    const decimalsObject = { networkDecimals, interestDecimals }
+    const { networkDecimals, interestRateDecimals } = decimalsOptions
+    const decimalsObject = { networkDecimals, interestRateDecimals }
     try {
       await this._checkAddresses([networkAddress])
-      if (!networkDecimals || typeof networkDecimals !== 'number') {
+      if (
+        !networkDecimals || typeof networkDecimals !== 'number' ||
+        !interestRateDecimals || typeof interestRateDecimals !== 'number'
+      ) {
         // TODO replace with local list of known currency networks
-        const network = await this._utils.fetchUrl<NetworkDetails>(`networks/${networkAddress}`)
+        const network = await this.getInfo(networkAddress)
         decimalsObject.networkDecimals = network.decimals
-        decimalsObject.interestDecimals = network.interestDecimals
+        decimalsObject.interestRateDecimals = network.interestRateDecimals
       }
       return decimalsObject
     } catch (error) {

@@ -218,8 +218,8 @@ export class Utils {
     ]
     for (const key of keys) {
       if (event[key]) {
-        if (decimals.interestDecimals && key.includes('interest')) {
-          event[key] = this.formatToAmount(event[key], decimals.interestDecimals)
+        if (decimals.interestRateDecimals && key.includes('interest')) {
+          event[key] = this.formatToAmount(event[key], decimals.interestRateDecimals)
         } else {
           event[key] = this.formatToAmount(event[key], decimals.networkDecimals)
         }

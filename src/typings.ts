@@ -52,6 +52,11 @@ export interface PaymentOptions extends TLOptions {
   maximumFees?: number
 }
 
+export interface TrustlineUpdateOptions extends TLOptions {
+  interestRateGiven?: number,
+  interestRateReceived?: number
+}
+
 export interface AmountInternal {
   raw: BigNumber,
   value: BigNumber,
@@ -276,10 +281,17 @@ export interface Network {
 export interface NetworkDetails extends Network {
   decimals: number,
   numUsers: number,
-  defaultInterests: number,
-  customInterests: boolean,
-  safeInterestRippling: boolean,
-  interestDecimals: number
+  defaultInterestRate: Amount,
+  interestRateDecimals: number,
+  customInterestRatesAllowed: boolean
+}
+
+export interface NetworkDetailsRaw extends Network {
+  decimals: number,
+  numUsers: number,
+  defaultInterestRate: number,
+  interestRateDecimals: number,
+  customInterestRatesAllowed: boolean
 }
 
 export interface UserOverview {
@@ -300,12 +312,12 @@ export interface UserOverviewRaw {
 
 export interface DecimalsOptions {
   networkDecimals?: number,
-  interestDecimals?: number
+  interestRateDecimals?: number
 }
 
 export interface DecimalsObject {
   networkDecimals: number,
-  interestDecimals?: number
+  interestRateDecimals: number
 }
 
 // USER
