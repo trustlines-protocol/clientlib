@@ -268,6 +268,13 @@ export interface PathRaw {
   estimatedGas: number
 }
 
+export interface ClosePath {
+  path: string[]
+  fees: string
+  estimatedGas: number
+  value: number
+}
+
 // CURRENCY NETWORK
 export interface Network {
   name: string,
