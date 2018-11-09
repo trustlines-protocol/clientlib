@@ -13,7 +13,8 @@ import {
   AnyExchangeEventRaw,
   ExchangeFillEventRaw,
   ExchangeCancelEventRaw,
-  DecimalsObject
+  DecimalsObject,
+  DecimalsOptions
 } from './typings'
 
 let __DEV__
@@ -204,7 +205,7 @@ export class Utils {
    * @param event raw event
    * @param decimals decimals object
    */
-  public formatEvent<T> (event: any, decimals: DecimalsObject): T {
+  public formatEvent<T> (event: any, decimals: DecimalsOptions): T {
     // key names whose values are numericals and should get formatted
     const keys = [
       'amount',
@@ -220,7 +221,7 @@ export class Utils {
       if (event[key]) {
         if (decimals.interestRateDecimals && key.includes('interest')) {
           event[key] = this.formatToAmount(event[key], decimals.interestRateDecimals)
-        } else {
+        } else if (decimals.networkDecimals) {
           event[key] = this.formatToAmount(event[key], decimals.networkDecimals)
         }
       }
