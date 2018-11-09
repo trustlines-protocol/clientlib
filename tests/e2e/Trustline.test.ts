@@ -19,7 +19,7 @@ describe('e2e', () => {
 
     before(async () => {
       // set network and load users
-      ;[[network], user1, user2, user3] = await Promise.all([
+      [[network], user1, user2, user3] = await Promise.all([
         tl1.currencyNetwork.getAll(),
         tl1.user.load(keystore1),
         tl2.user.load(keystore2),
