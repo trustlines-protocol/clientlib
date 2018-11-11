@@ -289,9 +289,9 @@ export interface NetworkDetails extends Network {
 export interface NetworkDetailsRaw extends Network {
   decimals: number,
   numUsers: number,
-  defaultInterestRate: number,
+  defaultInterests: number,
   interestRateDecimals: number,
-  customInterestRatesAllowed: boolean
+  customInterests: boolean
 }
 
 export interface UserOverview {

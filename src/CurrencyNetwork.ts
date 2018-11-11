@@ -37,13 +37,25 @@ export class CurrencyNetwork {
    */
   public async getInfo (networkAddress: string): Promise<NetworkDetails> {
     await this._checkAddresses([networkAddress])
-    const networkDetailsRaw = await this._utils.fetchUrl<NetworkDetailsRaw>(`networks/${networkAddress}`)
+    const {
+      name,
+      abbreviation,
+      address,
+      decimals,
+      numUsers,
+      customInterests,
+      defaultInterests,
+      interestRateDecimals = 3 // NOTE: hardcoded until implemented in relay
+    } = await this._utils.fetchUrl<NetworkDetailsRaw>(`networks/${networkAddress}`)
     return {
-      ...networkDetailsRaw,
-      defaultInterestRate: this._utils.formatToAmount(
-        networkDetailsRaw.defaultInterestRate,
-        networkDetailsRaw.interestRateDecimals
-      )
+      name,
+      abbreviation,
+      address,
+      decimals,
+      numUsers,
+      interestRateDecimals,
+      customInterestRatesAllowed: customInterests,
+      defaultInterestRate: this._utils.formatToAmount(defaultInterests, interestRateDecimals)
     }
   }
 
@@ -89,7 +101,7 @@ export class CurrencyNetwork {
    */
   public async getDecimals (
     networkAddress: string,
-    decimalsOptions?: DecimalsOptions
+    decimalsOptions: DecimalsOptions = {}
     ): Promise<DecimalsObject> {
     const { networkDecimals, interestRateDecimals } = decimalsOptions
     const decimalsObject = { networkDecimals, interestRateDecimals }
