@@ -44,8 +44,8 @@ export class CurrencyNetwork {
       decimals,
       numUsers,
       customInterests,
-      defaultInterests,
-      interestRateDecimals = 3 // NOTE: hardcoded until implemented in relay
+      defaultInterestRate,
+      interestRateDecimals
     } = await this._utils.fetchUrl<NetworkDetailsRaw>(`networks/${networkAddress}`)
     return {
       name,
@@ -55,7 +55,7 @@ export class CurrencyNetwork {
       numUsers,
       interestRateDecimals,
       customInterestRatesAllowed: customInterests,
-      defaultInterestRate: this._utils.formatToAmount(defaultInterests, interestRateDecimals)
+      defaultInterestRate: this._utils.formatToAmount(defaultInterestRate, interestRateDecimals)
     }
   }
 

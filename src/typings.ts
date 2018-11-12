@@ -289,7 +289,7 @@ export interface NetworkDetails extends Network {
 export interface NetworkDetailsRaw extends Network {
   decimals: number,
   numUsers: number,
-  defaultInterests: number,
+  defaultInterestRate: number,
   interestRateDecimals: number,
   customInterests: boolean
 }

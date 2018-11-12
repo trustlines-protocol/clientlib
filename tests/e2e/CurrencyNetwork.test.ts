@@ -25,7 +25,7 @@ describe('e2e', () => {
 
       it('should return registered networks', () => {
         expect(networks).to.have.length.above(0, 'No registered networks')
-        expect(networks[0]).to.have.all.keys('name', 'abbreviation', 'address')
+        expect(networks[0]).to.include.all.keys('name', 'abbreviation', 'address')
         expect(networks[0].name).to.be.a('string')
         expect(networks[0].abbreviation).to.be.a('string')
         expect(networks[0].address).to.be.a('string').and.to.have.length(42)
