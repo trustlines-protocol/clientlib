@@ -203,9 +203,14 @@ export class Utils {
   /**
    * Formats the number values of a raw event returned by the relay.
    * @param event raw event
-   * @param decimals decimals object
+   * @param networkDecimals decimals of currency network
+   * @param interestRateDecimals interest rate decimals of currency network
    */
-  public formatEvent<T> (event: any, decimals: DecimalsOptions): T {
+  public formatEvent<T> (
+    event: any,
+    networkDecimals: number,
+    interestRateDecimals: number
+  ): T {
     // key names whose values are numericals and should get formatted
     const keys = [
       'amount',
@@ -214,15 +219,15 @@ export class Utils {
       'received',
       'leftGiven',
       'leftReceived',
-      'interestGiven',
-      'interestReceived'
+      'interestRateGiven',
+      'interestRateReceived'
     ]
     for (const key of keys) {
       if (event[key]) {
-        if (decimals.interestRateDecimals && key.includes('interest')) {
-          event[key] = this.formatToAmount(event[key], decimals.interestRateDecimals)
-        } else if (decimals.networkDecimals) {
-          event[key] = this.formatToAmount(event[key], decimals.networkDecimals)
+        if (key.includes('interestRate')) {
+          event[key] = this.formatToAmount(event[key], interestRateDecimals)
+        } else {
+          event[key] = this.formatToAmount(event[key], networkDecimals)
         }
       }
     }

@@ -105,12 +105,16 @@ export interface NetworkTransferEvent extends NetworkEvent {
 
 export interface NetworkTrustlineEventRaw extends NetworkEvent {
   given: string,
-  received: string
+  received: string,
+  interestRateGiven: string,
+  interestRateReceived: string
 }
 
 export interface NetworkTrustlineEvent extends NetworkEvent {
   given: Amount,
-  received: Amount
+  received: Amount,
+  interestRateGiven: Amount,
+  interestRateReceived: Amount
 }
 
 export type AnyNetworkEvent = NetworkTransferEvent | NetworkTrustlineEvent
@@ -343,8 +347,8 @@ export interface TrustlineObject {
   received: Amount,
   leftGiven: Amount,
   leftReceived: Amount,
-  interestGiven: Amount,
-  interestReceived: Amount
+  interestRateGiven: Amount,
+  interestRateReceived: Amount
 }
 
 export interface TrustlineRaw {
@@ -355,8 +359,8 @@ export interface TrustlineRaw {
   received: string,
   leftGiven: string,
   leftReceived: string,
-  interestGiven: string,
-  interestReceived: string
+  interestRateGiven: string,
+  interestRateReceived: string
 }
 
 // EXCHANGE

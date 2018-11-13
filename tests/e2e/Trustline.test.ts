@@ -86,6 +86,10 @@ describe('e2e', () => {
         expect(latestRequest.received.value).to.eq(received.toString())
         expect(latestRequest.given).to.have.keys('raw', 'value', 'decimals')
         expect(latestRequest.given.value).to.eq(given.toString())
+        expect(latestRequest.interestRateReceived).to.have.keys('raw', 'value', 'decimals')
+        expect(latestRequest.interestRateReceived.value).to.eq('0')
+        expect(latestRequest.interestRateGiven).to.have.keys('raw', 'value', 'decimals')
+        expect(latestRequest.interestRateGiven.value).to.eq('0')
         expect(latestRequest.type).to.equal('TrustlineUpdateRequest')
       })
     })
@@ -162,13 +166,29 @@ describe('e2e', () => {
         expect(latestUpdate.received.value).to.eq(received.toString())
         expect(latestUpdate.given).to.have.keys('raw', 'value', 'decimals')
         expect(latestUpdate.given.value).to.eq(given.toString())
+        expect(latestUpdate.interestRateReceived).to.have.keys('raw', 'value', 'decimals')
+        expect(latestUpdate.interestRateReceived.value).to.eq('0')
+        expect(latestUpdate.interestRateGiven).to.have.keys('raw', 'value', 'decimals')
+        expect(latestUpdate.interestRateGiven.value).to.eq('0')
       })
     })
 
     describe('#get()', () => {
       it('should return trustline', async () => {
         const trustline = await tl1.trustline.get(network.address, user2.address)
-        expect(trustline).to.have.keys('counterParty', 'user', 'address', 'balance', 'given', 'id', 'leftGiven', 'leftReceived', 'received')
+        expect(trustline).to.have.keys([
+          'counterParty',
+          'user',
+          'address',
+          'balance',
+          'given',
+          'id',
+          'leftGiven',
+          'leftReceived',
+          'received',
+          'interestRateGiven',
+          'interestRateReceived'
+        ])
       })
     })
 

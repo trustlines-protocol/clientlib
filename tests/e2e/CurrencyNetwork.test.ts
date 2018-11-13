@@ -42,7 +42,8 @@ describe('e2e', () => {
           'decimals',
           'defaultInterestRate',
           'interestRateDecimals',
-          'customInterestRatesAllowed'
+          'customInterests',
+          'preventMediatorInterests'
         ]
         const networkInfo = await currencyNetwork.getInfo(networks[0].address)
         expect(networkInfo).to.have.all.keys(networkInfoKeys)
@@ -52,7 +53,8 @@ describe('e2e', () => {
         expect(networkInfo.name).to.be.a('string')
         expect(networkInfo.numUsers).to.be.a('number')
         expect(networkInfo.defaultInterestRate).to.have.all.keys('decimals', 'value', 'raw')
-        expect(networkInfo.customInterestRatesAllowed).to.be.a('boolean')
+        expect(networkInfo.customInterests).to.be.a('boolean')
+        expect(networkInfo.preventMediatorInterests).to.be.a('boolean')
         expect(networkInfo.interestRateDecimals).to.be.a('number')
       })
     })

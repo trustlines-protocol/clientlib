@@ -49,8 +49,12 @@ export class Messaging {
           return [ data ]
         }
         let message = { ...JSON.parse(data.message), timestamp: data.timestamp }
-        return this.currencyNetwork.getDecimals(message.networkAddress).then(
-          decimals => utils.formatEvent(message, decimals))
+        return this.currencyNetwork.getDecimals(message.networkAddress)
+          .then(({ networkDecimals, interestRateDecimals }) => utils.formatEvent(
+            message,
+            networkDecimals,
+            interestRateDecimals
+          ))
       })
   }
 

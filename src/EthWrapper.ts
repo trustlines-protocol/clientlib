@@ -182,7 +182,8 @@ export class EthWrapper {
     )
     return events.map(event => _utils.formatEvent(
       event,
-      { networkDecimals: ETH_DECIMALS }
+      ETH_DECIMALS,
+      0
     ))
   }
 }

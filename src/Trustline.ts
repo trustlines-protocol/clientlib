@@ -233,8 +233,8 @@ export class Trustline {
       leftGiven: this._utils.formatToAmount(trustline.leftGiven, networkDecimals),
       leftReceived: this._utils.formatToAmount(trustline.leftReceived, networkDecimals),
       received: this._utils.formatToAmount(trustline.received, networkDecimals),
-      interestGiven: this._utils.formatToAmount(trustline.interestGiven, interestDecimals),
-      interestReceived: this._utils.formatToAmount(trustline.interestReceived, interestDecimals)
+      interestRateGiven: this._utils.formatToAmount(trustline.interestRateGiven, interestDecimals),
+      interestRateReceived: this._utils.formatToAmount(trustline.interestRateReceived, interestDecimals)
     }
   }
 }
