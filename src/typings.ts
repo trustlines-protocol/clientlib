@@ -45,13 +45,16 @@ export interface TxOptions {
   gasLimit?: string
 }
 
-export interface TLOptions extends TxOptions {
-  decimals?: number
-}
+export type TLOptions = TxOptions & DecimalsOptions
 
 export interface PaymentOptions extends TLOptions {
   maximumHops?: number,
   maximumFees?: number
+}
+
+export interface TrustlineUpdateOptions extends TLOptions {
+  interestRateGiven?: number,
+  interestRateReceived?: number
 }
 
 export interface AmountInternal {
@@ -102,12 +105,16 @@ export interface NetworkTransferEvent extends NetworkEvent {
 
 export interface NetworkTrustlineEventRaw extends NetworkEvent {
   given: string,
-  received: string
+  received: string,
+  interestRateGiven: string,
+  interestRateReceived: string
 }
 
 export interface NetworkTrustlineEvent extends NetworkEvent {
   given: Amount,
-  received: Amount
+  received: Amount,
+  interestRateGiven: Amount,
+  interestRateReceived: Amount
 }
 
 export type AnyNetworkEvent = NetworkTransferEvent | NetworkTrustlineEvent
@@ -277,15 +284,28 @@ export interface Network {
 
 export interface NetworkDetails extends Network {
   decimals: number,
-  numUsers: number
+  numUsers: number,
+  defaultInterestRate: Amount,
+  interestRateDecimals: number,
+  customInterests: boolean,
+  preventMediatorInterests: boolean
+}
+
+export interface NetworkDetailsRaw extends Network {
+  decimals: number,
+  numUsers: number,
+  defaultInterestRate: string,
+  interestRateDecimals: number,
+  customInterests: boolean,
+  preventMediatorInterests: boolean
 }
 
 export interface UserOverview {
-  leftReceived: Amount,
   balance: Amount,
   given: Amount,
   received: Amount,
-  leftGiven: Amount
+  leftGiven: Amount,
+  leftReceived: Amount
 }
 
 export interface UserOverviewRaw {
@@ -294,6 +314,16 @@ export interface UserOverviewRaw {
   given: string,
   received: string,
   leftGiven: string
+}
+
+export interface DecimalsOptions {
+  networkDecimals?: number,
+  interestRateDecimals?: number
+}
+
+export interface DecimalsObject {
+  networkDecimals: number,
+  interestRateDecimals: number
 }
 
 // USER
@@ -316,7 +346,9 @@ export interface TrustlineObject {
   given: Amount,
   received: Amount,
   leftGiven: Amount,
-  leftReceived: Amount
+  leftReceived: Amount,
+  interestRateGiven: Amount,
+  interestRateReceived: Amount
 }
 
 export interface TrustlineRaw {
@@ -326,7 +358,9 @@ export interface TrustlineRaw {
   given: string,
   received: string,
   leftGiven: string,
-  leftReceived: string
+  leftReceived: string,
+  interestRateGiven: string,
+  interestRateReceived: string
 }
 
 // EXCHANGE

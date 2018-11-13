@@ -49,11 +49,15 @@ export class Event {
     const { _currencyNetwork, _user, _utils } = this
     const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
     const parameterUrl = _utils.buildUrl(baseUrl, filter)
-    const [ events, decimals ] = await Promise.all([
+    const [ events, { networkDecimals, interestRateDecimals } ] = await Promise.all([
       _utils.fetchUrl<AnyNetworkEventRaw[]>(parameterUrl),
       _currencyNetwork.getDecimals(networkAddress)
     ])
-    return events.map(event => _utils.formatEvent<T>(event, decimals))
+    return events.map(event => _utils.formatEvent<T>(
+      event,
+      networkDecimals,
+      interestRateDecimals
+    ))
   }
 
   /**
@@ -87,7 +91,9 @@ export class Event {
     ).mergeMap(event => {
       if (event.hasOwnProperty('networkAddress')) {
         return this._currencyNetwork.getDecimals(event.networkAddress)
-          .then(decimals => this._utils.formatEvent(event, decimals))
+          .then(({ networkDecimals, interestRateDecimals }) =>
+            this._utils.formatEvent(event, networkDecimals, interestRateDecimals)
+          )
       } else {
         return Promise.resolve(event)
       }
@@ -106,13 +112,15 @@ export class Event {
       if ((event as AnyNetworkEventRaw).networkAddress) {
         return this._utils.formatEvent<AnyNetworkEventRaw>(
           event,
-          decimalsMap[(event as AnyNetworkEventRaw).networkAddress]
+          decimalsMap[(event as AnyNetworkEventRaw).networkAddress].networkDecimals,
+          decimalsMap[(event as AnyNetworkEventRaw).networkAddress].interestRateDecimals
         )
       }
       if ((event as AnyTokenEventRaw).tokenAddress) {
         return this._utils.formatEvent<AnyTokenEventRaw>(
           event,
-          decimalsMap[(event as AnyTokenEventRaw).tokenAddress]
+          decimalsMap[(event as AnyTokenEventRaw).tokenAddress].networkDecimals,
+          decimalsMap[(event as AnyTokenEventRaw).tokenAddress].interestRateDecimals
         )
       }
       if ((event as AnyExchangeEventRaw).exchangeAddress) {
@@ -122,8 +130,8 @@ export class Event {
         } = event as AnyExchangeEventRaw
         return this._utils.formatExchangeEvent(
           event as AnyExchangeEventRaw,
-          decimalsMap[makerTokenAddress],
-          decimalsMap[takerTokenAddress]
+          decimalsMap[makerTokenAddress].networkDecimals,
+          decimalsMap[takerTokenAddress].networkDecimals
         )
       }
       return event
@@ -145,7 +153,10 @@ export class Event {
         if (addressesMap[address] === TOKEN) {
           // TODO: find different way to get decimals of token
           // NOTE: only expecting WrappedEthEvents for now
-          return this._currencyNetwork.getDecimals(address, 18)
+          return this._currencyNetwork.getDecimals(address, {
+            networkDecimals: 18,
+            interestRateDecimals: 0
+          })
         }
       })
     )

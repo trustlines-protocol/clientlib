@@ -13,7 +13,8 @@ import {
   AnyExchangeEventRaw,
   ExchangeFillEventRaw,
   ExchangeCancelEventRaw,
-  ExchangeEvent
+  DecimalsObject,
+  DecimalsOptions
 } from './typings'
 
 let __DEV__
@@ -202,9 +203,14 @@ export class Utils {
   /**
    * Formats the number values of a raw event returned by the relay.
    * @param event raw event
-   * @param decimals nubmer of decimals
+   * @param networkDecimals decimals of currency network
+   * @param interestRateDecimals interest rate decimals of currency network
    */
-  public formatEvent<T> (event: any, decimals: number): T {
+  public formatEvent<T> (
+    event: any,
+    networkDecimals: number,
+    interestRateDecimals: number
+  ): T {
     // key names whose values are numericals and should get formatted
     const keys = [
       'amount',
@@ -212,11 +218,17 @@ export class Utils {
       'given',
       'received',
       'leftGiven',
-      'leftReceived'
+      'leftReceived',
+      'interestRateGiven',
+      'interestRateReceived'
     ]
     for (const key of keys) {
       if (event[key]) {
-        event[key] = this.formatToAmount(event[key], decimals)
+        if (key.includes('interestRate')) {
+          event[key] = this.formatToAmount(event[key], interestRateDecimals)
+        } else {
+          event[key] = this.formatToAmount(event[key], networkDecimals)
+        }
       }
     }
     return event
@@ -295,7 +307,11 @@ export class Utils {
     return ethUtils.addHexPrefix(hexStr)
   }
 
-  public generateRandomNumber(decimals: number): BigNumber {
-    return BigNumber.random(decimals+1).multipliedBy(new BigNumber(10).pow(decimals)).integerValue()
+  public generateRandomNumber (decimals: number): BigNumber {
+    return BigNumber
+      .random(decimals + 1)
+      .multipliedBy(new BigNumber(10)
+      .pow(decimals))
+      .integerValue()
   }
 }

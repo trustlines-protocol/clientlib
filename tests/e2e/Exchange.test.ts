@@ -39,7 +39,7 @@ describe('e2e', () => {
         networks.map(network => tl1.currencyNetwork.getInfo(network.address))
       )
       const [ makerToken, takerToken ] = networksWithInfo.filter(
-        n => (n as NetworkDetails).decimals === 2
+        n => (n as NetworkDetails).decimals === 4
       )
       makerTokenAddress = (makerToken as NetworkDetails).address
       makerTokenDecimals = (makerToken as NetworkDetails).decimals

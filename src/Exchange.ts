@@ -85,9 +85,18 @@ export class Exchange {
     const { _currencyNetwork, _utils } = this
     const { makerTokenDecimals, takerTokenDecimals } = options
     const order = await _utils.fetchUrl<SignedOrderRaw>(`exchange/order/${orderHash}`)
-    const [ makerDecimals, takerDecimals ] = await Promise.all([
-      _currencyNetwork.getDecimals(order.makerTokenAddress, makerTokenDecimals),
-      _currencyNetwork.getDecimals(order.takerTokenAddress, takerTokenDecimals)
+    const [
+      { networkDecimals: makerDecimals },
+      { networkDecimals: takerDecimals }
+    ] = await Promise.all([
+      _currencyNetwork.getDecimals(
+        order.makerTokenAddress,
+        { networkDecimals: makerTokenDecimals }
+      ),
+      _currencyNetwork.getDecimals(
+        order.takerTokenAddress,
+        { networkDecimals: takerTokenDecimals }
+      )
     ])
     return this._formatOrderRaw(order, makerDecimals, takerDecimals)
   }
@@ -142,9 +151,18 @@ export class Exchange {
   ): Promise<Orderbook> {
     const { _currencyNetwork, _utils } = this
     const { baseTokenDecimals, quoteTokenDecimals } = options
-    const [ baseDecimals, quoteDecimals ] = await Promise.all([
-      _currencyNetwork.getDecimals(baseTokenAddress, baseTokenDecimals),
-      _currencyNetwork.getDecimals(quoteTokenAddress, quoteTokenDecimals)
+    const [
+      { networkDecimals: baseDecimals },
+      { networkDecimals: quoteDecimals }
+    ] = await Promise.all([
+      _currencyNetwork.getDecimals(
+        baseTokenAddress,
+        { networkDecimals: baseTokenDecimals }
+      ),
+      _currencyNetwork.getDecimals(
+        quoteTokenAddress,
+        { networkDecimals: quoteTokenDecimals }
+      )
     ])
     const params = { baseTokenAddress, quoteTokenAddress }
     const endpoint = _utils.buildUrl('exchange/orderbook', params)
@@ -184,9 +202,18 @@ export class Exchange {
       takerTokenDecimals,
       expirationUnixTimestampSec = 2524604400
     } = options
-    const [ makerDecimals, takerDecimals ] = await Promise.all([
-      _currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals),
-      _currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+    const [
+      { networkDecimals: makerDecimals },
+      { networkDecimals: takerDecimals }
+    ] = await Promise.all([
+      _currencyNetwork.getDecimals(
+        makerTokenAddress,
+        { networkDecimals: makerTokenDecimals }
+      ),
+      _currencyNetwork.getDecimals(
+        takerTokenAddress,
+        { networkDecimals: takerTokenDecimals }
+      )
     ])
     const orderRaw = {
       exchangeContractAddress,
@@ -251,9 +278,18 @@ export class Exchange {
       makerTokenDecimals,
       takerTokenDecimals
     } = options
-    const [ makerDecimals, takerDecimals ] = await Promise.all([
-      this._currencyNetwork.getDecimals(makerTokenAddress, makerTokenDecimals),
-      this._currencyNetwork.getDecimals(takerTokenAddress, takerTokenDecimals)
+    const [
+      { networkDecimals: makerDecimals },
+      { networkDecimals: takerDecimals }
+    ] = await Promise.all([
+      this._currencyNetwork.getDecimals(
+        makerTokenAddress,
+        { networkDecimals: makerTokenDecimals }
+      ),
+      this._currencyNetwork.getDecimals(
+        takerTokenAddress,
+        { networkDecimals: takerTokenDecimals }
+      )
     ])
     const [ makerPathObj, takerPathObj ] = await Promise.all([
       this._getPathObj(
@@ -261,14 +297,14 @@ export class Exchange {
         maker,
         this._user.address,
         this._getPartialAmount(fillTakerTokenValue, takerTokenAmount.value, makerTokenAmount.value),
-        { decimals: makerDecimals }
+        { networkDecimals: makerDecimals }
       ),
       this._getPathObj(
         takerTokenAddress,
         this._user.address,
         maker,
         fillTakerTokenValue,
-        { decimals: takerDecimals }
+        { networkDecimals: takerDecimals }
       )
     ])
     const orderAddresses = this._getOrderAddresses(signedOrder)
@@ -337,9 +373,9 @@ export class Exchange {
       gasPrice,
       takerTokenDecimals
     } = options
-    const takerDecimals = await this._currencyNetwork.getDecimals(
+    const { networkDecimals: takerDecimals } = await this._currencyNetwork.getDecimals(
       takerTokenAddress,
-      takerTokenDecimals
+      { networkDecimals: takerTokenDecimals }
     )
     const orderAddresses = this._getOrderAddresses(signedOrder)
     const orderValues = this._getOrderValues(signedOrder)
@@ -410,7 +446,7 @@ export class Exchange {
     value: number | string,
     options: TLOptions
   ): Promise<PathObject> {
-    const { decimals } = options
+    const { networkDecimals } = options
     const isNetwork = await this._currencyNetwork.isNetwork(tokenAddress)
     if (isNetwork) {
       return this._payment.getPath(
@@ -418,12 +454,12 @@ export class Exchange {
         from,
         to,
         value,
-        { decimals }
+        { networkDecimals }
       )
     }
     return {
       path: [],
-      maxFees: this._utils.formatToAmount(0, decimals),
+      maxFees: this._utils.formatToAmount(0, networkDecimals),
       estimatedGas: new BigNumber(40000),
       isNetwork: false
     }
