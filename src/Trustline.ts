@@ -28,7 +28,7 @@ export class Trustline {
   private _transaction: Transaction
   private _currencyNetwork: CurrencyNetwork
 
-  constructor(
+  constructor (
     event: Event,
     user: User,
     utils: Utils,
@@ -56,7 +56,7 @@ export class Trustline {
    * @param options.gasLimit Custom gas limit.
    * @param options.gasPrice Custom gas price.
    */
-  public async prepareUpdate(
+  public async prepareUpdate (
     networkAddress: string,
     counterpartyAddress: string,
     creditlineGiven: number | string,
@@ -101,7 +101,7 @@ export class Trustline {
    * @param options.gasLimit Custom gas limit.
    * @param options.gasPrice Custom gas price.
    */
-  public prepareAccept(
+  public prepareAccept (
     networkAddress: string,
     initiatorAddress: string,
     creditlineGiven: number | string,
@@ -122,7 +122,7 @@ export class Trustline {
    * and sends the signed transaction.
    * @param rawTx Raw transaction object.
    */
-  public async confirm(rawTx: RawTxObject): Promise<any> {
+  public async confirm (rawTx: RawTxObject): Promise<any> {
     return this._transaction.confirm(rawTx)
   }
 
@@ -130,7 +130,7 @@ export class Trustline {
    * Returns all trustlines of a loaded user in a currency network.
    * @param networkAddress Address of a currency network.
    */
-  public async getAll(networkAddress: string): Promise<TrustlineObject[]> {
+  public async getAll (networkAddress: string): Promise<TrustlineObject[]> {
     const { _user, _utils, _currencyNetwork } = this
     const endpoint = `networks/${networkAddress}/users/${
       _user.address
@@ -149,7 +149,7 @@ export class Trustline {
    * @param networkAddress Address of a currency network.
    * @param counterpartyAddress Address of counterparty of trustline.
    */
-  public async get(
+  public async get (
     networkAddress: string,
     counterpartyAddress: string
   ): Promise<TrustlineObject> {
@@ -169,7 +169,7 @@ export class Trustline {
    * @param networkAddress Address of a currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
-  public getRequests(
+  public getRequests (
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<NetworkTrustlineEvent[]> {
@@ -185,7 +185,7 @@ export class Trustline {
    * @param networkAddress Address of a currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
-  public getUpdates(
+  public getUpdates (
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<NetworkTrustlineEvent[]> {
@@ -204,7 +204,7 @@ export class Trustline {
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
    */
-  public async prepareSettle(
+  public async prepareSettle (
     networkAddress: string,
     counterpartyAddress: string,
     options: PaymentOptions = {}
@@ -233,13 +233,14 @@ export class Trustline {
     }
 
     // Request the relay for a path to settle down the trustline.
-    const { path, estimatedGas, fees, value } = await _utils.fetchUrl<
-      ClosePath
-    >(endpoint, {
-      method: 'post',
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(data)
-    })
+    const { path, estimatedGas, fees, value } = await _utils.fetchUrl<ClosePath>(
+      endpoint,
+      {
+        method: 'post',
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(data)
+      }
+    )
 
     // Make sure a path has been found.
     if (path.length > 0) {
@@ -279,7 +280,7 @@ export class Trustline {
    * @param trustline unformatted trustline
    * @param decimals decimals of currency network
    */
-  private _formatTrustline(
+  private _formatTrustline (
     trustline: TrustlineRaw,
     decimals: number
   ): TrustlineObject {

@@ -295,7 +295,7 @@ export class Utils {
     return ethUtils.addHexPrefix(hexStr)
   }
 
-  public generateRandomNumber(decimals: number): BigNumber {
-    return BigNumber.random(decimals+1).multipliedBy(new BigNumber(10).pow(decimals)).integerValue()
+  public generateRandomNumber (decimals: number): BigNumber {
+    return BigNumber.random(decimals + 1).multipliedBy(new BigNumber(10).pow(decimals)).integerValue()
   }
 }
