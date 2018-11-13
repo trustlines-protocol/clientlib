@@ -74,7 +74,7 @@ export class Trustline {
       gasLimit,
       gasPrice
     } = options
-    const [ decimals, { customInterestRatesAllowed, defaultInterestRate } ] = await Promise.all([
+    const [ decimals, { customInterests, defaultInterestRate } ] = await Promise.all([
       _currencyNetwork.getDecimals(networkAddress, { networkDecimals, interestRateDecimals }),
       _currencyNetwork.getInfo(networkAddress)
     ])
@@ -88,12 +88,12 @@ export class Trustline {
         _utils.convertToHexString(_utils.calcRaw(creditlineGiven, decimals.networkDecimals)),
         _utils.convertToHexString(_utils.calcRaw(creditlineReceived, decimals.networkDecimals)),
         _utils.convertToHexString(
-          customInterestRatesAllowed
+          customInterests
             ? _utils.calcRaw(interestRateGiven, decimals.interestRateDecimals)
             : defaultInterestRate.raw
         ),
         _utils.convertToHexString(
-          customInterestRatesAllowed
+          customInterests
             ? _utils.calcRaw(interestRateReceived, decimals.interestRateDecimals)
             : defaultInterestRate.raw
         )

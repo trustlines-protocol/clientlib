@@ -283,15 +283,17 @@ export interface NetworkDetails extends Network {
   numUsers: number,
   defaultInterestRate: Amount,
   interestRateDecimals: number,
-  customInterestRatesAllowed: boolean
+  customInterests: boolean,
+  preventMediatorInterests: boolean
 }
 
 export interface NetworkDetailsRaw extends Network {
   decimals: number,
   numUsers: number,
-  defaultInterestRate: number,
+  defaultInterestRate: string,
   interestRateDecimals: number,
-  customInterests: boolean
+  customInterests: boolean,
+  preventMediatorInterests: boolean
 }
 
 export interface UserOverview {

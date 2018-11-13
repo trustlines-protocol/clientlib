@@ -37,25 +37,13 @@ export class CurrencyNetwork {
    */
   public async getInfo (networkAddress: string): Promise<NetworkDetails> {
     await this._checkAddresses([networkAddress])
-    const {
-      name,
-      abbreviation,
-      address,
-      decimals,
-      numUsers,
-      customInterests,
-      defaultInterestRate,
-      interestRateDecimals
-    } = await this._utils.fetchUrl<NetworkDetailsRaw>(`networks/${networkAddress}`)
+    const networkInfo = await this._utils.fetchUrl<NetworkDetailsRaw>(`networks/${networkAddress}`)
     return {
-      name,
-      abbreviation,
-      address,
-      decimals,
-      numUsers,
-      interestRateDecimals,
-      customInterestRatesAllowed: customInterests,
-      defaultInterestRate: this._utils.formatToAmount(defaultInterestRate, interestRateDecimals)
+      ...networkInfo,
+      defaultInterestRate: this._utils.formatToAmount(
+        networkInfo.defaultInterestRate,
+        networkInfo.interestRateDecimals
+      )
     }
   }
 
