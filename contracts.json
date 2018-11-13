@@ -718,33 +718,6 @@
                 "constant": false,
                 "inputs": [
                     {
-                        "name": "_debtor",
-                        "type": "address"
-                    },
-                    {
-                        "name": "_creditlineGiven",
-                        "type": "uint64"
-                    },
-                    {
-                        "name": "_creditlineReceived",
-                        "type": "uint64"
-                    }
-                ],
-                "name": "updateTrustline",
-                "outputs": [
-                    {
-                        "name": "_success",
-                        "type": "bool"
-                    }
-                ],
-                "payable": false,
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "constant": false,
-                "inputs": [
-                    {
                         "name": "_otherParty",
                         "type": "address"
                     },
@@ -1679,33 +1652,6 @@
                         ],
                         "name": "setAccountDefaultInterests",
                         "outputs": [],
-                        "payable": false,
-                        "stateMutability": "nonpayable",
-                        "type": "function"
-                    },
-                    {
-                        "constant": false,
-                        "inputs": [
-                            {
-                                "name": "_debtor",
-                                "type": "address"
-                            },
-                            {
-                                "name": "_creditlineGiven",
-                                "type": "uint64"
-                            },
-                            {
-                                "name": "_creditlineReceived",
-                                "type": "uint64"
-                            }
-                        ],
-                        "name": "updateTrustline",
-                        "outputs": [
-                            {
-                                "name": "_success",
-                                "type": "bool"
-                            }
-                        ],
                         "payable": false,
                         "stateMutability": "nonpayable",
                         "type": "function"
