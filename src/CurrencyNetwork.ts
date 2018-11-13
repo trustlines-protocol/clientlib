@@ -96,8 +96,8 @@ export class CurrencyNetwork {
     try {
       await this._checkAddresses([networkAddress])
       if (
-        !networkDecimals || typeof networkDecimals !== 'number' ||
-        !interestRateDecimals || typeof interestRateDecimals !== 'number'
+        typeof networkDecimals === 'undefined' || typeof networkDecimals !== 'number' ||
+        typeof interestRateDecimals === 'undefined' || typeof interestRateDecimals !== 'number'
       ) {
         // TODO replace with local list of known currency networks
         const network = await this.getInfo(networkAddress)

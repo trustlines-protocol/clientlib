@@ -49,7 +49,7 @@ describe('e2e', () => {
         networks.map(n => tl1.currencyNetwork.getInfo(n.address))
       )
       const networksWith2Decimals = networksWithDetails.filter(
-        n => (n as NetworkDetails).decimals === 2
+        n => (n as NetworkDetails).decimals === 4
       )
       network1 = networksWith2Decimals[0]
       network2 = networksWith2Decimals[1]
