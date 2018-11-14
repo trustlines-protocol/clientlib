@@ -221,7 +221,7 @@ export class Trustline {
   }
 
   /**
-   * Prepares an ethereum transaction object for settle a trustline.
+   * Prepares an ethereum transaction object for closing a trustline.
    * @param networkAddress Address of a currency network.
    * @param counterpartyAddress Address of counterparty to who the trustline should be settled.
    * @param options Payment options. See `PaymentOptions` for more information.
@@ -229,7 +229,7 @@ export class Trustline {
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
    */
-  public async prepareSettle (
+  public async prepareClose (
     networkAddress: string,
     counterpartyAddress: string,
     options: PaymentOptions = {}
@@ -258,10 +258,9 @@ export class Trustline {
         _user.address,
         networkAddress,
         'CurrencyNetwork',
-        'transfer',
+        'closeTrustlineByTriangularTransfer',
         [
           counterpartyAddress,
-          _utils.convertToHexString(new BigNumber(value.raw)),
           _utils.convertToHexString(new BigNumber(maxFees.raw)),
           path.slice(1)
         ],
