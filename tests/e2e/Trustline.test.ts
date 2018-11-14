@@ -393,65 +393,106 @@ describe('e2e', () => {
       })
     })
 
-    describe('#prepareSettle()', () => {
+    describe('#prepareClose()', () => {
+      const given = 1000
+      const received = 1000
+      const transferAmount = 100
+
       before(async () => {
         // Construction of three accounts as clique.
         const triangle = [[tl1, tl2], [tl2, tl3], [tl3, tl1]]
-        const given = 1000
-        const received = 1000
 
         // Establish all trustlines in the triangle.
         for (let trustline of triangle) {
           // Get the both users for this trustline.
           const [a, b] = trustline
 
-          // Request a trustline from a to b and confirm the transaction.
-          const updateTx = (await a.trustline.prepareUpdate(
+          // Prepare trustline update transaction from a to b.
+          const { rawTx: rawUpdateTx } = await a.trustline.prepareUpdate(
             networkWithoutInterestRates.address,
             b.user.address,
             given,
             received
-          )).rawTx
+          )
 
-          await a.trustline.confirm(updateTx)
-          await wait()
-
-          // Send transaction from b to accept a's trustline request.
-          const acceptTx = (await b.trustline.prepareAccept(
+          // Prepare trustline accept transaction from b to a.
+          const { rawTx: rawAcceptTx } = await b.trustline.prepareAccept(
             networkWithoutInterestRates.address,
             a.user.address,
             given,
             received
-          )).rawTx
+          )
 
-          await b.trustline.confirm(acceptTx)
+          // Sign and relay prepared transactions.
+          await Promise.all([
+            a.trustline.confirm(rawUpdateTx),
+            b.trustline.confirm(rawAcceptTx)
+          ])
+
+          // Wait for txs to be mined.
+          await wait()
         }
 
         // Manipulate the balance between the user to settle the trustline later on.
-        const paymentTx = (await tl1.payment.prepare(
+        const { rawTx: rawPaymentTx } = await tl1.payment.prepare(
           networkWithoutInterestRates.address,
           tl2.user.address,
-          100
-        )).rawTx
-
-        await tl1.payment.confirm(paymentTx)
+          transferAmount
+        )
+        await tl1.payment.confirm(rawPaymentTx)
         await wait()
       })
 
-      it('It should be possible to prepare a settle in the correct direction.', async () => {
+      it('should be possible to prepare a close in the correct direction.', async () => {
         // Send the prepare settle to the relay, expecting a valid path exists.
-        expect(
-          await tl1.trustline.prepareSettle(networkWithoutInterestRates.address, tl2.user.address)
-        ).to.have.keys('rawTx', 'ethFees')
+        const closeTx = await tl1.trustline.prepareClose(networkWithoutInterestRates.address, tl2.user.address)
+        expect(closeTx).to.have.keys(['rawTx', 'value', 'ethFees', 'maxFees', 'path'])
+        expect(closeTx.path).to.include(tl3.user.address)
+        expect(closeTx.ethFees).to.have.keys(['raw', 'value', 'decimals'])
+        expect(closeTx.maxFees).to.have.keys(['raw', 'value', 'decimals'])
+        expect(closeTx.value).to.have.keys(['raw', 'value', 'decimals'])
+        expect(closeTx.value.value).to.equal(transferAmount.toString())
       })
 
-      it('It should not be possible to prepare a settle in the wrong direction.', async () => {
+      it('should not be possible to prepare a close in the wrong direction.', async () => {
         // Send the prepare settle to the relay, expecting that a 501 HTTP status code get responded.
         try {
-          await tl2.trustline.prepareSettle(networkWithoutInterestRates.address, tl1.user.address)
+          await tl2.trustline.prepareClose(networkWithoutInterestRates.address, tl1.user.address)
         } catch (err) {
           expect(err).to.be.an('error')
         }
+      })
+
+      it('should sign and relay prepared close transaction', async () => {
+        // Prepare close transaction
+        const { rawTx: rawCloseTx } = await tl1.trustline.prepareClose(
+          networkWithoutInterestRates.address,
+          tl2.user.address
+        )
+
+        // Sign and relay close transaction
+        await tl1.trustline.confirm(rawCloseTx)
+
+        // Wait for tx to be mined
+        await wait()
+
+        // Get trustline infos
+        const [
+          trustline1To2,
+          trustline1To3,
+          trustline2To3
+        ] = await Promise.all([
+          tl1.trustline.get(networkWithoutInterestRates.address, tl2.user.address),
+          tl1.trustline.get(networkWithoutInterestRates.address, tl3.user.address),
+          tl2.trustline.get(networkWithoutInterestRates.address, tl3.user.address)
+        ])
+
+        // Balance of closed trustline from user 1 to user 2 should be 0
+        expect(trustline1To2.balance.value).to.equal('0')
+        // Balance of triangulated trustline from user 1 to user 3 should be -100
+        expect(trustline1To3.balance.value).to.equal('-100')
+        // Balance of triangulated trustline from user 2 to user 3 should be 100
+        expect(trustline2To3.balance.value).to.equal('100')
       })
     })
   })
