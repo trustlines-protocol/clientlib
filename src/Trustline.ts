@@ -338,7 +338,7 @@ export class Trustline {
       path,
       estimatedGas: new BigNumber(estimatedGas),
       maxFees: _utils.formatToAmount(fees, decimals.networkDecimals),
-      value: _utils.formatToAmount(value, networkDecimals)
+      value: _utils.formatToAmount(value, decimals.networkDecimals)
     }
   }
 
