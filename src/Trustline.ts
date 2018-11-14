@@ -6,8 +6,12 @@ import { User } from './User'
 import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import {
+  PaymentOptions,
   EventFilterOptions,
   TxObject,
+  CloseTxObject,
+  ClosePathRaw,
+  ClosePathObject,
   TrustlineObject,
   TrustlineRaw,
   NetworkTrustlineEvent,
@@ -214,6 +218,128 @@ export class Trustline {
       ...filter,
       type: 'TrustlineUpdate'
     })
+  }
+
+  /**
+   * Prepares an ethereum transaction object for closing a trustline.
+   * @param networkAddress Address of a currency network.
+   * @param counterpartyAddress Address of counterparty to who the trustline should be settled.
+   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options.decimals Decimals of currency network can be provided manually.
+   * @param options.maximumHops Max. number of hops for transfer.
+   * @param options.maximumFees Max. transfer fees user if willing to pay.
+   * @returns A transaction object for closing a trustline. See `CloseTxObject` for more information.
+   */
+  public async prepareClose (
+    networkAddress: string,
+    counterpartyAddress: string,
+    options: PaymentOptions = {}
+  ): Promise<CloseTxObject> {
+    const { _user, _currencyNetwork, _transaction, _utils } = this
+
+    // Get the users options and make sure to have a decimal.
+    const { gasPrice, gasLimit, networkDecimals } = options
+    const decimals = await _currencyNetwork.getDecimals(networkAddress, { networkDecimals })
+
+    // Get close path
+    const { path, maxFees, estimatedGas, value } = await this.getClosePath(
+      networkAddress,
+      _user.address,
+      counterpartyAddress,
+      {
+        ...options,
+        networkDecimals: decimals.networkDecimals
+      }
+    )
+
+    // Make sure a path has been found.
+    if (path.length > 0) {
+      // Prepare the interaction with the contract.
+      const { rawTx, ethFees } = await _transaction.prepFuncTx(
+        _user.address,
+        networkAddress,
+        'CurrencyNetwork',
+        'closeTrustlineByTriangularTransfer',
+        [
+          counterpartyAddress,
+          _utils.convertToHexString(new BigNumber(maxFees.raw)),
+          path.slice(1)
+        ],
+        {
+          gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+          gasLimit: gasLimit
+            ? new BigNumber(gasLimit)
+            : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue()
+        }
+      )
+
+      return {
+        rawTx,
+        path,
+        maxFees,
+        ethFees: _utils.convertToAmount(ethFees)
+      }
+    } else {
+      throw new Error('Could not find a path with enough capacity.')
+    }
+  }
+
+  /**
+   * Returns a path for closing a trustline between sender and counterparty.
+   * @param networkAddress Address of a currency network.
+   * @param senderAddress Address of sender.
+   * @param counterpartyAddress Address of counterparty of trustline.
+   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options.networkDecimals Decimals of currency network can be provided manually.
+   * @param options.maximumHops Max. number of hops for transfer.
+   * @param options.maximumFees Max. transfer fees user if willing to pay.
+   * @returns Relevant information for closing a trustline. See `ClosePathObject`.
+   */
+  public async getClosePath (
+    networkAddress: string,
+    senderAddress: string,
+    counterpartyAddress: string,
+    options: PaymentOptions = {}
+  ): Promise<ClosePathObject> {
+    const { _currencyNetwork, _utils } = this
+
+    // Get the users options and make sure to have a decimal.
+    const { networkDecimals, maximumHops, maximumFees } = options
+    const decimals = await _currencyNetwork.getDecimals(networkAddress, { networkDecimals })
+
+    // Define the relay endpoint.
+    const endpoint = `networks/${networkAddress}/close-trustline-path-info`
+
+    // Define properties for the relay request.
+    const data = {
+      from: senderAddress,
+      to: counterpartyAddress
+    }
+
+    // Add additional data properties.
+    if (maximumFees) {
+      data['maxFees'] = maximumFees
+    }
+    if (maximumHops) {
+      data['maxHops'] = maximumHops
+    }
+
+    // Request the relay for a path to settle down the trustline.
+    const { path, estimatedGas, fees, value } = await _utils.fetchUrl<ClosePathRaw>(
+      endpoint,
+      {
+        method: 'post',
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(data)
+      }
+    )
+
+    return {
+      path,
+      estimatedGas: new BigNumber(estimatedGas),
+      maxFees: _utils.formatToAmount(fees, decimals.networkDecimals),
+      value: _utils.formatToAmount(value, networkDecimals)
+    }
   }
 
   /**

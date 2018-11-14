@@ -257,7 +257,7 @@ export interface TxInfos {
 }
 
 // PAYMENT
-export interface TLTxObject extends TxObject {
+export interface PaymentTxObject extends TxObject {
   path: string[],
   maxFees: Amount
 }
@@ -362,6 +362,38 @@ export interface TrustlineRaw {
   interestRateGiven: string,
   interestRateReceived: string
 }
+
+/**
+ * Path object for closing a trustline.
+ * Contains all relevant information for closing a trustline.
+ */
+export interface ClosePathObject {
+  /**
+   * Close path for triangulation
+   */
+  path: string[],
+  /**
+   * Maximal fees that can occur for closing
+   */
+  maxFees: Amount,
+  /**
+   * Estimated gas costs for closing
+   */
+  estimatedGas: BigNumber,
+  /**
+   * Estimated value to be transferred for closing
+   */
+  value: Amount
+}
+
+export interface ClosePathRaw {
+  path: string[]
+  fees: string
+  estimatedGas: number
+  value: string
+}
+
+export type CloseTxObject = PaymentTxObject
 
 // EXCHANGE
 export interface Order {
