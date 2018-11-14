@@ -13,6 +13,17 @@ describe('e2e', () => {
     const { currencyNetwork } = new TLNetwork(config)
     let networks
     const notRegisteredAddress = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+    const networkInfoKeys = [
+      'name',
+      'abbreviation',
+      'address',
+      'numUsers',
+      'decimals',
+      'defaultInterestRate',
+      'interestRateDecimals',
+      'customInterests',
+      'preventMediatorInterests'
+    ]
 
     before(async () => {
       networks = await currencyNetwork.getAll()
@@ -25,26 +36,21 @@ describe('e2e', () => {
 
       it('should return registered networks', () => {
         expect(networks).to.have.length.above(0, 'No registered networks')
-        expect(networks[0]).to.include.all.keys('name', 'abbreviation', 'address')
-        expect(networks[0].name).to.be.a('string')
+        expect(networks[0]).to.have.all.keys(networkInfoKeys)
         expect(networks[0].abbreviation).to.be.a('string')
         expect(networks[0].address).to.be.a('string').and.to.have.length(42)
+        expect(networks[0].decimals).to.be.a('number')
+        expect(networks[0].name).to.be.a('string')
+        expect(networks[0].numUsers).to.be.a('number')
+        expect(networks[0].defaultInterestRate).to.have.all.keys('decimals', 'value', 'raw')
+        expect(networks[0].customInterests).to.be.a('boolean')
+        expect(networks[0].preventMediatorInterests).to.be.a('boolean')
+        expect(networks[0].interestRateDecimals).to.be.a('number')
       })
     })
 
     describe('#getInfo()', () => {
       it('should return detailed information of specific currency network', async () => {
-        const networkInfoKeys = [
-          'name',
-          'abbreviation',
-          'address',
-          'numUsers',
-          'decimals',
-          'defaultInterestRate',
-          'interestRateDecimals',
-          'customInterests',
-          'preventMediatorInterests'
-        ]
         const networkInfo = await currencyNetwork.getInfo(networks[0].address)
         expect(networkInfo).to.have.all.keys(networkInfoKeys)
         expect(networkInfo.abbreviation).to.be.a('string')
