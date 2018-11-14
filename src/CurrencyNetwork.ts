@@ -3,7 +3,6 @@ import * as ethUtils from 'ethereumjs-util'
 import { Utils } from './Utils'
 
 import {
-  Network,
   NetworkDetails,
   NetworkDetailsRaw,
   UserOverview,
@@ -26,8 +25,15 @@ export class CurrencyNetwork {
   /**
    * Returns all registered currency networks.
    */
-  public getAll (): Promise<Network[]> {
-    return this._utils.fetchUrl<Network[]>(`networks`)
+  public async getAll (): Promise<NetworkDetails[]> {
+    const networks = await this._utils.fetchUrl<NetworkDetailsRaw[]>(`networks`)
+    return networks.map(network => ({
+      ...network,
+      defaultInterestRate: this._utils.formatToAmount(
+        network.defaultInterestRate,
+        network.interestRateDecimals
+      )
+    }))
   }
 
   /**
