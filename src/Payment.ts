@@ -48,7 +48,7 @@ export class Payment {
    * @param value Amount to transfer in biggest unit,
    *              i.e. 1.5 if currency network has 2 decimals.
    * @param options Optional payment options. See `PaymentOptions` for more information.
-   * @param options.decimals Decimals of currency network can be provided manually.
+   * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user is willing to pay.
    * @param options.gasPrice Custom gas price.
@@ -61,14 +61,17 @@ export class Payment {
     options: PaymentOptions = {}
   ): Promise<TLTxObject> {
     const { _user, _currencyNetwork, _transaction, _utils } = this
-    let { gasPrice, gasLimit, decimals } = options
-    decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
+    const { gasPrice, gasLimit, networkDecimals } = options
+    const decimals = await _currencyNetwork.getDecimals(networkAddress, { networkDecimals })
     const { path, maxFees, estimatedGas } = await this.getPath(
       networkAddress,
       _user.address,
       receiverAddress,
       value,
-      { ...options, decimals }
+      {
+        ...options,
+        networkDecimals: decimals.networkDecimals
+      }
     )
     if (path.length > 0) {
       const { rawTx, ethFees } = await _transaction.prepFuncTx(
@@ -78,7 +81,7 @@ export class Payment {
         'transfer',
         [
           receiverAddress,
-          _utils.convertToHexString(_utils.calcRaw(value, decimals)),
+          _utils.convertToHexString(_utils.calcRaw(value, decimals.networkDecimals)),
           _utils.convertToHexString(new BigNumber(maxFees.raw)),
           path.slice(1)
         ],
@@ -136,7 +139,7 @@ export class Payment {
    * @param value Amount to transfer in biggest unit,
    *              i.e. 1.23 if currency network has 2 decimals.
    * @param options Payment options. See `PaymentOptions` for more information.
-   * @param options.decimals Decimals of currency network can be provided manually.
+   * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
    */
@@ -148,12 +151,12 @@ export class Payment {
     options: PaymentOptions = {}
   ): Promise<PathObject> {
     const { _currencyNetwork, _utils } = this
-    let { decimals, maximumHops, maximumFees } = options
-    decimals = await _currencyNetwork.getDecimals(networkAddress, decimals)
+    const { networkDecimals, maximumHops, maximumFees } = options
+    const decimals = await _currencyNetwork.getDecimals(networkAddress, { networkDecimals })
     const data = {
       from: senderAddress,
       to: receiverAddress,
-      value: this._utils.calcRaw(value, decimals).toString()
+      value: this._utils.calcRaw(value, decimals.networkDecimals).toString()
     }
     if (maximumFees) {
       data[ 'maxFees' ] = maximumFees
@@ -170,7 +173,7 @@ export class Payment {
     return {
       estimatedGas: new BigNumber(estimatedGas),
       path,
-      maxFees: _utils.formatToAmount(fees, decimals)
+      maxFees: _utils.formatToAmount(fees, decimals.networkDecimals)
     }
   }
 
@@ -225,7 +228,7 @@ export class Payment {
     networkAddress: string,
     receiverAddress: string
   ): Promise<any> {
-    const decimals = await this._currencyNetwork.getDecimals(networkAddress)
+    const { networkDecimals } = await this._currencyNetwork.getDecimals(networkAddress)
     const userAddress = this._user.address
     const endpoint = `networks/${networkAddress}/max-capacity-path-info`
     const result = await this._utils.fetchUrl<{ capacity: number, path: Array<string>}>(endpoint, {
@@ -239,7 +242,7 @@ export class Payment {
 
     return {
       path: result.path,
-      amount: this._utils.formatToAmount(result.capacity, decimals)
+      amount: this._utils.formatToAmount(result.capacity, networkDecimals)
     }
   }
 }
