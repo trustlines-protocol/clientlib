@@ -450,17 +450,6 @@ describe('e2e', () => {
         expect(closeTx.path).to.include(tl3.user.address)
         expect(closeTx.ethFees).to.have.keys(['raw', 'value', 'decimals'])
         expect(closeTx.maxFees).to.have.keys(['raw', 'value', 'decimals'])
-        expect(closeTx.value).to.have.keys(['raw', 'value', 'decimals'])
-        expect(closeTx.value.value).to.equal(transferAmount.toString())
-      })
-
-      it('should not be possible to prepare a close in the wrong direction.', async () => {
-        // Send the prepare settle to the relay, expecting that a 501 HTTP status code get responded.
-        try {
-          await tl2.trustline.prepareClose(networkWithoutInterestRates.address, tl1.user.address)
-        } catch (err) {
-          expect(err).to.be.an('error')
-        }
       })
 
       it('should sign and relay prepared close transaction', async () => {
