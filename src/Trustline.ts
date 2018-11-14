@@ -228,6 +228,7 @@ export class Trustline {
    * @param options.decimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
+   * @returns A transaction object for closing a trustline. See `CloseTxObject` for more information.
    */
   public async prepareClose (
     networkAddress: string,
@@ -292,6 +293,7 @@ export class Trustline {
    * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
+   * @returns Relevant information for closing a trustline. See `ClosePathObject`.
    */
   public async getClosePath (
     networkAddress: string,

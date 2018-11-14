@@ -363,10 +363,26 @@ export interface TrustlineRaw {
   interestRateReceived: string
 }
 
+/**
+ * Path object for closing a trustline.
+ * Contains all relevant information for closing a trustline.
+ */
 export interface ClosePathObject {
+  /**
+   * Close path for triangulation
+   */
   path: string[],
+  /**
+   * Maximal fees that can occur for closing
+   */
   maxFees: Amount,
+  /**
+   * Estimated gas costs for closing
+   */
   estimatedGas: BigNumber,
+  /**
+   * Estimated value to be transferred for closing
+   */
   value: Amount
 }
 
