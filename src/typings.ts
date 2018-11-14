@@ -377,9 +377,7 @@ export interface ClosePathRaw {
   value: string
 }
 
-export interface CloseTxObject extends PaymentTxObject {
-  value: Amount
-}
+export type CloseTxObject = PaymentTxObject
 
 // EXCHANGE
 export interface Order {

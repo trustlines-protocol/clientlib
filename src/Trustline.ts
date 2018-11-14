@@ -276,7 +276,6 @@ export class Trustline {
         rawTx,
         path,
         maxFees,
-        value,
         ethFees: _utils.convertToAmount(ethFees)
       }
     } else {
