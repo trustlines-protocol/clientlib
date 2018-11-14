@@ -446,7 +446,7 @@ describe('e2e', () => {
       it('should be possible to prepare a close in the correct direction.', async () => {
         // Send the prepare settle to the relay, expecting a valid path exists.
         const closeTx = await tl1.trustline.prepareClose(networkWithoutInterestRates.address, tl2.user.address)
-        expect(closeTx).to.have.keys(['rawTx', 'value', 'ethFees', 'maxFees', 'path'])
+        expect(closeTx).to.have.keys(['rawTx', 'ethFees', 'maxFees', 'path'])
         expect(closeTx.path).to.include(tl3.user.address)
         expect(closeTx.ethFees).to.have.keys(['raw', 'value', 'decimals'])
         expect(closeTx.maxFees).to.have.keys(['raw', 'value', 'decimals'])
