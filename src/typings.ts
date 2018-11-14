@@ -257,7 +257,7 @@ export interface TxInfos {
 }
 
 // PAYMENT
-export interface TLTxObject extends TxObject {
+export interface PaymentTxObject extends TxObject {
   path: string[],
   maxFees: Amount
 }
@@ -273,13 +273,6 @@ export interface PathRaw {
   path: string[],
   fees: string,
   estimatedGas: number
-}
-
-export interface ClosePath {
-  path: string[]
-  fees: string
-  estimatedGas: number
-  value: number
 }
 
 // CURRENCY NETWORK
@@ -368,6 +361,24 @@ export interface TrustlineRaw {
   leftReceived: string,
   interestRateGiven: string,
   interestRateReceived: string
+}
+
+export interface ClosePathObject {
+  path: string[],
+  maxFees: Amount,
+  estimatedGas: BigNumber,
+  value: Amount
+}
+
+export interface ClosePathRaw {
+  path: string[]
+  fees: string
+  estimatedGas: number
+  value: string
+}
+
+export interface CloseTxObject extends PaymentTxObject {
+  value: Amount
 }
 
 // EXCHANGE

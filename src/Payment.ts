@@ -7,7 +7,7 @@ import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import {
   TxObject,
-  TLTxObject,
+  PaymentTxObject,
   PathObject,
   PathRaw,
   PaymentOptions,
@@ -59,7 +59,7 @@ export class Payment {
     receiverAddress: string,
     value: number | string,
     options: PaymentOptions = {}
-  ): Promise<TLTxObject> {
+  ): Promise<PaymentTxObject> {
     const { _user, _currencyNetwork, _transaction, _utils } = this
     const { gasPrice, gasLimit, networkDecimals } = options
     const decimals = await _currencyNetwork.getDecimals(networkAddress, { networkDecimals })
