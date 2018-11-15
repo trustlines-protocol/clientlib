@@ -8,4 +8,6 @@ npm version "$@"
 # Prepare next version and omit git tag
 npm --no-git-tag-version version prepatch
 
+git add package.json package-lock.json
+git commit -m "Update prepatch version"
 git push && git push --tags
