@@ -7,23 +7,23 @@ export interface TLNetworkConfig {
   /**
    * Protocol for communicating with a relay server
    */
-  protocol?: string,
+  protocol?: string
   /**
    * Host of a relay server
    */
-  host?: string,
+  host?: string
   /**
    * Port for communcation
    */
-  port?: number,
+  port?: number
   /**
    * Base path for the relay api
    */
-  path?: string,
+  path?: string
   /**
    * Protocol for websockets
    */
-  wsProtocol?: string,
+  wsProtocol?: string
   /**
    * Web3 provider
    */
@@ -34,60 +34,60 @@ export interface TLNetworkConfig {
  * For internal use of `prepFuncTx` and `prepValueTx`.
  */
 export interface TxOptionsInternal {
-  value?: BigNumber,
-  gasPrice?: BigNumber,
+  value?: BigNumber
+  gasPrice?: BigNumber
   gasLimit?: BigNumber
 }
 
 export interface TxOptions {
-  value?: string,
-  gasPrice?: string,
+  value?: string
+  gasPrice?: string
   gasLimit?: string
 }
 
 export type TLOptions = TxOptions & DecimalsOptions
 
 export interface PaymentOptions extends TLOptions {
-  maximumHops?: number,
+  maximumHops?: number
   maximumFees?: number
 }
 
 export interface TrustlineUpdateOptions extends TLOptions {
-  interestRateGiven?: number,
+  interestRateGiven?: number
   interestRateReceived?: number
 }
 
 export interface AmountInternal {
-  raw: BigNumber,
-  value: BigNumber,
+  raw: BigNumber
+  value: BigNumber
   decimals: number
 }
 
 export interface Amount {
-  raw: string,
-  value: string,
+  raw: string
+  value: string
   decimals: number
 }
 
 // EVENTS
 export interface EventFilterOptions {
-  type?: string,
+  type?: string
   fromBlock?: number
 }
 
 export interface BlockchainEvent {
-  type: string,
-  timestamp: number,
-  blockNumber: number,
-  status: string,
-  transactionId: string,
+  type: string
+  timestamp: number
+  blockNumber: number
+  status: string
+  transactionId: string
 }
 
 export interface TLEvent extends BlockchainEvent {
-  from: string,
-  to: string,
-  direction: string,
-  counterParty: string,
+  from: string
+  to: string
+  direction: string
+  counterParty: string
   user: string
 }
 
@@ -104,24 +104,26 @@ export interface NetworkTransferEvent extends NetworkEvent {
 }
 
 export interface NetworkTrustlineEventRaw extends NetworkEvent {
-  given: string,
-  received: string,
-  interestRateGiven: string,
+  given: string
+  received: string
+  interestRateGiven: string
   interestRateReceived: string
 }
 
 export interface NetworkTrustlineEvent extends NetworkEvent {
-  given: Amount,
-  received: Amount,
-  interestRateGiven: Amount,
+  given: Amount
+  received: Amount
+  interestRateGiven: Amount
   interestRateReceived: Amount
 }
 
 export type AnyNetworkEvent = NetworkTransferEvent | NetworkTrustlineEvent
-export type AnyNetworkEventRaw = NetworkTransferEventRaw | NetworkTrustlineEventRaw
+export type AnyNetworkEventRaw =
+  | NetworkTransferEventRaw
+  | NetworkTrustlineEventRaw
 
 export interface TokenEvent extends TLEvent {
-  tokenAddress: string,
+  tokenAddress: string
 }
 
 export interface TokenAmountEventRaw extends TokenEvent {
@@ -136,29 +138,29 @@ export type AnyTokenEvent = TokenAmountEvent
 export type AnyTokenEventRaw = TokenAmountEventRaw
 
 export interface ExchangeEvent extends TLEvent {
-  exchangeAddress: string,
-  makerTokenAddress: string,
-  takerTokenAddress: string,
+  exchangeAddress: string
+  makerTokenAddress: string
+  takerTokenAddress: string
   orderHash: string
 }
 
 export interface ExchangeFillEventRaw extends ExchangeEvent {
-  filledMakerAmount: string,
+  filledMakerAmount: string
   filledTakerAmount: string
 }
 
 export interface ExchangeFillEvent extends ExchangeEvent {
-  filledMakerAmount: Amount,
+  filledMakerAmount: Amount
   filledTakerAmount: Amount
 }
 
 export interface ExchangeCancelEventRaw extends ExchangeEvent {
-  cancelledMakerAmount: string,
+  cancelledMakerAmount: string
   cancelledTakerAmount: string
 }
 
 export interface ExchangeCancelEvent extends ExchangeEvent {
-  cancelledMakerAmount: Amount,
+  cancelledMakerAmount: Amount
   cancelledTakerAmount: Amount
 }
 
@@ -166,59 +168,62 @@ export type AnyExchangeEvent = ExchangeFillEvent | ExchangeCancelEvent
 export type AnyExchangeEventRaw = ExchangeFillEventRaw | ExchangeCancelEventRaw
 
 export type AnyEvent = AnyNetworkEvent | AnyTokenEvent | AnyExchangeEvent
-export type AnyEventRaw = AnyNetworkEventRaw | AnyTokenEventRaw | AnyExchangeEventRaw
+export type AnyEventRaw =
+  | AnyNetworkEventRaw
+  | AnyTokenEventRaw
+  | AnyExchangeEventRaw
 export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
 
 // TRANSACTION
 export interface TxObject {
-  rawTx: RawTxObject,
+  rawTx: RawTxObject
   ethFees: Amount
 }
 
 export interface TxObjectInternal {
-  rawTx: RawTxObject,
+  rawTx: RawTxObject
   ethFees: AmountInternal
 }
 
 export interface RawTxObject {
-  from: string,
-  to?: string,
-  value?: number | string | BigNumber,
-  gasLimit?: number | string | BigNumber,
-  gasPrice?: number | string | BigNumber,
-  data?: string,
-  nonce?: number,
+  from: string
+  to?: string
+  value?: number | string | BigNumber
+  gasLimit?: number | string | BigNumber
+  gasPrice?: number | string | BigNumber
+  data?: string
+  nonce?: number
   functionCallData?: FunctionCallData
 }
 
 export interface FunctionCallData {
-  abi: any[],
-  functionName: string,
+  abi: any[]
+  functionName: string
   args: string[]
 }
 
 export interface Web3TxReceipt {
-  status: boolean,
-  blockHash: string,
-  blockNumber: number,
-  transactionHash: string,
-  transactionIndex: number,
-  from: string,
-  to: string,
-  contractAddress: string,
-  cumulativeGasUsed: number,
-  gasUsed: number,
+  status: boolean
+  blockHash: string
+  blockNumber: number
+  transactionHash: string
+  transactionIndex: number
+  from: string
+  to: string
+  contractAddress: string
+  cumulativeGasUsed: number
+  gasUsed: number
   logs: Web3Log[]
 }
 
 export interface Web3Log {
-  address: string,
-  data: string,
-  topics: string[],
-  logIndex: number,
-  transactionIndex: number,
-  transactionHash: string,
-  blockHash: string,
+  address: string
+  data: string
+  topics: string[]
+  logIndex: number
+  transactionIndex: number
+  transactionHash: string
+  blockHash: string
   blockNumber: number
 }
 
@@ -230,11 +235,11 @@ export interface TxInfosRaw {
   /**
    * Amount of ETH in gwei for every unit of gas user is willing to pay
    */
-  gasPrice: string,
+  gasPrice: string
   /**
    * Balance of given user address in ETH
    */
-  balance: string,
+  balance: string
   /**
    * Transaction count of given user address
    */
@@ -245,11 +250,11 @@ export interface TxInfos {
   /**
    * Amount of ETH in gwei for every unit of gas user is willing to pay
    */
-  gasPrice: BigNumber,
+  gasPrice: BigNumber
   /**
    * Balance of given user address in ETH
    */
-  balance: BigNumber,
+  balance: BigNumber
   /**
    * Transaction count of given user address
    */
@@ -258,108 +263,108 @@ export interface TxInfos {
 
 // PAYMENT
 export interface PaymentTxObject extends TxObject {
-  path: string[],
+  path: string[]
   maxFees: Amount
 }
 
 export interface PathObject {
-  path: string[],
-  maxFees: Amount,
-  estimatedGas: BigNumber,
+  path: string[]
+  maxFees: Amount
+  estimatedGas: BigNumber
   isNetwork?: boolean
 }
 
 export interface PathRaw {
-  path: string[],
-  fees: string,
+  path: string[]
+  fees: string
   estimatedGas: number
 }
 
 // CURRENCY NETWORK
 export interface Network {
-  name: string,
-  abbreviation: string,
+  name: string
+  abbreviation: string
   address: string
 }
 
 export interface NetworkDetails extends Network {
-  decimals: number,
-  numUsers: number,
-  defaultInterestRate: Amount,
-  interestRateDecimals: number,
-  customInterests: boolean,
+  decimals: number
+  numUsers: number
+  defaultInterestRate: Amount
+  interestRateDecimals: number
+  customInterests: boolean
   preventMediatorInterests: boolean
 }
 
 export interface NetworkDetailsRaw extends Network {
-  decimals: number,
-  numUsers: number,
-  defaultInterestRate: string,
-  interestRateDecimals: number,
-  customInterests: boolean,
+  decimals: number
+  numUsers: number
+  defaultInterestRate: string
+  interestRateDecimals: number
+  customInterests: boolean
   preventMediatorInterests: boolean
 }
 
 export interface UserOverview {
-  balance: Amount,
-  given: Amount,
-  received: Amount,
-  leftGiven: Amount,
+  balance: Amount
+  given: Amount
+  received: Amount
+  leftGiven: Amount
   leftReceived: Amount
 }
 
 export interface UserOverviewRaw {
-  leftReceived: string,
-  balance: string,
-  given: string,
-  received: string,
+  leftReceived: string
+  balance: string
+  given: string
+  received: string
   leftGiven: string
 }
 
 export interface DecimalsOptions {
-  networkDecimals?: number,
+  networkDecimals?: number
   interestRateDecimals?: number
 }
 
 export interface DecimalsObject {
-  networkDecimals: number,
+  networkDecimals: number
   interestRateDecimals: number
 }
 
 // USER
 export interface UserObject {
-  address: string,
-  pubKey: string,
+  address: string
+  pubKey: string
   keystore: string
 }
 
 export interface Signature {
-  ecSignature: ECSignature,
+  ecSignature: ECSignature
   concatSig: string
 }
 
 // TRUSTLINE
 export interface TrustlineObject {
-  id: string,
-  address: string,
-  balance: Amount,
-  given: Amount,
-  received: Amount,
-  leftGiven: Amount,
-  leftReceived: Amount,
-  interestRateGiven: Amount,
+  id: string
+  address: string
+  balance: Amount
+  given: Amount
+  received: Amount
+  leftGiven: Amount
+  leftReceived: Amount
+  interestRateGiven: Amount
   interestRateReceived: Amount
 }
 
 export interface TrustlineRaw {
-  id: string,
-  address: string,
-  balance: string,
-  given: string,
-  received: string,
-  leftGiven: string,
-  leftReceived: string,
-  interestRateGiven: string,
+  id: string
+  address: string
+  balance: string
+  given: string
+  received: string
+  leftGiven: string
+  leftReceived: string
+  interestRateGiven: string
   interestRateReceived: string
 }
 
@@ -371,15 +376,15 @@ export interface ClosePathObject {
   /**
    * Close path for triangulation
    */
-  path: string[],
+  path: string[]
   /**
    * Maximal fees that can occur for closing
    */
-  maxFees: Amount,
+  maxFees: Amount
   /**
    * Estimated gas costs for closing
    */
-  estimatedGas: BigNumber,
+  estimatedGas: BigNumber
   /**
    * Estimated value to be transferred for closing
    */
@@ -409,12 +414,12 @@ export interface Order {
   exchangeContractAddress: string
   feeRecipient: string
   expirationUnixTimestampSec: string
-  hash: string,
-  filledMakerTokenAmount: Amount,
-  filledTakerTokenAmount: Amount,
-  cancelledMakerTokenAmount: Amount,
-  cancelledTakerTokenAmount: Amount,
-  availableMakerTokenAmount: Amount,
+  hash: string
+  filledMakerTokenAmount: Amount
+  filledTakerTokenAmount: Amount
+  cancelledMakerTokenAmount: Amount
+  cancelledTakerTokenAmount: Amount
+  availableMakerTokenAmount: Amount
   availableTakerTokenAmount: Amount
 }
 
@@ -433,22 +438,22 @@ export interface OrderRaw {
   salt: string
   exchangeContractAddress: string
   feeRecipient: string
-  expirationUnixTimestampSec: string,
-  filledMakerTokenAmount: string,
-  filledTakerTokenAmount: string,
-  cancelledMakerTokenAmount: string,
-  cancelledTakerTokenAmount: string,
-  availableMakerTokenAmount: string,
+  expirationUnixTimestampSec: string
+  filledMakerTokenAmount: string
+  filledTakerTokenAmount: string
+  cancelledMakerTokenAmount: string
+  cancelledTakerTokenAmount: string
+  availableMakerTokenAmount: string
   availableTakerTokenAmount: string
 }
 
 export interface Orderbook {
-  asks: SignedOrder[],
+  asks: SignedOrder[]
   bids: SignedOrder[]
 }
 
 export interface OrderbookRaw {
-  asks: SignedOrderRaw[],
+  asks: SignedOrderRaw[]
   bids: SignedOrderRaw[]
 }
 
@@ -469,55 +474,55 @@ export interface ECSignature {
 export type AnyOrder = Order | OrderRaw | SignedOrder | SignedOrderRaw
 
 export interface FeesRequest {
-  exchangeContractAddress: string,
-  expirationUnixTimestampSec: BigNumber,
-  maker: string,
-  makerTokenAddress: string,
-  makerTokenAmount: BigNumber,
-  salt: BigNumber,
-  taker: string,
-  takerTokenAddress: string,
+  exchangeContractAddress: string
+  expirationUnixTimestampSec: BigNumber
+  maker: string
+  makerTokenAddress: string
+  makerTokenAmount: BigNumber
+  salt: BigNumber
+  taker: string
+  takerTokenAddress: string
   takerTokenAmount: BigNumber
 }
 
 export interface FeesResponse {
-  feeRecipient: string,
-  makerFee: BigNumber,
+  feeRecipient: string
+  makerFee: BigNumber
   takerFee: BigNumber
 }
 
 export interface ExchangeOptions {
-  makerTokenDecimals?: number,
-  takerTokenDecimals?: number,
+  makerTokenDecimals?: number
+  takerTokenDecimals?: number
   expirationUnixTimestampSec?: number
 }
 
 export type ExchangeTxOptions = TxOptions & ExchangeOptions
 
 export interface OrderbookOptions {
-  baseTokenDecimals?: number,
+  baseTokenDecimals?: number
   quoteTokenDecimals?: number
 }
 
 export interface ExchangeTx extends TxObject {
-  makerMaxFees: Amount,
-  makerPath: string[],
-  takerMaxFees: Amount,
+  makerMaxFees: Amount
+  makerPath: string[]
+  takerMaxFees: Amount
   takerPath: string[]
 }
 
 export interface OrderOptions {
-  makerTokenDecimals?: number,
+  makerTokenDecimals?: number
   takerTokenDecimals?: number
 }
 
 export interface OrdersQuery {
-  exchangeContractAddress?: string,
-  tokenAddress?: string,
-  makerTokenAddress?: string,
-  takerTokenAddress?: string,
-  trader?: string,
-  maker?: string,
-  taker?: string,
+  exchangeContractAddress?: string
+  tokenAddress?: string
+  makerTokenAddress?: string
+  takerTokenAddress?: string
+  trader?: string
+  maker?: string
+  taker?: string
   feeRecipient?: string
 }

@@ -131,7 +131,9 @@ describe('unit', () => {
       })
 
       it('should return 0.123456789 eth in wei', () => {
-        expect(tl.utils.convertEthToWei(0.123456789)).to.equal(123456789000000000)
+        expect(tl.utils.convertEthToWei(0.123456789)).to.equal(
+          123456789000000000
+        )
       })
 
       it('should return 1 wei', () => {
@@ -158,9 +160,11 @@ describe('unit', () => {
 
       it('should return url with encoded path', () => {
         const base = 'http://trustlines.network/v1'
-        const url = 'http://trustlines.network/v1/contact/0x00/username%20with%20spaces'
-        expect(tl.utils.buildUrl(base, ['contact', '0x00', 'username with spaces']))
-          .to.equal(url)
+        const url =
+          'http://trustlines.network/v1/contact/0x00/username%20with%20spaces'
+        expect(
+          tl.utils.buildUrl(base, ['contact', '0x00', 'username with spaces'])
+        ).to.equal(url)
       })
     })
 

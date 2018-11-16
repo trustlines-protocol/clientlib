@@ -11,12 +11,13 @@ describe('integration', () => {
     const { expect } = chai
     const tlNew = new TLNetwork(config)
     const tlExisting = new TLNetwork(config)
-    const seedUser1 = 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+    const seedUser1 =
+      'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
     let newUser
     let existingUser
 
     before(async () => {
-      [ newUser, existingUser ] = await Promise.all([
+      ;[newUser, existingUser] = await Promise.all([
         tlNew.user.create(),
         tlExisting.user.load(keystore1)
       ])
@@ -58,17 +59,22 @@ describe('integration', () => {
 
     describe('#encrypt()', () => {
       it('should return encryption object', () => {
-        expect(tlNew.user.encrypt('hello world!', existingUser.pubKey))
-          .to.eventually.be.an('object')
+        expect(
+          tlNew.user.encrypt('hello world!', existingUser.pubKey)
+        ).to.eventually.be.an('object')
       })
     })
 
     describe('#decrypt()', () => {
       it('should decrypt message', async () => {
         const message = 'hello world!'
-        const cipherText = await tlNew.user.encrypt(message, existingUser.pubKey)
-        expect(tlExisting.user.decrypt(cipherText, newUser.pubKey))
-          .to.eventually.equal('hello world!')
+        const cipherText = await tlNew.user.encrypt(
+          message,
+          existingUser.pubKey
+        )
+        expect(
+          tlExisting.user.decrypt(cipherText, newUser.pubKey)
+        ).to.eventually.equal('hello world!')
       })
     })
   })

@@ -38,11 +38,17 @@ describe('e2e', () => {
         expect(networks).to.have.length.above(0, 'No registered networks')
         expect(networks[0]).to.have.all.keys(networkInfoKeys)
         expect(networks[0].abbreviation).to.be.a('string')
-        expect(networks[0].address).to.be.a('string').and.to.have.length(42)
+        expect(networks[0].address)
+          .to.be.a('string')
+          .and.to.have.length(42)
         expect(networks[0].decimals).to.be.a('number')
         expect(networks[0].name).to.be.a('string')
         expect(networks[0].numUsers).to.be.a('number')
-        expect(networks[0].defaultInterestRate).to.have.all.keys('decimals', 'value', 'raw')
+        expect(networks[0].defaultInterestRate).to.have.all.keys(
+          'decimals',
+          'value',
+          'raw'
+        )
         expect(networks[0].customInterests).to.be.a('boolean')
         expect(networks[0].preventMediatorInterests).to.be.a('boolean')
         expect(networks[0].interestRateDecimals).to.be.a('number')
@@ -54,11 +60,17 @@ describe('e2e', () => {
         const networkInfo = await currencyNetwork.getInfo(networks[0].address)
         expect(networkInfo).to.have.all.keys(networkInfoKeys)
         expect(networkInfo.abbreviation).to.be.a('string')
-        expect(networkInfo.address).to.be.a('string').and.to.have.length(42)
+        expect(networkInfo.address)
+          .to.be.a('string')
+          .and.to.have.length(42)
         expect(networkInfo.decimals).to.be.a('number')
         expect(networkInfo.name).to.be.a('string')
         expect(networkInfo.numUsers).to.be.a('number')
-        expect(networkInfo.defaultInterestRate).to.have.all.keys('decimals', 'value', 'raw')
+        expect(networkInfo.defaultInterestRate).to.have.all.keys(
+          'decimals',
+          'value',
+          'raw'
+        )
         expect(networkInfo.customInterests).to.be.a('boolean')
         expect(networkInfo.preventMediatorInterests).to.be.a('boolean')
         expect(networkInfo.interestRateDecimals).to.be.a('number')
@@ -67,7 +79,9 @@ describe('e2e', () => {
 
     describe('#getUsers()', () => {
       it('should return all user addresses of specific currency network', () => {
-        expect(currencyNetwork.getUsers(networks[0].address)).to.eventually.be.an('array')
+        expect(
+          currencyNetwork.getUsers(networks[0].address)
+        ).to.eventually.be.an('array')
       })
     })
 
@@ -78,7 +92,13 @@ describe('e2e', () => {
           user1.address
         )
         const { balance, given, received, leftGiven, leftReceived } = overview
-        expect(overview).to.have.all.keys('balance', 'given', 'received', 'leftGiven', 'leftReceived')
+        expect(overview).to.have.all.keys(
+          'balance',
+          'given',
+          'received',
+          'leftGiven',
+          'leftReceived'
+        )
         expect(balance).to.have.all.keys('decimals', 'raw', 'value')
         expect(given).to.have.all.keys('decimals', 'raw', 'value')
         expect(received).to.have.all.keys('decimals', 'raw', 'value')
@@ -89,8 +109,13 @@ describe('e2e', () => {
 
     describe('#getDecimals()', () => {
       it('should return decimals from relay server', async () => {
-        const decimalsObject = await currencyNetwork.getDecimals(networks[0].address)
-        expect(decimalsObject).to.have.all.keys('networkDecimals', 'interestRateDecimals')
+        const decimalsObject = await currencyNetwork.getDecimals(
+          networks[0].address
+        )
+        expect(decimalsObject).to.have.all.keys(
+          'networkDecimals',
+          'interestRateDecimals'
+        )
         expect(decimalsObject.networkDecimals).to.be.a('number')
         expect(decimalsObject.interestRateDecimals).to.be.a('number')
       })
@@ -103,7 +128,10 @@ describe('e2e', () => {
             interestRateDecimals: 3
           }
         )
-        expect(decimalsObject).to.have.all.keys('networkDecimals', 'interestRateDecimals')
+        expect(decimalsObject).to.have.all.keys(
+          'networkDecimals',
+          'interestRateDecimals'
+        )
         expect(decimalsObject.networkDecimals).to.equal(2)
         expect(decimalsObject.interestRateDecimals).to.equal(3)
       })
@@ -113,8 +141,9 @@ describe('e2e', () => {
           `${notRegisteredAddress} seems not to be a network address.`,
           'Decimals have to be explicit.'
         ].join(' ')
-        await expect(currencyNetwork.getDecimals(notRegisteredAddress))
-          .to.be.rejectedWith(errMsg)
+        await expect(
+          currencyNetwork.getDecimals(notRegisteredAddress)
+        ).to.be.rejectedWith(errMsg)
       })
     })
   })

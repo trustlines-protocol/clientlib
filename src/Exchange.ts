@@ -46,7 +46,7 @@ export class Exchange {
   private _currencyNetwork: CurrencyNetwork
   private _payment: Payment
 
-  constructor (
+  constructor(
     event: Event,
     user: User,
     utils: Utils,
@@ -65,7 +65,7 @@ export class Exchange {
   /**
    * Returns all known exchange contract addresses.
    */
-  public getExAddresses (): Promise<string[]> {
+  public getExAddresses(): Promise<string[]> {
     return this._utils.fetchUrl<string[]>('exchange/exchanges')
   }
 
@@ -78,25 +78,25 @@ export class Exchange {
    * @param options.takerTokenDecimals Decimals of taker token can be provided manually.
    *                                   NOTE: If taker token is NOT a currency network, then decimals have to be explicitly given.
    */
-  public async getOrderByHash (
+  public async getOrderByHash(
     orderHash: string,
     options: OrderOptions = {}
   ): Promise<SignedOrder> {
     const { _currencyNetwork, _utils } = this
     const { makerTokenDecimals, takerTokenDecimals } = options
-    const order = await _utils.fetchUrl<SignedOrderRaw>(`exchange/order/${orderHash}`)
+    const order = await _utils.fetchUrl<SignedOrderRaw>(
+      `exchange/order/${orderHash}`
+    )
     const [
       { networkDecimals: makerDecimals },
       { networkDecimals: takerDecimals }
     ] = await Promise.all([
-      _currencyNetwork.getDecimals(
-        order.makerTokenAddress,
-        { networkDecimals: makerTokenDecimals }
-      ),
-      _currencyNetwork.getDecimals(
-        order.takerTokenAddress,
-        { networkDecimals: takerTokenDecimals }
-      )
+      _currencyNetwork.getDecimals(order.makerTokenAddress, {
+        networkDecimals: makerTokenDecimals
+      }),
+      _currencyNetwork.getDecimals(order.takerTokenAddress, {
+        networkDecimals: takerTokenDecimals
+      })
     ])
     return this._formatOrderRaw(order, makerDecimals, takerDecimals)
   }
@@ -112,7 +112,7 @@ export class Exchange {
    * @param query.taker Orders with specified taker address.
    * @param query.trader Orders where `maker` or `taker` is `trader`.
    */
-  public async getOrders (query: OrdersQuery = {}): Promise<SignedOrder[]> {
+  public async getOrders(query: OrdersQuery = {}): Promise<SignedOrder[]> {
     const { _event, _utils } = this
     const queryEndpoint = _utils.buildUrl('exchange/orders', {
       exchangeContractAddress: query.exchangeContractAddress,
@@ -127,11 +127,13 @@ export class Exchange {
     const orders = await _utils.fetchUrl<SignedOrderRaw[]>(queryEndpoint)
     const addressesMap = this._getUniqueTokenAddresses(orders)
     const decimalsMap = await _event.getDecimalsMap(addressesMap)
-    return orders.map(order => this._formatOrderRaw(
-      order,
-      decimalsMap[order.makerTokenAddress],
-      decimalsMap[order.takerTokenAddress]
-    ))
+    return orders.map(order =>
+      this._formatOrderRaw(
+        order,
+        decimalsMap[order.makerTokenAddress],
+        decimalsMap[order.takerTokenAddress]
+      )
+    )
   }
 
   /**
@@ -144,7 +146,7 @@ export class Exchange {
    * @param options.quoteTokenDecimals Decimals of quote token can be provided manually.
    *                                   NOTE: If quote token is NOT a currency network, then decimals have to be explicitly given.
    */
-  public async getOrderbook (
+  public async getOrderbook(
     baseTokenAddress: string,
     quoteTokenAddress: string,
     options: OrderbookOptions = {}
@@ -155,14 +157,12 @@ export class Exchange {
       { networkDecimals: baseDecimals },
       { networkDecimals: quoteDecimals }
     ] = await Promise.all([
-      _currencyNetwork.getDecimals(
-        baseTokenAddress,
-        { networkDecimals: baseTokenDecimals }
-      ),
-      _currencyNetwork.getDecimals(
-        quoteTokenAddress,
-        { networkDecimals: quoteTokenDecimals }
-      )
+      _currencyNetwork.getDecimals(baseTokenAddress, {
+        networkDecimals: baseTokenDecimals
+      }),
+      _currencyNetwork.getDecimals(quoteTokenAddress, {
+        networkDecimals: quoteTokenDecimals
+      })
     ])
     const params = { baseTokenAddress, quoteTokenAddress }
     const endpoint = _utils.buildUrl('exchange/orderbook', params)
@@ -188,7 +188,7 @@ export class Exchange {
    *                                   NOTE: If taker token is NOT a currency network, then decimals have to be explicitly given.
    * @param options.expirationUnixTimestampSec Date on when the order will expire in UNIX time.
    */
-  public async makeOrder (
+  public async makeOrder(
     exchangeContractAddress: string,
     makerTokenAddress: string,
     takerTokenAddress: string,
@@ -206,14 +206,12 @@ export class Exchange {
       { networkDecimals: makerDecimals },
       { networkDecimals: takerDecimals }
     ] = await Promise.all([
-      _currencyNetwork.getDecimals(
-        makerTokenAddress,
-        { networkDecimals: makerTokenDecimals }
-      ),
-      _currencyNetwork.getDecimals(
-        takerTokenAddress,
-        { networkDecimals: takerTokenDecimals }
-      )
+      _currencyNetwork.getDecimals(makerTokenAddress, {
+        networkDecimals: makerTokenDecimals
+      }),
+      _currencyNetwork.getDecimals(takerTokenAddress, {
+        networkDecimals: takerTokenDecimals
+      })
     ])
     const orderRaw = {
       exchangeContractAddress,
@@ -222,18 +220,26 @@ export class Exchange {
       maker: _user.address,
       makerFee: '0',
       makerTokenAddress: ethUtils.toChecksumAddress(makerTokenAddress),
-      makerTokenAmount: _utils.calcRaw(makerTokenValue, makerDecimals).toString(),
+      makerTokenAmount: _utils
+        .calcRaw(makerTokenValue, makerDecimals)
+        .toString(),
       salt: Math.floor(Math.random() * 1000000000).toString(),
       taker: ZERO_ADDRESS,
       takerFee: '0',
       takerTokenAddress: ethUtils.toChecksumAddress(takerTokenAddress),
-      takerTokenAmount: _utils.calcRaw(takerTokenValue, takerDecimals).toString(),
+      takerTokenAmount: _utils
+        .calcRaw(takerTokenValue, takerDecimals)
+        .toString(),
       filledMakerTokenAmount: '0',
       filledTakerTokenAmount: '0',
       cancelledMakerTokenAmount: '0',
       cancelledTakerTokenAmount: '0',
-      availableMakerTokenAmount: _utils.calcRaw(makerTokenValue, makerDecimals).toString(),
-      availableTakerTokenAmount: _utils.calcRaw(takerTokenValue, takerDecimals).toString()
+      availableMakerTokenAmount: _utils
+        .calcRaw(makerTokenValue, makerDecimals)
+        .toString(),
+      availableTakerTokenAmount: _utils
+        .calcRaw(takerTokenValue, takerDecimals)
+        .toString()
     }
     const orderWithFees = await this._getFees(orderRaw)
     const orderHash = this._getOrderHashHex(orderWithFees)
@@ -258,7 +264,7 @@ export class Exchange {
    * @param options.takerTokenDecimals Decimals of taker token can be provided manually.
    *                                   NOTE: If taker token is NOT a currency network, then decimals have to be explicitly given.
    */
-  public async prepTakeOrder (
+  public async prepTakeOrder(
     signedOrder: SignedOrder,
     fillTakerTokenValue: number | string,
     options: ExchangeTxOptions = {}
@@ -282,21 +288,23 @@ export class Exchange {
       { networkDecimals: makerDecimals },
       { networkDecimals: takerDecimals }
     ] = await Promise.all([
-      this._currencyNetwork.getDecimals(
-        makerTokenAddress,
-        { networkDecimals: makerTokenDecimals }
-      ),
-      this._currencyNetwork.getDecimals(
-        takerTokenAddress,
-        { networkDecimals: takerTokenDecimals }
-      )
+      this._currencyNetwork.getDecimals(makerTokenAddress, {
+        networkDecimals: makerTokenDecimals
+      }),
+      this._currencyNetwork.getDecimals(takerTokenAddress, {
+        networkDecimals: takerTokenDecimals
+      })
     ])
-    const [ makerPathObj, takerPathObj ] = await Promise.all([
+    const [makerPathObj, takerPathObj] = await Promise.all([
       this._getPathObj(
         makerTokenAddress,
         maker,
         this._user.address,
-        this._getPartialAmount(fillTakerTokenValue, takerTokenAmount.value, makerTokenAmount.value),
+        this._getPartialAmount(
+          fillTakerTokenValue,
+          takerTokenAmount.value,
+          makerTokenAmount.value
+        ),
         { networkDecimals: makerDecimals }
       ),
       this._getPathObj(
@@ -310,8 +318,10 @@ export class Exchange {
     const orderAddresses = this._getOrderAddresses(signedOrder)
     const orderValues = this._getOrderValues(signedOrder)
 
-    if ((makerPathObj.path.length === 0 && makerPathObj.isNetwork) ||
-        (takerPathObj.path.length === 0 && takerPathObj.isNetwork)) {
+    if (
+      (makerPathObj.path.length === 0 && makerPathObj.isNetwork) ||
+      (takerPathObj.path.length === 0 && takerPathObj.isNetwork)
+    ) {
       throw new Error('Could not find a path with enough capacity')
     }
     const { rawTx, ethFees } = await this._transaction.prepFuncTx(
@@ -325,16 +335,24 @@ export class Exchange {
         this._utils.convertToHexString(
           this._utils.calcRaw(fillTakerTokenValue, takerDecimals)
         ),
-        makerPathObj.path.length === 1 ? makerPathObj.path : makerPathObj.path.slice(1),
-        takerPathObj.path.length === 1 ? takerPathObj.path : takerPathObj.path.slice(1),
+        makerPathObj.path.length === 1
+          ? makerPathObj.path
+          : makerPathObj.path.slice(1),
+        takerPathObj.path.length === 1
+          ? takerPathObj.path
+          : takerPathObj.path.slice(1),
         ecSignature.v,
         ecSignature.r,
         ecSignature.s
-      ], {
+      ],
+      {
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
         gasLimit: gasLimit
           ? new BigNumber(gasLimit)
-          : takerPathObj.estimatedGas.plus(makerPathObj.estimatedGas).multipliedBy(1.5).integerValue()
+          : takerPathObj.estimatedGas
+              .plus(makerPathObj.estimatedGas)
+              .multipliedBy(1.5)
+              .integerValue()
       }
     )
     return {
@@ -359,24 +377,18 @@ export class Exchange {
    * @param options.takerTokenDecimals Decimals of taker token can be provided manually.
    *                                   NOTE: If taker token is NOT a currency network, then decimals have to be explicitly given.
    */
-  public async prepCancelOrder (
+  public async prepCancelOrder(
     signedOrder: SignedOrder,
     cancelTakerTokenValue: number | string,
     options: ExchangeTxOptions = {}
   ): Promise<TxObject> {
+    const { exchangeContractAddress, takerTokenAddress } = signedOrder
+    const { gasLimit, gasPrice, takerTokenDecimals } = options
     const {
-      exchangeContractAddress,
-      takerTokenAddress
-    } = signedOrder
-    const {
-      gasLimit,
-      gasPrice,
-      takerTokenDecimals
-    } = options
-    const { networkDecimals: takerDecimals } = await this._currencyNetwork.getDecimals(
-      takerTokenAddress,
-      { networkDecimals: takerTokenDecimals }
-    )
+      networkDecimals: takerDecimals
+    } = await this._currencyNetwork.getDecimals(takerTokenAddress, {
+      networkDecimals: takerTokenDecimals
+    })
     const orderAddresses = this._getOrderAddresses(signedOrder)
     const orderValues = this._getOrderValues(signedOrder)
     const { rawTx, ethFees } = await this._transaction.prepFuncTx(
@@ -390,7 +402,8 @@ export class Exchange {
         this._utils.convertToHexString(
           this._utils.calcRaw(cancelTakerTokenValue, takerDecimals)
         )
-      ], {
+      ],
+      {
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
         gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined
       }
@@ -406,7 +419,7 @@ export class Exchange {
    * and sends the signed transaction.
    * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx: RawTxObject): Promise<string> {
+  public async confirm(rawTx: RawTxObject): Promise<string> {
     return this._transaction.confirm(rawTx)
   }
 
@@ -417,7 +430,7 @@ export class Exchange {
    * @param filter.type Available event types are `LogFill` and `LogCancel`.
    * @param filter.fromBlock Start of block range for event logs.
    */
-  public async getLogs (
+  public async getLogs(
     exchangeAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<AnyExchangeEvent[]> {
@@ -439,7 +452,7 @@ export class Exchange {
    * @param options.decimals Decimals of token can be provided manually.
    *                         NOTE: If token address is NOT a currency network, then decimals have to be explicit.
    */
-  private async _getPathObj (
+  private async _getPathObj(
     tokenAddress: string,
     from: string,
     to: string,
@@ -449,13 +462,9 @@ export class Exchange {
     const { networkDecimals } = options
     const isNetwork = await this._currencyNetwork.isNetwork(tokenAddress)
     if (isNetwork) {
-      return this._payment.getPath(
-        tokenAddress,
-        from,
-        to,
-        value,
-        { networkDecimals }
-      )
+      return this._payment.getPath(tokenAddress, from, to, value, {
+        networkDecimals
+      })
     }
     return {
       path: [],
@@ -470,7 +479,7 @@ export class Exchange {
    * `[ makerAddress, takerAddress, makerTokenAddress, takerTokenAddress, feeRecipientAddress ]`
    * @param order Order object to retrieve addresses from.
    */
-  private _getOrderAddresses (order: Order): Array<string> {
+  private _getOrderAddresses(order: Order): Array<string> {
     return [
       order.maker,
       ZERO_ADDRESS,
@@ -485,13 +494,15 @@ export class Exchange {
    * `[ makerTokenAmount, takerTokenAmount, makeFee, takerFee, expirationUnixTimestampSec, salt ]`
    * @param order Order object to retrieve values from.
    */
-  private _getOrderValues (order: Order): string[] {
+  private _getOrderValues(order: Order): string[] {
     return [
       this._utils.convertToHexString(new BigNumber(order.makerTokenAmount.raw)),
       this._utils.convertToHexString(new BigNumber(order.takerTokenAmount.raw)),
       this._utils.convertToHexString(new BigNumber('0')), // NOTE fees disabled
       this._utils.convertToHexString(new BigNumber('0')), // NOTE fees disabled
-      this._utils.convertToHexString(new BigNumber(order.expirationUnixTimestampSec)),
+      this._utils.convertToHexString(
+        new BigNumber(order.expirationUnixTimestampSec)
+      ),
       this._utils.convertToHexString(new BigNumber(order.salt))
     ]
   }
@@ -502,7 +513,7 @@ export class Exchange {
    * @param denominator Denominator.
    * @param target Target to calculate partial of.
    */
-  private _getPartialAmount (
+  private _getPartialAmount(
     numerator: number | string,
     denominator: number | string,
     target: number | string
@@ -510,14 +521,17 @@ export class Exchange {
     const bnNumerator = new BigNumber(numerator)
     const bnDenominator = new BigNumber(denominator)
     const bnTarget = new BigNumber(target)
-    return bnNumerator.times(bnTarget).dividedBy(bnDenominator).toNumber()
+    return bnNumerator
+      .times(bnTarget)
+      .dividedBy(bnDenominator)
+      .toNumber()
   }
 
   /**
    * Returns fees of a given order.
    * @param order Unformatted Order object as returned by relay.
    */
-  private _getFees (order: OrderRaw): Promise<OrderRaw> {
+  private _getFees(order: OrderRaw): Promise<OrderRaw> {
     // NOTE: Fees are disabled for now
     return Promise.resolve({
       ...order,
@@ -532,7 +546,7 @@ export class Exchange {
    * @param path Endpoint to send request to.
    * @param payload Body of POST request.
    */
-  private _postRequest (path: string, payload: any): Promise<any> {
+  private _postRequest(path: string, payload: any): Promise<any> {
     return this._utils.fetchUrl(path, {
       method: 'POST',
       headers: new Headers({ 'Content-Type': 'application/json' }),
@@ -544,7 +558,7 @@ export class Exchange {
    * Return keccak-256 hash of given order.
    * @param order Order object.
    */
-  private _getOrderHashHex (order: OrderRaw | SignedOrderRaw): string {
+  private _getOrderHashHex(order: OrderRaw | SignedOrderRaw): string {
     const orderParts = [
       {
         value: order.exchangeContractAddress,
@@ -607,7 +621,7 @@ export class Exchange {
    * @param makerDecimals Decimals of maker token.
    * @param takerDecimals Decimals of taker token.
    */
-  private _formatOrderRaw (
+  private _formatOrderRaw(
     signedOrderRaw: SignedOrderRaw,
     makerDecimals: number,
     takerDecimals: number
@@ -616,16 +630,40 @@ export class Exchange {
     return {
       ...signedOrderRaw,
       hash: this._getOrderHashHex(signedOrderRaw),
-      makerTokenAmount: _utils.formatToAmount(signedOrderRaw.makerTokenAmount, makerDecimals),
-      takerTokenAmount: _utils.formatToAmount(signedOrderRaw.takerTokenAmount, takerDecimals),
+      makerTokenAmount: _utils.formatToAmount(
+        signedOrderRaw.makerTokenAmount,
+        makerDecimals
+      ),
+      takerTokenAmount: _utils.formatToAmount(
+        signedOrderRaw.takerTokenAmount,
+        takerDecimals
+      ),
       makerFee: _utils.formatToAmount(signedOrderRaw.makerFee, makerDecimals),
       takerFee: _utils.formatToAmount(signedOrderRaw.takerFee, takerDecimals),
-      filledMakerTokenAmount: _utils.formatToAmount(signedOrderRaw.filledMakerTokenAmount, makerDecimals),
-      filledTakerTokenAmount: _utils.formatToAmount(signedOrderRaw.filledTakerTokenAmount, takerDecimals),
-      cancelledMakerTokenAmount: _utils.formatToAmount(signedOrderRaw.cancelledMakerTokenAmount, makerDecimals),
-      cancelledTakerTokenAmount: _utils.formatToAmount(signedOrderRaw.cancelledTakerTokenAmount, takerDecimals),
-      availableMakerTokenAmount: _utils.formatToAmount(signedOrderRaw.availableMakerTokenAmount, makerDecimals),
-      availableTakerTokenAmount: _utils.formatToAmount(signedOrderRaw.availableTakerTokenAmount, takerDecimals)
+      filledMakerTokenAmount: _utils.formatToAmount(
+        signedOrderRaw.filledMakerTokenAmount,
+        makerDecimals
+      ),
+      filledTakerTokenAmount: _utils.formatToAmount(
+        signedOrderRaw.filledTakerTokenAmount,
+        takerDecimals
+      ),
+      cancelledMakerTokenAmount: _utils.formatToAmount(
+        signedOrderRaw.cancelledMakerTokenAmount,
+        makerDecimals
+      ),
+      cancelledTakerTokenAmount: _utils.formatToAmount(
+        signedOrderRaw.cancelledTakerTokenAmount,
+        takerDecimals
+      ),
+      availableMakerTokenAmount: _utils.formatToAmount(
+        signedOrderRaw.availableMakerTokenAmount,
+        makerDecimals
+      ),
+      availableTakerTokenAmount: _utils.formatToAmount(
+        signedOrderRaw.availableTakerTokenAmount,
+        takerDecimals
+      )
     }
   }
 
@@ -634,16 +672,20 @@ export class Exchange {
    * It also maps the unique addresses to whether it is a currency network or a token.
    * @param orders Unformatted orders as returned by the relay.
    */
-  private _getUniqueTokenAddresses (orders: OrderRaw[]): object {
+  private _getUniqueTokenAddresses(orders: OrderRaw[]): object {
     return orders.reduce((result, order) => {
       const { makerTokenAddress, takerTokenAddress } = order
       if (!result[makerTokenAddress]) {
-        result[makerTokenAddress] = this._currencyNetwork.isNetwork(makerTokenAddress)
+        result[makerTokenAddress] = this._currencyNetwork.isNetwork(
+          makerTokenAddress
+        )
           ? CURRENCY_NETWORK
           : TOKEN
       }
       if (!result[takerTokenAddress]) {
-        result[takerTokenAddress] = this._currencyNetwork.isNetwork(takerTokenAddress)
+        result[takerTokenAddress] = this._currencyNetwork.isNetwork(
+          takerTokenAddress
+        )
           ? CURRENCY_NETWORK
           : TOKEN
       }

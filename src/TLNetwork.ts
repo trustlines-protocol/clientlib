@@ -90,7 +90,7 @@ export class TLNetwork {
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
    * @param config Configuration object. See type `TLNetworkConfig` for more information.
    */
-  constructor (config: TLNetworkConfig = {}) {
+  constructor(config: TLNetworkConfig = {}) {
     this.configuration = new Configuration(config)
     this.utils = new Utils(this.configuration)
     this.currencyNetwork = new CurrencyNetwork(this.utils)
@@ -102,9 +102,28 @@ export class TLNetwork {
     this.user = new User(this.signer, this.transaction, this.utils)
     this.contact = new Contact(this.user, this.utils)
     this.event = new Event(this.user, this.utils, this.currencyNetwork)
-    this.trustline = new Trustline(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
-    this.payment = new Payment(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
-    this.exchange = new Exchange(this.event, this.user, this.utils, this.transaction, this.currencyNetwork, this.payment)
+    this.trustline = new Trustline(
+      this.event,
+      this.user,
+      this.utils,
+      this.transaction,
+      this.currencyNetwork
+    )
+    this.payment = new Payment(
+      this.event,
+      this.user,
+      this.utils,
+      this.transaction,
+      this.currencyNetwork
+    )
+    this.exchange = new Exchange(
+      this.event,
+      this.user,
+      this.utils,
+      this.transaction,
+      this.currencyNetwork,
+      this.payment
+    )
     this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
     this.ethWrapper = new EthWrapper(this.user, this.utils, this.transaction)
   }

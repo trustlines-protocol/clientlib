@@ -1,4 +1,3 @@
-
 import { TxSigner } from './TxSigner'
 
 import {
@@ -20,7 +19,7 @@ export class Web3Signer implements TxSigner {
   public pubKey: string
   private _web3: any
 
-  constructor (web3: any) {
+  constructor(web3: any) {
     this._web3 = web3
   }
 
@@ -28,7 +27,7 @@ export class Web3Signer implements TxSigner {
    * Signs a transaction using the web3 provider.
    * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx: RawTxObject): Promise<string> {
+  public async confirm(rawTx: RawTxObject): Promise<string> {
     const { functionCallData } = rawTx
     if (rawTx.functionCallData) {
       rawTx = {
@@ -53,8 +52,8 @@ export class Web3Signer implements TxSigner {
    * @returns Information for creating an ethereum transaction for the given user address.
    *          See type `TxInfos` for more details.
    */
-  public async getTxInfos (userAddress: string): Promise<TxInfos> {
-    const [ gasPrice, nonce, balance ] = await Promise.all([
+  public async getTxInfos(userAddress: string): Promise<TxInfos> {
+    const [gasPrice, nonce, balance] = await Promise.all([
       this._web3.eth.getGasPrice(),
       this._web3.eth.getTransactionCount(userAddress),
       this._web3.eth.getBalance(userAddress)
@@ -69,63 +68,63 @@ export class Web3Signer implements TxSigner {
   /**
    * TODO
    */
-  public async createAccount (): Promise<UserObject> {
+  public async createAccount(): Promise<UserObject> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  public async loadAccount (): Promise<UserObject> {
+  public async loadAccount(): Promise<UserObject> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  public async signMsgHash (): Promise<Signature> {
+  public async signMsgHash(): Promise<Signature> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  getBalance (): Promise<Amount> {
+  getBalance(): Promise<Amount> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  encrypt (): Promise<any> {
+  encrypt(): Promise<any> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  decrypt (): Promise<any> {
+  decrypt(): Promise<any> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  showSeed (): Promise<string> {
+  showSeed(): Promise<string> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  recoverFromSeed (): Promise<UserObject> {
+  recoverFromSeed(): Promise<UserObject> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  exportPrivateKey (): Promise<string> {
+  exportPrivateKey(): Promise<string> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
@@ -135,12 +134,12 @@ export class Web3Signer implements TxSigner {
    * @param functionName Name of contract function to call.
    * @param args Function arguments.
    */
-  private _encodeFunctionCall (
+  private _encodeFunctionCall(
     abi: any[],
     functionName: string,
     args: string[]
   ): string {
-    const [ functionAbi ] = abi.filter(({ name }) => name === functionName)
+    const [functionAbi] = abi.filter(({ name }) => name === functionName)
     return this._web3.eth.abi.encodeFunctionCall(functionAbi, args)
   }
 }

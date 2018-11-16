@@ -23,11 +23,7 @@ export class EthWrapper {
   private _utils: Utils
   private _transaction: Transaction
 
-  constructor (
-    user: User,
-    utils: Utils,
-    transaction: Transaction
-  ) {
+  constructor(user: User, utils: Utils, transaction: Transaction) {
     this._user = user
     this._utils = utils
     this._transaction = transaction
@@ -36,7 +32,7 @@ export class EthWrapper {
   /**
    * Returns all known ETH wrapper contract addresses from the relay server.
    */
-  public getAddresses (): Promise<string[]> {
+  public getAddresses(): Promise<string[]> {
     return this._utils.fetchUrl<string[]>('exchange/eth')
   }
 
@@ -44,9 +40,11 @@ export class EthWrapper {
    * Returns the amount of already wrapped ETH on the given ETH wrapper contract.
    * @param ethWrapperAddress Address of ETH wrapper contract.
    */
-  public async getBalance (ethWrapperAddress: string): Promise<Amount> {
+  public async getBalance(ethWrapperAddress: string): Promise<Amount> {
     const { _user, _utils } = this
-    const endpoint = `tokens/${ethWrapperAddress}/users/${_user.address}/balance`
+    const endpoint = `tokens/${ethWrapperAddress}/users/${
+      _user.address
+    }/balance`
     const balance = await _utils.fetchUrl<string>(endpoint)
     return _utils.formatToAmount(balance, ETH_DECIMALS)
   }
@@ -61,7 +59,7 @@ export class EthWrapper {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
-  public async prepTransfer (
+  public async prepTransfer(
     ethWrapperAddress: string,
     receiverAddress: string,
     value: number | string,
@@ -97,7 +95,7 @@ export class EthWrapper {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
-  public async prepDeposit (
+  public async prepDeposit(
     ethWrapperAddress: string,
     value: number | string,
     options: TxOptions = {}
@@ -130,7 +128,7 @@ export class EthWrapper {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
-  public async prepWithdraw (
+  public async prepWithdraw(
     ethWrapperAddress: string,
     value: number | string,
     options: TxOptions = {}
@@ -142,7 +140,7 @@ export class EthWrapper {
       ethWrapperAddress,
       'UnwEth',
       'withdraw',
-      [ _utils.convertToHexString(_utils.calcRaw(value, ETH_DECIMALS)) ],
+      [_utils.convertToHexString(_utils.calcRaw(value, ETH_DECIMALS))],
       {
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
         gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined
@@ -159,7 +157,7 @@ export class EthWrapper {
    * and sends the signed transaction.
    * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx: RawTxObject): Promise<string> {
+  public async confirm(rawTx: RawTxObject): Promise<string> {
     return this._transaction.confirm(rawTx)
   }
 
@@ -170,7 +168,7 @@ export class EthWrapper {
    * @param filter.type Available event types are `Transfer`, `Deposit` and `Withdrawal`.
    * @param filter.fromBlock Start of block range for event logs.
    */
-  public async getLogs (
+  public async getLogs(
     ethWrapperAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<AnyTokenEvent[]> {
@@ -180,10 +178,6 @@ export class EthWrapper {
     const events = await _utils.fetchUrl<AnyTokenEventRaw[]>(
       _utils.buildUrl(baseUrl, { type, fromBlock })
     )
-    return events.map(event => _utils.formatEvent(
-      event,
-      ETH_DECIMALS,
-      0
-    ))
+    return events.map(event => _utils.formatEvent(event, ETH_DECIMALS, 0))
   }
 }

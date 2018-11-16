@@ -27,7 +27,7 @@ export class Payment {
   private _transaction: Transaction
   private _currencyNetwork: CurrencyNetwork
 
-  constructor (
+  constructor(
     event: Event,
     user: User,
     utils: Utils,
@@ -54,7 +54,7 @@ export class Payment {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
-  public async prepare (
+  public async prepare(
     networkAddress: string,
     receiverAddress: string,
     value: number | string,
@@ -62,7 +62,9 @@ export class Payment {
   ): Promise<PaymentTxObject> {
     const { _user, _currencyNetwork, _transaction, _utils } = this
     const { gasPrice, gasLimit, networkDecimals } = options
-    const decimals = await _currencyNetwork.getDecimals(networkAddress, { networkDecimals })
+    const decimals = await _currencyNetwork.getDecimals(networkAddress, {
+      networkDecimals
+    })
     const { path, maxFees, estimatedGas } = await this.getPath(
       networkAddress,
       _user.address,
@@ -81,13 +83,17 @@ export class Payment {
         'transfer',
         [
           receiverAddress,
-          _utils.convertToHexString(_utils.calcRaw(value, decimals.networkDecimals)),
+          _utils.convertToHexString(
+            _utils.calcRaw(value, decimals.networkDecimals)
+          ),
           _utils.convertToHexString(new BigNumber(maxFees.raw)),
           path.slice(1)
         ],
         {
           gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
-          gasLimit: gasLimit ? new BigNumber(gasLimit) : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue()
+          gasLimit: gasLimit
+            ? new BigNumber(gasLimit)
+            : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue()
         }
       )
       return {
@@ -109,7 +115,7 @@ export class Payment {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
-  public async prepareEth (
+  public async prepareEth(
     receiverAddress: string,
     value: number | string,
     options: PaymentOptions = {}
@@ -143,7 +149,7 @@ export class Payment {
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
    */
-  public async getPath (
+  public async getPath(
     networkAddress: string,
     senderAddress: string,
     receiverAddress: string,
@@ -152,24 +158,29 @@ export class Payment {
   ): Promise<PathObject> {
     const { _currencyNetwork, _utils } = this
     const { networkDecimals, maximumHops, maximumFees } = options
-    const decimals = await _currencyNetwork.getDecimals(networkAddress, { networkDecimals })
+    const decimals = await _currencyNetwork.getDecimals(networkAddress, {
+      networkDecimals
+    })
     const data = {
       from: senderAddress,
       to: receiverAddress,
       value: this._utils.calcRaw(value, decimals.networkDecimals).toString()
     }
     if (maximumFees) {
-      data[ 'maxFees' ] = maximumFees
+      data['maxFees'] = maximumFees
     }
     if (maximumHops) {
-      data[ 'maxHops' ] = maximumHops
+      data['maxHops'] = maximumHops
     }
     const endpoint = `networks/${networkAddress}/path-info`
-    const { estimatedGas, fees, path } = await _utils.fetchUrl<PathRaw>(endpoint, {
-      method: 'POST',
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(data)
-    })
+    const { estimatedGas, fees, path } = await _utils.fetchUrl<PathRaw>(
+      endpoint,
+      {
+        method: 'POST',
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(data)
+      }
+    )
     return {
       estimatedGas: new BigNumber(estimatedGas),
       path,
@@ -182,7 +193,7 @@ export class Payment {
    * @param networkAddress Address of currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
-  public get (
+  public get(
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<NetworkTransferEvent[]> {
@@ -197,7 +208,7 @@ export class Payment {
    * and sends the signed transaction.
    * @param rawTx Raw transaction object.
    */
-  public async confirm (rawTx: RawTxObject): Promise<any> {
+  public async confirm(rawTx: RawTxObject): Promise<any> {
     return this._transaction.confirm(rawTx)
   }
 
@@ -207,12 +218,18 @@ export class Payment {
    * @param amount Requested transfer amount.
    * @param subject Additional information for payment request.
    */
-  public async createRequest (
+  public async createRequest(
     networkAddress: string,
     amount: number,
     subject: string
   ): Promise<string> {
-    const params = [ 'paymentrequest', networkAddress, this._user.address, amount, subject ]
+    const params = [
+      'paymentrequest',
+      networkAddress,
+      this._user.address,
+      amount,
+      subject
+    ]
     return this._utils.createLink(params)
   }
 
@@ -224,14 +241,19 @@ export class Payment {
    *
    * @return {Promise<{path: any, amount: Amount}>}
    */
-  public async getMaxAmountAndPathInNetwork (
+  public async getMaxAmountAndPathInNetwork(
     networkAddress: string,
     receiverAddress: string
   ): Promise<any> {
-    const { networkDecimals } = await this._currencyNetwork.getDecimals(networkAddress)
+    const { networkDecimals } = await this._currencyNetwork.getDecimals(
+      networkAddress
+    )
     const userAddress = this._user.address
     const endpoint = `networks/${networkAddress}/max-capacity-path-info`
-    const result = await this._utils.fetchUrl<{ capacity: number, path: Array<string>}>(endpoint, {
+    const result = await this._utils.fetchUrl<{
+      capacity: number
+      path: Array<string>
+    }>(endpoint, {
       method: 'post',
       headers: new Headers({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({

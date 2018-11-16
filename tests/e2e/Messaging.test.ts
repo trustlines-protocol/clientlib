@@ -16,7 +16,7 @@ describe('e2e', () => {
     let network
 
     before(async () => {
-      [ [ network ], user1, user2 ] = await Promise.all([
+      ;[[network], user1, user2] = await Promise.all([
         tl1.currencyNetwork.getAll(),
         tl1.user.load(keystore1),
         tl2.user.load(keystore2)
@@ -28,13 +28,19 @@ describe('e2e', () => {
       let stream
 
       before(async () => {
-        stream = tl1.messaging.messageStream()
+        stream = tl1.messaging
+          .messageStream()
           .subscribe(message => messages.push(message))
         await wait()
       })
 
       it('should receive payment requests', async () => {
-        tl2.messaging.paymentRequest(network.address, user1.address, '250', 'Hello')
+        tl2.messaging.paymentRequest(
+          network.address,
+          user1.address,
+          '250',
+          'Hello'
+        )
         await wait()
         expect(messages).to.have.lengthOf(2)
         expect(messages[1]).to.have.property('type', 'PaymentRequest')

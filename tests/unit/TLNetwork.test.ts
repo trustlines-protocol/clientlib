@@ -19,7 +19,9 @@ describe('unit', () => {
           path: 'api/v1/'
         })
         expect(tlNetwork).to.be.an('object')
-        expect(tlNetwork.configuration.apiUrl).to.equal('https://192.168.0.59:5000/api/v1/')
+        expect(tlNetwork.configuration.apiUrl).to.equal(
+          'https://192.168.0.59:5000/api/v1/'
+        )
       })
     })
   })

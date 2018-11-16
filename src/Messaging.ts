@@ -5,24 +5,28 @@ import { CurrencyNetwork } from './CurrencyNetwork'
 import { Observable } from 'rxjs/Observable'
 
 export class Messaging {
-  constructor (private user: User, private utils: Utils, private currencyNetwork: CurrencyNetwork) {
-  }
+  constructor(
+    private user: User,
+    private utils: Utils,
+    private currencyNetwork: CurrencyNetwork
+  ) {}
 
-  public paymentRequest (network: string,
-                         user: string,
-                         value: number | string,
-                         subject?: string) {
+  public paymentRequest(
+    network: string,
+    user: string,
+    value: number | string,
+    subject?: string
+  ) {
     const headers = new Headers({
       'Content-Type': 'application/json'
     })
-    return this.currencyNetwork.getDecimals(network)
-      .then(dec => {
-        const type = 'PaymentRequest'
-        const options = {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            message: `{
+    return this.currencyNetwork.getDecimals(network).then(dec => {
+      const type = 'PaymentRequest'
+      const options = {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          message: `{
               "type": "${type}",
               "networkAddress": "${network}",
               "from": "${this.user.address}",
@@ -30,32 +34,36 @@ export class Messaging {
               "direction": "received",
               "user": "${user}",
               "counterParty": "${this.user.address}",
-              "amount": "${this.utils.calcRaw(value, dec.networkDecimals).toString()}",
+              "amount": "${this.utils
+                .calcRaw(value, dec.networkDecimals)
+                .toString()}",
               "subject": "${subject}",
               "nonce": "${this.utils.generateRandomNumber(40)}"
               }`,
-            type  // (optional) hint for notifications
-          })
-        }
-        return this.utils.fetchUrl(`messages/${user}`, options)
-      })
+          type // (optional) hint for notifications
+        })
+      }
+      return this.utils.fetchUrl(`messages/${user}`, options)
+    })
   }
 
-  public messageStream (): Observable<any> {
+  public messageStream(): Observable<any> {
     const { user, utils } = this
-    return this.utils.websocketStream('streams/messages', 'listen', { 'type': 'all', 'user': user.address })
+    return this.utils
+      .websocketStream('streams/messages', 'listen', {
+        type: 'all',
+        user: user.address
+      })
       .mergeMap(data => {
         if (data.type) {
-          return [ data ]
+          return [data]
         }
         let message = { ...JSON.parse(data.message), timestamp: data.timestamp }
-        return this.currencyNetwork.getDecimals(message.networkAddress)
-          .then(({ networkDecimals, interestRateDecimals }) => utils.formatEvent(
-            message,
-            networkDecimals,
-            interestRateDecimals
-          ))
+        return this.currencyNetwork
+          .getDecimals(message.networkAddress)
+          .then(({ networkDecimals, interestRateDecimals }) =>
+            utils.formatEvent(message, networkDecimals, interestRateDecimals)
+          )
       })
   }
-
 }

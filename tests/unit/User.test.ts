@@ -12,11 +12,10 @@ describe('unit', () => {
     let existingUser
 
     before(done => {
-      tl1.user.load(keystore1)
-        .then(user => {
-          existingUser = user
-          done()
-        })
+      tl1.user.load(keystore1).then(user => {
+        existingUser = user
+        done()
+      })
     })
 
     describe('#createOnboardingMsg()', () => {

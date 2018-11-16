@@ -17,7 +17,7 @@ describe('e2e', () => {
 
     before(async () => {
       // load users
-      [ newUser, existingUser ] = await Promise.all([
+      ;[newUser, existingUser] = await Promise.all([
         tlNew.user.create(),
         tlExisting.user.load(keystore1)
       ])

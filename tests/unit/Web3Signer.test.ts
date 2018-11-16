@@ -20,7 +20,8 @@ describe('unit', () => {
       value: 10000,
       gasLimit: 10000,
       gasPrice: 10000,
-      data: '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
+      data:
+        '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
       nonce: 5
     }
 

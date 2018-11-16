@@ -18,7 +18,7 @@ export class FakeTxSigner implements TxSigner {
   /**
    * Mock txSigner.getTxInfos
    */
-  async getTxInfos (userAddress: string): Promise<TxInfos> {
+  async getTxInfos(userAddress: string): Promise<TxInfos> {
     return Promise.resolve({
       gasPrice: new BigNumber('2000000'),
       balance: new BigNumber('1000000'),
@@ -29,46 +29,45 @@ export class FakeTxSigner implements TxSigner {
   /**
    * Mock txSigner.confirm
    */
-  async confirm (rawTx: RawTxObject): Promise<string> {
+  async confirm(rawTx: RawTxObject): Promise<string> {
     return Promise.resolve(
       '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b'
     )
   }
 
-  createAccount (): Promise<UserObject> {
+  createAccount(): Promise<UserObject> {
     return
   }
 
-  loadAccount (serializedKeystore: string): Promise<UserObject> {
+  loadAccount(serializedKeystore: string): Promise<UserObject> {
     return
   }
 
-  signMsgHash (msgHash: string): Promise<Signature> {
+  signMsgHash(msgHash: string): Promise<Signature> {
     return
   }
 
-  getBalance (): Promise<Amount> {
+  getBalance(): Promise<Amount> {
     return
   }
 
-  encrypt (msg: string, theirPubKey: string): Promise<any> {
+  encrypt(msg: string, theirPubKey: string): Promise<any> {
     return
   }
 
-  decrypt (encMsg: any, theirPubKey: string): Promise<any> {
+  decrypt(encMsg: any, theirPubKey: string): Promise<any> {
     return
   }
 
-  showSeed (): Promise<string> {
+  showSeed(): Promise<string> {
     return
   }
 
-  recoverFromSeed (seed: string): Promise<UserObject> {
+  recoverFromSeed(seed: string): Promise<UserObject> {
     return
   }
 
-  exportPrivateKey (): Promise<string> {
+  exportPrivateKey(): Promise<string> {
     return
   }
-
 }

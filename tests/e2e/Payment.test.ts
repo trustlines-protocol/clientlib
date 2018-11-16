@@ -19,15 +19,15 @@ describe('e2e', () => {
 
     before(async () => {
       // set network and load users
-      [ [ network ], user1, user2 ] = await Promise.all([
+      ;[[network], user1, user2] = await Promise.all([
         tl1.currencyNetwork.getAll(),
         tl1.user.load(keystore1),
         tl2.user.load(keystore2)
       ])
       // make sure users have eth
-      await Promise.all([ tl1.user.requestEth(), tl2.user.requestEth() ])
+      await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
       // set up trustlines
-      const [ tx1, tx2 ] = await Promise.all([
+      const [tx1, tx2] = await Promise.all([
         tl1.trustline.prepareUpdate(network.address, user2.address, 1000, 500),
         tl2.trustline.prepareUpdate(network.address, user1.address, 500, 1000)
       ])
@@ -41,14 +41,24 @@ describe('e2e', () => {
 
     describe('#getPath()', () => {
       it('should return path', async () => {
-        const pathObj = await tl1.payment.getPath(network.address, user1.address, user2.address, 1.5)
+        const pathObj = await tl1.payment.getPath(
+          network.address,
+          user1.address,
+          user2.address,
+          1.5
+        )
         expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
         expect(pathObj.maxFees.raw).to.not.equal('0')
         expect(pathObj.path).to.not.equal([])
       })
 
       it('should return no path', async () => {
-        const pathObj = await tl1.payment.getPath(network.address, user1.address, user2.address, 1000)
+        const pathObj = await tl1.payment.getPath(
+          network.address,
+          user1.address,
+          user2.address,
+          1000
+        )
         expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
         expect(pathObj.maxFees.raw).to.equal('0')
         expect(pathObj.path).to.deep.equal([])
@@ -57,19 +67,25 @@ describe('e2e', () => {
 
     describe('#prepare()', () => {
       it('should prepare tx for trustline transfer', () => {
-        expect(tl1.payment.prepare(network.address, user2.address, 2.25))
-          .to.eventually.have.keys('rawTx', 'ethFees', 'maxFees', 'path')
+        expect(
+          tl1.payment.prepare(network.address, user2.address, 2.25)
+        ).to.eventually.have.keys('rawTx', 'ethFees', 'maxFees', 'path')
       })
 
       it('should not prepare tx for trustline transfer', async () => {
-        await expect(tl1.payment.prepare(network.address, user2.address, 2000))
-          .to.be.rejectedWith('Could not find a path with enough capacity')
+        await expect(
+          tl1.payment.prepare(network.address, user2.address, 2000)
+        ).to.be.rejectedWith('Could not find a path with enough capacity')
       })
     })
 
     describe('#confirm()', () => {
       it('should confirm trustline transfer', async () => {
-        const { rawTx } = await tl1.payment.prepare(network.address, user2.address, 1)
+        const { rawTx } = await tl1.payment.prepare(
+          network.address,
+          user2.address,
+          1
+        )
         const txId = await tl1.payment.confirm(rawTx)
         await wait()
         expect(txId).to.be.a('string')
@@ -78,19 +94,22 @@ describe('e2e', () => {
 
     describe('#get()', () => {
       before(async () => {
-        const { rawTx } = await tl1.payment.prepare(network.address, user2.address, 1.5)
+        const { rawTx } = await tl1.payment.prepare(
+          network.address,
+          user2.address,
+          1.5
+        )
         await tl1.payment.confirm(rawTx)
         await wait()
       })
 
       it('should return transfers array', () => {
-        expect(tl1.payment.get(network.address))
-          .to.eventually.be.an('array')
+        expect(tl1.payment.get(network.address)).to.eventually.be.an('array')
       })
 
       it('should return latest transfer', async () => {
         const transfers = await tl1.payment.get(network.address)
-        const latestTransfer = transfers[ transfers.length - 1 ]
+        const latestTransfer = transfers[transfers.length - 1]
         expect(latestTransfer.user).to.be.equal(tl1.user.address)
         expect(latestTransfer.counterParty).to.be.equal(tl2.user.address)
         expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
@@ -107,8 +126,9 @@ describe('e2e', () => {
 
     describe('#prepareEth()', () => {
       it('should prepare tx for eth transfer', () => {
-        expect(tl1.payment.prepareEth(user2.address, 0.05))
-          .to.eventually.have.keys('rawTx', 'ethFees')
+        expect(
+          tl1.payment.prepareEth(user2.address, 0.05)
+        ).to.eventually.have.keys('rawTx', 'ethFees')
       })
     })
 
@@ -124,7 +144,9 @@ describe('e2e', () => {
         await tl1.payment.confirm(rawTx)
         await wait()
         const afterBalance = await tl2.user.getBalance()
-        const delta = new BigNumber(afterBalance.value).minus(beforeBalance.value)
+        const delta = new BigNumber(afterBalance.value).minus(
+          beforeBalance.value
+        )
         expect(delta.toNumber()).to.eq(0.0001)
       })
     })
@@ -134,42 +156,42 @@ describe('e2e', () => {
       let user3
 
       before(async () => {
-
         user3 = await tl3.user.load(keystore3)
         // make sure users have eth
         await tl3.user.requestEth()
         // set up trustlines
-        const [ tx1, tx2 ] = await
-          Promise.all([
-            tl2.trustline.prepareUpdate(network.address, user3.address, 300, 200),
-            tl3.trustline.prepareUpdate(network.address, user2.address, 200, 300)
-          ])
+        const [tx1, tx2] = await Promise.all([
+          tl2.trustline.prepareUpdate(network.address, user3.address, 300, 200),
+          tl3.trustline.prepareUpdate(network.address, user2.address, 200, 300)
+        ])
 
-        await
-          Promise.all([
-            tl2.trustline.confirm(tx1.rawTx),
-            tl3.trustline.confirm(tx2.rawTx)
-          ])
+        await Promise.all([
+          tl2.trustline.confirm(tx1.rawTx),
+          tl3.trustline.confirm(tx2.rawTx)
+        ])
         // wait for tx to be mined
-        await
-          wait()
+        await wait()
       })
 
       describe('#getMaxAmountAndPathInNetwork()', () => {
         it('should return the path and the amount for adjacent users', async () => {
-          const result = await tl1.payment.getMaxAmountAndPathInNetwork(network.address, user2.address)
+          const result = await tl1.payment.getMaxAmountAndPathInNetwork(
+            network.address,
+            user2.address
+          )
           expect(result.path.length).to.eq(2)
           expect(result.amount).to.have.keys('decimals', 'raw', 'value')
         })
 
         it('should return the path and the amount for non-adjacent users', async () => {
-          const result = await tl1.payment.getMaxAmountAndPathInNetwork(network.address, user3.address)
+          const result = await tl1.payment.getMaxAmountAndPathInNetwork(
+            network.address,
+            user3.address
+          )
           expect(result.path.length).to.eq(3)
           expect(result.amount).to.have.keys('decimals', 'raw', 'value')
         })
-
       })
     })
-
   })
 })
