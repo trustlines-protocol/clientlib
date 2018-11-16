@@ -6,15 +6,26 @@
   "scripts": {
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
     "build:esm": "tsc -m es6 --outDir lib-esm",
-    "doc": "./node_modules/typedoc/bin/typedoc --options tdconfig.json",
+    "doc": "typedoc --options tdconfig.json",
     "lint": "tslint -c tslint.json ./src/**/**.ts ./tests/**/**.ts",
-    "lint-fix": "tslint -c tslint.json --fix ./src/**/**.ts ./tests/**/**.ts",
+    "prettier": "prettier --write './{src,tests}/**/*.ts'",
     "test": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/**/**.test.ts",
     "test:e2e": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
     "test:integration": "mocha --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
     "test:unit": "mocha --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
     "watch:esm": "tsc -w -m es6 --outDir lib-esm",
     "bump": "./bump.sh"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,js,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
@@ -37,11 +48,15 @@
     "chai-as-promised": "^7.1.1",
     "es6-promise": "^4.1.1",
     "fluid-publish": "^2.2.0",
+    "husky": "^1.1.4",
     "isomorphic-fetch": "^2.2.1",
+    "lint-staged": "^8.0.4",
     "mocha": "^5.2.0",
+    "prettier": "^1.15.2",
     "reconnecting-websocket": "^3.0.7",
     "ts-node": "^7.0.0",
     "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.16.0",
     "tslint-config-standard": "^7.1.0",
     "typedoc": "^0.11.1",
     "types-ethereumjs-util": "0.0.8",
