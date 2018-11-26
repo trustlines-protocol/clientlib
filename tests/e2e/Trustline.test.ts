@@ -1,6 +1,7 @@
-import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+import 'mocha'
+
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, wait } from '../Fixtures'
 
@@ -591,7 +592,7 @@ describe('e2e', () => {
         const triangle = [[tl1, tl2], [tl2, tl3], [tl3, tl1]]
 
         // Establish all trustlines in the triangle.
-        for (let trustline of triangle) {
+        for (const trustline of triangle) {
           // Get the both users for this trustline.
           const [a, b] = trustline
 

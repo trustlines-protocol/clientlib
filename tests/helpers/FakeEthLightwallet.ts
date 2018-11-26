@@ -1,4 +1,3 @@
-import { Web3TxReceipt, RawTxObject } from '../../src/typings'
 import { keystore1 } from '../Fixtures'
 
 /**
@@ -12,70 +11,73 @@ export class FakeEthLightwallet {
   public upgrade
   public errors
 
-  private _seed =
+  private seed =
     'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
-  private _pwDerivedKey = ''
-  private _pubKey =
+  private pwDerivedKey = ''
+  private pubKey =
     'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472'
-  private _privateKey =
+  private privateKey =
     '3a1076bf45ab87712ad64ccb3b10217737f7faacbf2872e88fdd9a537d8fe266'
 
   constructor() {
     this.errors = []
     this.keystore = {
-      serialize: () => this._serialize(),
+      createVault: (options, callback) => this._createVault(options, callback),
       deserialize: serializedKeystore => this._deserialize(serializedKeystore),
-      keyFromPassword: (password, callback) =>
-        this._keyFromPassword(password, callback),
       exportPrivateKey: (address, pwDerivedKey) =>
         this._exportPrivateKey(address, pwDerivedKey),
-      createVault: (options, callback) => this._createVault(options, callback),
-      generateRandomSeed: () => this._generateRandomSeed(),
       generateNewAddress: pwDerivedKey =>
         this._generateNewAddress(pwDerivedKey),
+      generateRandomSeed: () => this._generateRandomSeed(),
       getAddresses: () => this._getAddresses(),
       getSeed: () => this._getSeed(),
-      setError: name => this.setError(name),
-      removeErrors: () => this.removeErrors()
+      keyFromPassword: (password, callback) =>
+        this._keyFromPassword(password, callback),
+      removeErrors: () => this.removeErrors(),
+      serialize: () => this._serialize(),
+      setError: name => this.setError(name)
     }
     this.encryption = {
-      multiEncryptString: (
-        keystore,
-        pwDerivedKey,
-        plainMsg,
-        address,
-        theirPubKey
-      ) =>
-        this._multiEncryptString(
-          keystore,
-          pwDerivedKey,
-          plainMsg,
-          address,
-          theirPubKey
-        ),
+      addressToPublicEncKey: (keystore, pwDerivedKey, address) => {
+        return this._addressToPublicEncKey(keystore, pwDerivedKey, address)
+      },
       multiDecryptString: (
         keystore,
         pwDerivedKey,
         encMsg,
         theirPubKey,
         address
-      ) =>
-        this._multiDecryptString(
+      ) => {
+        return this._multiDecryptString(
           keystore,
           pwDerivedKey,
           encMsg,
           theirPubKey,
           address
-        ),
-      addressToPublicEncKey: (keystore, pwDerivedKey, address) =>
-        this._addressToPublicEncKey(keystore, pwDerivedKey, address)
+        )
+      },
+      multiEncryptString: (
+        keystore,
+        pwDerivedKey,
+        plainMsg,
+        address,
+        theirPubKey
+      ) => {
+        return this._multiEncryptString(
+          keystore,
+          pwDerivedKey,
+          plainMsg,
+          address,
+          theirPubKey
+        )
+      }
     }
     this.signing = {
-      signTx: (keystore, pwDerivedKey, rlpHexTx, address) =>
-        this._signTx(keystore, pwDerivedKey, rlpHexTx, address),
+      concatSig: signature => this._concatSig(signature),
       signMsgHash: (keystore, pwDerivedKey, personalMsgHashBuff, address) =>
         this._signMsgHash(keystore, pwDerivedKey, personalMsgHashBuff, address),
-      concatSig: signature => this._concatSig(signature)
+      signTx: (keystore, pwDerivedKey, rlpHexTx, address) =>
+        this._signTx(keystore, pwDerivedKey, rlpHexTx, address)
     }
     this.txutils = {
       functionTx: (abi, functionName, args, options) =>
@@ -107,13 +109,13 @@ export class FakeEthLightwallet {
    * Mocked lightwallet.txutils methods
    */
   private _functionTx(abi, functionName, args, options) {
-    if (this.errors['functionTx']) {
+    if (this.errors.functionTx) {
       throw new Error('Mocked error in lightwallet.txutils.functionTx()')
     }
     return '0xf86180808401ef364594f0109fc8df283027b6285cc889f5aa624eac1f5580801ca031573280d608f75137e33fc14655f097867d691d5c4c44ebe5ae186070ac3d5ea0524410802cdc025034daefcdfa08e7d2ee3f0b9d9ae184b2001fe0aff07603d9'
   }
   private _valueTx(options) {
-    if (this.errors['valueTx']) {
+    if (this.errors.valueTx) {
       throw new Error('Mocked error in lightwallet.txutils.valueTx()')
     }
     return '0xf86180808401ef364594f0109fc8df283027b6285cc889f5aa624eac1f5580801ca031573280d608f75137e33fc14655f097867d691d5c4c44ebe5ae186070ac3d5ea0524410802cdc025034daefcdfa08e7d2ee3f0b9d9ae184b2001fe0aff07603d9'
@@ -123,13 +125,13 @@ export class FakeEthLightwallet {
    * Mocked lightwallet.signing methods
    */
   private _signTx(keystore, pwDerivedKey, rlpHexTx, address) {
-    if (this.errors['signTx']) {
+    if (this.errors.signTx) {
       throw new Error('Mocked error in lightwallet.signing.signTx')
     }
     return '0xf86180808401ef364594f0109fc8df283027b6285cc889f5aa624eac1f5580801ca031573280d608f75137e33fc14655f097867d691d5c4c44ebe5ae186070ac3d5ea0524410802cdc025034daefcdfa08e7d2ee3f0b9d9ae184b2001fe0aff07603d9'
   }
   private _signMsgHash(keystore, pwDerivedKey, personalMsgHashBuff, address) {
-    if (this.errors['signMsgHash']) {
+    if (this.errors.signMsgHash) {
       throw new Error('Mocked error in lightwallet.signing.signMsgHash')
     }
     return {
@@ -152,7 +154,7 @@ export class FakeEthLightwallet {
     return this.keystore
   }
   private _keyFromPassword(password, callback) {
-    if (this.errors['keyFromPassword']) {
+    if (this.errors.keyFromPassword) {
       setTimeout(() =>
         callback(
           new Error('Mocked error in lightwallet.keystore.keyFromPassword()'),
@@ -161,17 +163,17 @@ export class FakeEthLightwallet {
       )
       return
     }
-    setTimeout(() => callback(undefined, this._pwDerivedKey))
+    setTimeout(() => callback(undefined, this.pwDerivedKey))
     return
   }
   private _exportPrivateKey(address, pwDerivedKey) {
-    if (this.errors['exportPrivateKey']) {
+    if (this.errors.exportPrivateKey) {
       throw new Error('Mocked error in lightwallet.keystore.exportPrivateKey')
     }
-    return this._privateKey
+    return this.privateKey
   }
   private _createVault(options, callback) {
-    if (this.errors['createVault']) {
+    if (this.errors.createVault) {
       setTimeout(() =>
         callback(
           new Error('Mocked error in lightwallet.keystore.createVault()'),
@@ -184,10 +186,10 @@ export class FakeEthLightwallet {
     return
   }
   private _generateRandomSeed() {
-    return this._seed
+    return this.seed
   }
   private _generateNewAddress(pwDerivedKey) {
-    if (this.errors['generateNewAddress']) {
+    if (this.errors.generateNewAddress) {
       throw new Error(
         'Mocked error in lightwallet.keystore.generateNewAddress()'
       )
@@ -198,10 +200,10 @@ export class FakeEthLightwallet {
     return ['0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe']
   }
   private _getSeed() {
-    if (this.errors['getSeed']) {
+    if (this.errors.getSeed) {
       throw new Error('Mocked error in lightwallet.keystore.getSeed()')
     }
-    return this._seed
+    return this.seed
   }
 
   /**
@@ -214,18 +216,18 @@ export class FakeEthLightwallet {
     address,
     theirPubKey
   ) {
-    if (this.errors['multiEncryptString']) {
+    if (this.errors.multiEncryptString) {
       throw new Error(
         'Mocked error in lightwallet.encryption.multiEncryptString'
       )
     }
     return {
-      version: 1,
       asymAlg: 'Asym Algorithm',
+      encryptedSymKey: 'Encrypted Symmetric Key',
       symAlg: 'Sym Algorithm',
-      symNonce: 'Sym Nonce',
       symEncMessage: 'Encrypted Message',
-      encryptedSymKey: 'Encrypted Symmetric Key'
+      symNonce: 'Sym Nonce',
+      version: 1
     }
   }
   private _multiDecryptString(
@@ -235,7 +237,7 @@ export class FakeEthLightwallet {
     theirPubKey,
     address
   ) {
-    if (this.errors['multiDecryptString']) {
+    if (this.errors.multiDecryptString) {
       throw new Error(
         'Mocked error in lightwallet.encryption.multiDecryptString'
       )
@@ -244,16 +246,16 @@ export class FakeEthLightwallet {
   }
 
   private _addressToPublicEncKey(keystore, pwDerivedKey, address) {
-    if (this.errors['addressToPublicEncKey']) {
+    if (this.errors.addressToPublicEncKey) {
       throw new Error(
         'Mocked error in lightwallet.encryption.addressToPublicEncKey'
       )
     }
-    return this._pubKey
+    return this.pubKey
   }
 
   private _upgradeOldSerialized(keystore, password, callback) {
-    if (this.errors['upgradeOldSerialized']) {
+    if (this.errors.upgradeOldSerialized) {
       return callback(
         new Error('Mocked error in lightwallet.upgrade.upgradeOldSerialized()'),
         undefined

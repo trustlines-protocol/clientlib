@@ -1,6 +1,6 @@
-import 'mocha'
 import * as chai from 'chai'
 import * as lightwallet from 'eth-lightwallet'
+import 'mocha'
 
 import { Configuration } from '../../src/Configuration'
 import { Utils } from '../../src/Utils'

@@ -1,27 +1,24 @@
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/operator/mergeMap'
-import 'rxjs/add/operator/map'
-import { Observer } from 'rxjs/Observer'
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
+import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/mergeMap'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
+
+import WebSocket = require('html5-websocket')
+import ReconnectingWebSocket = require('reconnecting-websocket')
+import JsonRPC = require('simple-jsonrpc-js')
 
 import { Configuration } from './Configuration'
+
 import {
   Amount,
   AmountInternal,
   AnyExchangeEvent,
   AnyExchangeEventRaw,
-  ExchangeFillEventRaw,
   ExchangeCancelEventRaw,
-  DecimalsObject,
-  DecimalsOptions
+  ExchangeFillEventRaw
 } from './typings'
-
-let __DEV__
-
-const ReconnectingWebSocket = require('reconnecting-websocket')
-const JsonRPC = require('simple-jsonrpc-js')
-const WebSocket = require('html5-websocket')
 
 if (
   typeof module !== 'undefined' &&
@@ -38,12 +35,12 @@ if (
  * The Utils class contains utility functions that are used in multiple classes.
  */
 export class Utils {
-  private _apiUrl: string
-  private _wsApiUrl: string
+  private apiUrl: string
+  private wsApiUrl: string
 
   constructor(configuration: Configuration) {
-    this._apiUrl = configuration.apiUrl
-    this._wsApiUrl = configuration.wsApiUrl
+    this.apiUrl = configuration.apiUrl
+    this.wsApiUrl = configuration.wsApiUrl
   }
 
   /**
@@ -52,7 +49,7 @@ export class Utils {
    * @param options (optional)
    */
   public async fetchUrl<T>(endpoint: string, options?: object): Promise<T> {
-    const fullUrl = `${this._apiUrl}${endpoint}`
+    const fullUrl = `${this.apiUrl}${endpoint}`
     const response = await fetch(fullUrl, options)
     const json = await response.json()
     if (response.status !== 200) {
@@ -65,14 +62,14 @@ export class Utils {
   }
 
   public websocketStream(
-    endpoint: String,
-    functionName: String,
+    endpoint: string,
+    functionName: string,
     args: object
   ): Observable<any> {
     return Observable.create((observer: Observer<any>) => {
       const options = { constructor: WebSocket }
       const ws = new ReconnectingWebSocket(
-        `${this._wsApiUrl}${endpoint}`,
+        `${this.wsApiUrl}${endpoint}`,
         undefined,
         options
       )
@@ -124,7 +121,7 @@ export class Utils {
         baseUrl
       )
     } else if (typeof params === 'object') {
-      for (let key in params) {
+      for (const key in params) {
         if (params[key]) {
           const param = encodeURIComponent(params[key])
           baseUrl += baseUrl.indexOf('?') === -1 ? '?' : '&'
@@ -238,11 +235,10 @@ export class Utils {
     ]
     for (const key of keys) {
       if (event[key]) {
-        if (key.includes('interestRate')) {
-          event[key] = this.formatToAmount(event[key], interestRateDecimals)
-        } else {
-          event[key] = this.formatToAmount(event[key], networkDecimals)
-        }
+        event[key] = this.formatToAmount(
+          event[key],
+          key.includes('interestRate') ? interestRateDecimals : networkDecimals
+        )
       }
     }
     return event

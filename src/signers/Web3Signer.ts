@@ -1,15 +1,8 @@
+import { BigNumber } from 'bignumber.js'
+
 import { TxSigner } from './TxSigner'
 
-import {
-  TxInfos,
-  RawTxObject,
-  Web3TxReceipt,
-  UserObject,
-  Signature,
-  Amount
-} from '../typings'
-
-import { BigNumber } from 'bignumber.js'
+import { Amount, RawTxObject, Signature, TxInfos, UserObject } from '../typings'
 
 /**
  * The Web3Signer class contains functions for signing transactions with a web3 provider.
@@ -17,10 +10,11 @@ import { BigNumber } from 'bignumber.js'
 export class Web3Signer implements TxSigner {
   public address: string
   public pubKey: string
-  private _web3: any
+
+  private web3: any
 
   constructor(web3: any) {
-    this._web3 = web3
+    this.web3 = web3
   }
 
   /**
@@ -39,7 +33,7 @@ export class Web3Signer implements TxSigner {
         )
       }
     }
-    const { transactionHash } = await this._web3.eth.sendTransaction({
+    const { transactionHash } = await this.web3.eth.sendTransaction({
       ...rawTx,
       gas: new BigNumber(rawTx.gasLimit).toNumber()
     })
@@ -54,14 +48,14 @@ export class Web3Signer implements TxSigner {
    */
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
     const [gasPrice, nonce, balance] = await Promise.all([
-      this._web3.eth.getGasPrice(),
-      this._web3.eth.getTransactionCount(userAddress),
-      this._web3.eth.getBalance(userAddress)
+      this.web3.eth.getGasPrice(),
+      this.web3.eth.getTransactionCount(userAddress),
+      this.web3.eth.getBalance(userAddress)
     ])
     return {
-      nonce,
+      balance: new BigNumber(balance),
       gasPrice: new BigNumber(gasPrice),
-      balance: new BigNumber(balance)
+      nonce
     }
   }
 
@@ -89,42 +83,42 @@ export class Web3Signer implements TxSigner {
   /**
    * TODO
    */
-  getBalance(): Promise<Amount> {
+  public async getBalance(): Promise<Amount> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  encrypt(): Promise<any> {
+  public encrypt(): Promise<any> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  decrypt(): Promise<any> {
+  public decrypt(): Promise<any> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  showSeed(): Promise<string> {
+  public showSeed(): Promise<string> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  recoverFromSeed(): Promise<UserObject> {
+  public recoverFromSeed(): Promise<UserObject> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  exportPrivateKey(): Promise<string> {
+  public exportPrivateKey(): Promise<string> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
@@ -140,6 +134,6 @@ export class Web3Signer implements TxSigner {
     args: string[]
   ): string {
     const [functionAbi] = abi.filter(({ name }) => name === functionName)
-    return this._web3.eth.abi.encodeFunctionCall(functionAbi, args)
+    return this.web3.eth.abi.encodeFunctionCall(functionAbi, args)
   }
 }

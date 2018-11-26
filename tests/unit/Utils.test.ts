@@ -1,6 +1,6 @@
-import 'mocha'
-import * as chai from 'chai'
 import BigNumber from 'bignumber.js'
+import * as chai from 'chai'
+import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { config } from '../Fixtures'

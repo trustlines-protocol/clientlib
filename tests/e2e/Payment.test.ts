@@ -1,7 +1,7 @@
-import 'mocha'
+import { BigNumber } from 'bignumber.js'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
-import { BigNumber } from 'bignumber.js'
+import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, keystore1, keystore2, keystore3, wait } from '../Fixtures'

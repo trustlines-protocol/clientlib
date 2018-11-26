@@ -1,25 +1,26 @@
-import { Utils } from './Utils'
-import { TxSigner } from './signers/TxSigner'
-import { TxOptionsInternal, TxObjectInternal, RawTxObject } from './typings'
-
 import { BigNumber } from 'bignumber.js'
+
+import { TxSigner } from './signers/TxSigner'
+import { Utils } from './Utils'
+
+import { RawTxObject, TxObjectInternal, TxOptionsInternal } from './typings'
 
 /**
  * Contract ABIs
  */
-const CONTRACTS = require('../contracts.json')
+import CONTRACTS = require('../contracts.json')
 const ETH_DECIMALS = 18
 
 /**
  * The Transaction class contains functions that are needed for Ethereum transactions.
  */
 export class Transaction {
-  private _utils: Utils
-  private _signer: TxSigner
+  private utils: Utils
+  private signer: TxSigner
 
   constructor(utils: Utils, signer: TxSigner) {
-    this._utils = utils
-    this._signer = signer
+    this.utils = utils
+    this.signer = signer
   }
 
   /**
@@ -41,24 +42,24 @@ export class Transaction {
     args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const { gasPrice, nonce } = await this._signer.getTxInfos(userAddress)
+    const { gasPrice, nonce } = await this.signer.getTxInfos(userAddress)
     const rawTx = {
-      gasPrice: options.gasPrice || gasPrice,
-      gasLimit: options.gasLimit || new BigNumber(600000),
-      value: options.value || new BigNumber(0),
-      nonce: nonce,
-      to: contractAddress,
       from: userAddress,
       functionCallData: {
         abi: CONTRACTS[contractName].abi,
-        functionName,
-        args
-      }
+        args,
+        functionName
+      },
+      gasLimit: options.gasLimit || new BigNumber(600000),
+      gasPrice: options.gasPrice || gasPrice,
+      nonce,
+      to: contractAddress,
+      value: options.value || new BigNumber(0)
     }
     const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
     return {
-      rawTx,
-      ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
+      ethFees: this.utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
+      rawTx
     }
   }
 
@@ -77,19 +78,19 @@ export class Transaction {
     rawValue: BigNumber,
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this._signer.getTxInfos(senderAddress)
+    const txInfos = await this.signer.getTxInfos(senderAddress)
     const rawTx = {
-      gasPrice: options.gasPrice || txInfos.gasPrice,
+      from: senderAddress,
       gasLimit: options.gasLimit || new BigNumber(21000),
-      value: rawValue,
+      gasPrice: options.gasPrice || txInfos.gasPrice,
       nonce: txInfos.nonce,
       to: receiverAddress,
-      from: senderAddress
+      value: rawValue
     }
     const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
     return {
-      rawTx,
-      ethFees: this._utils.formatToAmountInternal(ethFees, ETH_DECIMALS)
+      ethFees: this.utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
+      rawTx
     }
   }
 
@@ -98,7 +99,7 @@ export class Transaction {
    * @param rawTx Raw transaction object.
    */
   public async confirm(rawTx: RawTxObject): Promise<any> {
-    return this._signer.confirm(rawTx)
+    return this.signer.confirm(rawTx)
   }
 
   /**
@@ -106,13 +107,13 @@ export class Transaction {
    * @param signer New transaction signer.
    */
   public setSigner(signer: TxSigner) {
-    this._signer = signer
+    this.signer = signer
   }
 
   /**
    * Returns the latest block number of the underlying blockchain.
    */
   public getBlockNumber(): Promise<number> {
-    return this._utils.fetchUrl<number>('blocknumber')
+    return this.utils.fetchUrl<number>('blocknumber')
   }
 }

@@ -1,27 +1,29 @@
 import { BigNumber } from 'bignumber.js'
+
 import { TxSigner } from '../../src/signers/TxSigner'
+
 import {
-  TxInfos,
+  Amount,
   RawTxObject,
   Signature,
-  UserObject,
-  Amount
+  TxInfos,
+  UserObject
 } from '../../src/typings'
 
 /**
  * Mock TxSigner interface
  */
 export class FakeTxSigner implements TxSigner {
-  address: string
-  pubKey: string
+  public address: string
+  public pubKey: string
 
   /**
    * Mock txSigner.getTxInfos
    */
-  async getTxInfos(userAddress: string): Promise<TxInfos> {
+  public async getTxInfos(userAddress: string): Promise<TxInfos> {
     return Promise.resolve({
-      gasPrice: new BigNumber('2000000'),
       balance: new BigNumber('1000000'),
+      gasPrice: new BigNumber('2000000'),
       nonce: 15
     })
   }
@@ -29,45 +31,45 @@ export class FakeTxSigner implements TxSigner {
   /**
    * Mock txSigner.confirm
    */
-  async confirm(rawTx: RawTxObject): Promise<string> {
+  public async confirm(rawTx: RawTxObject): Promise<string> {
     return Promise.resolve(
       '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b'
     )
   }
 
-  createAccount(): Promise<UserObject> {
+  public createAccount(): Promise<UserObject> {
     return
   }
 
-  loadAccount(serializedKeystore: string): Promise<UserObject> {
+  public loadAccount(serializedKeystore: string): Promise<UserObject> {
     return
   }
 
-  signMsgHash(msgHash: string): Promise<Signature> {
+  public signMsgHash(msgHash: string): Promise<Signature> {
     return
   }
 
-  getBalance(): Promise<Amount> {
+  public getBalance(): Promise<Amount> {
     return
   }
 
-  encrypt(msg: string, theirPubKey: string): Promise<any> {
+  public encrypt(msg: string, theirPubKey: string): Promise<any> {
     return
   }
 
-  decrypt(encMsg: any, theirPubKey: string): Promise<any> {
+  public decrypt(encMsg: any, theirPubKey: string): Promise<any> {
     return
   }
 
-  showSeed(): Promise<string> {
+  public showSeed(): Promise<string> {
     return
   }
 
-  recoverFromSeed(seed: string): Promise<UserObject> {
+  public recoverFromSeed(seed: string): Promise<UserObject> {
     return
   }
 
-  exportPrivateKey(): Promise<string> {
+  public exportPrivateKey(): Promise<string> {
     return
   }
 }

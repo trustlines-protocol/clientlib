@@ -1,4 +1,4 @@
-import { TxInfos, RawTxObject, UserObject, Signature, Amount } from '../typings'
+import { Amount, RawTxObject, Signature, TxInfos, UserObject } from '../typings'
 
 /**
  * Interface for different signer strategies.

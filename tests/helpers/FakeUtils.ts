@@ -12,9 +12,9 @@ export class FakeUtils extends Utils {
     if (endpoint.includes('txinfos')) {
       // mock transaction infos returned by relay server
       response = {
-        nonce: 12,
+        gasLimit: '2000000',
         gasPrice: '2000000',
-        gasLimit: '2000000'
+        nonce: 12
       }
     } else if (endpoint.includes('relay')) {
       // mock transaction hash after relay

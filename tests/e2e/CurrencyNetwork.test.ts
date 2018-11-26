@@ -1,6 +1,6 @@
-import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, user1 } from '../Fixtures'
@@ -124,8 +124,8 @@ describe('e2e', () => {
         const decimalsObject = await currencyNetwork.getDecimals(
           networks[0].address,
           {
-            networkDecimals: 2,
-            interestRateDecimals: 3
+            interestRateDecimals: 3,
+            networkDecimals: 2
           }
         )
         expect(decimalsObject).to.have.all.keys(

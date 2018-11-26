@@ -1,16 +1,16 @@
 import { Observable } from 'rxjs/Observable'
 
-import { Utils } from './Utils'
-import { User } from './User'
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { User } from './User'
+import { Utils } from './Utils'
 
 import {
-  EventFilterOptions,
-  AnyNetworkEventRaw,
   AnyEvent,
   AnyEventRaw,
+  AnyExchangeEventRaw,
+  AnyNetworkEventRaw,
   AnyTokenEventRaw,
-  AnyExchangeEventRaw
+  EventFilterOptions
 } from './typings'
 
 const CURRENCY_NETWORK = 'CurrencyNetwork'
@@ -20,14 +20,14 @@ const TOKEN = 'Token'
  * The Event class contains all methods related to retrieving event logs.
  */
 export class Event {
-  private _currencyNetwork: CurrencyNetwork
-  private _user: User
-  private _utils: Utils
+  private currencyNetwork: CurrencyNetwork
+  private user: User
+  private utils: Utils
 
   constructor(user: User, utils: Utils, currencyNetwork: CurrencyNetwork) {
-    this._currencyNetwork = currencyNetwork
-    this._user = user
-    this._utils = utils
+    this.currencyNetwork = currencyNetwork
+    this.user = user
+    this.utils = utils
   }
 
   /**
@@ -42,18 +42,19 @@ export class Event {
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<T[]> {
-    const { _currencyNetwork, _user, _utils } = this
-    const baseUrl = `networks/${networkAddress}/users/${_user.address}/events`
-    const parameterUrl = _utils.buildUrl(baseUrl, filter)
+    const baseUrl = `networks/${networkAddress}/users/${
+      this.user.address
+    }/events`
+    const parameterUrl = this.utils.buildUrl(baseUrl, filter)
     const [
       events,
       { networkDecimals, interestRateDecimals }
     ] = await Promise.all([
-      _utils.fetchUrl<AnyNetworkEventRaw[]>(parameterUrl),
-      _currencyNetwork.getDecimals(networkAddress)
+      this.utils.fetchUrl<AnyNetworkEventRaw[]>(parameterUrl),
+      this.currencyNetwork.getDecimals(networkAddress)
     ])
     return events.map(event =>
-      _utils.formatEvent<T>(event, networkDecimals, interestRateDecimals)
+      this.utils.formatEvent<T>(event, networkDecimals, interestRateDecimals)
     )
   }
 
@@ -67,10 +68,9 @@ export class Event {
    * @param filter.fromBlock Start of block range for event logs.
    */
   public async getAll(filter: EventFilterOptions = {}): Promise<AnyEvent[]> {
-    const { _user, _utils } = this
-    const baseUrl = `users/${_user.address}/events`
-    const parameterUrl = _utils.buildUrl(baseUrl, filter)
-    const events = await _utils.fetchUrl<AnyEventRaw[]>(parameterUrl)
+    const baseUrl = `users/${this.user.address}/events`
+    const parameterUrl = this.utils.buildUrl(baseUrl, filter)
+    const events = await this.utils.fetchUrl<AnyEventRaw[]>(parameterUrl)
     return this.setDecimalsAndFormat(events)
   }
 
@@ -78,17 +78,17 @@ export class Event {
    * @hidden
    */
   public updateStream(): Observable<any> {
-    return this._utils
+    return this.utils
       .websocketStream('streams/events', 'subscribe', {
         event: 'all',
-        user: this._user.address
+        user: this.user.address
       })
       .mergeMap(event => {
         if (event.hasOwnProperty('networkAddress')) {
-          return this._currencyNetwork
+          return this.currencyNetwork
             .getDecimals(event.networkAddress)
             .then(({ networkDecimals, interestRateDecimals }) =>
-              this._utils.formatEvent(
+              this.utils.formatEvent(
                 event,
                 networkDecimals,
                 interestRateDecimals
@@ -110,7 +110,7 @@ export class Event {
     const decimalsMap = await this.getDecimalsMap(addressesMap)
     return rawEvents.map(event => {
       if ((event as AnyNetworkEventRaw).networkAddress) {
-        return this._utils.formatEvent<AnyNetworkEventRaw>(
+        return this.utils.formatEvent<AnyNetworkEventRaw>(
           event,
           decimalsMap[(event as AnyNetworkEventRaw).networkAddress]
             .networkDecimals,
@@ -119,7 +119,7 @@ export class Event {
         )
       }
       if ((event as AnyTokenEventRaw).tokenAddress) {
-        return this._utils.formatEvent<AnyTokenEventRaw>(
+        return this.utils.formatEvent<AnyTokenEventRaw>(
           event,
           decimalsMap[(event as AnyTokenEventRaw).tokenAddress].networkDecimals,
           decimalsMap[(event as AnyTokenEventRaw).tokenAddress]
@@ -131,7 +131,7 @@ export class Event {
           makerTokenAddress,
           takerTokenAddress
         } = event as AnyExchangeEventRaw
-        return this._utils.formatExchangeEvent(
+        return this.utils.formatExchangeEvent(
           event as AnyExchangeEventRaw,
           decimalsMap[makerTokenAddress].networkDecimals,
           decimalsMap[takerTokenAddress].networkDecimals
@@ -151,14 +151,14 @@ export class Event {
     const decimalsList = await Promise.all(
       addresses.map(address => {
         if (addressesMap[address] === CURRENCY_NETWORK) {
-          return this._currencyNetwork.getDecimals(address)
+          return this.currencyNetwork.getDecimals(address)
         }
         if (addressesMap[address] === TOKEN) {
           // TODO: find different way to get decimals of token
           // NOTE: only expecting WrappedEthEvents for now
-          return this._currencyNetwork.getDecimals(address, {
-            networkDecimals: 18,
-            interestRateDecimals: 0
+          return this.currencyNetwork.getDecimals(address, {
+            interestRateDecimals: 0,
+            networkDecimals: 18
           })
         }
       })
@@ -186,14 +186,14 @@ export class Event {
           takerTokenAddress
         } = e as AnyExchangeEventRaw
         if (!result[makerTokenAddress]) {
-          result[makerTokenAddress] = this._currencyNetwork.isNetwork(
+          result[makerTokenAddress] = this.currencyNetwork.isNetwork(
             makerTokenAddress
           )
             ? CURRENCY_NETWORK
             : TOKEN
         }
         if (!result[takerTokenAddress]) {
-          result[takerTokenAddress] = this._currencyNetwork.isNetwork(
+          result[takerTokenAddress] = this.currencyNetwork.isNetwork(
             takerTokenAddress
           )
             ? CURRENCY_NETWORK

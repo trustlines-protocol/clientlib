@@ -1,16 +1,17 @@
 import BigNumber from 'bignumber.js'
 
-import { Utils } from './Utils'
-import { User } from './User'
 import { Transaction } from './Transaction'
+import { User } from './User'
+import { Utils } from './Utils'
+
 import {
-  EventFilterOptions,
-  TxOptions,
   Amount,
-  TxObject,
-  AnyTokenEventRaw,
   AnyTokenEvent,
-  RawTxObject
+  AnyTokenEventRaw,
+  EventFilterOptions,
+  RawTxObject,
+  TxObject,
+  TxOptions
 } from './typings'
 
 const ETH_DECIMALS = 18
@@ -19,21 +20,21 @@ const ETH_DECIMALS = 18
  * The class EthWrapper contains all methods for depositing, withdrawing and transferring wrapped ETH.
  */
 export class EthWrapper {
-  private _user: User
-  private _utils: Utils
-  private _transaction: Transaction
+  private user: User
+  private utils: Utils
+  private transaction: Transaction
 
   constructor(user: User, utils: Utils, transaction: Transaction) {
-    this._user = user
-    this._utils = utils
-    this._transaction = transaction
+    this.user = user
+    this.utils = utils
+    this.transaction = transaction
   }
 
   /**
    * Returns all known ETH wrapper contract addresses from the relay server.
    */
   public getAddresses(): Promise<string[]> {
-    return this._utils.fetchUrl<string[]>('exchange/eth')
+    return this.utils.fetchUrl<string[]>('exchange/eth')
   }
 
   /**
@@ -41,12 +42,11 @@ export class EthWrapper {
    * @param ethWrapperAddress Address of ETH wrapper contract.
    */
   public async getBalance(ethWrapperAddress: string): Promise<Amount> {
-    const { _user, _utils } = this
     const endpoint = `tokens/${ethWrapperAddress}/users/${
-      _user.address
+      this.user.address
     }/balance`
-    const balance = await _utils.fetchUrl<string>(endpoint)
-    return _utils.formatToAmount(balance, ETH_DECIMALS)
+    const balance = await this.utils.fetchUrl<string>(endpoint)
+    return this.utils.formatToAmount(balance, ETH_DECIMALS)
   }
 
   /**
@@ -65,25 +65,24 @@ export class EthWrapper {
     value: number | string,
     options: TxOptions = {}
   ): Promise<TxObject> {
-    const { _transaction, _user, _utils } = this
     const { gasPrice, gasLimit } = options
-    const { rawTx, ethFees } = await _transaction.prepFuncTx(
-      _user.address,
+    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+      this.user.address,
       ethWrapperAddress,
       'UnwEth',
       'transfer',
       [
         receiverAddress,
-        _utils.convertToHexString(_utils.calcRaw(value, ETH_DECIMALS))
+        this.utils.convertToHexString(this.utils.calcRaw(value, ETH_DECIMALS))
       ],
       {
-        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
-        gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined
+        gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined,
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
     return {
-      rawTx,
-      ethFees: _utils.convertToAmount(ethFees)
+      ethFees: this.utils.convertToAmount(ethFees),
+      rawTx
     }
   }
 
@@ -100,23 +99,22 @@ export class EthWrapper {
     value: number | string,
     options: TxOptions = {}
   ): Promise<TxObject> {
-    const { _transaction, _user, _utils } = this
     const { gasPrice, gasLimit } = options
-    const { rawTx, ethFees } = await _transaction.prepFuncTx(
-      _user.address,
+    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+      this.user.address,
       ethWrapperAddress,
       'UnwEth',
       'deposit',
       [],
       {
-        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
         gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined,
-        value: new BigNumber(_utils.calcRaw(value, ETH_DECIMALS))
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
+        value: new BigNumber(this.utils.calcRaw(value, ETH_DECIMALS))
       }
     )
     return {
-      rawTx,
-      ethFees: _utils.convertToAmount(ethFees)
+      ethFees: this.utils.convertToAmount(ethFees),
+      rawTx
     }
   }
 
@@ -133,22 +131,21 @@ export class EthWrapper {
     value: number | string,
     options: TxOptions = {}
   ): Promise<TxObject> {
-    const { _transaction, _user, _utils } = this
     const { gasPrice, gasLimit } = options
-    const { rawTx, ethFees } = await _transaction.prepFuncTx(
-      _user.address,
+    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+      this.user.address,
       ethWrapperAddress,
       'UnwEth',
       'withdraw',
-      [_utils.convertToHexString(_utils.calcRaw(value, ETH_DECIMALS))],
+      [this.utils.convertToHexString(this.utils.calcRaw(value, ETH_DECIMALS))],
       {
-        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
-        gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined
+        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
     return {
-      rawTx,
-      ethFees: _utils.convertToAmount(ethFees)
+      ethFees: this.utils.convertToAmount(ethFees),
+      rawTx
     }
   }
 
@@ -158,7 +155,7 @@ export class EthWrapper {
    * @param rawTx Raw transaction object.
    */
   public async confirm(rawTx: RawTxObject): Promise<string> {
-    return this._transaction.confirm(rawTx)
+    return this.transaction.confirm(rawTx)
   }
 
   /**
@@ -172,12 +169,13 @@ export class EthWrapper {
     ethWrapperAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<AnyTokenEvent[]> {
-    const { _user, _utils } = this
     const { type, fromBlock } = filter
-    const baseUrl = `tokens/${ethWrapperAddress}/users/${_user.address}/events`
-    const events = await _utils.fetchUrl<AnyTokenEventRaw[]>(
-      _utils.buildUrl(baseUrl, { type, fromBlock })
+    const baseUrl = `tokens/${ethWrapperAddress}/users/${
+      this.user.address
+    }/events`
+    const events = await this.utils.fetchUrl<AnyTokenEventRaw[]>(
+      this.utils.buildUrl(baseUrl, { type, fromBlock })
     )
-    return events.map(event => _utils.formatEvent(event, ETH_DECIMALS, 0))
+    return events.map(event => this.utils.formatEvent(event, ETH_DECIMALS, 0))
   }
 }

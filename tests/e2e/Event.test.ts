@@ -1,16 +1,18 @@
-import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+import 'mocha'
+
 import { TLNetwork } from '../../src/TLNetwork'
 import {
   AnyNetworkEvent,
+  ExchangeCancelEvent,
+  ExchangeFillEvent,
+  NetworkDetails,
   NetworkTransferEvent,
   NetworkTrustlineEvent,
-  TokenAmountEvent,
-  ExchangeFillEvent,
-  ExchangeCancelEvent,
-  NetworkDetails
+  TokenAmountEvent
 } from '../../src/typings'
+
 import {
   config,
   createUsers,
@@ -406,19 +408,19 @@ describe('e2e', () => {
 
       it('should return trustline updates from more than one network', async () => {
         const allEvents = await tl1.event.getAll({ type: 'TrustlineUpdate' })
-        const networks = allEvents.map(e => {
+        const networksOfEvents = allEvents.map(e => {
           if ((e as AnyNetworkEvent).networkAddress) {
             return (e as AnyNetworkEvent).networkAddress
           }
         })
-        const set = new Set(networks)
+        const set = new Set(networksOfEvents)
         const uniqueNetworks = Array.from(set)
         expect(uniqueNetworks.length).to.be.above(1)
       })
     })
 
     describe('#updateStreamTransfer()', () => {
-      let events = []
+      const events = []
       let stream
 
       before(async () => {
@@ -456,7 +458,9 @@ describe('e2e', () => {
           events.filter(event => event.type === 'NetworkBalance')
         ).to.have.lengthOf(1)
 
-        let transferEvent = events.filter(event => event.type === 'Transfer')[0]
+        const transferEvent = events.filter(
+          event => event.type === 'Transfer'
+        )[0]
         expect(transferEvent.amount).to.have.keys('raw', 'value', 'decimals')
         expect(transferEvent).to.have.nested.property('amount.value', '2.5')
         expect(transferEvent).to.have.property('direction', 'sent')
@@ -465,7 +469,7 @@ describe('e2e', () => {
         expect(transferEvent).to.have.property('counterParty', user2.address)
         expect(transferEvent).to.have.property('user', user1.address)
 
-        let networkBalanceEvent = events.filter(
+        const networkBalanceEvent = events.filter(
           event => event.type === 'NetworkBalance'
         )[0]
         expect(networkBalanceEvent.timestamp).to.be.a('number')
@@ -491,7 +495,7 @@ describe('e2e', () => {
         )
         expect(networkBalanceEvent).to.have.property('user', user1.address)
 
-        let balanceEvent = events.filter(
+        const balanceEvent = events.filter(
           event => event.type === 'BalanceUpdate'
         )[0]
         expect(balanceEvent.timestamp).to.be.a('number')
@@ -517,7 +521,7 @@ describe('e2e', () => {
     })
 
     describe('#updateStreamTrustlineRequest()', () => {
-      let events = []
+      const events = []
       let stream
 
       before(async () => {
@@ -550,7 +554,7 @@ describe('e2e', () => {
           events.filter(event => event.type === 'TrustlineUpdateRequest')
         ).to.have.lengthOf(1)
 
-        let trustlineRequestEvent = events.filter(
+        const trustlineRequestEvent = events.filter(
           event => event.type === 'TrustlineUpdateRequest'
         )[0]
         expect(trustlineRequestEvent.timestamp).to.be.a('number')

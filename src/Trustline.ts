@@ -1,22 +1,23 @@
 import BigNumber from 'bignumber.js'
 
-import { Event } from './Event'
-import { Utils } from './Utils'
-import { User } from './User'
-import { Transaction } from './Transaction'
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { Event } from './Event'
+import { Transaction } from './Transaction'
+import { User } from './User'
+import { Utils } from './Utils'
+
 import {
-  PaymentOptions,
-  EventFilterOptions,
-  TxObject,
-  CloseTxObject,
-  ClosePathRaw,
   ClosePathObject,
+  ClosePathRaw,
+  CloseTxObject,
+  EventFilterOptions,
+  NetworkTrustlineEvent,
+  PaymentOptions,
+  RawTxObject,
   TrustlineObject,
   TrustlineRaw,
-  NetworkTrustlineEvent,
-  RawTxObject,
-  TrustlineUpdateOptions
+  TrustlineUpdateOptions,
+  TxObject
 } from './typings'
 
 /**
@@ -24,11 +25,11 @@ import {
  * editing trustlines.
  */
 export class Trustline {
-  private _event: Event
-  private _user: User
-  private _utils: Utils
-  private _transaction: Transaction
-  private _currencyNetwork: CurrencyNetwork
+  private event: Event
+  private user: User
+  private utils: Utils
+  private transaction: Transaction
+  private currencyNetwork: CurrencyNetwork
 
   constructor(
     event: Event,
@@ -37,11 +38,11 @@ export class Trustline {
     transaction: Transaction,
     currencyNetwork: CurrencyNetwork
   ) {
-    this._event = event
-    this._user = user
-    this._utils = utils
-    this._transaction = transaction
-    this._currencyNetwork = currencyNetwork
+    this.event = event
+    this.user = user
+    this.utils = utils
+    this.transaction = transaction
+    this.currencyNetwork = currencyNetwork
   }
 
   /**
@@ -69,7 +70,6 @@ export class Trustline {
     creditlineReceived: number | string,
     options: TrustlineUpdateOptions = {}
   ): Promise<TxObject> {
-    const { _currencyNetwork, _transaction, _user, _utils } = this
     const {
       interestRateGiven = 0,
       interestRateReceived = 0,
@@ -82,33 +82,36 @@ export class Trustline {
       decimals,
       { customInterests, defaultInterestRate }
     ] = await Promise.all([
-      _currencyNetwork.getDecimals(networkAddress, {
-        networkDecimals,
-        interestRateDecimals
+      this.currencyNetwork.getDecimals(networkAddress, {
+        interestRateDecimals,
+        networkDecimals
       }),
-      _currencyNetwork.getInfo(networkAddress)
+      this.currencyNetwork.getInfo(networkAddress)
     ])
-    const { rawTx, ethFees } = await _transaction.prepFuncTx(
-      _user.address,
+    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+      this.user.address,
       networkAddress,
       'CurrencyNetwork',
       'updateTrustline',
       [
         counterpartyAddress,
-        _utils.convertToHexString(
-          _utils.calcRaw(creditlineGiven, decimals.networkDecimals)
+        this.utils.convertToHexString(
+          this.utils.calcRaw(creditlineGiven, decimals.networkDecimals)
         ),
-        _utils.convertToHexString(
-          _utils.calcRaw(creditlineReceived, decimals.networkDecimals)
+        this.utils.convertToHexString(
+          this.utils.calcRaw(creditlineReceived, decimals.networkDecimals)
         ),
-        _utils.convertToHexString(
+        this.utils.convertToHexString(
           customInterests
-            ? _utils.calcRaw(interestRateGiven, decimals.interestRateDecimals)
+            ? this.utils.calcRaw(
+                interestRateGiven,
+                decimals.interestRateDecimals
+              )
             : defaultInterestRate.raw
         ),
-        _utils.convertToHexString(
+        this.utils.convertToHexString(
           customInterests
-            ? _utils.calcRaw(
+            ? this.utils.calcRaw(
                 interestRateReceived,
                 decimals.interestRateDecimals
               )
@@ -116,13 +119,13 @@ export class Trustline {
         )
       ],
       {
-        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
-        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined
+        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
     return {
-      rawTx,
-      ethFees: _utils.convertToAmount(ethFees)
+      ethFees: this.utils.convertToAmount(ethFees),
+      rawTx
     }
   }
 
@@ -165,7 +168,7 @@ export class Trustline {
    * @param rawTx Raw transaction object.
    */
   public async confirm(rawTx: RawTxObject): Promise<any> {
-    return this._transaction.confirm(rawTx)
+    return this.transaction.confirm(rawTx)
   }
 
   /**
@@ -173,16 +176,15 @@ export class Trustline {
    * @param networkAddress Address of a currency network.
    */
   public async getAll(networkAddress: string): Promise<TrustlineObject[]> {
-    const { _user, _utils, _currencyNetwork } = this
     const endpoint = `networks/${networkAddress}/users/${
-      _user.address
+      this.user.address
     }/trustlines`
     const [
       trustlines,
       { networkDecimals, interestRateDecimals }
     ] = await Promise.all([
-      _utils.fetchUrl<TrustlineRaw[]>(endpoint),
-      _currencyNetwork.getDecimals(networkAddress)
+      this.utils.fetchUrl<TrustlineRaw[]>(endpoint),
+      this.currencyNetwork.getDecimals(networkAddress)
     ])
     return trustlines.map(trustline =>
       this._formatTrustline(trustline, networkDecimals, interestRateDecimals)
@@ -198,16 +200,15 @@ export class Trustline {
     networkAddress: string,
     counterpartyAddress: string
   ): Promise<TrustlineObject> {
-    const { _user, _utils, _currencyNetwork } = this
     const endpoint = `networks/${networkAddress}/users/${
-      _user.address
+      this.user.address
     }/trustlines/${counterpartyAddress}`
     const [
       trustline,
       { networkDecimals, interestRateDecimals }
     ] = await Promise.all([
-      _utils.fetchUrl<TrustlineRaw>(endpoint),
-      _currencyNetwork.getDecimals(networkAddress)
+      this.utils.fetchUrl<TrustlineRaw>(endpoint),
+      this.currencyNetwork.getDecimals(networkAddress)
     ])
     return this._formatTrustline(
       trustline,
@@ -225,7 +226,7 @@ export class Trustline {
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<NetworkTrustlineEvent[]> {
-    return this._event.get<NetworkTrustlineEvent>(networkAddress, {
+    return this.event.get<NetworkTrustlineEvent>(networkAddress, {
       ...filter,
       type: 'TrustlineUpdateRequest'
     })
@@ -241,7 +242,7 @@ export class Trustline {
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<NetworkTrustlineEvent[]> {
-    return this._event.get<NetworkTrustlineEvent>(networkAddress, {
+    return this.event.get<NetworkTrustlineEvent>(networkAddress, {
       ...filter,
       type: 'TrustlineUpdate'
     })
@@ -262,18 +263,16 @@ export class Trustline {
     counterpartyAddress: string,
     options: PaymentOptions = {}
   ): Promise<CloseTxObject> {
-    const { _user, _currencyNetwork, _transaction, _utils } = this
-
     // Get the users options and make sure to have a decimal.
     const { gasPrice, gasLimit, networkDecimals } = options
-    const decimals = await _currencyNetwork.getDecimals(networkAddress, {
+    const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
 
     // Get close path
     const { path, maxFees, estimatedGas, value } = await this.getClosePath(
       networkAddress,
-      _user.address,
+      this.user.address,
       counterpartyAddress,
       {
         ...options,
@@ -284,29 +283,29 @@ export class Trustline {
     // Make sure a path has been found.
     if (path.length > 0) {
       // Prepare the interaction with the contract.
-      const { rawTx, ethFees } = await _transaction.prepFuncTx(
-        _user.address,
+      const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+        this.user.address,
         networkAddress,
         'CurrencyNetwork',
         'closeTrustlineByTriangularTransfer',
         [
           counterpartyAddress,
-          _utils.convertToHexString(new BigNumber(maxFees.raw)),
+          this.utils.convertToHexString(new BigNumber(maxFees.raw)),
           path.slice(1)
         ],
         {
-          gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
           gasLimit: gasLimit
             ? new BigNumber(gasLimit)
-            : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue()
+            : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue(),
+          gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
         }
       )
 
       return {
-        rawTx,
-        path,
+        ethFees: this.utils.convertToAmount(ethFees),
         maxFees,
-        ethFees: _utils.convertToAmount(ethFees)
+        path,
+        rawTx
       }
     } else {
       throw new Error('Could not find a path with enough capacity.')
@@ -330,11 +329,9 @@ export class Trustline {
     counterpartyAddress: string,
     options: PaymentOptions = {}
   ): Promise<ClosePathObject> {
-    const { _currencyNetwork, _utils } = this
-
     // Get the users options and make sure to have a decimal.
     const { networkDecimals, maximumHops, maximumFees } = options
-    const decimals = await _currencyNetwork.getDecimals(networkAddress, {
+    const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
 
@@ -344,31 +341,25 @@ export class Trustline {
     // Define properties for the relay request.
     const data = {
       from: senderAddress,
+      maxFees: maximumFees,
+      maxHops: maximumHops,
       to: counterpartyAddress
     }
 
-    // Add additional data properties.
-    if (maximumFees) {
-      data['maxFees'] = maximumFees
-    }
-    if (maximumHops) {
-      data['maxHops'] = maximumHops
-    }
-
     // Request the relay for a path to settle down the trustline.
-    const { path, estimatedGas, fees, value } = await _utils.fetchUrl<
+    const { path, estimatedGas, fees, value } = await this.utils.fetchUrl<
       ClosePathRaw
     >(endpoint, {
-      method: 'post',
+      body: JSON.stringify(data),
       headers: new Headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(data)
+      method: 'post'
     })
 
     return {
-      path,
       estimatedGas: new BigNumber(estimatedGas),
-      maxFees: _utils.formatToAmount(fees, decimals.networkDecimals),
-      value: _utils.formatToAmount(value, decimals.networkDecimals)
+      maxFees: this.utils.formatToAmount(fees, decimals.networkDecimals),
+      path,
+      value: this.utils.formatToAmount(value, decimals.networkDecimals)
     }
   }
 
@@ -384,25 +375,25 @@ export class Trustline {
   ): TrustlineObject {
     return {
       ...trustline,
-      balance: this._utils.formatToAmount(trustline.balance, networkDecimals),
-      given: this._utils.formatToAmount(trustline.given, networkDecimals),
-      leftGiven: this._utils.formatToAmount(
-        trustline.leftGiven,
-        networkDecimals
-      ),
-      leftReceived: this._utils.formatToAmount(
-        trustline.leftReceived,
-        networkDecimals
-      ),
-      received: this._utils.formatToAmount(trustline.received, networkDecimals),
-      interestRateGiven: this._utils.formatToAmount(
+      balance: this.utils.formatToAmount(trustline.balance, networkDecimals),
+      given: this.utils.formatToAmount(trustline.given, networkDecimals),
+      interestRateGiven: this.utils.formatToAmount(
         trustline.interestRateGiven,
         interestDecimals
       ),
-      interestRateReceived: this._utils.formatToAmount(
+      interestRateReceived: this.utils.formatToAmount(
         trustline.interestRateReceived,
         interestDecimals
-      )
+      ),
+      leftGiven: this.utils.formatToAmount(
+        trustline.leftGiven,
+        networkDecimals
+      ),
+      leftReceived: this.utils.formatToAmount(
+        trustline.leftReceived,
+        networkDecimals
+      ),
+      received: this.utils.formatToAmount(trustline.received, networkDecimals)
     }
   }
 }

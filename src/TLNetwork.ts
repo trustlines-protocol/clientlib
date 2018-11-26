@@ -1,23 +1,25 @@
+import * as lightwallet from 'eth-lightwallet'
+
 import { Configuration } from './Configuration'
-import { User } from './User'
-import { Transaction } from './Transaction'
-import { Payment } from './Payment'
-import { Trustline } from './Trustline'
-import { CurrencyNetwork } from './CurrencyNetwork'
 import { Contact } from './Contact'
-import { Utils } from './Utils'
+import { CurrencyNetwork } from './CurrencyNetwork'
+import { EthWrapper } from './EthWrapper'
 import { Event } from './Event'
 import { Exchange } from './Exchange'
 import { Messaging } from './Messaging'
-import { EthWrapper } from './EthWrapper'
+import { Payment } from './Payment'
+import { Transaction } from './Transaction'
+import { Trustline } from './Trustline'
+import { User } from './User'
+import { Utils } from './Utils'
 
-import { TxSigner } from './signers/TxSigner'
 import { LightwalletSigner } from './signers/LightwalletSigner'
+import { TxSigner } from './signers/TxSigner'
 import { Web3Signer } from './signers/Web3Signer'
 
 import { TLNetworkConfig } from './typings'
 
-import * as lightwallet from 'eth-lightwallet'
+// tslint:disable-next-line
 const Web3 = require('web3')
 
 /**

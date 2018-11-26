@@ -1,7 +1,7 @@
-import 'mocha'
+import { BigNumber } from 'bignumber.js'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
-import { BigNumber } from 'bignumber.js'
+import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { NetworkDetails } from '../../src/typings'
@@ -14,11 +14,11 @@ describe('e2e', () => {
     const { expect } = chai
     const tl1 = new TLNetwork(config)
     const tl2 = new TLNetwork(config)
+
     let user1
     let user2
     let networks
     let exchangeAddress
-    let dummyTokenAddress
     let makerTokenAddress
     let makerTokenDecimals
     let takerTokenAddress
@@ -398,6 +398,8 @@ describe('e2e', () => {
 
     // TODO scenario for TL money <-> token
     describe.skip('#confirm() - TL money <-> token', () => {
+      const DUMMY_TOKEN_ADDRESS = '0x'
+
       let makerTLBefore
       let tokenBalanceBefore
 
@@ -406,7 +408,7 @@ describe('e2e', () => {
           .makeOrder(
             exchangeAddress,
             makerTokenAddress,
-            dummyTokenAddress,
+            DUMMY_TOKEN_ADDRESS,
             1,
             1,
             {
@@ -415,7 +417,7 @@ describe('e2e', () => {
             }
           )
           .then(() =>
-            tl1.exchange.getOrderbook(makerTokenAddress, dummyTokenAddress, {
+            tl1.exchange.getOrderbook(makerTokenAddress, DUMMY_TOKEN_ADDRESS, {
               baseTokenDecimals: 2,
               quoteTokenDecimals: 2
             })

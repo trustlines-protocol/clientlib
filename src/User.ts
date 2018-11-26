@@ -3,35 +3,36 @@ import * as ethUtils from 'ethereumjs-util'
 import { TxSigner } from './signers/TxSigner'
 import { Transaction } from './Transaction'
 import { Utils } from './Utils'
-import { Amount, UserObject, Signature, RawTxObject } from './typings'
+
+import { Amount, RawTxObject, Signature, UserObject } from './typings'
 
 /**
  * The User class contains all user related functions, which also include keystore
  * related methods.
  */
 export class User {
-  private _signer: TxSigner
-  private _transaction: Transaction
-  private _utils: Utils
+  private signer: TxSigner
+  private transaction: Transaction
+  private utils: Utils
 
   constructor(signer: TxSigner, transaction: Transaction, utils: Utils) {
-    this._signer = signer
-    this._transaction = transaction
-    this._utils = utils
+    this.signer = signer
+    this.transaction = transaction
+    this.utils = utils
   }
 
   /**
    * Checksummed Ethereum address of currently loaded user/keystore.
    */
   public get address(): string {
-    return this._signer.address
+    return this.signer.address
   }
 
   /**
    * Public key of currently loaded user/keystore.
    */
   public get pubKey(): string {
-    return this._signer.pubKey
+    return this.signer.pubKey
   }
 
   /**
@@ -39,7 +40,7 @@ export class User {
    * Loads new user into the state and returns the created user object.
    */
   public async create(): Promise<UserObject> {
-    const createdAccount = await this._signer.createAccount()
+    const createdAccount = await this.signer.createAccount()
     return createdAccount
   }
 
@@ -49,7 +50,7 @@ export class User {
    * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) key store.
    */
   public async load(serializedKeystore: string): Promise<UserObject> {
-    const loadedAccount = await this._signer.loadAccount(serializedKeystore)
+    const loadedAccount = await this.signer.loadAccount(serializedKeystore)
     return loadedAccount
   }
 
@@ -58,14 +59,14 @@ export class User {
    * @param msgHash Hash of message that should be signed.
    */
   public signMsgHash(msgHash: string): Promise<Signature> {
-    return this._signer.signMsgHash(msgHash)
+    return this.signer.signMsgHash(msgHash)
   }
 
   /**
    * Returns ETH balance of loaded user.
    */
   public async getBalance(): Promise<Amount> {
-    return this._signer.getBalance()
+    return this.signer.getBalance()
   }
 
   /**
@@ -74,7 +75,7 @@ export class User {
    * @param theirPubKey Public key of receiver of message.
    */
   public encrypt(msg: string, theirPubKey: string): Promise<any> {
-    return this._signer.encrypt(msg, theirPubKey)
+    return this.signer.encrypt(msg, theirPubKey)
   }
 
   /**
@@ -83,21 +84,21 @@ export class User {
    * @param theirPubKey Public key of sender of message.
    */
   public decrypt(encMsg: any, theirPubKey: string): Promise<any> {
-    return this._signer.decrypt(encMsg, theirPubKey)
+    return this.signer.decrypt(encMsg, theirPubKey)
   }
 
   /**
    * Returns the 12 word seed of loaded user.
    */
   public showSeed(): Promise<string> {
-    return this._signer.showSeed()
+    return this.signer.showSeed()
   }
 
   /**
    * Returns the private key of loaded user.
    */
   public exportPrivateKey(): Promise<string> {
-    return this._signer.exportPrivateKey()
+    return this.signer.exportPrivateKey()
   }
 
   /**
@@ -105,7 +106,7 @@ export class User {
    * @param seed 12 word seed phrase string.
    */
   public async recoverFromSeed(seed: string): Promise<UserObject> {
-    const recoveredUser = await this._signer.recoverFromSeed(seed)
+    const recoveredUser = await this.signer.recoverFromSeed(seed)
     return recoveredUser
   }
 
@@ -121,11 +122,11 @@ export class User {
     username: string,
     serializedKeystore: string
   ): Promise<string> {
-    const { address, pubKey } = await this._signer.loadAccount(
+    const { address, pubKey } = await this.signer.loadAccount(
       serializedKeystore
     )
     const params = ['onboardingrequest', username, address, pubKey]
-    return this._utils.createLink(params)
+    return this.utils.createLink(params)
   }
 
   /**
@@ -138,10 +139,10 @@ export class User {
     newUserAddress: string,
     initialValue = 0.1
   ): Promise<object> {
-    return this._transaction.prepValueTx(
+    return this.transaction.prepValueTx(
       this.address, // address of onboarder
       newUserAddress, // address of new user who gets onboarded
-      this._utils.calcRaw(initialValue, 18)
+      this.utils.calcRaw(initialValue, 18)
     )
   }
 
@@ -151,7 +152,7 @@ export class User {
    * @param rawTx Raw transaction object.
    */
   public async confirmOnboarding(rawTx: RawTxObject): Promise<string> {
-    return this._transaction.confirm(rawTx)
+    return this.transaction.confirm(rawTx)
   }
 
   /**
@@ -161,7 +162,7 @@ export class User {
    */
   public async createLink(username: string): Promise<string> {
     const params = ['contact', this.address, username]
-    return this._utils.createLink(params)
+    return this.utils.createLink(params)
   }
 
   /**
@@ -171,11 +172,11 @@ export class User {
    */
   public requestEth(): Promise<string> {
     const options = {
-      method: 'POST',
+      body: JSON.stringify({ address: this.address }),
       headers: new Headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ address: this.address })
+      method: 'POST'
     }
-    return this._utils.fetchUrl('request-ether', options)
+    return this.utils.fetchUrl('request-ether', options)
   }
 
   /**
@@ -193,8 +194,6 @@ export class User {
     const m = ethUtils.sha3(JSON.stringify(message))
     const pub = ethUtils.ecrecover(m, v, r, s)
     const adr = `0x${ethUtils.pubToAddress(pub).toString('hex')}`
-    console.log('Externally owned account: ', message.address)
-    console.log('Recovered from signature: ', adr)
     return message.address === adr
   }
 }

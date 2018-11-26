@@ -1,11 +1,11 @@
-import 'mocha'
-import { assert } from 'chai'
 import { BigNumber } from 'bignumber.js'
+import { assert } from 'chai'
+import 'mocha'
 
 import { LightwalletSigner } from '../../src/signers/LightwalletSigner'
 import { FakeConfiguration } from '../helpers/FakeConfiguration'
-import { FakeUtils } from '../helpers/FakeUtils'
 import { FakeEthLightwallet } from '../helpers/FakeEthLightwallet'
+import { FakeUtils } from '../helpers/FakeUtils'
 
 import { keystore1, keystore2, user1 } from '../Fixtures'
 
@@ -21,10 +21,10 @@ describe('unit', () => {
     const USER_ADDRESS = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
     const RAW_TX_OBJECT = {
       from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-      value: 10000,
       gasLimit: 10000,
       gasPrice: 10000,
-      nonce: 5
+      nonce: 5,
+      value: 10000
     }
     const RAW_VALUE_TX_OBJECT = {
       ...RAW_TX_OBJECT,
@@ -34,7 +34,6 @@ describe('unit', () => {
       ...RAW_TX_OBJECT,
       functionCallData: {
         abi: {
-          type: 'function',
           inputs: [
             {
               name: 'a',
@@ -42,10 +41,11 @@ describe('unit', () => {
             }
           ],
           name: 'foo',
-          outputs: []
+          outputs: [],
+          type: 'function'
         },
-        functionName: 'foo',
-        args: [123445]
+        args: [123445],
+        functionName: 'foo'
       }
     }
 
@@ -233,12 +233,12 @@ describe('unit', () => {
 
     describe('#decrypt()', () => {
       const ENC_MSG = {
-        version: 1,
         asymAlg: 'Asym Algorithm',
+        encryptedSymKey: 'Encrypted Symmetric Key',
         symAlg: 'Sym Algorithm',
-        symNonce: 'Sym Nonce',
         symEncMessage: 'Encrypted Message',
-        encryptedSymKey: 'Encrypted Symmetric Key'
+        symNonce: 'Sym Nonce',
+        version: 1
       }
 
       beforeEach(() => {
@@ -415,11 +415,10 @@ describe('unit', () => {
     })
 
     describe('#getTxInfos()', () => {
-      const fakeEthLightwallet = new FakeEthLightwallet()
-      const lightwalletSigner = new LightwalletSigner(
-        fakeEthLightwallet,
-        fakeUtils
-      )
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+      })
 
       it('should return nonce, gasPrice and balance', async () => {
         const txInfos = await lightwalletSigner.getTxInfos(USER_ADDRESS)
