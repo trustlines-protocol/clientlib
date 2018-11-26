@@ -8,7 +8,8 @@ import { RawTxObject, TxObjectInternal, TxOptionsInternal } from './typings'
 /**
  * Contract ABIs
  */
-import CONTRACTS = require('../contracts.json')
+// tslint:disable-next-line
+const CONTRACTS = require('../contracts.json')
 const ETH_DECIMALS = 18
 
 /**

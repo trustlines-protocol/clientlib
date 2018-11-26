@@ -1,13 +1,12 @@
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
+import * as WebSocket from 'html5-websocket'
+import * as ReconnectingWebSocket from 'reconnecting-websocket'
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/mergeMap'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
-
-import WebSocket = require('html5-websocket')
-import ReconnectingWebSocket = require('reconnecting-websocket')
-import JsonRPC = require('simple-jsonrpc-js')
+import * as JsonRPC from 'simple-jsonrpc-js'
 
 import { Configuration } from './Configuration'
 
