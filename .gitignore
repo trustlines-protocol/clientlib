@@ -6,3 +6,7 @@ _bundles
 npm-debug.log
 docs
 *~
+
+# code coverage
+.nyc_output
+coverage.lcov
