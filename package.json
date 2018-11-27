@@ -11,8 +11,9 @@
     "prettier": "prettier --write './{src,tests}/**/*.ts'",
     "test": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/**/**.test.ts",
     "test:e2e": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
-    "test:integration": "mocha --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
-    "test:unit": "mocha --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
+    "test:integration": "nyc mocha --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
+    "test:unit": "nyc mocha --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "watch:esm": "tsc -w -m es6 --outDir lib-esm",
     "bump": "./bump.sh"
   },
@@ -26,6 +27,18 @@
       "prettier --write",
       "git add"
     ]
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "include": [
+      "src"
+    ],
+    "reporter": [
+      "text"
+    ],
+    "all": true
   },
   "repository": {
     "type": "git",
@@ -46,6 +59,7 @@
     "awesome-typescript-loader": "^5.2.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
+    "codecov": "^3.1.0",
     "es6-promise": "^4.1.1",
     "fluid-publish": "^2.2.0",
     "husky": "^1.1.4",
@@ -53,6 +67,7 @@
     "lint-staged": "^8.0.4",
     "mocha": "^5.2.0",
     "prettier": "^1.15.2",
+    "nyc": "^13.1.0",
     "reconnecting-websocket": "^3.0.7",
     "ts-node": "^7.0.0",
     "tslint": "^5.10.0",
