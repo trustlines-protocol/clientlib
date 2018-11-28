@@ -1,4 +1,8 @@
 # trustlines-network clientlib
+
+[![npm](https://img.shields.io/npm/v/trustlines-clientlib.svg)](https://www.npmjs.com/package/trustlines-clientlib)
+[![Travis (.org) branch](https://img.shields.io/travis/trustlines-network/clientlib/develop.svg)](https://travis-ci.org/trustlines-network/clientlib)
+
 A TypeScript/Javascript library for interacting with the [trustlines-network protocol](https://trustlines.network/).
 
 ## Read the [Documentation](https://trustlines-network.github.io/clientlib-docs/)
