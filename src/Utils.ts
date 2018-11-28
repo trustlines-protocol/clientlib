@@ -320,6 +320,10 @@ export class Utils {
     return ethUtils.addHexPrefix(hexStr)
   }
 
+  /**
+   * Generates a random number with specified decimals.
+   * @param decimals Decimals which determine size of generated number.
+   */
   public generateRandomNumber(decimals: number): BigNumber {
     return BigNumber.random(decimals + 1)
       .multipliedBy(new BigNumber(10).pow(decimals))

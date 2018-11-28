@@ -15,7 +15,7 @@ describe('unit', () => {
       it('should load custom configuration', () => {
         const tlNetwork = new TLNetwork({
           host: '192.168.0.59',
-          path: 'api/v1/',
+          path: 'api/v1',
           port: 5000,
           protocol: 'https'
         })
