@@ -45,6 +45,6 @@ export class Configuration {
     port: number | string,
     path: string
   ): string {
-    return `${protocol}://${host}${port === '' ? '' : `:${port}`}/${path}`
+    return `${protocol}://${host}${port && `:${port}`}${path && `/${path}`}`
   }
 }
