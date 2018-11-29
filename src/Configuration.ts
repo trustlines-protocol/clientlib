@@ -45,6 +45,18 @@ export class Configuration {
     port: number | string,
     path: string
   ): string {
-    return `${protocol}://${host}${port && `:${port}`}${path && `/${path}`}`
+    return `${protocol}://${host}${port && `:${port}`}${path &&
+      `/${this._trimUrl(path)}`}`
+  }
+
+  /**
+   * Trims url from slashes.
+   * @param url URL to be trimmed from slashes.
+   */
+  private _trimUrl(url: string): string {
+    return url
+      .split('/')
+      .filter(split => split)
+      .join('/')
   }
 }
