@@ -29,6 +29,20 @@ describe('unit', () => {
         assert.equal(wsApiUrl, 'ws://testhost:8080/api')
         assert.equal(web3Provider, 'ws://rpchost:8546')
       })
+
+      it('should set specified configuration with trimmed path', () => {
+        const { apiUrl, wsApiUrl, web3Provider } = new Configuration({
+          host: 'testhost.com',
+          path: '///api/v1/////',
+          port: 8080,
+          protocol: 'https',
+          web3Provider: 'ws://rpchost:8546',
+          wsProtocol: 'ws'
+        })
+        assert.equal(apiUrl, 'https://testhost.com:8080/api/v1')
+        assert.equal(wsApiUrl, 'ws://testhost.com:8080/api/v1')
+        assert.equal(web3Provider, 'ws://rpchost:8546')
+      })
     })
   })
 })
