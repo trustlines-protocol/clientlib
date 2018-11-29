@@ -48,7 +48,7 @@ export class Utils {
    * @param options (optional)
    */
   public async fetchUrl<T>(endpoint: string, options?: object): Promise<T> {
-    const fullUrl = `${this.apiUrl}${endpoint}`
+    const fullUrl = `${this.apiUrl}${this._formatEndpoint(endpoint)}`
     const response = await fetch(fullUrl, options)
     const json = await response.json()
     if (response.status !== 200) {
@@ -60,6 +60,12 @@ export class Utils {
     }
   }
 
+  /**
+   * Returns an Observable for a websocket stream.
+   * @param endpoint Endpoint to open websocket stream to,
+   * @param functionName Name of function to call on opened websocket.
+   * @param args Arguments for above function.
+   */
   public websocketStream(
     endpoint: string,
     functionName: string,
@@ -68,7 +74,7 @@ export class Utils {
     return Observable.create((observer: Observer<any>) => {
       const options = { constructor: WebSocket }
       const ws = new ReconnectingWebSocket(
-        `${this.wsApiUrl}${endpoint}`,
+        `${this.wsApiUrl}${this._formatEndpoint(endpoint)}`,
         undefined,
         options
       )
@@ -328,5 +334,16 @@ export class Utils {
     return BigNumber.random(decimals + 1)
       .multipliedBy(new BigNumber(10).pow(decimals))
       .integerValue()
+  }
+
+  /**
+   * Adds a slash to the endpoint if it does not start with it.
+   * @param endpoint Endpoint to format.
+   */
+  private _formatEndpoint(endpoint: string): string {
+    if (endpoint[0] !== '/') {
+      return `/${endpoint}`
+    }
+    return endpoint
   }
 }

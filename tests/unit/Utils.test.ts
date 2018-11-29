@@ -42,6 +42,16 @@ describe('unit', () => {
         assert.deepEqual(jsonResponse, fakeResponse)
       })
 
+      it('should return 200 json response for endpoint with slash', async () => {
+        const fakeResponse = { hello: 'world' }
+
+        // mock OK response
+        fetchMock.get('*', fakeResponse)
+
+        const jsonResponse = await utils.fetchUrl('/fake/endpoint')
+        assert.deepEqual(jsonResponse, fakeResponse)
+      })
+
       it('should throw error', async () => {
         // mock ERROR response
         fetchMock.get('*', 400)
