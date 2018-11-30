@@ -3,12 +3,12 @@ node_js:
   - "7"
 jobs:
   include:
-    - stage: build
-      install: npm install
-      script: npm run build
     - stage: lint
       install: npm install
-      script: npm run lint
+      script:
+      script:
+        - npm run lint
+        - npm run build
     - stage: test
       name: unit
       install: npm install
