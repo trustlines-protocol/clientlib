@@ -3,19 +3,29 @@ node_js:
   - "7"
 jobs:
   include:
-    - stage: test
+    - stage: build
       install: npm install
-      script:
-        - npm run build
-        - npm run lint
-        - npm run test:unit
-        - npm run test:integration
+      script: npm run build
+    - stage: lint
+      install: npm install
+      script: npm run lint
+    - stage: test
+      name: unit
+      install: npm install
+      script: npm run test:unit
       after_success: npm run coverage
     - stage: test
+      name: integration
+      install: npm install
+      script: npm run test:integration
+      after_success: npm run coverage
+    - stage: test
+      name: e2e
       install:
         - npm install
         - ./.travis/build_e2e_tests.sh
       script: ./.travis/run_e2e_tests.sh
+      after_success: npm run coverage
     - stage: deploy
       env:
         - secure: rqGV+/s48b8gf9XB5tQ9iZN7gP1vT05Twtx9X8Cp2afuRgn+dKaAv23znhieFVZZjO3UCrwozIZpWymHiPL5uVSzYkURVlNaWyTttpO93uN2Ip/zuw/kEm9PNgyYHCgzhVKeE14GCirc2F7BY2aUKWnvgTX8pH1QSpPhrRUoovHpJscwbZRIAFWSD0EDJwdH/1PZv7iqGqbnffPrEy9cxyHQhJdMmZNEmdcMBM6hWpXWkAirNLKJGlvNmsWFoMpXzxGBjZn9ig8FoZGnA9wuHoL8qXnJN6D2Qv/ppATUitPwqMSugbJFACUsgXqGnItFxMyfOHwCviUnpSSAQJPn+vWaWFvYx1Yfb/J0bM9dKmgFHjsoRpanAIUow8iqKNkAQtM15llW7N2/wmVxKo0fCLXISc4Wlv/Szcud6rtB6oIQC3zNQUkIuY4nU3DZQHdmJW7HNLzv72VtoTL/WSayKFhzCuWHEXfCNFuETcIIcO1Bx62IaaAybZ6X2mBX+32P6MbjjMjBm3J+f0xu5+5zZ+Ns+WGHIhxpE1Zt69RP4Zl1RosNhPFKmPgxfGaQ8WZ0mXXg/MYYP5ittDdu0CqrmsppA+QlLekHrG7QHRWPYXguFT3xKBcQiPG5wgEEzPISy2i02l3tRrD8xrqZwGKROFHyj4kBo+iI24iuzYu3LKU=
