@@ -9,5 +9,5 @@ COPY --chown=parity blockchain /home/parity/chaindata
 
 EXPOSE 8545
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
