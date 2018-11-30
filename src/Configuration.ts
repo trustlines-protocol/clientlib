@@ -18,7 +18,7 @@ export class Configuration {
    * Constructs a Configuration instance that is used for interacting with a relay server.
    * @param config Configuration object. See type `TLNetworkConfig` for more information.
    */
-  constructor (config: TLNetworkConfig = {}) {
+  constructor(config: TLNetworkConfig = {}) {
     const {
       protocol = 'http',
       host = 'localhost',
@@ -39,7 +39,7 @@ export class Configuration {
    * @param port relay api port
    * @param path relay api base endpoint
    */
-  private _buildApiUrl (
+  private _buildApiUrl(
     protocol: string,
     host: string,
     port: number | string,

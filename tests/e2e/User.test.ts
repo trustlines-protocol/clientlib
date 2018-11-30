@@ -1,7 +1,8 @@
-import 'mocha'
+import { BigNumber } from 'bignumber.js'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
-import { BigNumber } from 'bignumber.js'
+import 'mocha'
+
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, keystore1, wait } from '../Fixtures'
 
@@ -17,7 +18,7 @@ describe('e2e', () => {
 
     before(async () => {
       // load users
-      [ newUser, existingUser ] = await Promise.all([
+      ;[newUser, existingUser] = await Promise.all([
         tlNew.user.create(),
         tlExisting.user.load(keystore1)
       ])

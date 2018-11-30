@@ -1,7 +1,7 @@
-import 'mocha'
+import { BigNumber } from 'bignumber.js'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
-import { BigNumber } from 'bignumber.js'
+import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, keystore1, keystore2, wait } from '../Fixtures'
@@ -22,7 +22,7 @@ describe('e2e', () => {
 
     before(async () => {
       // load users
-      [ user1, user2 ] = await Promise.all([
+      ;[user1, user2] = await Promise.all([
         tl1.user.load(keystore1),
         tl2.user.load(keystore2)
       ])
@@ -30,10 +30,7 @@ describe('e2e', () => {
       const addresses = await tl1.ethWrapper.getAddresses()
       ethWrapperAddress = addresses[0]
       // make sure users have eth
-      await Promise.all([
-        tl1.user.requestEth(),
-        tl2.user.requestEth()
-      ])
+      await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
       // wait for txs to be mined
       await wait()
     })
@@ -46,8 +43,9 @@ describe('e2e', () => {
 
     describe('#prepDeposit()', () => {
       it('should prepare a deposit tx', () => {
-        expect(tl1.ethWrapper.prepDeposit(ethWrapperAddress, depositAmount))
-          .to.eventually.have.keys('rawTx', 'ethFees')
+        expect(
+          tl1.ethWrapper.prepDeposit(ethWrapperAddress, depositAmount)
+        ).to.eventually.have.keys('rawTx', 'ethFees')
       })
     })
 
@@ -57,7 +55,7 @@ describe('e2e', () => {
       let tx
 
       before(async () => {
-        [ ethBalanceBefore, wethBalanceBefore ] = await Promise.all([
+        ;[ethBalanceBefore, wethBalanceBefore] = await Promise.all([
           tl1.user.getBalance(),
           tl1.ethWrapper.getBalance(ethWrapperAddress)
         ])
@@ -67,14 +65,20 @@ describe('e2e', () => {
       it('should confirm deposit tx', async () => {
         expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a('string')
         await wait()
-        const [ ethBalanceAfter, wethBalanceAfter ] = await Promise.all([
+        const [ethBalanceAfter, wethBalanceAfter] = await Promise.all([
           tl1.user.getBalance(),
           tl1.ethWrapper.getBalance(ethWrapperAddress)
         ])
-        const deltaEth = Math.abs(new BigNumber(ethBalanceBefore.value)
-          .minus(new BigNumber(ethBalanceAfter.value)).toNumber())
-        const deltaWeth = Math.abs(new BigNumber(wethBalanceBefore.value)
-          .minus(new BigNumber(wethBalanceAfter.value)).toNumber())
+        const deltaEth = Math.abs(
+          new BigNumber(ethBalanceBefore.value)
+            .minus(new BigNumber(ethBalanceAfter.value))
+            .toNumber()
+        )
+        const deltaWeth = Math.abs(
+          new BigNumber(wethBalanceBefore.value)
+            .minus(new BigNumber(wethBalanceAfter.value))
+            .toNumber()
+        )
         expect(depositAmount).to.eq(deltaEth)
         expect(depositAmount).to.eq(deltaWeth)
       })
@@ -82,8 +86,13 @@ describe('e2e', () => {
 
     describe('#prepTransfer()', () => {
       it('should prepare transfer tx', () => {
-        expect(tl1.ethWrapper.prepTransfer(ethWrapperAddress, tl2.user.address, transferAmount))
-          .to.eventually.have.keys('rawTx', 'ethFees')
+        expect(
+          tl1.ethWrapper.prepTransfer(
+            ethWrapperAddress,
+            tl2.user.address,
+            transferAmount
+          )
+        ).to.eventually.have.keys('rawTx', 'ethFees')
       })
     })
 
@@ -96,7 +105,10 @@ describe('e2e', () => {
 
       before(async () => {
         // make sure already deposited
-        const { rawTx } = await tl1.ethWrapper.prepDeposit(ethWrapperAddress, depositAmount)
+        const { rawTx } = await tl1.ethWrapper.prepDeposit(
+          ethWrapperAddress,
+          depositAmount
+        )
         await tl1.ethWrapper.confirm(rawTx)
         await wait()
         // set balances before transfer
@@ -107,20 +119,30 @@ describe('e2e', () => {
         wethBalanceBefore1 = balances[0]
         ethBalanceBefore2 = balances[1]
         // prepare withdraw tx
-        tx = await tl1.ethWrapper.prepTransfer(ethWrapperAddress, tl2.user.address, transferAmount)
+        tx = await tl1.ethWrapper.prepTransfer(
+          ethWrapperAddress,
+          tl2.user.address,
+          transferAmount
+        )
       })
 
       it('should confirm transfer tx', async () => {
         expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a('string')
         await wait()
-        const [ wethBalanceAfter1, ethBalanceAfter2 ] = await Promise.all([
+        const [wethBalanceAfter1, ethBalanceAfter2] = await Promise.all([
           tl1.ethWrapper.getBalance(ethWrapperAddress),
           tl2.user.getBalance()
         ])
-        const deltaWeth1 = Math.abs(new BigNumber(wethBalanceBefore1.value)
-          .minus(new BigNumber(wethBalanceAfter1.value)).toNumber())
-        const deltaEth2 = Math.abs(new BigNumber(ethBalanceBefore2.value)
-          .minus(new BigNumber(ethBalanceAfter2.value)).toNumber())
+        const deltaWeth1 = Math.abs(
+          new BigNumber(wethBalanceBefore1.value)
+            .minus(new BigNumber(wethBalanceAfter1.value))
+            .toNumber()
+        )
+        const deltaEth2 = Math.abs(
+          new BigNumber(ethBalanceBefore2.value)
+            .minus(new BigNumber(ethBalanceAfter2.value))
+            .toNumber()
+        )
         expect(deltaWeth1).to.eq(transferAmount)
         expect(deltaEth2).to.eq(transferAmount)
       })
@@ -128,8 +150,9 @@ describe('e2e', () => {
 
     describe('#prepWithdraw()', () => {
       it('should prepare withdraw tx', () => {
-        expect(tl1.ethWrapper.prepWithdraw(ethWrapperAddress, withdrawAmount))
-          .to.eventually.have.keys('rawTx', 'ethFees')
+        expect(
+          tl1.ethWrapper.prepWithdraw(ethWrapperAddress, withdrawAmount)
+        ).to.eventually.have.keys('rawTx', 'ethFees')
       })
     })
 
@@ -140,29 +163,41 @@ describe('e2e', () => {
 
       before(async () => {
         // set balances before withdraw
-        [ ethBalanceBefore, wethBalanceBefore ] = await Promise.all([
+        ;[ethBalanceBefore, wethBalanceBefore] = await Promise.all([
           tl1.user.getBalance(),
           tl1.ethWrapper.getBalance(ethWrapperAddress)
         ])
         // make sure already deposited
-        const { rawTx } = await tl1.ethWrapper.prepDeposit(ethWrapperAddress, depositAmount)
+        const { rawTx } = await tl1.ethWrapper.prepDeposit(
+          ethWrapperAddress,
+          depositAmount
+        )
         await tl1.ethWrapper.confirm(rawTx)
         await wait()
         // prepare withdraw tx
-        tx = await tl1.ethWrapper.prepWithdraw(ethWrapperAddress, withdrawAmount)
+        tx = await tl1.ethWrapper.prepWithdraw(
+          ethWrapperAddress,
+          withdrawAmount
+        )
       })
 
       it('should confirm withdraw tx', async () => {
         expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a('string')
         await wait()
-        const [ ethBalanceAfter, wethBalanceAfter ] = await Promise.all([
+        const [ethBalanceAfter, wethBalanceAfter] = await Promise.all([
           tl1.user.getBalance(),
           tl1.ethWrapper.getBalance(ethWrapperAddress)
         ])
-        const deltaEth = Math.abs(new BigNumber(ethBalanceBefore.value)
-          .minus(new BigNumber(ethBalanceAfter.value)).toNumber())
-        const deltaWeth = Math.abs(new BigNumber(wethBalanceBefore.value)
-          .minus(new BigNumber(wethBalanceAfter.value)).toNumber())
+        const deltaEth = Math.abs(
+          new BigNumber(ethBalanceBefore.value)
+            .minus(new BigNumber(ethBalanceAfter.value))
+            .toNumber()
+        )
+        const deltaWeth = Math.abs(
+          new BigNumber(wethBalanceBefore.value)
+            .minus(new BigNumber(wethBalanceAfter.value))
+            .toNumber()
+        )
         expect(depositAmount - withdrawAmount).to.eq(deltaEth)
         expect(depositAmount - withdrawAmount).to.eq(deltaWeth)
       })
@@ -172,13 +207,23 @@ describe('e2e', () => {
       let logs
 
       before(async () => {
-        let tx = await tl1.ethWrapper.prepDeposit(ethWrapperAddress, depositAmount)
+        let tx = await tl1.ethWrapper.prepDeposit(
+          ethWrapperAddress,
+          depositAmount
+        )
         await tl1.ethWrapper.confirm(tx.rawTx)
         await wait()
-        tx = await tl1.ethWrapper.prepWithdraw(ethWrapperAddress, withdrawAmount)
+        tx = await tl1.ethWrapper.prepWithdraw(
+          ethWrapperAddress,
+          withdrawAmount
+        )
         await tl1.ethWrapper.confirm(tx.rawTx)
         await wait()
-        tx = await tl1.ethWrapper.prepTransfer(ethWrapperAddress, tl2.user.address, transferAmount)
+        tx = await tl1.ethWrapper.prepTransfer(
+          ethWrapperAddress,
+          tl2.user.address,
+          transferAmount
+        )
         await tl1.ethWrapper.confirm(tx.rawTx)
         await wait()
         logs = await tl1.ethWrapper.getLogs(ethWrapperAddress)
@@ -238,7 +283,10 @@ describe('e2e', () => {
 
     describe('#getBalance()', () => {
       before(async () => {
-        const { rawTx } = await tl1.ethWrapper.prepDeposit(ethWrapperAddress, depositAmount)
+        const { rawTx } = await tl1.ethWrapper.prepDeposit(
+          ethWrapperAddress,
+          depositAmount
+        )
         await tl1.ethWrapper.confirm(rawTx)
         await wait()
       })

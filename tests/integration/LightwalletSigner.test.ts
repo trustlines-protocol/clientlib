@@ -1,6 +1,6 @@
-import 'mocha'
 import * as chai from 'chai'
 import * as lightwallet from 'eth-lightwallet'
+import 'mocha'
 
 import { Configuration } from '../../src/Configuration'
 import { Utils } from '../../src/Utils'
@@ -47,7 +47,8 @@ describe('integration', () => {
 
       it('should sign message hash and return ec signature', async () => {
         // sha3 hash of `Hello world!`
-        const msgHash = '9c24b06143c07224c897bac972e6e92b46cf18063f1a469ebe2f7a0966306105'
+        const msgHash =
+          '9c24b06143c07224c897bac972e6e92b46cf18063f1a469ebe2f7a0966306105'
         const signature = await lightwalletSigner.signMsgHash(msgHash)
         assert.hasAllKeys(signature, ['ecSignature', 'concatSig'])
         assert.hasAllKeys(signature.ecSignature, ['r', 's', 'v'])
@@ -63,7 +64,10 @@ describe('integration', () => {
       })
 
       it('should return encryption object', async () => {
-        const encObj = await lightwalletSigner.encrypt('hello world!', user1.pubKey)
+        const encObj = await lightwalletSigner.encrypt(
+          'hello world!',
+          user1.pubKey
+        )
         assert.hasAllKeys(encObj, [
           'version',
           'asymAlg',
@@ -84,13 +88,17 @@ describe('integration', () => {
       })
 
       it('should decrypt cipher text', async () => {
-        const decryptedMsg = await lightwalletSigner.decrypt(encObj, user1.pubKey)
+        const decryptedMsg = await lightwalletSigner.decrypt(
+          encObj,
+          user1.pubKey
+        )
         assert.equal(decryptedMsg, 'hello world!')
       })
     })
 
     describe('#showSeed()', () => {
-      const seed = 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+      const seed =
+        'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
 
       before(async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -103,7 +111,8 @@ describe('integration', () => {
     })
 
     describe('#recoverFromSeed()', () => {
-      const seed = 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+      const seed =
+        'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
 
       it('should recover user from seed', async () => {
         const recoveredUser = await lightwalletSigner.recoverFromSeed(seed)

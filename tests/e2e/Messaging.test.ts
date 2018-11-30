@@ -1,8 +1,9 @@
-import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+import 'mocha'
+
 import { TLNetwork } from '../../src/TLNetwork'
-import { config, keystore1, keystore2, wait } from '../Fixtures'
+import { config, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -16,25 +17,31 @@ describe('e2e', () => {
     let network
 
     before(async () => {
-      [ [ network ], user1, user2 ] = await Promise.all([
+      ;[[network], user1, user2] = await Promise.all([
         tl1.currencyNetwork.getAll(),
-        tl1.user.load(keystore1),
-        tl2.user.load(keystore2)
+        tl1.user.create(),
+        tl2.user.create()
       ])
     })
 
     describe('#messageStream()', () => {
-      let messages = []
+      const messages = []
       let stream
 
       before(async () => {
-        stream = tl1.messaging.messageStream()
+        stream = tl1.messaging
+          .messageStream()
           .subscribe(message => messages.push(message))
         await wait()
       })
 
       it('should receive payment requests', async () => {
-        tl2.messaging.paymentRequest(network.address, user1.address, '250', 'Hello')
+        await tl2.messaging.paymentRequest(
+          network.address,
+          user1.address,
+          '250',
+          'Hello'
+        )
         await wait()
         expect(messages).to.have.lengthOf(2)
         expect(messages[1]).to.have.property('type', 'PaymentRequest')

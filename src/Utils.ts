@@ -1,29 +1,29 @@
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/operator/mergeMap'
-import 'rxjs/add/operator/map'
-import { Observer } from 'rxjs/Observer'
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
+import * as WebSocket from 'html5-websocket'
+import * as ReconnectingWebSocket from 'reconnecting-websocket'
+import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/mergeMap'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
+import * as JsonRPC from 'simple-jsonrpc-js'
 
 import { Configuration } from './Configuration'
+
 import {
   Amount,
   AmountInternal,
   AnyExchangeEvent,
   AnyExchangeEventRaw,
-  ExchangeFillEventRaw,
   ExchangeCancelEventRaw,
-  DecimalsObject,
-  DecimalsOptions
+  ExchangeFillEventRaw
 } from './typings'
 
-let __DEV__
-
-const ReconnectingWebSocket = require('reconnecting-websocket')
-const JsonRPC = require('simple-jsonrpc-js')
-const WebSocket = require('html5-websocket')
-
-if (typeof module !== 'undefined' && module.exports && (typeof crypto === 'undefined')) {
+if (
+  typeof module !== 'undefined' &&
+  module.exports &&
+  typeof crypto === 'undefined'
+) {
   // crypto not available
   console.warn('Random numbers will not be cryptographically secure')
 } else {
@@ -34,13 +34,12 @@ if (typeof module !== 'undefined' && module.exports && (typeof crypto === 'undef
  * The Utils class contains utility functions that are used in multiple classes.
  */
 export class Utils {
+  private apiUrl: string
+  private wsApiUrl: string
 
-  private _apiUrl: string
-  private _wsApiUrl: string
-
-  constructor (configuration: Configuration) {
-    this._apiUrl = configuration.apiUrl
-    this._wsApiUrl = configuration.wsApiUrl
+  constructor(configuration: Configuration) {
+    this.apiUrl = configuration.apiUrl
+    this.wsApiUrl = configuration.wsApiUrl
   }
 
   /**
@@ -48,21 +47,31 @@ export class Utils {
    * @param endpoint fetch endpoint
    * @param options (optional)
    */
-  public async fetchUrl<T> (endpoint: string, options?: object): Promise<T> {
-    const fullUrl = `${this._apiUrl}${endpoint}`
+  public async fetchUrl<T>(endpoint: string, options?: object): Promise<T> {
+    const fullUrl = `${this.apiUrl}${endpoint}`
     const response = await fetch(fullUrl, options)
     const json = await response.json()
     if (response.status !== 200) {
-      throw new Error(`${fullUrl} | Status ${response.status} | ${json.message}`)
+      throw new Error(
+        `${fullUrl} | Status ${response.status} | ${json.message}`
+      )
     } else {
       return json
     }
   }
 
-  public websocketStream (endpoint: String, functionName: String, args: object): Observable<any> {
+  public websocketStream(
+    endpoint: string,
+    functionName: string,
+    args: object
+  ): Observable<any> {
     return Observable.create((observer: Observer<any>) => {
       const options = { constructor: WebSocket }
-      const ws = new ReconnectingWebSocket(`${this._wsApiUrl}${endpoint}`, undefined, options)
+      const ws = new ReconnectingWebSocket(
+        `${this.wsApiUrl}${endpoint}`,
+        undefined,
+        options
+      )
       const jrpc = new JsonRPC()
 
       jrpc.toStream = (message: string) => {
@@ -80,7 +89,7 @@ export class Utils {
       ws.onopen = () => {
         observer.next({ type: 'WebsocketOpen' })
         jrpc.call(functionName, args).then((subscriptionId: string) => {
-          jrpc.on(`subscription_${subscriptionId}`, ['event'], (event) => {
+          jrpc.on(`subscription_${subscriptionId}`, ['event'], event => {
             observer.next(event)
           })
         })
@@ -104,14 +113,17 @@ export class Utils {
    * @param baseUrl base URL
    * @param params (optional) parameters for queries
    */
-  public buildUrl (baseUrl: string, params?: any): string {
+  public buildUrl(baseUrl: string, params?: any): string {
     if (Array.isArray(params)) {
-      baseUrl = params.reduce((acc, param) => `${acc}/${encodeURIComponent(param)}`, baseUrl)
+      baseUrl = params.reduce(
+        (acc, param) => `${acc}/${encodeURIComponent(param)}`,
+        baseUrl
+      )
     } else if (typeof params === 'object') {
-      for (let key in params) {
+      for (const key in params) {
         if (params[key]) {
           const param = encodeURIComponent(params[key])
-          baseUrl += (baseUrl.indexOf('?') === -1) ? '?' : '&'
+          baseUrl += baseUrl.indexOf('?') === -1 ? '?' : '&'
           baseUrl += `${key}=${param}`
         }
       }
@@ -123,7 +135,7 @@ export class Utils {
    * Returns a trustlines.network link.
    * @param params parameters for link
    */
-  public createLink (params: any[]): string {
+  public createLink(params: any[]): string {
     const base = 'http://trustlines.network/v1'
     return this.buildUrl(base, params)
   }
@@ -133,7 +145,7 @@ export class Utils {
    * @param value Representation of number in biggest unit.
    * @param decimals Number of decimals.
    */
-  public calcRaw (
+  public calcRaw(
     value: number | string | BigNumber,
     decimals: number
   ): BigNumber {
@@ -146,7 +158,7 @@ export class Utils {
    * @param raw Representation of number in smallest unit.
    * @param decimals Number of decimals.
    */
-  public calcValue (
+  public calcValue(
     raw: number | string | BigNumber,
     decimals: number
   ): BigNumber {
@@ -159,7 +171,7 @@ export class Utils {
    * @param raw Representation of number in smallest unit.
    * @param decimals Number of decimals.
    */
-  public formatToAmountInternal (
+  public formatToAmountInternal(
     raw: number | string | BigNumber,
     decimals: number
   ): AmountInternal {
@@ -174,9 +186,7 @@ export class Utils {
    * Converts an AmountInternal to Amount object.
    * @param amount AmountInternal object.
    */
-  public convertToAmount (
-    amount: AmountInternal
-  ): Amount {
+  public convertToAmount(amount: AmountInternal): Amount {
     return {
       ...amount,
       raw: amount.raw.toString(),
@@ -189,7 +199,7 @@ export class Utils {
    * @param raw Representation of number in smallest unit.
    * @param decimals Number of decimals.
    */
-  public formatToAmount (
+  public formatToAmount(
     raw: number | string | BigNumber,
     decimals: number
   ): Amount {
@@ -206,7 +216,7 @@ export class Utils {
    * @param networkDecimals decimals of currency network
    * @param interestRateDecimals interest rate decimals of currency network
    */
-  public formatEvent<T> (
+  public formatEvent<T>(
     event: any,
     networkDecimals: number,
     interestRateDecimals: number
@@ -224,11 +234,10 @@ export class Utils {
     ]
     for (const key of keys) {
       if (event[key]) {
-        if (key.includes('interestRate')) {
-          event[key] = this.formatToAmount(event[key], interestRateDecimals)
-        } else {
-          event[key] = this.formatToAmount(event[key], networkDecimals)
-        }
+        event[key] = this.formatToAmount(
+          event[key],
+          key.includes('interestRate') ? interestRateDecimals : networkDecimals
+        )
       }
     }
     return event
@@ -240,7 +249,7 @@ export class Utils {
    * @param makerDecimals decimals in maker token
    * @param takerDecimals decimals in taker token
    */
-  public formatExchangeEvent (
+  public formatExchangeEvent(
     exchangeEvent: AnyExchangeEventRaw,
     makerDecimals: number,
     takerDecimals: number
@@ -250,10 +259,12 @@ export class Utils {
       return {
         ...fillEventRaw,
         filledMakerAmount: this.formatToAmount(
-          fillEventRaw.filledMakerAmount, makerDecimals
+          fillEventRaw.filledMakerAmount,
+          makerDecimals
         ),
         filledTakerAmount: this.formatToAmount(
-          fillEventRaw.filledTakerAmount, takerDecimals
+          fillEventRaw.filledTakerAmount,
+          takerDecimals
         )
       }
     } else if (exchangeEvent.type === 'LogCancel') {
@@ -261,10 +272,12 @@ export class Utils {
       return {
         ...cancelEventRaw,
         cancelledMakerAmount: this.formatToAmount(
-          cancelEventRaw.cancelledMakerAmount, makerDecimals
+          cancelEventRaw.cancelledMakerAmount,
+          makerDecimals
         ),
         cancelledTakerAmount: this.formatToAmount(
-          cancelEventRaw.cancelledTakerAmount, takerDecimals
+          cancelEventRaw.cancelledTakerAmount,
+          takerDecimals
         )
       }
     }
@@ -275,7 +288,7 @@ export class Utils {
    * Checks if given address is a valid address
    * @param address ethereum address
    */
-  public checkAddress (address: string): boolean {
+  public checkAddress(address: string): boolean {
     if (/[A-Z]/.test(address)) {
       return ethUtils.isValidChecksumAddress(address)
     } else {
@@ -287,7 +300,7 @@ export class Utils {
    * Converts eth to wei
    * @param value value in eth
    */
-  public convertEthToWei (value: number | string): number {
+  public convertEthToWei(value: number | string): number {
     const eth = new BigNumber(value)
     const wei = new BigNumber(1000000000000000000)
     return eth.times(wei).toNumber()
@@ -297,7 +310,7 @@ export class Utils {
    * Returns the hexdecimal representation of given decimal string. The value has to be an integer.
    * @param decimalStr Decimal string representation of number.
    */
-  public convertToHexString (decimalStr: string | number | BigNumber): string {
+  public convertToHexString(decimalStr: string | number | BigNumber): string {
     const bigNumber = new BigNumber(decimalStr)
     if (!bigNumber.isInteger()) {
       // Non integers values can not be processed by ethereum
@@ -307,11 +320,9 @@ export class Utils {
     return ethUtils.addHexPrefix(hexStr)
   }
 
-  public generateRandomNumber (decimals: number): BigNumber {
-    return BigNumber
-      .random(decimals + 1)
-      .multipliedBy(new BigNumber(10)
-      .pow(decimals))
+  public generateRandomNumber(decimals: number): BigNumber {
+    return BigNumber.random(decimals + 1)
+      .multipliedBy(new BigNumber(10).pow(decimals))
       .integerValue()
   }
 }

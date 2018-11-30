@@ -1,10 +1,10 @@
-import 'mocha'
-import { assert } from 'chai'
 import { BigNumber } from 'bignumber.js'
+import { assert } from 'chai'
+import 'mocha'
 
 import { Transaction } from '../../src/Transaction'
-import { FakeTxSigner } from '../helpers/FakeTxSigner'
 import { FakeConfiguration } from '../helpers/FakeConfiguration'
+import { FakeTxSigner } from '../helpers/FakeTxSigner'
 import { FakeUtils } from '../helpers/FakeUtils'
 
 describe('unit', () => {
@@ -21,13 +21,14 @@ describe('unit', () => {
     const COUNTER_PARTY_ADDRESS = '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18'
     const CONTRACT_ADDRESS = '0xd0a6E6C54DbC68Db5db3A091B171A77407Ff7ccf'
     const RAW_TX_OBJECT = {
+      data:
+        '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
       from: USER_ADDRESS,
-      to: COUNTER_PARTY_ADDRESS,
-      value: new BigNumber(10000),
       gasLimit: new BigNumber(10000),
       gasPrice: new BigNumber(10000),
-      data: '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
-      nonce: 5
+      nonce: 5,
+      to: COUNTER_PARTY_ADDRESS,
+      value: new BigNumber(10000)
     }
 
     before(() => {
@@ -44,12 +45,7 @@ describe('unit', () => {
           CONTRACT_ADDRESS,
           'CurrencyNetwork',
           'transfer',
-          [
-            COUNTER_PARTY_ADDRESS,
-            '10000',
-            '0',
-            [COUNTER_PARTY_ADDRESS]
-          ]
+          [COUNTER_PARTY_ADDRESS, '10000', '0', [COUNTER_PARTY_ADDRESS]]
         )
         assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
@@ -73,11 +69,7 @@ describe('unit', () => {
           'functionName',
           'args'
         ])
-        assert.hasAllKeys(rawTxObject.ethFees, [
-          'decimals',
-          'raw',
-          'value'
-        ])
+        assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
         assert.equal(rawTxObject.ethFees.decimals, 18)
         assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
         assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
@@ -107,11 +99,7 @@ describe('unit', () => {
         assert.instanceOf(rawTxObject.rawTx.gasLimit, BigNumber)
         assert.instanceOf(rawTxObject.rawTx.gasPrice, BigNumber)
         assert.isNumber(rawTxObject.rawTx.nonce)
-        assert.hasAllKeys(rawTxObject.ethFees, [
-          'decimals',
-          'raw',
-          'value'
-        ])
+        assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
         assert.equal(rawTxObject.ethFees.decimals, 18)
         assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
         assert.instanceOf(rawTxObject.ethFees.value, BigNumber)

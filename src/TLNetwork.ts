@@ -1,23 +1,25 @@
+import * as lightwallet from 'eth-lightwallet'
+
 import { Configuration } from './Configuration'
-import { User } from './User'
-import { Transaction } from './Transaction'
-import { Payment } from './Payment'
-import { Trustline } from './Trustline'
-import { CurrencyNetwork } from './CurrencyNetwork'
 import { Contact } from './Contact'
-import { Utils } from './Utils'
+import { CurrencyNetwork } from './CurrencyNetwork'
+import { EthWrapper } from './EthWrapper'
 import { Event } from './Event'
 import { Exchange } from './Exchange'
 import { Messaging } from './Messaging'
-import { EthWrapper } from './EthWrapper'
+import { Payment } from './Payment'
+import { Transaction } from './Transaction'
+import { Trustline } from './Trustline'
+import { User } from './User'
+import { Utils } from './Utils'
 
-import { TxSigner } from './signers/TxSigner'
 import { LightwalletSigner } from './signers/LightwalletSigner'
+import { TxSigner } from './signers/TxSigner'
 import { Web3Signer } from './signers/Web3Signer'
 
 import { TLNetworkConfig } from './typings'
 
-import * as lightwallet from 'eth-lightwallet'
+// tslint:disable-next-line
 const Web3 = require('web3')
 
 /**
@@ -90,7 +92,7 @@ export class TLNetwork {
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
    * @param config Configuration object. See type `TLNetworkConfig` for more information.
    */
-  constructor (config: TLNetworkConfig = {}) {
+  constructor(config: TLNetworkConfig = {}) {
     this.configuration = new Configuration(config)
     this.utils = new Utils(this.configuration)
     this.currencyNetwork = new CurrencyNetwork(this.utils)
@@ -102,9 +104,28 @@ export class TLNetwork {
     this.user = new User(this.signer, this.transaction, this.utils)
     this.contact = new Contact(this.user, this.utils)
     this.event = new Event(this.user, this.utils, this.currencyNetwork)
-    this.trustline = new Trustline(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
-    this.payment = new Payment(this.event, this.user, this.utils, this.transaction, this.currencyNetwork)
-    this.exchange = new Exchange(this.event, this.user, this.utils, this.transaction, this.currencyNetwork, this.payment)
+    this.trustline = new Trustline(
+      this.event,
+      this.user,
+      this.utils,
+      this.transaction,
+      this.currencyNetwork
+    )
+    this.payment = new Payment(
+      this.event,
+      this.user,
+      this.utils,
+      this.transaction,
+      this.currencyNetwork
+    )
+    this.exchange = new Exchange(
+      this.event,
+      this.user,
+      this.utils,
+      this.transaction,
+      this.currencyNetwork,
+      this.payment
+    )
     this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
     this.ethWrapper = new EthWrapper(this.user, this.utils, this.transaction)
   }

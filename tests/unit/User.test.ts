@@ -1,6 +1,7 @@
-import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
+import 'mocha'
+
 import { TLNetwork } from '../../src/TLNetwork'
 import { config, keystore1, user1 } from '../Fixtures'
 
@@ -12,11 +13,10 @@ describe('unit', () => {
     let existingUser
 
     before(done => {
-      tl1.user.load(keystore1)
-        .then(user => {
-          existingUser = user
-          done()
-        })
+      tl1.user.load(keystore1).then(user => {
+        existingUser = user
+        done()
+      })
     })
 
     describe('#createOnboardingMsg()', () => {

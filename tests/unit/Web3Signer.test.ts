@@ -1,8 +1,9 @@
-import 'mocha'
+import { BigNumber } from 'bignumber.js'
 import { assert } from 'chai'
+import 'mocha'
+
 import { Web3Signer } from '../../src/signers/Web3Signer'
 import { FakeWeb3Provider } from '../helpers/FakeWeb3Provider'
-import { BigNumber } from 'bignumber.js'
 
 describe('unit', () => {
   describe('Web3Signer', () => {
@@ -15,13 +16,14 @@ describe('unit', () => {
     // test data
     const USER_ADDRESS = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
     const RAW_TX_OBJECT = {
+      data:
+        '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
       from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-      to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-      value: 10000,
       gasLimit: 10000,
       gasPrice: 10000,
-      data: '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
-      nonce: 5
+      nonce: 5,
+      to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+      value: 10000
     }
 
     beforeEach(() => {

@@ -1,11 +1,11 @@
-import 'mocha'
-import { assert } from 'chai'
 import { BigNumber } from 'bignumber.js'
+import { assert } from 'chai'
+import 'mocha'
 
 import { LightwalletSigner } from '../../src/signers/LightwalletSigner'
 import { FakeConfiguration } from '../helpers/FakeConfiguration'
-import { FakeUtils } from '../helpers/FakeUtils'
 import { FakeEthLightwallet } from '../helpers/FakeEthLightwallet'
+import { FakeUtils } from '../helpers/FakeUtils'
 
 import { keystore1, keystore2, user1 } from '../Fixtures'
 
@@ -21,10 +21,10 @@ describe('unit', () => {
     const USER_ADDRESS = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
     const RAW_TX_OBJECT = {
       from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-      value: 10000,
       gasLimit: 10000,
       gasPrice: 10000,
-      nonce: 5
+      nonce: 5,
+      value: 10000
     }
     const RAW_VALUE_TX_OBJECT = {
       ...RAW_TX_OBJECT,
@@ -34,18 +34,18 @@ describe('unit', () => {
       ...RAW_TX_OBJECT,
       functionCallData: {
         abi: {
-          'type': 'function',
-          'inputs': [
+          inputs: [
             {
-              'name': 'a',
-              'type': 'uint256'
+              name: 'a',
+              type: 'uint256'
             }
           ],
-          'name': 'foo',
-          'outputs': []
+          name: 'foo',
+          outputs: [],
+          type: 'function'
         },
-        functionName: 'foo',
-        args: [ 123445 ]
+        args: [123445],
+        functionName: 'foo'
       }
     }
 
@@ -148,17 +148,21 @@ describe('unit', () => {
       it('should throw error for lightwallet.keystore.keyFromPassword()', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         fakeEthLightwallet.setError('keyFromPassword')
-        await assert.isRejected(lightwalletSigner.signMsgHash(
-          '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'
-        ))
+        await assert.isRejected(
+          lightwalletSigner.signMsgHash(
+            '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'
+          )
+        )
       })
 
       it('should throw error for lightwallet.signing.signMsgHash()', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         fakeEthLightwallet.setError('signMsgHash')
-        await assert.isRejected(lightwalletSigner.signMsgHash(
-          '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'
-        ))
+        await assert.isRejected(
+          lightwalletSigner.signMsgHash(
+            '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'
+          )
+        )
       })
     })
 
@@ -190,7 +194,10 @@ describe('unit', () => {
 
       it('should return encryption object using mocked eth-lightwallet', async () => {
         await lightwalletSigner.loadAccount(keystore1)
-        const encObj = await lightwalletSigner.encrypt('hello world!', user1.pubKey)
+        const encObj = await lightwalletSigner.encrypt(
+          'hello world!',
+          user1.pubKey
+        )
         assert.hasAllKeys(encObj, [
           'version',
           'asymAlg',
@@ -202,30 +209,36 @@ describe('unit', () => {
       })
 
       it('should throw error because there is no loaded user', async () => {
-        await assert.isRejected(lightwalletSigner.encrypt('hello world!', user1.pubKey))
+        await assert.isRejected(
+          lightwalletSigner.encrypt('hello world!', user1.pubKey)
+        )
       })
 
       it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         fakeEthLightwallet.setError('keyFromPassword')
-        await assert.isRejected(lightwalletSigner.encrypt('hello world!', user1.pubKey))
+        await assert.isRejected(
+          lightwalletSigner.encrypt('hello world!', user1.pubKey)
+        )
       })
 
       it('should throw error for lightwallet.encryption.multiEncryptString', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         fakeEthLightwallet.setError('multiEncryptString')
-        await assert.isRejected(lightwalletSigner.encrypt('hello world!', user1.pubKey))
+        await assert.isRejected(
+          lightwalletSigner.encrypt('hello world!', user1.pubKey)
+        )
       })
     })
 
     describe('#decrypt()', () => {
       const ENC_MSG = {
-        version: 1,
         asymAlg: 'Asym Algorithm',
+        encryptedSymKey: 'Encrypted Symmetric Key',
         symAlg: 'Sym Algorithm',
-        symNonce: 'Sym Nonce',
         symEncMessage: 'Encrypted Message',
-        encryptedSymKey: 'Encrypted Symmetric Key'
+        symNonce: 'Sym Nonce',
+        version: 1
       }
 
       beforeEach(() => {
@@ -235,24 +248,33 @@ describe('unit', () => {
 
       it('should decrypt message using mocked eth-lightwallet', async () => {
         await lightwalletSigner.loadAccount(keystore1)
-        const decryptedMsg = await lightwalletSigner.decrypt(ENC_MSG, user1.pubKey)
+        const decryptedMsg = await lightwalletSigner.decrypt(
+          ENC_MSG,
+          user1.pubKey
+        )
         assert.equal(decryptedMsg, 'Decrypted Message!')
       })
 
       it('should throw error because there is no loaded user', async () => {
-        await assert.isRejected(lightwalletSigner.decrypt(ENC_MSG, user1.pubKey))
+        await assert.isRejected(
+          lightwalletSigner.decrypt(ENC_MSG, user1.pubKey)
+        )
       })
 
       it('should throw error for lightwallet.keystore.keyFromPassword', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         fakeEthLightwallet.setError('keyFromPassword')
-        await assert.isRejected(lightwalletSigner.decrypt(ENC_MSG, user1.pubKey))
+        await assert.isRejected(
+          lightwalletSigner.decrypt(ENC_MSG, user1.pubKey)
+        )
       })
 
       it('should throw error for lightwallet.encryption.multiDecryptString', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         fakeEthLightwallet.setError('multiDecryptString')
-        await assert.isRejected(lightwalletSigner.decrypt(ENC_MSG, user1.pubKey))
+        await assert.isRejected(
+          lightwalletSigner.decrypt(ENC_MSG, user1.pubKey)
+        )
       })
     })
 
@@ -265,7 +287,10 @@ describe('unit', () => {
       it('should show seed for loaded user', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         const seed = await lightwalletSigner.showSeed()
-        assert.equal(seed, 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur')
+        assert.equal(
+          seed,
+          'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+        )
       })
 
       it('should throw error because there is no loaded user', async () => {
@@ -295,7 +320,10 @@ describe('unit', () => {
         await lightwalletSigner.loadAccount(keystore1)
         const privateKey = await lightwalletSigner.exportPrivateKey()
         // NOTE: Mocked private key from FakeEthLightwallet.ts
-        assert.equal(privateKey, '3a1076bf45ab87712ad64ccb3b10217737f7faacbf2872e88fdd9a537d8fe266')
+        assert.equal(
+          privateKey,
+          '3a1076bf45ab87712ad64ccb3b10217737f7faacbf2872e88fdd9a537d8fe266'
+        )
       })
 
       it('should throw error because there is no loaded user', async () => {
@@ -316,7 +344,8 @@ describe('unit', () => {
     })
 
     describe('#recoverFromSeed()', () => {
-      const seed = 'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+      const seed =
+        'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
 
       beforeEach(() => {
         fakeEthLightwallet = new FakeEthLightwallet()
@@ -379,13 +408,17 @@ describe('unit', () => {
       it('should throw error for lightwallet.signing.functionTx()', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         fakeEthLightwallet.setError('functionTx')
-        await assert.isRejected(lightwalletSigner.confirm(RAW_FUNCTION_TX_OBJECT))
+        await assert.isRejected(
+          lightwalletSigner.confirm(RAW_FUNCTION_TX_OBJECT)
+        )
       })
     })
 
     describe('#getTxInfos()', () => {
-      const fakeEthLightwallet = new FakeEthLightwallet()
-      const lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+      beforeEach(() => {
+        fakeEthLightwallet = new FakeEthLightwallet()
+        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
+      })
 
       it('should return nonce, gasPrice and balance', async () => {
         const txInfos = await lightwalletSigner.getTxInfos(USER_ADDRESS)
@@ -395,6 +428,5 @@ describe('unit', () => {
         assert.instanceOf(txInfos.balance, BigNumber)
       })
     })
-
   })
 })
