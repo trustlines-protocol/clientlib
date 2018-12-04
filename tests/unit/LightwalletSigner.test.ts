@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js'
-import { assert } from 'chai'
+import * as chai from 'chai'
+import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { LightwalletSigner } from '../../src/signers/LightwalletSigner'
@@ -8,6 +9,9 @@ import { FakeEthLightwallet } from '../helpers/FakeEthLightwallet'
 import { FakeUtils } from '../helpers/FakeUtils'
 
 import { keystore1, keystore2, user1 } from '../Fixtures'
+
+chai.use(chaiAsPromised)
+const { assert } = chai
 
 describe('unit', () => {
   describe('LightwalletSigner', () => {

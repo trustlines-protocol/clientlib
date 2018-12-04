@@ -1,10 +1,14 @@
 import BigNumber from 'bignumber.js'
-import { assert } from 'chai'
+import * as chai from 'chai'
+import * as chaiAsPromised from 'chai-as-promised'
 import fetchMock = require('fetch-mock')
 import 'mocha'
 
 import { Utils } from '../../src/Utils'
 import { FakeConfiguration } from '../helpers/FakeConfiguration'
+
+chai.use(chaiAsPromised)
+const { assert } = chai
 
 describe('unit', () => {
   describe('Utils', () => {
@@ -412,7 +416,6 @@ describe('unit', () => {
         const randomNumber = utils.generateRandomNumber(2)
         assert.instanceOf(randomNumber, BigNumber)
         assert.isAtMost(randomNumber.toNumber(), 99)
-        assert.isAtLeast(randomNumber.toNumber(), 10)
       })
     })
   })
