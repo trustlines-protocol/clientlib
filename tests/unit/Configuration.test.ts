@@ -16,10 +16,24 @@ describe('unit', () => {
         assert.notOk(web3Provider)
       })
 
-      it('should set specified configuration', () => {
+      it('should set correct path for multiple ending slashes', () => {
         const { apiUrl, wsApiUrl, web3Provider } = new Configuration({
           host: 'testhost',
-          path: 'api',
+          path: 'api/////',
+          port: 8080,
+          protocol: 'https',
+          web3Provider: 'ws://rpchost:8546',
+          wsProtocol: 'ws'
+        })
+        assert.equal(apiUrl, 'https://testhost:8080/api')
+        assert.equal(wsApiUrl, 'ws://testhost:8080/api')
+        assert.equal(web3Provider, 'ws://rpchost:8546')
+      })
+
+      it('should set correct path for multiple starting slashes', () => {
+        const { apiUrl, wsApiUrl, web3Provider } = new Configuration({
+          host: 'testhost',
+          path: '/////api',
           port: 8080,
           protocol: 'https',
           web3Provider: 'ws://rpchost:8546',
