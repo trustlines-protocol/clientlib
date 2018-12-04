@@ -9,7 +9,7 @@ describe('unit', () => {
       it('should load default configuration', () => {
         const tlNetwork = new TLNetwork()
         expect(tlNetwork).to.be.an('object')
-        expect(tlNetwork.configuration.apiUrl).to.equal('http://localhost/')
+        expect(tlNetwork.configuration.apiUrl).to.equal('http://localhost')
       })
 
       it('should load custom configuration', () => {
@@ -21,7 +21,7 @@ describe('unit', () => {
         })
         expect(tlNetwork).to.be.an('object')
         expect(tlNetwork.configuration.apiUrl).to.equal(
-          'https://192.168.0.59:5000/api/v1/'
+          'https://192.168.0.59:5000/api/v1'
         )
       })
     })
