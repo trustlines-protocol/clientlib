@@ -103,8 +103,9 @@ export class Transaction {
    * Sets a new signer strategy for signing and sending transactions.
    * @param signer New transaction signer.
    */
-  public setSigner(signer: TxSigner) {
+  public setSigner(signer: TxSigner): TxSigner {
     this.signer = signer
+    return signer
   }
 
   /**

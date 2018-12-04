@@ -12,7 +12,7 @@ describe('unit', () => {
     // test object
     let transaction: Transaction
 
-    // mocked tx signer
+    // mocked classes
     let fakeTxSigner
     let fakeUtils
 
@@ -32,8 +32,7 @@ describe('unit', () => {
     }
 
     before(() => {
-      const fakeConfiguration = new FakeConfiguration()
-      fakeUtils = new FakeUtils(fakeConfiguration)
+      fakeUtils = new FakeUtils(new FakeConfiguration())
       fakeTxSigner = new FakeTxSigner()
       transaction = new Transaction(fakeUtils, fakeTxSigner)
     })
@@ -63,6 +62,61 @@ describe('unit', () => {
         assert.equal(rawTxObject.rawTx.value.toString(), '0')
         assert.instanceOf(rawTxObject.rawTx.gasLimit, BigNumber)
         assert.instanceOf(rawTxObject.rawTx.gasPrice, BigNumber)
+        assert.isNumber(rawTxObject.rawTx.nonce)
+        assert.hasAllKeys(rawTxObject.rawTx.functionCallData, [
+          'abi',
+          'functionName',
+          'args'
+        ])
+        assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
+        assert.equal(rawTxObject.ethFees.decimals, 18)
+        assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
+        assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
+      })
+
+      it('should prepare a transaction object for calling a function with options', async () => {
+        const CUSTOM_GAS_LIMIT = 10000000
+        const CUSTOM_GAS_PRICE = 1
+        const CUSTOM_VALUE = 123
+        const rawTxObject = await transaction.prepFuncTx(
+          USER_ADDRESS,
+          CONTRACT_ADDRESS,
+          'CurrencyNetwork',
+          'transfer',
+          [COUNTER_PARTY_ADDRESS, '10000', '0', [COUNTER_PARTY_ADDRESS]],
+          {
+            gasLimit: new BigNumber(CUSTOM_GAS_LIMIT),
+            gasPrice: new BigNumber(CUSTOM_GAS_PRICE),
+            value: new BigNumber(CUSTOM_VALUE)
+          }
+        )
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(rawTxObject.rawTx, [
+          'from',
+          'to',
+          'value',
+          'gasLimit',
+          'gasPrice',
+          'nonce',
+          'functionCallData'
+        ])
+        assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
+        assert.equal(rawTxObject.rawTx.to, CONTRACT_ADDRESS)
+        assert.instanceOf(rawTxObject.rawTx.value, BigNumber)
+        assert.equal(
+          rawTxObject.rawTx.value.toString(),
+          CUSTOM_VALUE.toString()
+        )
+        assert.instanceOf(rawTxObject.rawTx.gasLimit, BigNumber)
+        assert.equal(
+          rawTxObject.rawTx.gasLimit.toString(),
+          CUSTOM_GAS_LIMIT.toString()
+        )
+        assert.instanceOf(rawTxObject.rawTx.gasPrice, BigNumber)
+        assert.equal(
+          rawTxObject.rawTx.gasPrice.toString(),
+          CUSTOM_GAS_PRICE.toString()
+        )
         assert.isNumber(rawTxObject.rawTx.nonce)
         assert.hasAllKeys(rawTxObject.rawTx.functionCallData, [
           'abi',
@@ -104,12 +158,68 @@ describe('unit', () => {
         assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
         assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
       })
+
+      it('should prepare a transaction object for transferring eth with options', async () => {
+        const CUSTOM_GAS_LIMIT = 10000000
+        const CUSTOM_GAS_PRICE = 1
+        const CUSTOM_VALUE = 123
+        const rawTxObject = await transaction.prepValueTx(
+          USER_ADDRESS,
+          COUNTER_PARTY_ADDRESS,
+          new BigNumber(CUSTOM_VALUE),
+          {
+            gasLimit: new BigNumber(CUSTOM_GAS_LIMIT),
+            gasPrice: new BigNumber(CUSTOM_GAS_PRICE)
+          }
+        )
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(rawTxObject.rawTx, [
+          'from',
+          'to',
+          'value',
+          'gasLimit',
+          'gasPrice',
+          'nonce'
+        ])
+        assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
+        assert.equal(rawTxObject.rawTx.to, COUNTER_PARTY_ADDRESS)
+        assert.instanceOf(rawTxObject.rawTx.value, BigNumber)
+        assert.equal(
+          rawTxObject.rawTx.value.toString(),
+          CUSTOM_VALUE.toString()
+        )
+        assert.instanceOf(rawTxObject.rawTx.gasLimit, BigNumber)
+        assert.equal(
+          rawTxObject.rawTx.gasLimit.toString(),
+          CUSTOM_GAS_LIMIT.toString()
+        )
+        assert.instanceOf(rawTxObject.rawTx.gasPrice, BigNumber)
+        assert.equal(
+          rawTxObject.rawTx.gasPrice.toString(),
+          CUSTOM_GAS_PRICE.toString()
+        )
+        assert.isNumber(rawTxObject.rawTx.nonce)
+        assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
+        assert.equal(rawTxObject.ethFees.decimals, 18)
+        assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
+        assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
+      })
     })
 
     describe('#confirm()', () => {
       it('should return transaction hash', async () => {
         const txHash = await transaction.confirm(RAW_TX_OBJECT)
         assert.isString(txHash)
+      })
+    })
+
+    describe('setSigner()', () => {
+      const newTxSigner = new FakeTxSigner()
+      newTxSigner.address = 'new address'
+
+      it('should set a new signer', () => {
+        const returnedSigner = transaction.setSigner(newTxSigner)
+        assert.deepEqual(returnedSigner, newTxSigner)
       })
     })
 

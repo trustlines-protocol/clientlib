@@ -63,3 +63,34 @@ export async function setTrustlines(networkAddress, tl1, tl2, given, received) {
 export function wait(ms = 2000) {
   return new Promise(resolve => setTimeout(() => resolve(), ms))
 }
+
+export const FAKE_NETWORK = {
+  abbreviation: 'CASH',
+  address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  customInterests: false,
+  decimals: 2,
+  defaultInterestRate: 10,
+  interestRateDecimals: 3,
+  name: 'Cash',
+  numUsers: 100
+}
+
+export const FAKE_USER_ADDRESSES = [
+  '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
+  '0xc7D6401b81A2F70C5906e8A6FBEbE680c69fA03D'
+]
+
+export const FAKE_AMOUNT = {
+  decimals: 2,
+  raw: '100',
+  value: '1'
+}
+
+export const FAKE_USER = {
+  balance: 100,
+  given: 200,
+  leftGiven: 100,
+  leftReceived: 400,
+  received: 300
+}
