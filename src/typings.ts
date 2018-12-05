@@ -199,7 +199,7 @@ export interface RawTxObject {
 export interface FunctionCallData {
   abi: any[]
   functionName: string
-  args: string[]
+  args: any[]
 }
 
 export interface Web3TxReceipt {

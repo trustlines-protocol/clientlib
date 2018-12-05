@@ -37,17 +37,19 @@ describe('unit', () => {
     const RAW_FUNCTION_TX_OBJECT = {
       ...RAW_TX_OBJECT,
       functionCallData: {
-        abi: {
-          inputs: [
-            {
-              name: 'a',
-              type: 'uint256'
-            }
-          ],
-          name: 'foo',
-          outputs: [],
-          type: 'function'
-        },
+        abi: [
+          {
+            inputs: [
+              {
+                name: 'a',
+                type: 'uint256'
+              }
+            ],
+            name: 'foo',
+            outputs: [],
+            type: 'function'
+          }
+        ],
         args: [123445],
         functionName: 'foo'
       }
