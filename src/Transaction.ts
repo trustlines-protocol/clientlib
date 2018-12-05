@@ -1,15 +1,11 @@
 import { BigNumber } from 'bignumber.js'
+import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
 
 import { TxSigner } from './signers/TxSigner'
 import { Utils } from './Utils'
 
 import { RawTxObject, TxObjectInternal, TxOptionsInternal } from './typings'
 
-/**
- * Contract ABIs
- */
-// tslint:disable-next-line
-const CONTRACTS = require('../contracts.json')
 const ETH_DECIMALS = 18
 
 /**
@@ -47,7 +43,7 @@ export class Transaction {
     const rawTx = {
       from: userAddress,
       functionCallData: {
-        abi: CONTRACTS[contractName].abi,
+        abi: TrustlinesContractsAbi[contractName].abi,
         args,
         functionName
       },

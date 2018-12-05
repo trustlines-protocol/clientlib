@@ -71,8 +71,8 @@ export class Trustline {
     options: TrustlineUpdateOptions = {}
   ): Promise<TxObject> {
     const {
-      interestRateGiven = 0,
-      interestRateReceived = 0,
+      interestRateGiven,
+      interestRateReceived,
       networkDecimals,
       interestRateDecimals,
       gasLimit,
@@ -88,19 +88,25 @@ export class Trustline {
       }),
       this.currencyNetwork.getInfo(networkAddress)
     ])
-    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
-      this.user.address,
-      networkAddress,
-      'CurrencyNetwork',
-      'updateTrustline',
-      [
-        counterpartyAddress,
-        this.utils.convertToHexString(
-          this.utils.calcRaw(creditlineGiven, decimals.networkDecimals)
-        ),
-        this.utils.convertToHexString(
-          this.utils.calcRaw(creditlineReceived, decimals.networkDecimals)
-        ),
+
+    // Contract function name and args to use, which can either be
+    // `updateTrustline` or `updateCreditlimits`.
+    let updateFuncName = 'updateCreditlimits'
+    let updateFuncArgs = [
+      counterpartyAddress,
+      this.utils.convertToHexString(
+        this.utils.calcRaw(creditlineGiven, decimals.networkDecimals)
+      ),
+      this.utils.convertToHexString(
+        this.utils.calcRaw(creditlineReceived, decimals.networkDecimals)
+      )
+    ]
+
+    // If interest rates were specified, use `updateTrustline`
+    if (interestRateGiven && interestRateReceived) {
+      updateFuncName = 'updateTrustline'
+      updateFuncArgs = [
+        ...updateFuncArgs,
         this.utils.convertToHexString(
           customInterests
             ? this.utils.calcRaw(
@@ -117,7 +123,15 @@ export class Trustline {
               )
             : defaultInterestRate.raw
         )
-      ],
+      ]
+    }
+
+    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+      this.user.address,
+      networkAddress,
+      'CurrencyNetwork',
+      updateFuncName,
+      updateFuncArgs,
       {
         gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
