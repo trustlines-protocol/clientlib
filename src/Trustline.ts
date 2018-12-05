@@ -71,8 +71,8 @@ export class Trustline {
     options: TrustlineUpdateOptions = {}
   ): Promise<TxObject> {
     const {
-      interestRateGiven = 0,
-      interestRateReceived = 0,
+      interestRateGiven,
+      interestRateReceived,
       networkDecimals,
       interestRateDecimals,
       gasLimit,
@@ -92,7 +92,9 @@ export class Trustline {
       this.user.address,
       networkAddress,
       'CurrencyNetwork',
-      'updateTrustline',
+      !interestRateGiven || !interestRateReceived
+        ? 'updateCreditlimits'
+        : 'updateTrustline',
       [
         counterpartyAddress,
         this.utils.convertToHexString(
