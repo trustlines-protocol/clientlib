@@ -51,7 +51,7 @@ services:
       - PGPASSWORD
     volumes:
       - ./addresses.json:/opt/ethindex/addresses.json
-      - ../../contracts.json:/opt/ethindex/contracts.json
+      - ../../node_modules/trustlines-contracts-abi/contracts.json:/opt/ethindex/contracts.json
     command: bash -c "sleep 6 && /opt/ethindex/bin/ethindex createtables && /opt/ethindex/bin/ethindex importabi"
 
   postgres:
