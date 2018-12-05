@@ -5053,9 +5053,9 @@ trim@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/trim/-/trim-0.0.1.tgz#5858547f6b290757ee95cccc666fb50084c460dd"
 
-trustlines-contracts-abi@^0.3.3-9-gb951750:
-  version "0.3.3-9-gb951750"
-  resolved "https://registry.yarnpkg.com/trustlines-contracts-abi/-/trustlines-contracts-abi-0.3.3-9-gb951750.tgz#48615c110fb5cf9924506b4096256417b98251c1"
+trustlines-contracts-abi@dev:
+  version "0.3.4-dev10.gd2b0ad4"
+  resolved "https://registry.yarnpkg.com/trustlines-contracts-abi/-/trustlines-contracts-abi-0.3.4-dev10.gd2b0ad4.tgz#696dfd7ae1f4b3e9c09055e7614295344ab8fbb0"
 
 ts-node@^7.0.0:
   version "7.0.0"
