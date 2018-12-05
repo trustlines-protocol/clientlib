@@ -5053,6 +5053,10 @@ trim@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/trim/-/trim-0.0.1.tgz#5858547f6b290757ee95cccc666fb50084c460dd"
 
+trustlines-contracts-abi@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/trustlines-contracts-abi/-/trustlines-contracts-abi-0.3.3.tgz#257a8a549b5547aaccabcc6d3af6ec3958b2f5ec"
+
 ts-node@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-7.0.0.tgz#a94a13c75e5e1aa6b82814b84c68deb339ba7bff"
