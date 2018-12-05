@@ -6,6 +6,7 @@ _bundles
 npm-debug.log
 docs
 *~
+package-lock.json
 
 # code coverage
 .nyc_output

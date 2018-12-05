@@ -12,5 +12,5 @@ set +o allexport
 
 docker-compose -f "$COMPOSE_FILE" up -d
 sleep 30
-npm run test:e2e
+yarn test:e2e
 docker-compose -f "$COMPOSE_FILE" down
