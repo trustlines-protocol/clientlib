@@ -582,7 +582,72 @@ describe('e2e', () => {
       })
     })
 
-    describe('#prepareClose()', () => {
+    describe('#prepareClose() - non triangulated transfer', () => {
+      const given = 10
+      const received = 20
+
+      before(async () => {
+        const [updateTx, acceptTx] = await Promise.all([
+          tl1.trustline.prepareUpdate(
+            networkWithoutInterestRates.address,
+            tl2.user.address,
+            given,
+            received
+          ),
+          tl2.trustline.prepareAccept(
+            networkWithoutInterestRates.address,
+            tl1.user.address,
+            received,
+            given
+          )
+        ])
+        // Sign and relay prepared transactions.
+        await Promise.all([
+          tl1.trustline.confirm(updateTx.rawTx),
+          tl2.trustline.confirm(acceptTx.rawTx)
+        ])
+        // Wait for txs to be mined.
+        await wait()
+      })
+
+      it('should prepare a close without a triangulated transfer', async () => {
+        // Send the prepare settle to the relay, expecting a valid path exists.
+        const closeTx = await tl1.trustline.prepareClose(
+          networkWithoutInterestRates.address,
+          tl2.user.address
+        )
+        expect(closeTx).to.have.keys(['rawTx', 'ethFees', 'maxFees', 'path'])
+        expect(closeTx.path.length).to.equal(0)
+        expect(closeTx.ethFees).to.have.keys(['raw', 'value', 'decimals'])
+        expect(closeTx.maxFees).to.have.keys(['raw', 'value', 'decimals'])
+      })
+
+      it('should sign and relay prepared close transaction without triangulated transfer', async () => {
+        // Prepare close transaction
+        const { rawTx: rawCloseTx } = await tl1.trustline.prepareClose(
+          networkWithoutInterestRates.address,
+          tl2.user.address
+        )
+
+        // Sign and relay close transaction
+        await tl1.trustline.confirm(rawCloseTx)
+
+        // Wait for tx to be mined
+        await wait()
+
+        // Get trustline infos
+        const trustline = await tl1.trustline.get(
+          networkWithoutInterestRates.address,
+          tl2.user.address
+        )
+
+        // Given and received of closed trustline from user 1 to user 2 should be 0
+        expect(trustline.given.value).to.equal('0')
+        expect(trustline.received.value).to.equal('0')
+      })
+    })
+
+    describe('#prepareClose() - triangulated transfer', () => {
       const given = 1000
       const received = 1000
       const transferAmount = 100
@@ -675,12 +740,20 @@ describe('e2e', () => {
           ]
         )
 
-        // Balance of closed trustline from user 1 to user 2 should be 0
+        // Balance and credit limits of closed trustline from user 1 to user 2 should be 0
         expect(trustline1To2.balance.value).to.equal('0')
+        expect(trustline1To2.given.value).to.equal('0')
+        expect(trustline1To2.received.value).to.equal('0')
         // Balance of triangulated trustline from user 1 to user 3 should be -100
+        // Credit limits should be 1000
         expect(trustline1To3.balance.value).to.equal('-100')
+        expect(trustline1To3.given.value).to.equal('1000')
+        expect(trustline1To3.received.value).to.equal('1000')
         // Balance of triangulated trustline from user 2 to user 3 should be 100
+        // Credit limits should be 1000
         expect(trustline2To3.balance.value).to.equal('100')
+        expect(trustline2To3.given.value).to.equal('1000')
+        expect(trustline2To3.received.value).to.equal('1000')
       })
     })
   })
