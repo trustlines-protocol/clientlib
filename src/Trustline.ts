@@ -277,7 +277,7 @@ export class Trustline {
     counterpartyAddress: string,
     options: PaymentOptions = {}
   ): Promise<CloseTxObject> {
-    // Get the users options and make sure to have a decimal.
+    // Get the users options and make sure to have a decimals.
     const { gasPrice, gasLimit, networkDecimals } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
@@ -294,35 +294,48 @@ export class Trustline {
       }
     )
 
-    // Make sure a path has been found.
-    if (path.length > 0) {
-      // Prepare the interaction with the contract.
-      const { rawTx, ethFees } = await this.transaction.prepFuncTx(
-        this.user.address,
-        networkAddress,
-        'CurrencyNetwork',
-        'closeTrustlineByTriangularTransfer',
-        [
-          counterpartyAddress,
-          this.utils.convertToHexString(new BigNumber(maxFees.raw)),
-          path.slice(1)
-        ],
-        {
-          gasLimit: gasLimit
-            ? new BigNumber(gasLimit)
-            : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue(),
-          gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
-        }
-      )
+    // Determine which close function to call with which arguments.
+    let closeFuncName
+    let closeFuncArgs
 
-      return {
-        ethFees: this.utils.convertToAmount(ethFees),
-        maxFees,
-        path,
-        rawTx
-      }
+    // If estimated value to be transferred for closing the trustline is
+    // ZERO, a triangulated transfer is NOT needed.
+    if (value.raw === '0') {
+      closeFuncName = 'closeTrustline'
+      closeFuncArgs = [counterpartyAddress]
     } else {
-      throw new Error('Could not find a path with enough capacity.')
+      // If there is no path with enough capacity for triangulation throw.
+      if (path.length === 0) {
+        throw new Error('Could not find a path with enough capacity.')
+      }
+      closeFuncName = 'closeTrustlineByTriangularTransfer'
+      closeFuncArgs = [
+        counterpartyAddress,
+        this.utils.convertToHexString(new BigNumber(maxFees.raw)),
+        path.slice(1)
+      ]
+    }
+
+    // Prepare the interaction with the contract.
+    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+      this.user.address,
+      networkAddress,
+      'CurrencyNetwork',
+      closeFuncName,
+      closeFuncArgs,
+      {
+        gasLimit: gasLimit
+          ? new BigNumber(gasLimit)
+          : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue(),
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
+      }
+    )
+
+    return {
+      ethFees: this.utils.convertToAmount(ethFees),
+      maxFees,
+      path,
+      rawTx
     }
   }
 
