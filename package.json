@@ -81,7 +81,7 @@
   },
   "dependencies": {
     "bignumber.js": "7.2.1",
-    "eth-lightwallet": "dakingha69/eth-lightwallet",
+    "eth-lightwallet": "trustlines-network/eth-lightwallet",
     "ethereumjs-abi": "^0.6.5",
     "ethereumjs-util": "^5.2.0",
     "html5-websocket": "^2.0.2",
