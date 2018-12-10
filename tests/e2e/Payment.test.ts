@@ -48,7 +48,6 @@ describe('e2e', () => {
           1.5
         )
         expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
-        expect(pathObj.maxFees.raw).to.not.equal('0')
         expect(pathObj.path).to.not.equal([])
       })
 
