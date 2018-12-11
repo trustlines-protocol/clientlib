@@ -95,7 +95,7 @@ export class Transaction {
    * Signs and sends the given transaction object.
    * @param rawTx Raw transaction object.
    */
-  public async confirm(rawTx: RawTxObject): Promise<any> {
+  public async confirm(rawTx: RawTxObject): Promise<string> {
     return this.signer.confirm(rawTx)
   }
 

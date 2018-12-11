@@ -58,7 +58,7 @@ export class User {
    * Digitally signs a message hash with the currently loaded user/keystore.
    * @param msgHash Hash of message that should be signed.
    */
-  public signMsgHash(msgHash: string): Promise<Signature> {
+  public async signMsgHash(msgHash: string): Promise<Signature> {
     return this.signer.signMsgHash(msgHash)
   }
 
@@ -74,7 +74,7 @@ export class User {
    * @param msg Plain text message that should get encrypted.
    * @param theirPubKey Public key of receiver of message.
    */
-  public encrypt(msg: string, theirPubKey: string): Promise<any> {
+  public async encrypt(msg: string, theirPubKey: string): Promise<any> {
     return this.signer.encrypt(msg, theirPubKey)
   }
 
@@ -83,21 +83,21 @@ export class User {
    * @param encMsg Encrypted message.
    * @param theirPubKey Public key of sender of message.
    */
-  public decrypt(encMsg: any, theirPubKey: string): Promise<any> {
+  public async decrypt(encMsg: any, theirPubKey: string): Promise<any> {
     return this.signer.decrypt(encMsg, theirPubKey)
   }
 
   /**
    * Returns the 12 word seed of loaded user.
    */
-  public showSeed(): Promise<string> {
+  public async showSeed(): Promise<string> {
     return this.signer.showSeed()
   }
 
   /**
    * Returns the private key of loaded user.
    */
-  public exportPrivateKey(): Promise<string> {
+  public async exportPrivateKey(): Promise<string> {
     return this.signer.exportPrivateKey()
   }
 
@@ -170,13 +170,13 @@ export class User {
    * Gives some ETH to requesting address.
    * NOTE: Used only for dev purposes.
    */
-  public requestEth(): Promise<string> {
+  public async requestEth(): Promise<string> {
     const options = {
       body: JSON.stringify({ address: this.address }),
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'POST'
     }
-    return this.utils.fetchUrl('request-ether', options)
+    return this.utils.fetchUrl<string>('request-ether', options)
   }
 
   /**
