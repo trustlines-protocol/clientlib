@@ -1,38 +1,38 @@
 language: node_js
 node_js:
-  - "7"
+  - "8"
 jobs:
   include:
     - stage: lint
-      install: npm install
+      install: yarn
       script:
-        - npm run lint
-        - npm run build
+        - yarn lint
+        - yarn build
     - stage: test
       name: unit
-      install: npm install
-      script: npm run test:unit
-      after_success: npm run coverage -- -F unit
+      install: yarn
+      script: yarn test:unit
+      after_success: yarn coverage -F unit
     - stage: test
       name: integration
-      install: npm install
-      script: npm run test:integration
-      after_success: npm run coverage -- -F integration
+      install: yarn
+      script: yarn test:integration
+      after_success: yarn coverage -F integration
     - stage: test
       name: e2e
       install:
-        - npm install
+        - yarn
         - ./.travis/build_e2e_tests.sh
       script: ./.travis/run_e2e_tests.sh
-      after_success: npm run coverage -- -F e2e
+      after_success: yarn coverage -F e2e
     - stage: deploy
       env:
         - secure: rqGV+/s48b8gf9XB5tQ9iZN7gP1vT05Twtx9X8Cp2afuRgn+dKaAv23znhieFVZZjO3UCrwozIZpWymHiPL5uVSzYkURVlNaWyTttpO93uN2Ip/zuw/kEm9PNgyYHCgzhVKeE14GCirc2F7BY2aUKWnvgTX8pH1QSpPhrRUoovHpJscwbZRIAFWSD0EDJwdH/1PZv7iqGqbnffPrEy9cxyHQhJdMmZNEmdcMBM6hWpXWkAirNLKJGlvNmsWFoMpXzxGBjZn9ig8FoZGnA9wuHoL8qXnJN6D2Qv/ppATUitPwqMSugbJFACUsgXqGnItFxMyfOHwCviUnpSSAQJPn+vWaWFvYx1Yfb/J0bM9dKmgFHjsoRpanAIUow8iqKNkAQtM15llW7N2/wmVxKo0fCLXISc4Wlv/Szcud6rtB6oIQC3zNQUkIuY4nU3DZQHdmJW7HNLzv72VtoTL/WSayKFhzCuWHEXfCNFuETcIIcO1Bx62IaaAybZ6X2mBX+32P6MbjjMjBm3J+f0xu5+5zZ+Ns+WGHIhxpE1Zt69RP4Zl1RosNhPFKmPgxfGaQ8WZ0mXXg/MYYP5ittDdu0CqrmsppA+QlLekHrG7QHRWPYXguFT3xKBcQiPG5wgEEzPISy2i02l3tRrD8xrqZwGKROFHyj4kBo+iI24iuzYu3LKU=
-      install: npm install
+      install: yarn
       script: skip
       before_deploy:
         - cp ./.npmrc-template ./.npmrc
-        - npm run build
+        - yarn build
       deploy:
         - provider: npm
           skip_cleanup: true

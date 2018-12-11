@@ -3,11 +3,11 @@
 # Run `yarn bump patch|minor|major` or `npm run bump -- patch|minor|major`
 
 # Add git tag and updated version in package.json
-npm version "$@"
+yarn version --new-version "$@"
 
 # Prepare next version and omit git tag
-npm --no-git-tag-version version prepatch
+yarn version --new-version prepatch --no-git-tag-version 
 
-git add package.json package-lock.json
+git add package.json
 git commit -m "Update prepatch version"
 git push && git push --tags
