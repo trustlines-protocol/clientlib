@@ -1,8 +1,8 @@
 import { CurrencyNetwork } from '../../src/CurrencyNetwork'
 
-import { DecimalsObject } from '../../src/typings'
+import { DecimalsObject, NetworkDetails } from '../../src/typings'
 
-import { FAKE_DECIMALS } from '../Fixtures'
+import { FAKE_DECIMALS, FAKE_NETWORK } from '../Fixtures'
 
 /**
  * Mock Transaction class
@@ -15,6 +15,13 @@ export class FakeCurrencyNetwork extends CurrencyNetwork {
       throw new Error('Mocked error in currencyNetwork.getDecimals()!')
     }
     return Promise.resolve(FAKE_DECIMALS)
+  }
+
+  public async getInfo(networkAddress): Promise<NetworkDetails> {
+    if (this.errors.getInfo) {
+      throw new Error('Mocked error in currencyNetwork.getInfo()!')
+    }
+    return Promise.resolve(FAKE_NETWORK as any)
   }
 
   public isNetwork(networkAddress) {

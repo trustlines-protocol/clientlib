@@ -82,7 +82,7 @@ describe('unit', () => {
         assert.isString(transactionHash)
       })
 
-      it('should return transasction hash for raw function tx', async () => {
+      it('should return transaction hash for raw function tx', async () => {
         const transactionHash = await web3Signer.confirm(RAW_FUNCTION_TX_OBJECT)
         assert.isString(transactionHash)
       })

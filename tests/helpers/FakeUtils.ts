@@ -4,10 +4,13 @@ import { Amount } from '../../src/typings'
 
 import {
   FAKE_AMOUNT,
+  FAKE_CLOSE_PATH_RAW,
   FAKE_FORMATTED_TRANSFER_EVENT,
   FAKE_NETWORK,
   FAKE_TRANSFER_EVENT,
+  FAKE_TRUSTLINE,
   FAKE_TX_HASH,
+  FAKE_TX_INFOS,
   FAKE_USER,
   FAKE_USER_ADDRESSES
 } from '../Fixtures'
@@ -50,6 +53,9 @@ export class FakeUtils extends Utils {
           } else if (splitEndpoint[2] === 'events') {
             // mock response of `GET /users/:userAddress/events`
             response = [FAKE_TRANSFER_EVENT]
+          } else if (splitEndpoint[2] === 'txinfos') {
+            // mock response of `GET /users/:userAddress/events`
+            response = FAKE_TX_INFOS
           }
         }
         break
@@ -61,14 +67,29 @@ export class FakeUtils extends Utils {
           // mock response of `GET /networks/:networkAddress`
           response = FAKE_NETWORK
         } else if (splitEndpoint.length === 3) {
-          // mock response of `GET /networks/:networkAddress/users`
-          response = FAKE_USER_ADDRESSES
+          if (splitEndpoint[2] === 'users') {
+            // mock response of `GET /networks/:networkAddress/users`
+            response = FAKE_USER_ADDRESSES
+          } else if (splitEndpoint[2] === 'close-trustline-path-info') {
+            // mock response of `POST /networks/:networkAddress/close-trustline-path-info`
+            response = FAKE_CLOSE_PATH_RAW
+          }
         } else if (splitEndpoint.length === 4) {
           // mock response of `GET /networks/:networkAddress/users/:userAddress`
           response = FAKE_USER
         } else if (splitEndpoint.length === 5) {
-          // mock response of `GET /networks/:networkAddress/users/:userAddress/events`
-          response = [FAKE_TRANSFER_EVENT]
+          if (splitEndpoint[4] === 'events') {
+            // mock response of `GET /networks/:networkAddress/users/:userAddress/events`
+            response = [FAKE_TRANSFER_EVENT]
+          } else if (splitEndpoint[4] === 'trustlines') {
+            // mock response of `GET /networks/:networkAddress/users/:userAddress/trustlines`
+            response = [FAKE_TRUSTLINE]
+          }
+        } else if (splitEndpoint.length === 6) {
+          if (splitEndpoint[4] === 'trustlines') {
+            // mock response of `GET /networks/:networkAddress/users/:userAddress/trustlines/:counterPartyAddress`
+            response = FAKE_TRUSTLINE
+          }
         }
       default:
         break
@@ -90,6 +111,10 @@ export class FakeUtils extends Utils {
 
   public formatEvent(event, networkDecimals, interestRateDecimals) {
     return FAKE_FORMATTED_TRANSFER_EVENT as any
+  }
+
+  public convertToHexString(decimalStr) {
+    return '0x'
   }
 
   public setError(functionName) {

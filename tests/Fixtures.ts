@@ -113,6 +113,39 @@ export const FAKE_VALUE_TX_OBJECT_INTERNAL = {
   }
 }
 
+export const FAKE_FUNC_TX_OBJECT_INTERNAL = {
+  ethFees: {
+    decimals: 18,
+    raw: new BigNumber(1000000000000000000),
+    value: new BigNumber(1)
+  },
+  rawTx: {
+    from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+    functionCallData: {
+      abi: [
+        {
+          inputs: [
+            {
+              name: 'a',
+              type: 'uint256'
+            }
+          ],
+          name: 'foo',
+          outputs: [],
+          type: 'function'
+        }
+      ],
+      args: [123445],
+      functionName: 'foo'
+    },
+    gasLimit: new BigNumber(6000000),
+    gasPrice: new BigNumber(1000000),
+    nonce: 100,
+    to: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
+    value: new BigNumber(1000000)
+  }
+}
+
 export const FAKE_TX_HASH =
   '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b'
 
@@ -283,4 +316,23 @@ export const FAKE_TX_INFOS = {
   gasLimit: '2000000',
   gasPrice: '2000000',
   nonce: 12
+}
+
+export const FAKE_TRUSTLINE = {
+  address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  balance: '-100',
+  given: '100',
+  id: '123456798',
+  interestRateGiven: '1',
+  interestRateReceived: '1',
+  leftGiven: '200',
+  leftReceived: '0',
+  received: '100'
+}
+
+export const FAKE_CLOSE_PATH_RAW = {
+  estimatedGas: '6000000',
+  fees: '1000000',
+  path: ['0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'],
+  value: '123'
 }
