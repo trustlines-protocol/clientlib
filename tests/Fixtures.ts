@@ -145,3 +145,142 @@ export const FAKE_SEED =
 
 export const FAKE_PRIVATE_KEY =
   '3a1076bf45ab87712ad64ccb3b10217737f7faacbf2872e88fdd9a537d8fe266'
+
+export const FAKE_DECIMALS = {
+  interestRateDecimals: 3,
+  networkDecimals: 2
+}
+
+export const FAKE_TRANSFER_EVENT = {
+  amount: '150',
+  blockNumber: 123,
+  counterParty: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  direction: 'sent',
+  from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  networkAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  status: 'pending',
+  timestamp: 123456789,
+  to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  transactionId:
+    '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
+  type: 'Transfer',
+  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+}
+
+export const FAKE_FORMATTED_TRANSFER_EVENT = {
+  amount: {
+    decimals: 2,
+    raw: '123',
+    value: '1.23'
+  },
+  blockNumber: 123,
+  counterParty: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  direction: 'sent',
+  from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  networkAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  status: 'pending',
+  timestamp: 123456789,
+  to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  transactionId:
+    '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
+  type: 'Transfer',
+  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+}
+
+export const FAKE_TRUSTLINE_UPDATE_REQUEST_EVENT = {
+  blockNumber: 123,
+  counterParty: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  direction: 'sent',
+  from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  given: 100,
+  interestRateGiven: 1,
+  interestRateReceived: 1,
+  networkAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  received: 200,
+  status: 'pending',
+  timestamp: 123456789,
+  to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  transactionId:
+    '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
+  type: 'TrustlineUpdateRequest',
+  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+}
+
+export const FAKE_TRUSTLINE_UPDATE_EVENT = {
+  blockNumber: 123,
+  counterParty: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  direction: 'sent',
+  from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  given: 100,
+  interestRateGiven: 1,
+  interestRateReceived: 1,
+  networkAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  received: 200,
+  status: 'pending',
+  timestamp: 123456789,
+  to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  transactionId:
+    '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
+  type: 'TrustlineUpdate',
+  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+}
+
+export const FAKE_TOKEN_EVENT = {
+  amount: '150',
+  blockNumber: 123,
+  counterParty: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  direction: 'sent',
+  from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  status: 'pending',
+  timestamp: 123456789,
+  to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  tokenAddress: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
+  transactionId:
+    '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
+  type: 'Transfer',
+  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+}
+
+export const FAKE_FILL_EVENT = {
+  blockNumber: 123,
+  counterParty: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  direction: 'sent',
+  exchangeAddress: '0xc7D6401b81A2F70C5906e8A6FBEbE680c69fA03D',
+  filledMakerAmount: '150',
+  filledTakerAmount: '150',
+  from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  makerTokenAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  status: 'pending',
+  takerTokenAddress: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
+  timestamp: 123456789,
+  to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  transactionId:
+    '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
+  type: 'LogFill',
+  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+}
+
+export const FAKE_CANCEL_EVENT = {
+  blockNumber: 123,
+  cancelledMakerAmount: '150',
+  cancelledTakerAmount: '150',
+  counterParty: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  direction: 'sent',
+  exchangeAddress: '0xc7D6401b81A2F70C5906e8A6FBEbE680c69fA03D',
+  from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  makerTokenAddress: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
+  status: 'pending',
+  takerTokenAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  timestamp: 123456789,
+  to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  transactionId:
+    '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
+  type: 'LogCancel',
+  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+}
+
+export const FAKE_TX_INFOS = {
+  gasLimit: '2000000',
+  gasPrice: '2000000',
+  nonce: 12
+}
