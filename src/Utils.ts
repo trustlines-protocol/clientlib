@@ -227,7 +227,7 @@ export class Utils {
     networkDecimals: number,
     interestRateDecimals: number
   ): T {
-    // key names whose values are numericals and should get formatted
+    // key names whose values are numerics and should get formatted
     const keys = [
       'amount',
       'balance',

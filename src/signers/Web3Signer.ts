@@ -90,35 +90,35 @@ export class Web3Signer implements TxSigner {
   /**
    * TODO
    */
-  public encrypt(): Promise<any> {
+  public async encrypt(): Promise<any> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  public decrypt(): Promise<any> {
+  public async decrypt(): Promise<any> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  public showSeed(): Promise<string> {
+  public async showSeed(): Promise<string> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  public recoverFromSeed(): Promise<UserObject> {
+  public async recoverFromSeed(): Promise<UserObject> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
   /**
    * TODO
    */
-  public exportPrivateKey(): Promise<string> {
+  public async exportPrivateKey(): Promise<string> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 

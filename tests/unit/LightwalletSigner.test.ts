@@ -37,17 +37,19 @@ describe('unit', () => {
     const RAW_FUNCTION_TX_OBJECT = {
       ...RAW_TX_OBJECT,
       functionCallData: {
-        abi: {
-          inputs: [
-            {
-              name: 'a',
-              type: 'uint256'
-            }
-          ],
-          name: 'foo',
-          outputs: [],
-          type: 'function'
-        },
+        abi: [
+          {
+            inputs: [
+              {
+                name: 'a',
+                type: 'uint256'
+              }
+            ],
+            name: 'foo',
+            outputs: [],
+            type: 'function'
+          }
+        ],
         args: [123445],
         functionName: 'foo'
       }
@@ -162,6 +164,14 @@ describe('unit', () => {
       it('should throw error for lightwallet.signing.signMsgHash()', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         fakeEthLightwallet.setError('signMsgHash')
+        await assert.isRejected(
+          lightwalletSigner.signMsgHash(
+            '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'
+          )
+        )
+      })
+
+      it('should throw error for no loaded user', async () => {
         await assert.isRejected(
           lightwalletSigner.signMsgHash(
             '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2'
@@ -412,6 +422,19 @@ describe('unit', () => {
       it('should throw error for lightwallet.signing.functionTx()', async () => {
         await lightwalletSigner.loadAccount(keystore1)
         fakeEthLightwallet.setError('functionTx')
+        await assert.isRejected(
+          lightwalletSigner.confirm(RAW_FUNCTION_TX_OBJECT)
+        )
+      })
+
+      it('should throw error for lightwallet.keystore.keyFromPassword()', async () => {
+        fakeEthLightwallet.setError('keyFromPassword')
+        await assert.isRejected(
+          lightwalletSigner.confirm(RAW_FUNCTION_TX_OBJECT)
+        )
+      })
+
+      it('should throw error for no loaded user', async () => {
         await assert.isRejected(
           lightwalletSigner.confirm(RAW_FUNCTION_TX_OBJECT)
         )

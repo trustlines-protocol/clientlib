@@ -95,7 +95,7 @@ export class Transaction {
    * Signs and sends the given transaction object.
    * @param rawTx Raw transaction object.
    */
-  public async confirm(rawTx: RawTxObject): Promise<any> {
+  public async confirm(rawTx: RawTxObject): Promise<string> {
     return this.signer.confirm(rawTx)
   }
 
@@ -103,8 +103,9 @@ export class Transaction {
    * Sets a new signer strategy for signing and sending transactions.
    * @param signer New transaction signer.
    */
-  public setSigner(signer: TxSigner) {
+  public setSigner(signer: TxSigner): TxSigner {
     this.signer = signer
+    return signer
   }
 
   /**
