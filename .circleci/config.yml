@@ -11,7 +11,7 @@ commands:
           name: Install Dependencies
           command: yarn install --frozen-lockfile
       - save_cache:
-          name: Saven Yarn Package Cache
+          name: Save Yarn Package Cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
@@ -77,6 +77,30 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+      - run:
+          name: Install Node@10.15 via NVM
+          command: |
+            set +e
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v10.15
+            nvm alias default v10.15
+            
+            # Each step uses the same `$BASH_ENV`, so need to modify it
+            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+            echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
+      - run:
+          name: Install Yarn
+          command: |
+            ./.circleci/load_nvm.sh
+            sudo npm install -g yarn
       - yarn-install
       - run: 
           name: Build Docker Compose
@@ -92,16 +116,15 @@ workflows:
   default:
     jobs:
       - lint
-      - build
-      - unit-test:
+      - build:
           requires:
             - lint
+      - unit-test:
+          requires:
             - build
       - integration-test:
           requires:
-            - lint
             - build
       - e2e-test:
           requires:
-            - lint
             - build
