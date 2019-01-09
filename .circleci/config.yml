@@ -75,6 +75,8 @@ jobs:
   e2e-test:
     machine: true
     working_directory: ~/repo
+    environment:
+      NODE_VERSION: v10.15
     steps:
       - checkout
       - run:
@@ -89,13 +91,11 @@ jobs:
             set +e
             curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
             export NVM_DIR="/opt/circleci/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm install v10.15
-            nvm alias default v10.15
-            nvm use v10.15
-            
-            # Each step uses the same `$BASH_ENV`, so need to modify it
-            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+            nvm install $NODE_VERSION
+            nvm alias default $NODE_VERSION
+            # Each step uses the same `$BASH_ENV`, so need to modify it	
+            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV	
             echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
       - run:
           name: Install Yarn
@@ -103,8 +103,20 @@ jobs:
             curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
             echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
             sudo apt-get update && sudo apt-get install yarn
-      - yarn-install
-      - run: 
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: |
+            nvm use $NODE_VERSION
+            yarn install --frozen-lockfile
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
           name: Build Docker Compose
           command: ./.circleci/build_e2e_tests.sh
       - run: 

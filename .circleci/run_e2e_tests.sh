@@ -12,5 +12,6 @@ set +o allexport
 
 docker-compose -f "$COMPOSE_FILE" up -d
 sleep 30
+nvm use $NODE_VERSION
 yarn test:e2e
 docker-compose -f "$COMPOSE_FILE" down
