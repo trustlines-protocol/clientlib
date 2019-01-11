@@ -182,12 +182,14 @@ workflows:
             - e2e-test
           filters:
             branches:
-              only: feature/circle-ci-setup
+              only: develop
       - deploy-latest:
           requires:
             - unit-test
             - integration-test
             - e2e-test
           filters:
+            branches:
+              only: develop
             tags:
               only: /^v.*/
