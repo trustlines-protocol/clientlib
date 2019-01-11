@@ -1,5 +1,10 @@
 version: 2.1
 
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:10.15
+
 commands:
   yarn-install:
     description: "Install or restore cached dependencies and save cache."
@@ -24,51 +29,54 @@ commands:
     steps:
       - run: yarn coverage -F << parameters.flag >>
 
+  set-npm-auth-token:
+    description: "Set Auth Token for NPM registry."
+    steps:
+      - run: cp ~/repo/.npmrc-template ~/repo/.npmrc
+
+
 jobs:
   lint:
-    docker:
-      - image: circleci/node:10.15
-    working_directory: ~/repo
+    <<: *defaults
     steps:
       - checkout
       - yarn-install
       - run:
-          name: Run linter
+          name: Run Linter
           command: yarn lint
 
   build:
-    docker:
-      - image: circleci/node:10.15
-    working_directory: ~/repo
+    <<: *defaults
     steps:
       - checkout
       - yarn-install
       - run:
-          name: Build production
+          name: Build Production
           command: yarn build
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
 
   unit-test:
-    docker:
-      - image: circleci/node:10.15
-    working_directory: ~/repo
+    <<: *defaults
     steps:
       - checkout
       - yarn-install
       - run:
-          name: Run unit tests
+          name: Run Unit Tests
           command: yarn test:unit
       - run-code-coverage:
           flag: unit
 
 
   integration-test:
-    docker:
-      - image: circleci/node:10.15
-    working_directory: ~/repo
+    <<: *defaults
     steps:
       - checkout
       - yarn-install
-      - run: yarn test:integration
+      - run:
+          name: Run Integration Tests
+          command: yarn test:integration
       - run-code-coverage:
           flag: integration
 
@@ -125,6 +133,30 @@ jobs:
       - run-code-coverage:
           flag: e2e
 
+  # Publishes tagged version to npm with tag `latest`
+  deploy-latest:
+    <<: *defaults
+    steps:
+      # Attach to workspace from `build` job
+      - attach_workspace:
+          at: ~/repo
+      - set-npm-auth-token
+      - run:
+          name: Publish latest to NPM
+          command: yarn publish --tag latest
+
+  # Publishes most recent develop version to npm with tag `dev`
+  deploy-dev:
+    <<: *defaults
+    steps:
+      # Attach to workspace from `build` job
+      - attach_workspace:
+          at: ~/repo
+      - set-npm-auth-token
+      - run:
+          name: Publish dev to NPM
+          command: ./node_modules/.bin/fluid-publish devTag="dev"
+
 workflows:
   version: 2
   default:
@@ -142,3 +174,19 @@ workflows:
       - e2e-test:
           requires:
             - build
+      - deploy-dev:
+          requires:
+            - unit-test
+            - integration-test
+            - e2e-test
+          filters:
+            branches:
+              only: feature/circle-ci-setup
+      - deploy-latest:
+          requires:
+            - unit-test
+            - integration-test
+            - e2e-test
+          filters:
+            tags:
+              only: /^v.*/
