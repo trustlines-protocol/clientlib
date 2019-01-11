@@ -44,6 +44,9 @@ jobs:
       - run:
           name: Run Linter
           command: yarn lint
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
 
   build:
     <<: *defaults
@@ -60,8 +63,8 @@ jobs:
   unit-test:
     <<: *defaults
     steps:
-      - checkout
-      - yarn-install
+      - attach_workspace:
+          at: ~/repo
       - run:
           name: Run Unit Tests
           command: yarn test:unit
@@ -72,8 +75,8 @@ jobs:
   integration-test:
     <<: *defaults
     steps:
-      - checkout
-      - yarn-install
+      - attach_workspace:
+          at: ~/repo
       - run:
           name: Run Integration Tests
           command: yarn test:integration
@@ -137,7 +140,6 @@ jobs:
   deploy-latest:
     <<: *defaults
     steps:
-      # Attach to workspace from `build` job
       - attach_workspace:
           at: ~/repo
       - set-npm-auth-token
@@ -149,7 +151,6 @@ jobs:
   deploy-dev:
     <<: *defaults
     steps:
-      # Attach to workspace from `build` job
       - attach_workspace:
           at: ~/repo
       - set-npm-auth-token
