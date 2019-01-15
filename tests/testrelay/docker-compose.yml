@@ -36,9 +36,9 @@ services:
       - PGDATABASE
       - PGPASSWORD
     restart: unless-stopped
-    command: bash -c "sleep 15 && /opt/ethindex/bin/ethindex runsync --jsonrpc http://node:8545 --waittime 200"
+    command: runsync --jsonrpc http://node:8545 --waittime 200
 
-  init:
+  createtables:
     image: trustlines/py-eth-index
     networks:
       - internal
@@ -49,10 +49,24 @@ services:
       - PGUSER
       - PGDATABASE
       - PGPASSWORD
+    command: createtables
+
+  init:
+    image: trustlines/py-eth-index
+    networks:
+      - internal
+    links:
+      - "postgres:db"
+      - createtables
+    environment:
+      - PGHOST
+      - PGUSER
+      - PGDATABASE
+      - PGPASSWORD
     volumes:
       - ./addresses.json:/opt/ethindex/addresses.json
       - ../../node_modules/trustlines-contracts-abi/contracts.json:/opt/ethindex/contracts.json
-    command: bash -c "sleep 6 && /opt/ethindex/bin/ethindex createtables && /opt/ethindex/bin/ethindex importabi"
+    command: importabi --contracts /opt/ethindex/contracts.json --addresses /opt/ethindex/addresses.json
 
   postgres:
     image: postgres
