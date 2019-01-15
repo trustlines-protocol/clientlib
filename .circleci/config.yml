@@ -1,0 +1,196 @@
+version: 2.1
+
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:10.15
+
+commands:
+  yarn-install:
+    description: "Install or restore cached dependencies and save cache."
+    steps:
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+
+  run-code-coverage:
+    description: "Run code coverage and upload report."
+    parameters:
+      flag:
+        type: string
+    steps:
+      - run: yarn coverage -F << parameters.flag >>
+
+  set-npm-auth-token:
+    description: "Set Auth Token for NPM registry."
+    steps:
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+
+jobs:
+  lint:
+    <<: *defaults
+    steps:
+      - checkout
+      - yarn-install
+      - run:
+          name: Run Linter
+          command: yarn lint
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - yarn-install
+      - run:
+          name: Build Production
+          command: yarn build
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+
+  unit-test:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Run Unit Tests
+          command: yarn test:unit
+      - run-code-coverage:
+          flag: unit
+
+
+  integration-test:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Run Integration Tests
+          command: yarn test:integration
+      - run-code-coverage:
+          flag: integration
+
+  e2e-test:
+    machine: true
+    working_directory: ~/repo
+    environment:
+      NODE_VERSION: v10.15
+    steps:
+      - checkout
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+      - run:
+          name: Install Node@10.15 via NVM
+          command: |
+            set +e
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+            nvm install $NODE_VERSION
+            nvm alias default $NODE_VERSION
+            # Each step uses the same `$BASH_ENV`, so need to modify it	
+            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV	
+            echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
+      - run:
+          name: Install Yarn
+          command: |
+            curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+            echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+            sudo apt-get update && sudo apt-get install yarn
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: |
+            nvm use $NODE_VERSION
+            yarn install --frozen-lockfile
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: Build Docker Compose
+          command: ./.circleci/build_e2e_tests.sh
+      - run: 
+          name: Start Docker Container and Run E2E Tests
+          command: ./.circleci/run_e2e_tests.sh
+      - run-code-coverage:
+          flag: e2e
+
+  # Publishes tagged version to npm with tag `latest`
+  deploy-latest:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - set-npm-auth-token
+      - run:
+          name: Publish latest to NPM
+          command: yarn publish --tag latest
+
+  # Publishes most recent develop version to npm with tag `dev`
+  deploy-dev:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - set-npm-auth-token
+      - run:
+          name: Publish dev to NPM
+          command: ./node_modules/.bin/fluid-publish devTag="dev"
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - lint
+      - build:
+          requires:
+            - lint
+      - unit-test:
+          requires:
+            - build
+      - integration-test:
+          requires:
+            - build
+      - e2e-test:
+          requires:
+            - build
+      - deploy-dev:
+          context: npm-credentials
+          requires:
+            - unit-test
+            - integration-test
+            - e2e-test
+          filters:
+            branches:
+              only: develop
+      - deploy-latest:
+          context: npm-credentials
+          requires:
+            - unit-test
+            - integration-test
+            - e2e-test
+          filters:
+            branches:
+              only: develop
+            tags:
+              only: /^v.*/
