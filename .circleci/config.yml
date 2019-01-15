@@ -163,8 +163,9 @@ workflows:
     jobs:
       - lint
       - build:
-          requires:
-            - lint
+          filters:
+            tags:
+              only: /.*/
       - unit-test:
           requires:
             - build
@@ -186,11 +187,9 @@ workflows:
       - deploy-latest:
           context: npm-credentials
           requires:
-            - unit-test
-            - integration-test
-            - e2e-test
+            - build
           filters:
             branches:
-              only: develop
+              ignore: /.*/
             tags:
               only: /^v.*/
