@@ -40,6 +40,7 @@ services:
 
   createtables:
     image: trustlines/py-eth-index
+    restart: on-failure
     networks:
       - internal
     links:
@@ -53,6 +54,7 @@ services:
 
   init:
     image: trustlines/py-eth-index
+    restart: on-failure
     networks:
       - internal
     links:
