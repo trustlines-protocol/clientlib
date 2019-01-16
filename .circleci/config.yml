@@ -126,9 +126,6 @@ jobs:
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
-      - run:
-          name: Build Docker Compose
-          command: ./.circleci/build_e2e_tests.sh
       - run: 
           name: Start Docker Container and Run E2E Tests
           command: ./.circleci/run_e2e_tests.sh
