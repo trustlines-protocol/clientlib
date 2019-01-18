@@ -82,6 +82,52 @@ jobs:
       - run-code-coverage:
           flag: integration
 
+  build-e2e-image:
+    <<: *defaults
+    environment:
+      DOCKER_REPO: trustlines/e2e
+      LOCAL_IMAGE: e2e
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Build docker image
+          command: |
+            docker build . -t $LOCAL_IMAGE
+      - run:
+          name: Save docker image
+          command: |
+            mkdir -p ~/images
+            docker save --output ~/images/$LOCAL_IMAGE.tar $LOCAL_IMAGE
+      - persist_to_workspace:
+          root: "~"
+          paths:
+            - images
+
+  deploy-docker-image:
+    <<: *defaults
+    environment:
+      DOCKER_REPO: trustlines/e2e
+      LOCAL_IMAGE: e2e
+    working_directory: ~/repo
+    steps:
+      - setup_remote_docker
+      - attach_workspace:
+          at: '~'
+      - run:
+          name: Load docker image
+          command: |
+            docker load --input ~/images/$LOCAL_IMAGE.tar
+      - run:
+          name: Login to dockerhub
+          command: |
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+      - run:
+          name: Upload latest
+          command: |
+            docker tag $LOCAL_IMAGE $DOCKER_REPO:latest
+            docker push $DOCKER_REPO:latest
+
   e2e-test:
     machine: true
     working_directory: ~/repo
@@ -190,3 +236,11 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
+
+  e2e-image:
+    jobs:
+      - build-e2e-image
+      - deploy-docker-image:
+          context: docker-credentials
+          requires:
+            - build-e2e-image
