@@ -104,7 +104,7 @@ jobs:
           paths:
             - images
 
-  deploy-docker-image:
+  deploy-e2e-image:
     <<: *defaults
     environment:
       DOCKER_REPO: trustlines/e2e
@@ -128,55 +128,31 @@ jobs:
             docker tag $LOCAL_IMAGE $DOCKER_REPO:latest
             docker push $DOCKER_REPO:latest
 
-  e2e-test:
-    machine: true
-    working_directory: ~/repo
+  run-end2end-tests:
+    <<: *defaults
     environment:
-      NODE_VERSION: v10.15
+      DOCKER_REPO: trustlines/e2e
+      LOCAL_IMAGE: e2e
+    working_directory: ~
     steps:
-      - checkout
+      - setup_remote_docker
+      - attach_workspace:
+          at: '~'
       - run:
-          name: Install Docker Compose
+          name: Checkout end2end repo
           command: |
-            curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+            git clone https://github.com/trustlines-network/end2end.git
       - run:
-          name: Install Node@10.15 via NVM
+          name: Load docker image
           command: |
-            set +e
-            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
-            export NVM_DIR="/opt/circleci/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-            nvm install $NODE_VERSION
-            nvm alias default $NODE_VERSION
-            # Each step uses the same `$BASH_ENV`, so need to modify it	
-            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV	
-            echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
+            docker load --input ~/images/$LOCAL_IMAGE.tar
       - run:
-          name: Install Yarn
+          name: run end2end tests
           command: |
-            curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-            echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-            sudo apt-get update && sudo apt-get install yarn
-      - restore_cache:
-          name: Restore Yarn Package Cache
-          key: yarn-packages-{{ checksum "yarn.lock" }}
-      - run:
-          name: Install Dependencies
-          command: |
-            nvm use $NODE_VERSION
-            yarn install --frozen-lockfile
-      - save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.cache/yarn
-      - run: 
-          name: Start Docker Container and Run E2E Tests
-          command: ./.circleci/run_e2e_tests.sh
-      - run-code-coverage:
-          flag: e2e
+            docker tag $LOCAL_IMAGE $DOCKER_REPO
+            cd end2end
+            ./run-e2e.sh
+
 
   # Publishes tagged version to npm with tag `latest`
   deploy-latest:
@@ -204,6 +180,17 @@ workflows:
   version: 2
   default:
     jobs:
+      - build-e2e-image
+      - deploy-e2e-image:
+          context: docker-credentials
+          requires:
+            - build-e2e-image
+          filters:
+            branches:
+              only: develop
+      - run-end2end-tests:
+          requires:
+            - build-e2e-image
       - lint
       - build:
           filters:
@@ -215,15 +202,12 @@ workflows:
       - integration-test:
           requires:
             - build
-      - e2e-test:
-          requires:
-            - build
       - deploy-dev:
           context: npm-credentials
           requires:
             - unit-test
             - integration-test
-            - e2e-test
+            - run-end2end-tests
           filters:
             branches:
               only: develop
@@ -236,11 +220,3 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
-
-  e2e-image:
-    jobs:
-      - build-e2e-image
-      - deploy-docker-image:
-          context: docker-credentials
-          requires:
-            - build-e2e-image
