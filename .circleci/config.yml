@@ -159,7 +159,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: '~'
       - set-npm-auth-token
       - run:
           name: Publish latest to NPM
@@ -170,7 +170,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: '~'
       - set-npm-auth-token
       - run:
           name: Publish dev to NPM
