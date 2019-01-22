@@ -3,15 +3,18 @@ node_modules
 docs
 tests
 src
+images
+bump.sh
 
 # ignore config files
-.travis
-.travis.yml
 .editorconfig
 tdconfig.json
 tsconfig.json
 tslint.json
 webpack.config.js
+.circleci
+Dockerfile
+.prettierrc.json
 
 # ignore lock files
 package-lock.json
