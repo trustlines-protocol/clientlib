@@ -35,18 +35,6 @@ commands:
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
 
 jobs:
-  lint:
-    <<: *defaults
-    steps:
-      - checkout
-      - yarn-install
-      - run:
-          name: Run Linter
-          command: yarn lint
-      - persist_to_workspace:
-          root: "~"
-          paths: .
-
   build:
     <<: *defaults
     steps:
@@ -57,7 +45,17 @@ jobs:
           command: yarn build
       - persist_to_workspace:
           root: "~"
-          paths: .
+          paths:
+            - repo
+
+  lint:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: "~"
+      - run:
+          name: Run Linter
+          command: yarn lint
 
   unit-test:
     <<: *defaults
@@ -189,11 +187,13 @@ workflows:
       - run-end2end-tests:
           requires:
             - build-e2e-image
-      - lint
       - build:
           filters:
             tags:
               only: /.*/
+      - lint:
+          requires:
+            - build
       - unit-test:
           requires:
             - build
