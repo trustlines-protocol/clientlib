@@ -44,7 +44,7 @@ jobs:
           name: Run Linter
           command: yarn lint
       - persist_to_workspace:
-          root: ~/repo
+          root: ~
           paths: .
 
   build:
@@ -56,14 +56,14 @@ jobs:
           name: Build Production
           command: yarn build
       - persist_to_workspace:
-          root: ~/repo
+          root: ~
           paths: .
 
   unit-test:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: ~
       - run:
           name: Run Unit Tests
           command: yarn test:unit
@@ -75,7 +75,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: ~
       - run:
           name: Run Integration Tests
           command: yarn test:integration
@@ -100,7 +100,7 @@ jobs:
             mkdir -p ~/images
             docker save --output ~/images/$LOCAL_IMAGE.tar $LOCAL_IMAGE
       - persist_to_workspace:
-          root: "~"
+          root: ~
           paths:
             - images
 
@@ -109,11 +109,10 @@ jobs:
     environment:
       DOCKER_REPO: trustlines/e2e
       LOCAL_IMAGE: e2e
-    working_directory: ~/repo
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: '~'
+          at: ~
       - run:
           name: Load docker image
           command: |
@@ -133,7 +132,6 @@ jobs:
     environment:
       DOCKER_REPO: trustlines/e2e
       LOCAL_IMAGE: e2e
-    working_directory: ~
     steps:
       - setup_remote_docker
       - attach_workspace:
@@ -159,7 +157,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: '~'
+          at: ~
       - set-npm-auth-token
       - run:
           name: Publish latest to NPM
@@ -170,7 +168,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: '~'
+          at: ~
       - set-npm-auth-token
       - run:
           name: Publish dev to NPM
