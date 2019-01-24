@@ -35,18 +35,6 @@ commands:
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
 
 jobs:
-  lint:
-    <<: *defaults
-    steps:
-      - checkout
-      - yarn-install
-      - run:
-          name: Run Linter
-          command: yarn lint
-      - persist_to_workspace:
-          root: ~/repo
-          paths: .
-
   build:
     <<: *defaults
     steps:
@@ -56,14 +44,24 @@ jobs:
           name: Build Production
           command: yarn build
       - persist_to_workspace:
-          root: ~/repo
-          paths: .
+          root: "~"
+          paths:
+            - repo
+
+  lint:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: "~"
+      - run:
+          name: Run Linter
+          command: yarn lint
 
   unit-test:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: "~"
       - run:
           name: Run Unit Tests
           command: yarn test:unit
@@ -75,7 +73,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/repo
+          at: "~"
       - run:
           name: Run Integration Tests
           command: yarn test:integration
@@ -109,11 +107,10 @@ jobs:
     environment:
       DOCKER_REPO: trustlines/e2e
       LOCAL_IMAGE: e2e
-    working_directory: ~/repo
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: '~'
+          at: "~"
       - run:
           name: Load docker image
           command: |
@@ -133,11 +130,10 @@ jobs:
     environment:
       DOCKER_REPO: trustlines/e2e
       LOCAL_IMAGE: e2e
-    working_directory: ~
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: '~'
+          at: "~"
       - run:
           name: Checkout end2end repo
           command: |
@@ -159,7 +155,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: '~'
+          at: "~"
       - set-npm-auth-token
       - run:
           name: Publish latest to NPM
@@ -170,7 +166,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: '~'
+          at: "~"
       - set-npm-auth-token
       - run:
           name: Publish dev to NPM
@@ -191,11 +187,13 @@ workflows:
       - run-end2end-tests:
           requires:
             - build-e2e-image
-      - lint
       - build:
           filters:
             tags:
               only: /.*/
+      - lint:
+          requires:
+            - build
       - unit-test:
           requires:
             - build
