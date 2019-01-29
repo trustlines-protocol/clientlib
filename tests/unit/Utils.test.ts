@@ -5,16 +5,14 @@ import fetchMock = require('fetch-mock')
 import 'mocha'
 
 import { Utils } from '../../src/Utils'
-import { FakeConfiguration } from '../helpers/FakeConfiguration'
+
+import { ExchangeCancelEvent, ExchangeFillEvent } from '../../src/typings'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
 
 describe('unit', () => {
   describe('Utils', () => {
-    // mocks
-    let fakeConfiguration
-
     // constants for number related tests
     const VALUE_NUM_INPUT = 1.23
     const VALUE_STR_INPUT = VALUE_NUM_INPUT.toString()
@@ -27,13 +25,9 @@ describe('unit', () => {
     const VALUE_OUTPUT = '1.23'
 
     // test object
-    let utils
+    const utils = new Utils()
 
     describe('#fetchUrl()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
       afterEach(() => fetchMock.reset())
 
       it('should return 200 json response', async () => {
@@ -65,11 +59,6 @@ describe('unit', () => {
     })
 
     describe('#buildUrl()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should only return base url', () => {
         const base = 'http://trustlines.network/v1'
         assert.equal(utils.buildUrl(base), 'http://trustlines.network/v1')
@@ -96,11 +85,6 @@ describe('unit', () => {
     })
 
     describe('#createLink()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should return url in trustlines link schema', () => {
         const params = ['contact', '0x']
         const url = 'http://trustlines.network/v1/contact/0x'
@@ -109,11 +93,6 @@ describe('unit', () => {
     })
 
     describe('#calcRaw()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should return raw value for number', () => {
         const raw = utils.calcRaw(VALUE_NUM_INPUT, DECIMALS)
         assert.instanceOf(raw, BigNumber)
@@ -134,11 +113,6 @@ describe('unit', () => {
     })
 
     describe('#calcValue()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should return value for number', () => {
         const value = utils.calcValue(RAW_NUM_INPUT, DECIMALS)
         assert.instanceOf(value, BigNumber)
@@ -159,11 +133,6 @@ describe('unit', () => {
     })
 
     describe('#formatToAmountInternal()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should format number to AmountInternal object', () => {
         const amount = utils.formatToAmountInternal(RAW_NUM_INPUT, DECIMALS)
         assert.hasAllKeys(amount, ['decimals', 'raw', 'value'])
@@ -196,11 +165,6 @@ describe('unit', () => {
     })
 
     describe('#formatToAmount()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should format number to Amount object', () => {
         const amount = utils.formatToAmount(RAW_NUM_INPUT, DECIMALS)
         assert.hasAllKeys(amount, ['decimals', 'raw', 'value'])
@@ -227,11 +191,6 @@ describe('unit', () => {
     })
 
     describe('#convertToAmount()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should convert AmountInternal to Amount object', () => {
         const amountInternal = utils.formatToAmountInternal(
           RAW_NUM_INPUT,
@@ -246,18 +205,13 @@ describe('unit', () => {
     })
 
     describe('#formatEvent()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should format numerical values of event', () => {
         const event = {
           balance: 1000,
           interestRateGiven: 500,
           nonNumericAttr: 'hello'
         }
-        const formattedEvent = utils.formatEvent(event, 2, 3)
+        const formattedEvent = utils.formatEvent<any>(event, 2, 3)
         assert.hasAllKeys(formattedEvent, [
           'balance',
           'interestRateGiven',
@@ -274,11 +228,6 @@ describe('unit', () => {
     })
 
     describe('#formatExchangeEvent()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should format numerical values of fill event', () => {
         const rawFillEvent = {
           filledMakerAmount: 100,
@@ -286,22 +235,24 @@ describe('unit', () => {
           type: 'LogFill'
         }
 
-        const formattedFillEvent = utils.formatExchangeEvent(rawFillEvent)
+        const formattedFillEvent = utils.formatExchangeEvent(
+          rawFillEvent as any,
+          2,
+          2
+        )
         assert.hasAllKeys(formattedFillEvent, [
           'filledMakerAmount',
           'filledTakerAmount',
           'type'
         ])
-        assert.hasAllKeys(formattedFillEvent.filledMakerAmount, [
-          'decimals',
-          'raw',
-          'value'
-        ])
-        assert.hasAllKeys(formattedFillEvent.filledTakerAmount, [
-          'decimals',
-          'raw',
-          'value'
-        ])
+        assert.hasAllKeys(
+          (formattedFillEvent as ExchangeFillEvent).filledMakerAmount,
+          ['decimals', 'raw', 'value']
+        )
+        assert.hasAllKeys(
+          (formattedFillEvent as ExchangeFillEvent).filledTakerAmount,
+          ['decimals', 'raw', 'value']
+        )
       })
 
       it('should format numerical values of cancel event', () => {
@@ -311,36 +262,35 @@ describe('unit', () => {
           type: 'LogCancel'
         }
 
-        const formattedFillEvent = utils.formatExchangeEvent(rawFillEvent)
+        const formattedFillEvent = utils.formatExchangeEvent(
+          rawFillEvent as any,
+          2,
+          2
+        )
         assert.hasAllKeys(formattedFillEvent, [
           'cancelledMakerAmount',
           'cancelledTakerAmount',
           'type'
         ])
-        assert.hasAllKeys(formattedFillEvent.cancelledMakerAmount, [
-          'decimals',
-          'raw',
-          'value'
-        ])
-        assert.hasAllKeys(formattedFillEvent.cancelledTakerAmount, [
-          'decimals',
-          'raw',
-          'value'
-        ])
+        assert.hasAllKeys(
+          (formattedFillEvent as ExchangeCancelEvent).cancelledMakerAmount,
+          ['decimals', 'raw', 'value']
+        )
+        assert.hasAllKeys(
+          (formattedFillEvent as ExchangeCancelEvent).cancelledTakerAmount,
+          ['decimals', 'raw', 'value']
+        )
       })
 
       it('should throw error', () => {
         const noExchangeEvent = { type: 'NoExchange' }
-        assert.throw(() => utils.formatExchangeEvent(noExchangeEvent))
+        assert.throw(() =>
+          utils.formatExchangeEvent(noExchangeEvent as any, 2, 2)
+        )
       })
     })
 
     describe('#convertEthToWei()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should return 1 eth in wei', () => {
         assert.equal(utils.convertEthToWei(1), 1000000000000000000)
       })
@@ -357,11 +307,6 @@ describe('unit', () => {
     describe('#convertToHexString()', () => {
       const NUM = 123
       const NUM_HEX_STR = '0x7b'
-
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
 
       it('should convert decimal string to hex', () => {
         assert.equal(utils.convertToHexString(NUM.toString()), NUM_HEX_STR)
@@ -384,11 +329,6 @@ describe('unit', () => {
       const address = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
       const lowerCaseAddress = address.toLowerCase()
 
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should return true for lower case', () => {
         assert.ok(utils.checkAddress(lowerCaseAddress))
       })
@@ -407,11 +347,6 @@ describe('unit', () => {
     })
 
     describe('#generateRandomNumber()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        utils = new Utils(fakeConfiguration)
-      })
-
       it('should generate a random number', () => {
         const randomNumber = utils.generateRandomNumber(2)
         assert.instanceOf(randomNumber, BigNumber)

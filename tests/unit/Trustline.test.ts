@@ -9,7 +9,6 @@ import { Trustline } from '../../src/Trustline'
 import { User } from '../../src/User'
 import { Utils } from '../../src/Utils'
 
-import { FakeConfiguration } from '../helpers/FakeConfiguration'
 import { FakeCurrencyNetwork } from '../helpers/FakeCurrencyNetwork'
 import { FakeEvent } from '../helpers/FakeEvent'
 import { FakeTransaction } from '../helpers/FakeTransaction'
@@ -17,7 +16,7 @@ import { FakeTxSigner } from '../helpers/FakeTxSigner'
 import { FakeUser } from '../helpers/FakeUser'
 import { FakeUtils } from '../helpers/FakeUtils'
 
-import { FAKE_ACCOUNT, FAKE_NETWORK } from '../Fixtures'
+import { FAKE_ACCOUNT, FAKE_NETWORK, FAKE_RELAY_API } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -38,17 +37,33 @@ describe('unit', () => {
     // initialize test object with mocked classes
     const initialize = () => {
       fakeTxSigner = new FakeTxSigner()
-      fakeUtils = new FakeUtils(new FakeConfiguration())
-      fakeCurrencyNetwork = new FakeCurrencyNetwork(fakeUtils)
-      fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-      fakeUser = new FakeUser(new FakeTxSigner(), fakeTransaction, fakeUtils)
-      fakeEvent = new FakeEvent(fakeUser, fakeUtils, fakeCurrencyNetwork)
+      fakeUtils = new FakeUtils()
+      fakeCurrencyNetwork = new FakeCurrencyNetwork(FAKE_RELAY_API, fakeUtils)
+      fakeTransaction = new FakeTransaction(
+        fakeUtils,
+        fakeTxSigner,
+        FAKE_RELAY_API
+      )
+      fakeUser = new FakeUser(
+        new FakeTxSigner(),
+        fakeTransaction,
+        fakeUtils,
+        FAKE_RELAY_API
+      )
+      fakeEvent = new FakeEvent(
+        fakeUser,
+        fakeUtils,
+        fakeCurrencyNetwork,
+        FAKE_RELAY_API,
+        FAKE_RELAY_API
+      )
       trustline = new Trustline(
         fakeEvent,
         fakeUser,
         fakeUtils,
         fakeTransaction,
-        fakeCurrencyNetwork
+        fakeCurrencyNetwork,
+        FAKE_RELAY_API
       )
     }
 
@@ -61,7 +76,8 @@ describe('unit', () => {
           fakeUser,
           fakeUtils,
           fakeTransaction,
-          fakeCurrencyNetwork
+          fakeCurrencyNetwork,
+          FAKE_RELAY_API
         )
         assert.instanceOf(trustline.event, Event)
         assert.instanceOf(trustline.user, User)

@@ -7,6 +7,7 @@ import {
   FAKE_CLOSE_PATH_RAW,
   FAKE_FORMATTED_TRANSFER_EVENT,
   FAKE_NETWORK,
+  FAKE_RELAY_API,
   FAKE_TRANSFER_EVENT,
   FAKE_TRUSTLINE,
   FAKE_TX_HASH,
@@ -25,7 +26,11 @@ export class FakeUtils extends Utils {
    * Mocks utils.fetchUrl
    */
   public async fetchUrl<T>(endpoint: string, options?: object): Promise<T> {
-    const splitEndpoint = endpoint.split('/')
+    const endpointWithoutBase = endpoint.substr(
+      FAKE_RELAY_API.length + 1,
+      endpoint.length
+    )
+    const splitEndpoint = endpointWithoutBase.split('/')
     let response
 
     if (this.errors.fetchUrl) {

@@ -7,7 +7,6 @@ import { Event } from '../../src/Event'
 import { User } from '../../src/User'
 import { Utils } from '../../src/Utils'
 
-import { FakeConfiguration } from '../helpers/FakeConfiguration'
 import { FakeCurrencyNetwork } from '../helpers/FakeCurrencyNetwork'
 import { FakeTransaction } from '../helpers/FakeTransaction'
 import { FakeTxSigner } from '../helpers/FakeTxSigner'
@@ -30,39 +29,38 @@ describe('unit', () => {
     // Test object
     let event
 
-    // Mocked classes
-    let fakeUser
-    let fakeUtils
-    let fakeCurrencyNetwork
-    let fakeTransaction
-    let fakeTxSigner
+    const initMocks = () => {
+      const fakeUtils = new FakeUtils()
+      const relayApiUrl = 'http://relay.network/api/v1'
+      const relayWsApiUrl = 'http://relay.network/api/v1'
 
-    describe('#constructor()', () => {
-      beforeEach(() => {
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        fakeCurrencyNetwork = new FakeCurrencyNetwork(fakeUtils)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        fakeUser = new FakeUser(new FakeTxSigner(), fakeTransaction, fakeUtils)
-      })
-
-      it('should construct an Event instance', () => {
-        event = new Event(fakeUser, fakeUtils, fakeCurrencyNetwork)
-        assert.instanceOf(event.user, User)
-        assert.instanceOf(event.utils, Utils)
-        assert.instanceOf(event.currencyNetwork, CurrencyNetwork)
-      })
-    })
+      const fakeCurrencyNetwork = new FakeCurrencyNetwork(
+        relayApiUrl,
+        fakeUtils
+      )
+      const fakeTxSigner = new FakeTxSigner()
+      const fakeTransaction = new FakeTransaction(
+        fakeUtils,
+        fakeTxSigner,
+        relayApiUrl
+      )
+      const fakeUser = new FakeUser(
+        fakeTxSigner,
+        fakeTransaction,
+        fakeUtils,
+        relayApiUrl
+      )
+      event = new Event(
+        fakeUser,
+        fakeUtils,
+        fakeCurrencyNetwork,
+        relayApiUrl,
+        relayWsApiUrl
+      )
+    }
 
     describe('#get()', () => {
-      beforeEach(() => {
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        fakeCurrencyNetwork = new FakeCurrencyNetwork(fakeUtils)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        fakeUser = new FakeUser(new FakeTxSigner(), fakeTransaction, fakeUtils)
-        event = new Event(fakeUser, fakeUtils, fakeCurrencyNetwork)
-      })
+      beforeEach(() => initMocks())
 
       it('should return mocked events as array', async () => {
         const events = await event.get(FAKE_NETWORK.address, { fromBlock: 0 })
@@ -78,14 +76,7 @@ describe('unit', () => {
     })
 
     describe('#getAll()', () => {
-      beforeEach(() => {
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        fakeCurrencyNetwork = new FakeCurrencyNetwork(fakeUtils)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        fakeUser = new FakeUser(new FakeTxSigner(), fakeTransaction, fakeUtils)
-        event = new Event(fakeUser, fakeUtils, fakeCurrencyNetwork)
-      })
+      beforeEach(() => initMocks())
 
       it('should return events as array', async () => {
         const events = await event.getAll({ fromBlock: 0 })
@@ -94,14 +85,7 @@ describe('unit', () => {
     })
 
     describe('#setDecimalsAndFormat()', () => {
-      beforeEach(() => {
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        fakeCurrencyNetwork = new FakeCurrencyNetwork(fakeUtils)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        fakeUser = new FakeUser(new FakeTxSigner(), fakeTransaction, fakeUtils)
-        event = new Event(fakeUser, fakeUtils, fakeCurrencyNetwork)
-      })
+      beforeEach(() => initMocks())
 
       it('should return formatted events as array', async () => {
         const rawEvents = [

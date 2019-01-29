@@ -4,7 +4,6 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { LightwalletSigner } from '../../src/signers/LightwalletSigner'
-import { FakeConfiguration } from '../helpers/FakeConfiguration'
 import { FakeEthLightwallet } from '../helpers/FakeEthLightwallet'
 import { FakeUtils } from '../helpers/FakeUtils'
 
@@ -16,10 +15,18 @@ const { assert } = chai
 describe('unit', () => {
   describe('LightwalletSigner', () => {
     // mocks
-    const fakeConfiguration = new FakeConfiguration()
-    const fakeUtils = new FakeUtils(fakeConfiguration)
+    const fakeUtils = new FakeUtils()
     let fakeEthLightwallet
     let lightwalletSigner
+
+    const initMocks = () => {
+      fakeEthLightwallet = new FakeEthLightwallet()
+      lightwalletSigner = new LightwalletSigner(
+        fakeEthLightwallet,
+        'http://relay.network/api/v1',
+        fakeUtils
+      )
+    }
 
     // test data
     const USER_ADDRESS = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
@@ -56,10 +63,7 @@ describe('unit', () => {
     }
 
     describe('#createAccount()', () => {
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should create account using mocked eth-lightwallet', async () => {
         const createdAccount = await lightwalletSigner.createAccount()
@@ -91,10 +95,7 @@ describe('unit', () => {
     })
 
     describe('#loadAccount()', () => {
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should load keystore using mocked eth-lightwallet', async () => {
         const loadedAccount = await lightwalletSigner.loadAccount(keystore1)
@@ -134,10 +135,7 @@ describe('unit', () => {
     })
 
     describe('#signMsgHash()', () => {
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should sign message hash using mocked eth-lightwallet', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -181,10 +179,7 @@ describe('unit', () => {
     })
 
     describe('#getBalance()', () => {
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return ETH balance for loaded user', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -201,10 +196,7 @@ describe('unit', () => {
     })
 
     describe('#encrypt()', () => {
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return encryption object using mocked eth-lightwallet', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -255,10 +247,7 @@ describe('unit', () => {
         version: 1
       }
 
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should decrypt message using mocked eth-lightwallet', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -293,10 +282,7 @@ describe('unit', () => {
     })
 
     describe('#showSeed()', () => {
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should show seed for loaded user', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -325,10 +311,7 @@ describe('unit', () => {
     })
 
     describe('#exportPrivateKey()', () => {
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return private key of loaded user', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -361,10 +344,7 @@ describe('unit', () => {
       const seed =
         'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
 
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should recover account from seed and return it', async () => {
         const recoveredAccount = await lightwalletSigner.recoverFromSeed(seed)
@@ -396,10 +376,7 @@ describe('unit', () => {
     })
 
     describe('#confirm()', () => {
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should sign and relay a value transaction object and return the transaction hash', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -442,10 +419,7 @@ describe('unit', () => {
     })
 
     describe('#getTxInfos()', () => {
-      beforeEach(() => {
-        fakeEthLightwallet = new FakeEthLightwallet()
-        lightwalletSigner = new LightwalletSigner(fakeEthLightwallet, fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return nonce, gasPrice and balance', async () => {
         const txInfos = await lightwalletSigner.getTxInfos(USER_ADDRESS)

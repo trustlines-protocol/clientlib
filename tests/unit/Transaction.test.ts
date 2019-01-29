@@ -3,9 +3,11 @@ import { assert } from 'chai'
 import 'mocha'
 
 import { Transaction } from '../../src/Transaction'
-import { FakeConfiguration } from '../helpers/FakeConfiguration'
+
 import { FakeTxSigner } from '../helpers/FakeTxSigner'
 import { FakeUtils } from '../helpers/FakeUtils'
+
+import { FAKE_RELAY_API } from '../Fixtures'
 
 describe('unit', () => {
   describe('Transaction', () => {
@@ -32,9 +34,9 @@ describe('unit', () => {
     }
 
     before(() => {
-      fakeUtils = new FakeUtils(new FakeConfiguration())
+      fakeUtils = new FakeUtils()
       fakeTxSigner = new FakeTxSigner()
-      transaction = new Transaction(fakeUtils, fakeTxSigner)
+      transaction = new Transaction(fakeUtils, fakeTxSigner, FAKE_RELAY_API)
     })
 
     describe('#prepFuncTx()', () => {

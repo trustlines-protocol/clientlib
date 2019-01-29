@@ -3,7 +3,6 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { CurrencyNetwork } from '../../src/CurrencyNetwork'
-import { FakeConfiguration } from '../helpers/FakeConfiguration'
 import { FakeUtils } from '../helpers/FakeUtils'
 
 chai.use(chaiAsPromised)
@@ -16,6 +15,14 @@ describe('unit', () => {
 
     // mocked classes
     let fakeUtils
+
+    const initMocks = () => {
+      fakeUtils = new FakeUtils()
+      currencyNetwork = new CurrencyNetwork(
+        'http://relay.network/api/v1',
+        fakeUtils
+      )
+    }
 
     // constants
     const NETWORK_KEYS = [
@@ -40,10 +47,7 @@ describe('unit', () => {
     const INVALID_ADDRESS = '0xinvalid'
 
     describe('#getAll()', () => {
-      beforeEach(() => {
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        currencyNetwork = new CurrencyNetwork(fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return mocked currency networks', async () => {
         const networks = await currencyNetwork.getAll()
@@ -59,10 +63,7 @@ describe('unit', () => {
     })
 
     describe('#getInfo()', () => {
-      beforeEach(() => {
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        currencyNetwork = new CurrencyNetwork(fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return mocked currency network', async () => {
         const network = await currencyNetwork.getInfo(VALID_ADDRESS)
@@ -81,10 +82,7 @@ describe('unit', () => {
     })
 
     describe('#getUsers()', () => {
-      beforeEach(() => {
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        currencyNetwork = new CurrencyNetwork(fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return mocked user addresses', async () => {
         const userAddresses = await currencyNetwork.getUsers(VALID_ADDRESS)
@@ -102,10 +100,7 @@ describe('unit', () => {
     })
 
     describe('#getUserOverview()', () => {
-      beforeEach(() => {
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        currencyNetwork = new CurrencyNetwork(fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return mocked user overview', async () => {
         const userOverview = await currencyNetwork.getUserOverview(
@@ -141,10 +136,7 @@ describe('unit', () => {
     })
 
     describe('#getDecimals()', () => {
-      beforeEach(() => {
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        currencyNetwork = new CurrencyNetwork(fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return network and interest rate decimals', async () => {
         const decimals = await currencyNetwork.getDecimals(VALID_ADDRESS)
@@ -173,10 +165,7 @@ describe('unit', () => {
     })
 
     describe('#isNetwork()', () => {
-      beforeEach(() => {
-        fakeUtils = new FakeUtils(new FakeConfiguration())
-        currencyNetwork = new CurrencyNetwork(fakeUtils)
-      })
+      beforeEach(() => initMocks())
 
       it('should return true', async () => {
         const isNetwork = await currencyNetwork.isNetwork(VALID_ADDRESS)
