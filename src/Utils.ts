@@ -8,8 +8,6 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import * as JsonRPC from 'simple-jsonrpc-js'
 
-import { Configuration } from './Configuration'
-
 import {
   Amount,
   AmountInternal,
@@ -34,26 +32,17 @@ if (
  * The Utils class contains utility functions that are used in multiple classes.
  */
 export class Utils {
-  private apiUrl: string
-  private wsApiUrl: string
-
-  constructor(configuration: Configuration) {
-    this.apiUrl = configuration.apiUrl
-    this.wsApiUrl = configuration.wsApiUrl
-  }
-
   /**
-   * Generic function for fetching a endpoint
-   * @param endpoint fetch endpoint
+   * Returns a `Promise` with a JSON object from given URL.
+   * @param url
    * @param options (optional)
    */
-  public async fetchUrl<T>(endpoint: string, options?: object): Promise<T> {
-    const fullUrl = `${this.apiUrl}${this._formatEndpoint(endpoint)}`
-    const response = await fetch(fullUrl, options)
+  public async fetchUrl<T>(url: string, options?: object): Promise<T> {
+    const response = await fetch(url, options)
     const json = await response.json()
     if (response.status !== 200) {
       throw new Error(
-        `${fullUrl} | Status ${response.status} | ${json.message}`
+        `Error fetching ${url} | Status ${response.status} | ${json.message}`
       )
     } else {
       return json
@@ -62,22 +51,18 @@ export class Utils {
 
   /**
    * Returns an Observable for a websocket stream.
-   * @param endpoint Endpoint to open websocket stream to,
+   * @param url URL to open websocket stream to.
    * @param functionName Name of function to call on opened websocket.
    * @param args Arguments for above function.
    */
   public websocketStream(
-    endpoint: string,
+    url: string,
     functionName: string,
     args: object
   ): Observable<any> {
     return Observable.create((observer: Observer<any>) => {
       const options = { constructor: WebSocket }
-      const ws = new ReconnectingWebSocket(
-        `${this.wsApiUrl}${this._formatEndpoint(endpoint)}`,
-        undefined,
-        options
-      )
+      const ws = new ReconnectingWebSocket(url, undefined, options)
       const jrpc = new JsonRPC()
 
       jrpc.toStream = (message: string) => {
