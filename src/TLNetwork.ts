@@ -1,6 +1,5 @@
 import * as lightwallet from 'eth-lightwallet'
 
-import { Configuration } from './Configuration'
 import { Contact } from './Contact'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { EthWrapper } from './EthWrapper'
@@ -27,11 +26,6 @@ const Web3 = require('web3')
  * It contains all of the library's functionality and all calls to the library should be made through a TLNetwork instance.
  */
 export class TLNetwork {
-  /**
-   * @hidden
-   * Configuration instance containing all configurable parameters.
-   */
-  public configuration: Configuration
   /**
    * User instance containing all user/keystore related methods.
    */
@@ -88,35 +82,58 @@ export class TLNetwork {
    */
   public signer: TxSigner
 
+  public relayApiUrl: string
+  public relayWsApiUrl: string
+  public web3Provider: any
+
   /**
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
    * @param config Configuration object. See type `TLNetworkConfig` for more information.
    */
   constructor(config: TLNetworkConfig = {}) {
-    this.configuration = new Configuration(config)
-    this.utils = new Utils(this.configuration)
-    this.currencyNetwork = new CurrencyNetwork(this.utils)
+    this.utils = new Utils()
+
+    this.setConfig(config)
+
+    this.currencyNetwork = new CurrencyNetwork(this.relayApiUrl, this.utils)
     this.web3 = new Web3(config.web3Provider)
     this.signer = this.web3.eth.currentProvider
       ? new Web3Signer(this.web3)
-      : new LightwalletSigner(lightwallet, this.utils)
-    this.transaction = new Transaction(this.utils, this.signer)
-    this.user = new User(this.signer, this.transaction, this.utils)
-    this.contact = new Contact(this.user, this.utils)
-    this.event = new Event(this.user, this.utils, this.currencyNetwork)
+      : new LightwalletSigner(lightwallet, this.relayApiUrl, this.utils)
+    this.transaction = new Transaction(
+      this.utils,
+      this.signer,
+      this.relayApiUrl
+    )
+    this.user = new User(
+      this.signer,
+      this.transaction,
+      this.utils,
+      this.relayApiUrl
+    )
+    this.contact = new Contact(this.relayApiUrl, this.user, this.utils)
+    this.event = new Event(
+      this.user,
+      this.utils,
+      this.currencyNetwork,
+      this.relayApiUrl,
+      this.relayWsApiUrl
+    )
     this.trustline = new Trustline(
       this.event,
       this.user,
       this.utils,
       this.transaction,
-      this.currencyNetwork
+      this.currencyNetwork,
+      this.relayApiUrl
     )
     this.payment = new Payment(
       this.event,
       this.user,
       this.utils,
       this.transaction,
-      this.currencyNetwork
+      this.currencyNetwork,
+      this.relayApiUrl
     )
     this.exchange = new Exchange(
       this.event,
@@ -124,9 +141,38 @@ export class TLNetwork {
       this.utils,
       this.transaction,
       this.currencyNetwork,
-      this.payment
+      this.payment,
+      this.relayApiUrl
     )
-    this.messaging = new Messaging(this.user, this.utils, this.currencyNetwork)
-    this.ethWrapper = new EthWrapper(this.user, this.utils, this.transaction)
+    this.messaging = new Messaging(
+      this.user,
+      this.utils,
+      this.currencyNetwork,
+      this.relayApiUrl,
+      this.relayWsApiUrl
+    )
+    this.ethWrapper = new EthWrapper(
+      this.relayApiUrl,
+      this.transaction,
+      this.user,
+      this.utils
+    )
+  }
+
+  public setConfig(config: TLNetworkConfig = {}): void {
+    const {
+      protocol = 'http',
+      host = 'localhost',
+      port = '',
+      path = '',
+      wsProtocol = 'ws',
+      relayApiUrl,
+      relayWsApiUrl
+    } = config
+
+    this.relayApiUrl =
+      relayApiUrl || this.utils.buildApiUrl(protocol, host, port, path)
+    this.relayWsApiUrl =
+      relayWsApiUrl || this.utils.buildApiUrl(wsProtocol, host, port, path)
   }
 }

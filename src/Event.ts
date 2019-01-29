@@ -24,10 +24,21 @@ export class Event {
   private user: User
   private utils: Utils
 
-  constructor(user: User, utils: Utils, currencyNetwork: CurrencyNetwork) {
+  private relayApiUrl: string
+  private relayWsApiUrl: string
+
+  constructor(
+    user: User,
+    utils: Utils,
+    currencyNetwork: CurrencyNetwork,
+    relayApiUrl: string,
+    relayWsApiUrl: string
+  ) {
     this.currencyNetwork = currencyNetwork
     this.user = user
     this.utils = utils
+    this.relayApiUrl = relayApiUrl
+    this.relayWsApiUrl = relayWsApiUrl
   }
 
   /**
@@ -42,7 +53,7 @@ export class Event {
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<T[]> {
-    const baseUrl = `networks/${networkAddress}/users/${
+    const baseUrl = `${this.relayApiUrl}/networks/${networkAddress}/users/${
       this.user.address
     }/events`
     const parameterUrl = this.utils.buildUrl(baseUrl, filter)
@@ -68,7 +79,7 @@ export class Event {
    * @param filter.fromBlock Start of block range for event logs.
    */
   public async getAll(filter: EventFilterOptions = {}): Promise<AnyEvent[]> {
-    const baseUrl = `users/${this.user.address}/events`
+    const baseUrl = `${this.relayApiUrl}/users/${this.user.address}/events`
     const parameterUrl = this.utils.buildUrl(baseUrl, filter)
     const events = await this.utils.fetchUrl<AnyEventRaw[]>(parameterUrl)
     return this.setDecimalsAndFormat(events)
@@ -79,7 +90,7 @@ export class Event {
    */
   public updateStream(): Observable<any> {
     return this.utils
-      .websocketStream('streams/events', 'subscribe', {
+      .websocketStream(`${this.relayWsApiUrl}/streams/events`, 'subscribe', {
         event: 'all',
         user: this.user.address
       })

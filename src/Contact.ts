@@ -2,10 +2,20 @@ import { User } from './User'
 import { Utils } from './Utils'
 
 export class Contact {
-  constructor(private user: User, private utils: Utils) {}
+  private relayApiUrl: string
+  private user: User
+  private utils: Utils
+
+  constructor(relayApiUrl: string, user: User, utils: Utils) {
+    this.relayApiUrl = relayApiUrl
+    this.user = user
+    this.utils = utils
+  }
 
   public getAll(networkAddress: string): Promise<string[]> {
-    const url = `networks/${networkAddress}/users/${this.user.address}/contacts`
+    const url = `${this.relayApiUrl}/networks/${networkAddress}/users/${
+      this.user.address
+    }/contacts`
     return this.utils.fetchUrl(url)
   }
 

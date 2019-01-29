@@ -14,10 +14,12 @@ const ETH_DECIMALS = 18
 export class Transaction {
   private utils: Utils
   private signer: TxSigner
+  private relayApiUrl: string
 
-  constructor(utils: Utils, signer: TxSigner) {
+  constructor(utils: Utils, signer: TxSigner, relayApiUrl: string) {
     this.utils = utils
     this.signer = signer
+    this.relayApiUrl = relayApiUrl
   }
 
   /**
@@ -112,6 +114,6 @@ export class Transaction {
    * Returns the latest block number of the underlying blockchain.
    */
   public getBlockNumber(): Promise<number> {
-    return this.utils.fetchUrl<number>('blocknumber')
+    return this.utils.fetchUrl<number>(`${this.relayApiUrl}/blocknumber`)
   }
 }

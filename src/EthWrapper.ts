@@ -20,21 +20,28 @@ const ETH_DECIMALS = 18
  * The class EthWrapper contains all methods for depositing, withdrawing and transferring wrapped ETH.
  */
 export class EthWrapper {
+  private relayApiUrl: string
+  private transaction: Transaction
   private user: User
   private utils: Utils
-  private transaction: Transaction
 
-  constructor(user: User, utils: Utils, transaction: Transaction) {
+  constructor(
+    relayApiUrl: string,
+    transaction: Transaction,
+    user: User,
+    utils: Utils
+  ) {
+    this.relayApiUrl = relayApiUrl
+    this.transaction = transaction
     this.user = user
     this.utils = utils
-    this.transaction = transaction
   }
 
   /**
    * Returns all known ETH wrapper contract addresses from the relay server.
    */
   public getAddresses(): Promise<string[]> {
-    return this.utils.fetchUrl<string[]>('exchange/eth')
+    return this.utils.fetchUrl<string[]>(`${this.relayApiUrl}/exchange/eth`)
   }
 
   /**
@@ -42,7 +49,7 @@ export class EthWrapper {
    * @param ethWrapperAddress Address of ETH wrapper contract.
    */
   public async getBalance(ethWrapperAddress: string): Promise<Amount> {
-    const endpoint = `tokens/${ethWrapperAddress}/users/${
+    const endpoint = `${this.relayApiUrl}/tokens/${ethWrapperAddress}/users/${
       this.user.address
     }/balance`
     const balance = await this.utils.fetchUrl<string>(endpoint)
@@ -170,7 +177,7 @@ export class EthWrapper {
     filter: EventFilterOptions = {}
   ): Promise<AnyTokenEvent[]> {
     const { type, fromBlock } = filter
-    const baseUrl = `tokens/${ethWrapperAddress}/users/${
+    const baseUrl = `${this.relayApiUrl}/tokens/${ethWrapperAddress}/users/${
       this.user.address
     }/events`
     const events = await this.utils.fetchUrl<AnyTokenEventRaw[]>(

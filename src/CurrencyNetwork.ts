@@ -16,9 +16,11 @@ import {
  * currency network related information.
  */
 export class CurrencyNetwork {
+  private relayApiUrl: string
   private utils: Utils
 
-  constructor(utils: Utils) {
+  constructor(relayApiUrl: string, utils: Utils) {
+    this.relayApiUrl = relayApiUrl
     this.utils = utils
   }
 
@@ -26,7 +28,9 @@ export class CurrencyNetwork {
    * Returns all registered currency networks.
    */
   public async getAll(): Promise<NetworkDetails[]> {
-    const networks = await this.utils.fetchUrl<NetworkDetailsRaw[]>(`networks`)
+    const networks = await this.utils.fetchUrl<NetworkDetailsRaw[]>(
+      `${this.relayApiUrl}/networks`
+    )
     return networks.map(network => ({
       ...network,
       defaultInterestRate: this.utils.formatToAmount(
@@ -44,7 +48,7 @@ export class CurrencyNetwork {
   public async getInfo(networkAddress: string): Promise<NetworkDetails> {
     await this._checkAddresses([networkAddress])
     const networkInfo = await this.utils.fetchUrl<NetworkDetailsRaw>(
-      `networks/${networkAddress}`
+      `${this.relayApiUrl}/networks/${networkAddress}`
     )
     return {
       ...networkInfo,
@@ -61,7 +65,9 @@ export class CurrencyNetwork {
    */
   public async getUsers(networkAddress: string): Promise<string[]> {
     await this._checkAddresses([networkAddress])
-    return this.utils.fetchUrl<string[]>(`networks/${networkAddress}/users`)
+    return this.utils.fetchUrl<string[]>(
+      `${this.relayApiUrl}/networks/${networkAddress}/users`
+    )
   }
 
   /**
@@ -76,7 +82,7 @@ export class CurrencyNetwork {
     await this._checkAddresses([networkAddress, userAddress])
     const [overview, { networkDecimals }] = await Promise.all([
       this.utils.fetchUrl<UserOverviewRaw>(
-        `networks/${networkAddress}/users/${userAddress}`
+        `${this.relayApiUrl}/networks/${networkAddress}/users/${userAddress}`
       ),
       this.getDecimals(networkAddress)
     ])

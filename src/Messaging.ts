@@ -5,11 +5,25 @@ import { Utils } from './Utils'
 import { Observable } from 'rxjs/Observable'
 
 export class Messaging {
+  private user: User
+  private utils: Utils
+  private currencyNetwork: CurrencyNetwork
+  private relayApiUrl: string
+  private relayWsApiUrl: string
+
   constructor(
-    private user: User,
-    private utils: Utils,
-    private currencyNetwork: CurrencyNetwork
-  ) {}
+    user: User,
+    utils: Utils,
+    currencyNetwork: CurrencyNetwork,
+    relayApiUrl: string,
+    relayWsApiUrl: string
+  ) {
+    this.user = user
+    this.utils = utils
+    this.currencyNetwork = currencyNetwork
+    this.relayApiUrl = relayApiUrl
+    this.relayWsApiUrl = relayWsApiUrl
+  }
 
   public paymentRequest(
     network: string,
@@ -43,13 +57,16 @@ export class Messaging {
         headers,
         method: 'POST'
       }
-      return this.utils.fetchUrl(`messages/${user}`, options)
+      return this.utils.fetchUrl(
+        `${this.relayApiUrl}/messages/${user}`,
+        options
+      )
     })
   }
 
   public messageStream(): Observable<any> {
     return this.utils
-      .websocketStream('streams/messages', 'listen', {
+      .websocketStream(`${this.relayWsApiUrl}/streams/messages`, 'listen', {
         type: 'all',
         user: this.user.address
       })

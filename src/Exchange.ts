@@ -46,6 +46,7 @@ export class Exchange {
   private transaction: Transaction
   private currencyNetwork: CurrencyNetwork
   private payment: Payment
+  private relayApiUrl: string
 
   constructor(
     event: Event,
@@ -53,7 +54,8 @@ export class Exchange {
     utils: Utils,
     transaction: Transaction,
     currencyNetwork: CurrencyNetwork,
-    payment: Payment
+    payment: Payment,
+    relayApiUrl: string
   ) {
     this.event = event
     this.user = user
@@ -61,13 +63,16 @@ export class Exchange {
     this.transaction = transaction
     this.currencyNetwork = currencyNetwork
     this.payment = payment
+    this.relayApiUrl = relayApiUrl
   }
 
   /**
    * Returns all known exchange contract addresses.
    */
   public getExAddresses(): Promise<string[]> {
-    return this.utils.fetchUrl<string[]>('exchange/exchanges')
+    return this.utils.fetchUrl<string[]>(
+      `${this.relayApiUrl}/exchange/exchanges`
+    )
   }
 
   /**
@@ -85,7 +90,7 @@ export class Exchange {
   ): Promise<SignedOrder> {
     const { makerTokenDecimals, takerTokenDecimals } = options
     const order = await this.utils.fetchUrl<SignedOrderRaw>(
-      `exchange/order/${orderHash}`
+      `${this.relayApiUrl}/exchange/order/${orderHash}`
     )
     const [
       { networkDecimals: makerDecimals },
@@ -113,16 +118,19 @@ export class Exchange {
    * @param query.trader Orders where `maker` or `taker` is `trader`.
    */
   public async getOrders(query: OrdersQuery = {}): Promise<SignedOrder[]> {
-    const queryEndpoint = this.utils.buildUrl('exchange/orders', {
-      exchangeContractAddress: query.exchangeContractAddress,
-      feeRecipient: query.feeRecipient,
-      maker: query.maker,
-      makerTokenAddress: query.makerTokenAddress,
-      taker: query.taker,
-      takerTokenAddress: query.takerTokenAddress,
-      tokenAddress: query.tokenAddress,
-      trader: query.trader
-    })
+    const queryEndpoint = this.utils.buildUrl(
+      `${this.relayApiUrl}/exchange/orders`,
+      {
+        exchangeContractAddress: query.exchangeContractAddress,
+        feeRecipient: query.feeRecipient,
+        maker: query.maker,
+        makerTokenAddress: query.makerTokenAddress,
+        taker: query.taker,
+        takerTokenAddress: query.takerTokenAddress,
+        tokenAddress: query.tokenAddress,
+        trader: query.trader
+      }
+    )
     const orders = await this.utils.fetchUrl<SignedOrderRaw[]>(queryEndpoint)
     const addressesMap = this._getUniqueTokenAddresses(orders)
     const decimalsMap = await this.event.getDecimalsMap(addressesMap)
@@ -163,7 +171,10 @@ export class Exchange {
       })
     ])
     const params = { baseTokenAddress, quoteTokenAddress }
-    const endpoint = this.utils.buildUrl('exchange/orderbook', params)
+    const endpoint = this.utils.buildUrl(
+      `${this.relayApiUrl}/exchange/orderbook`,
+      params
+    )
     const orderbook = await this.utils.fetchUrl<OrderbookRaw>(endpoint)
     const { asks, bids } = orderbook
     return {
@@ -245,7 +256,10 @@ export class Exchange {
       ...orderWithFees,
       ecSignature
     }
-    await this._postRequest('exchange/order', signedOrderRaw)
+    await this._postRequest(
+      `${this.relayApiUrl}/exchange/order`,
+      signedOrderRaw
+    )
     return this._formatOrderRaw(signedOrderRaw, makerDecimals, takerDecimals)
   }
 
@@ -431,7 +445,7 @@ export class Exchange {
     exchangeAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<AnyExchangeEvent[]> {
-    const baseUrl = `exchange/${exchangeAddress}/users/${
+    const baseUrl = `${this.relayApiUrl}/exchange/${exchangeAddress}/users/${
       this.user.address
     }/events`
     const parameterUrl = this.utils.buildUrl(baseUrl, filter)

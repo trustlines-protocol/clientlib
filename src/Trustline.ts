@@ -30,19 +30,22 @@ export class Trustline {
   private utils: Utils
   private transaction: Transaction
   private currencyNetwork: CurrencyNetwork
+  private relayApiUrl: string
 
   constructor(
     event: Event,
     user: User,
     utils: Utils,
     transaction: Transaction,
-    currencyNetwork: CurrencyNetwork
+    currencyNetwork: CurrencyNetwork,
+    relayApiUrl: string
   ) {
     this.event = event
     this.user = user
     this.utils = utils
     this.transaction = transaction
     this.currencyNetwork = currencyNetwork
+    this.relayApiUrl = relayApiUrl
   }
 
   /**
@@ -190,7 +193,7 @@ export class Trustline {
    * @param networkAddress Address of a currency network.
    */
   public async getAll(networkAddress: string): Promise<TrustlineObject[]> {
-    const endpoint = `networks/${networkAddress}/users/${
+    const endpoint = `${this.relayApiUrl}/networks/${networkAddress}/users/${
       this.user.address
     }/trustlines`
     const [
@@ -214,7 +217,7 @@ export class Trustline {
     networkAddress: string,
     counterpartyAddress: string
   ): Promise<TrustlineObject> {
-    const endpoint = `networks/${networkAddress}/users/${
+    const endpoint = `${this.relayApiUrl}/networks/${networkAddress}/users/${
       this.user.address
     }/trustlines/${counterpartyAddress}`
     const [
@@ -363,7 +366,9 @@ export class Trustline {
     })
 
     // Define the relay endpoint.
-    const endpoint = `networks/${networkAddress}/close-trustline-path-info`
+    const endpoint = `${
+      this.relayApiUrl
+    }/networks/${networkAddress}/close-trustline-path-info`
 
     // Define properties for the relay request.
     const data = {

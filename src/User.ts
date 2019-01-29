@@ -14,11 +14,18 @@ export class User {
   private signer: TxSigner
   private transaction: Transaction
   private utils: Utils
+  private relayApiUrl: string
 
-  constructor(signer: TxSigner, transaction: Transaction, utils: Utils) {
+  constructor(
+    signer: TxSigner,
+    transaction: Transaction,
+    utils: Utils,
+    relayApiUrl: string
+  ) {
     this.signer = signer
     this.transaction = transaction
     this.utils = utils
+    this.relayApiUrl = relayApiUrl
   }
 
   /**
@@ -176,7 +183,10 @@ export class User {
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'POST'
     }
-    return this.utils.fetchUrl<string>('request-ether', options)
+    return this.utils.fetchUrl<string>(
+      `${this.relayApiUrl}/request-ether`,
+      options
+    )
   }
 
   /**

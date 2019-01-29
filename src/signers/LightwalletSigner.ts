@@ -22,14 +22,16 @@ export class LightwalletSigner implements TxSigner {
   public keystore: any
 
   private lightwallet: any
+  private relayApiUrl: string
   private utils: Utils
 
   private password = 'ts'
   private signingPath = "m/44'/60'/0'/0" // path for signing keys
   private userNotLoadedError = new Error('No account/keystore loaded.')
 
-  constructor(lightwallet: any, utils: Utils) {
+  constructor(lightwallet: any, relayApiUrl: string, utils: Utils) {
     this.lightwallet = lightwallet
+    this.relayApiUrl = relayApiUrl
     this.utils = utils
   }
 
@@ -127,7 +129,7 @@ export class LightwalletSigner implements TxSigner {
       throw this.userNotLoadedError
     }
     const balance = await this.utils.fetchUrl<string>(
-      `users/${this.address}/balance`
+      `${this.relayApiUrl}/users/${this.address}/balance`
     )
     return this.utils.formatToAmount(this.utils.calcRaw(balance, 18), 18)
   }
@@ -308,7 +310,7 @@ export class LightwalletSigner implements TxSigner {
    *          See type `TxInfos` for more details.
    */
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
-    const endpoint = `users/${userAddress}/txinfos`
+    const endpoint = `${this.relayApiUrl}/users/${userAddress}/txinfos`
     const { nonce, gasPrice, balance } = await this.utils.fetchUrl<TxInfosRaw>(
       endpoint
     )
@@ -330,7 +332,7 @@ export class LightwalletSigner implements TxSigner {
       headers,
       method: 'POST'
     }
-    return this.utils.fetchUrl<string>('relay', options)
+    return this.utils.fetchUrl<string>(`${this.relayApiUrl}/relay`, options)
   }
 
   /**

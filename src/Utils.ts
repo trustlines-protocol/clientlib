@@ -322,6 +322,40 @@ export class Utils {
   }
 
   /**
+   * Checks if given string is a valid url.
+   * @param str String to check.
+   */
+  public isURL(str) {
+    const pattern = new RegExp(
+      '^(https?:\\/\\/)?' + // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$',
+      'i'
+    ) // fragment locator
+    return pattern.test(str)
+  }
+
+  /**
+   * Returns URL by concatenating protocol, host, port and path.
+   * @param protocol relay api endpoint protocol
+   * @param host relay api host address
+   * @param port relay api port
+   * @param path relay api base endpoint
+   */
+  public buildApiUrl(
+    protocol: string,
+    host: string,
+    port: number | string,
+    path: string
+  ): string {
+    return `${protocol}://${host}${port && `:${port}`}${path &&
+      `/${this._trimUrl(path)}`}`
+  }
+
+  /**
    * Adds a slash to the endpoint if it does not start with it.
    * @param endpoint Endpoint to format.
    */
@@ -330,5 +364,16 @@ export class Utils {
       return `/${endpoint}`
     }
     return endpoint
+  }
+
+  /**
+   * Trims url from slashes.
+   * @param url URL to be trimmed from slashes.
+   */
+  private _trimUrl(url: string): string {
+    return url
+      .split('/')
+      .filter(split => split)
+      .join('/')
   }
 }

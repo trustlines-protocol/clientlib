@@ -27,19 +27,22 @@ export class Payment {
   private utils: Utils
   private transaction: Transaction
   private currencyNetwork: CurrencyNetwork
+  private relayApiUrl: string
 
   constructor(
     event: Event,
     user: User,
     utils: Utils,
     transaction: Transaction,
-    currencyNetwork: CurrencyNetwork
+    currencyNetwork: CurrencyNetwork,
+    relayApiUrl: string
   ) {
     this.event = event
     this.user = user
     this.utils = utils
     this.transaction = transaction
     this.currencyNetwork = currencyNetwork
+    this.relayApiUrl = relayApiUrl
   }
 
   /**
@@ -166,7 +169,7 @@ export class Payment {
       to: receiverAddress,
       value: this.utils.calcRaw(value, decimals.networkDecimals).toString()
     }
-    const endpoint = `networks/${networkAddress}/path-info`
+    const endpoint = `${this.relayApiUrl}/networks/${networkAddress}/path-info`
     const { estimatedGas, fees, path } = await this.utils.fetchUrl<PathRaw>(
       endpoint,
       {
@@ -243,7 +246,9 @@ export class Payment {
       networkAddress
     )
     const userAddress = this.user.address
-    const endpoint = `networks/${networkAddress}/max-capacity-path-info`
+    const endpoint = `${
+      this.relayApiUrl
+    }/networks/${networkAddress}/max-capacity-path-info`
     const result = await this.utils.fetchUrl<{
       capacity: number
       path: string[]
