@@ -25,7 +25,7 @@ export class RelayProvider implements TLProvider {
    * Returns a `Promise` with a `ethers.Network` object describing the
    * connected network and chain of the relay.
    */
-  public getNetwork(): Promise<ethers.utils.Network> {
+  public async getNetwork(): Promise<ethers.utils.Network> {
     throw new Error('Method not implemented.')
   }
 
@@ -128,7 +128,7 @@ export class RelayProvider implements TLProvider {
   /**
    * Returns a `Promise` with the current gas price as a `BigNumber`.
    */
-  public getGasPrice(): Promise<ethers.utils.BigNumber> {
+  public async getGasPrice(): Promise<ethers.utils.BigNumber> {
     throw new Error('Method not implemented.')
   }
 
@@ -137,7 +137,7 @@ export class RelayProvider implements TLProvider {
    * @param blockHashOrBlockTag
    * @param includeTransactions
    */
-  public getBlock(
+  public async getBlock(
     blockHashOrBlockTag: string | number | Promise<ethers.providers.BlockTag>,
     includeTransactions?: boolean
   ): Promise<ethers.providers.Block> {
@@ -149,7 +149,7 @@ export class RelayProvider implements TLProvider {
    * Returns a `Promise` with the transaction with the given _transactionsHash_.
    * @param transactionHash
    */
-  public getTransaction(
+  public async getTransaction(
     transactionHash: string
   ): Promise<ethers.providers.TransactionResponse> {
     // TODO implement `GET /transaction`
@@ -160,7 +160,7 @@ export class RelayProvider implements TLProvider {
    * Returns a `Promise` with the transaction receipt of the given _transactionHash_.
    * @param transactionHash
    */
-  public getTransactionReceipt(
+  public async getTransactionReceipt(
     transactionHash: string
   ): Promise<ethers.providers.TransactionReceipt> {
     // TODO implement `GET /transaction-receipt`
@@ -171,11 +171,13 @@ export class RelayProvider implements TLProvider {
   // ENS //
   /////////
 
-  public resolveName(name: string | Promise<string>): Promise<string> {
+  public async resolveName(name: string | Promise<string>): Promise<string> {
     throw new Error('Method not supported by relay server.')
   }
 
-  public lookupAddress(address: string | Promise<string>): Promise<string> {
+  public async lookupAddress(
+    address: string | Promise<string>
+  ): Promise<string> {
     throw new Error('Method not supported by relay server.')
   }
 
@@ -188,11 +190,33 @@ export class RelayProvider implements TLProvider {
    * blockchain and return a `Promise` with a `Transaction Request`.
    * @param signedTransaction
    */
-  public sendTransaction(
+  public async sendTransaction(
     signedTransaction: string | Promise<string>
   ): Promise<ethers.providers.TransactionResponse> {
-    // TODO use existing `POST /relay`
-    throw new Error('Method not implemented.')
+    if (typeof signedTransaction !== 'string') {
+      signedTransaction = await signedTransaction
+    }
+    const transaction = ethers.utils.parseTransaction(signedTransaction)
+    await this.relayTx(signedTransaction)
+    return {
+      chainId: undefined,
+      confirmations: undefined,
+      data: transaction.data,
+      from: transaction.from,
+      gasLimit: transaction.gasLimit,
+      gasPrice: transaction.gasPrice,
+      hash: transaction.hash,
+      nonce: transaction.nonce,
+      r: transaction.r,
+      raw: signedTransaction,
+      s: transaction.s,
+      to: transaction.to,
+      v: transaction.v,
+      value: transaction.value,
+      wait: async () => {
+        throw new Error('Method not implemented.')
+      }
+    }
   }
 
   /**
@@ -201,7 +225,7 @@ export class RelayProvider implements TLProvider {
    * @param transaction
    * @param blockTag
    */
-  public call(
+  public async call(
     transaction: ethers.providers.TransactionRequest,
     blockTag?: string | number | Promise<ethers.providers.BlockTag>
   ): Promise<string> {
@@ -214,7 +238,7 @@ export class RelayProvider implements TLProvider {
    * with the estimated amount of gas required to send it.
    * @param transaction
    */
-  public estimateGas(
+  public async estimateGas(
     transaction: ethers.providers.TransactionRequest
   ): Promise<ethers.utils.BigNumber> {
     // TODO implement `POST /estimate-gas`
@@ -230,7 +254,7 @@ export class RelayProvider implements TLProvider {
    * @param address
    * @param blockTag
    */
-  public getCode(
+  public async getCode(
     address: string | Promise<string>,
     blockTag?: string | number | Promise<ethers.providers.BlockTag>
   ): Promise<string> {
@@ -245,7 +269,7 @@ export class RelayProvider implements TLProvider {
    * @param position
    * @param blockTag
    */
-  public getStorageAt(
+  public async getStorageAt(
     address: string | Promise<string>,
     position:
       | string
@@ -263,7 +287,7 @@ export class RelayProvider implements TLProvider {
    * Returns a `Promise` with an array of the logs that match the _filter_.
    * @param filter
    */
-  public getLogs(
+  public async getLogs(
     filter: ethers.providers.Filter
   ): Promise<ethers.providers.Log[]> {
     // TODO implement `GET /logs`
@@ -349,10 +373,28 @@ export class RelayProvider implements TLProvider {
    * @param transactionHash
    * @param timeout
    */
-  public waitForTransaction(
+  public async waitForTransaction(
     transactionHash: string,
     timeout?: number
   ): Promise<ethers.providers.TransactionReceipt> {
     throw new Error('Method not implemented.')
+  }
+
+  ///////////////////
+  // Relay Helpers //
+  ///////////////////
+
+  /**
+   * Relays signed rlp encoded transaction.
+   * @param signedTx Signed RLP encoded ethereum transaction.
+   */
+  public async relayTx(signedTx: string): Promise<string> {
+    const headers = new Headers({ 'Content-Type': 'application/json' })
+    const options = {
+      body: JSON.stringify({ rawTransaction: signedTx }),
+      headers,
+      method: 'POST'
+    }
+    return this.utils.fetchUrl<string>(`${this.relayApiUrl}/relay`, options)
   }
 }

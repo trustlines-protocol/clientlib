@@ -150,27 +150,7 @@ export class RelaySigner implements TLSigner {
       to: transaction.to,
       value: transaction.value
     })
-    const { r, s, v } = ethers.utils.parseTransaction(signedTransaction)
-    const txHash = await this._relayTx(signedTransaction)
-    return {
-      chainId: undefined,
-      confirmations: undefined,
-      data: transaction.data as string,
-      from: transaction.from as string,
-      gasLimit: transaction.gasLimit as ethers.utils.BigNumber,
-      gasPrice: transaction.gasPrice as ethers.utils.BigNumber,
-      hash: txHash,
-      nonce: transaction.nonce as number,
-      r,
-      raw: signedTransaction,
-      s,
-      to: transaction.to as string,
-      v,
-      value: transaction.value as ethers.utils.BigNumber,
-      wait: async () => {
-        throw new Error('Method not implemented.')
-      }
-    }
+    return this.provider.sendTransaction(signedTransaction)
   }
 
   /////////////////////////////
@@ -183,27 +163,6 @@ export class RelaySigner implements TLSigner {
 
   public async decrypt(encMsg: any, theirPubKey: string): Promise<any> {
     throw new Error('Method not implemented.')
-  }
-
-  ///////////////////
-  // Relay Helpers //
-  ///////////////////
-
-  /**
-   * Relays signed rlp encoded transaction.
-   * @param signedTx Signed RLP encoded ethereum transaction.
-   */
-  private async _relayTx(signedTx: string): Promise<string> {
-    const headers = new Headers({ 'Content-Type': 'application/json' })
-    const options = {
-      body: JSON.stringify({ rawTransaction: signedTx }),
-      headers,
-      method: 'POST'
-    }
-    return this.utils.fetchUrl<string>(
-      `${this.provider.relayApiUrl}/relay`,
-      options
-    )
   }
 
   ///////////////
