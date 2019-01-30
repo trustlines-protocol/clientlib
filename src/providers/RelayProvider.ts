@@ -395,6 +395,6 @@ export class RelayProvider implements TLProvider {
       headers,
       method: 'POST'
     }
-    return this.utils.fetchUrl<string>(`${this.relayApiUrl}/relay`, options)
+    return this.fetchEndpoint<string>(`relay`, options)
   }
 }

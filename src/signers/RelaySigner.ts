@@ -1,7 +1,6 @@
 import { ethers } from 'ethers'
 
-import { RelayProvider } from '../providers/RelayProvider'
-import { Utils } from '../Utils'
+import { TLProvider } from '../providers/TLProvider'
 import { TLSigner } from './TLSigner'
 
 import { Signature, UserObject } from '../typings'
@@ -10,14 +9,12 @@ import { Signature, UserObject } from '../typings'
  * The LightwalletSigner class contains functions for signing transactions with eth-lightwallet.
  */
 export class RelaySigner implements TLSigner {
-  public provider: RelayProvider
+  public provider: TLProvider
 
-  private utils: Utils
   private wallet: ethers.Wallet
 
-  constructor(provider: RelayProvider, utils: Utils) {
+  constructor(provider: TLProvider) {
     this.provider = provider
-    this.utils = utils
   }
 
   ///////////////
@@ -25,21 +22,21 @@ export class RelaySigner implements TLSigner {
   ///////////////
 
   public get address(): string {
-    return this.wallet ? this.wallet.address : null
+    return this.wallet ? this.wallet.address : undefined
   }
 
   public get pubKey(): string {
     return this.wallet
       ? ethers.utils.computePublicKey(this.wallet.privateKey)
-      : null
+      : undefined
   }
 
   public get mnemonic(): string {
-    return this.wallet ? this.wallet.mnemonic : null
+    return this.wallet ? this.wallet.mnemonic : undefined
   }
 
   public get privateKey(): string {
-    return this.wallet ? this.wallet.privateKey : null
+    return this.wallet ? this.wallet.privateKey : undefined
   }
 
   public async getAddress(): Promise<string> {
@@ -163,15 +160,5 @@ export class RelaySigner implements TLSigner {
 
   public async decrypt(encMsg: any, theirPubKey: string): Promise<any> {
     throw new Error('Method not implemented.')
-  }
-
-  ///////////////
-  // Exception //
-  ///////////////
-  private _assertWalletInitialized() {
-    if (!this.wallet) {
-      throw new Error('No wallet initialized.')
-    }
-    return
   }
 }
