@@ -5,9 +5,17 @@ import * as ethUtils from 'ethereumjs-util'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
 import { Payment } from './Payment'
+import { TLProvider } from './providers/TLProvider'
 import { Transaction } from './Transaction'
 import { User } from './User'
-import { Utils } from './Utils'
+
+import {
+  buildUrl,
+  calcRaw,
+  convertToAmount,
+  convertToHexString,
+  formatToAmount
+} from './utils'
 
 import {
   AnyExchangeEvent,
@@ -42,37 +50,32 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 export class Exchange {
   private event: Event
   private user: User
-  private utils: Utils
   private transaction: Transaction
   private currencyNetwork: CurrencyNetwork
   private payment: Payment
-  private relayApiUrl: string
+  private provider: TLProvider
 
-  constructor(
-    event: Event,
-    user: User,
-    utils: Utils,
-    transaction: Transaction,
-    currencyNetwork: CurrencyNetwork,
-    payment: Payment,
-    relayApiUrl: string
-  ) {
-    this.event = event
-    this.user = user
-    this.utils = utils
-    this.transaction = transaction
-    this.currencyNetwork = currencyNetwork
-    this.payment = payment
-    this.relayApiUrl = relayApiUrl
+  constructor(params: {
+    currencyNetwork: CurrencyNetwork
+    event: Event
+    payment: Payment
+    provider: TLProvider
+    transaction: Transaction
+    user: User
+  }) {
+    this.event = params.event
+    this.user = params.user
+    this.transaction = params.transaction
+    this.currencyNetwork = params.currencyNetwork
+    this.payment = params.payment
+    this.provider = params.provider
   }
 
   /**
    * Returns all known exchange contract addresses.
    */
   public getExAddresses(): Promise<string[]> {
-    return this.utils.fetchUrl<string[]>(
-      `${this.relayApiUrl}/exchange/exchanges`
-    )
+    return this.provider.fetchEndpoint<string[]>(`/exchange/exchanges`)
   }
 
   /**
@@ -89,8 +92,8 @@ export class Exchange {
     options: OrderOptions = {}
   ): Promise<SignedOrder> {
     const { makerTokenDecimals, takerTokenDecimals } = options
-    const order = await this.utils.fetchUrl<SignedOrderRaw>(
-      `${this.relayApiUrl}/exchange/order/${orderHash}`
+    const order = await this.provider.fetchEndpoint<SignedOrderRaw>(
+      `/exchange/order/${orderHash}`
     )
     const [
       { networkDecimals: makerDecimals },
@@ -118,20 +121,19 @@ export class Exchange {
    * @param query.trader Orders where `maker` or `taker` is `trader`.
    */
   public async getOrders(query: OrdersQuery = {}): Promise<SignedOrder[]> {
-    const queryEndpoint = this.utils.buildUrl(
-      `${this.relayApiUrl}/exchange/orders`,
-      {
-        exchangeContractAddress: query.exchangeContractAddress,
-        feeRecipient: query.feeRecipient,
-        maker: query.maker,
-        makerTokenAddress: query.makerTokenAddress,
-        taker: query.taker,
-        takerTokenAddress: query.takerTokenAddress,
-        tokenAddress: query.tokenAddress,
-        trader: query.trader
-      }
+    const queryEndpoint = buildUrl(`/exchange/orders`, {
+      exchangeContractAddress: query.exchangeContractAddress,
+      feeRecipient: query.feeRecipient,
+      maker: query.maker,
+      makerTokenAddress: query.makerTokenAddress,
+      taker: query.taker,
+      takerTokenAddress: query.takerTokenAddress,
+      tokenAddress: query.tokenAddress,
+      trader: query.trader
+    })
+    const orders = await this.provider.fetchEndpoint<SignedOrderRaw[]>(
+      queryEndpoint
     )
-    const orders = await this.utils.fetchUrl<SignedOrderRaw[]>(queryEndpoint)
     const addressesMap = this._getUniqueTokenAddresses(orders)
     const decimalsMap = await this.event.getDecimalsMap(addressesMap)
     return orders.map(order =>
@@ -171,11 +173,8 @@ export class Exchange {
       })
     ])
     const params = { baseTokenAddress, quoteTokenAddress }
-    const endpoint = this.utils.buildUrl(
-      `${this.relayApiUrl}/exchange/orderbook`,
-      params
-    )
-    const orderbook = await this.utils.fetchUrl<OrderbookRaw>(endpoint)
+    const endpoint = buildUrl(`/exchange/orderbook`, params)
+    const orderbook = await this.provider.fetchEndpoint<OrderbookRaw>(endpoint)
     const { asks, bids } = orderbook
     return {
       asks: asks.map(a => this._formatOrderRaw(a, baseDecimals, quoteDecimals)),
@@ -222,12 +221,14 @@ export class Exchange {
       })
     ])
     const orderRaw = {
-      availableMakerTokenAmount: this.utils
-        .calcRaw(makerTokenValue, makerDecimals)
-        .toString(),
-      availableTakerTokenAmount: this.utils
-        .calcRaw(takerTokenValue, takerDecimals)
-        .toString(),
+      availableMakerTokenAmount: calcRaw(
+        makerTokenValue,
+        makerDecimals
+      ).toString(),
+      availableTakerTokenAmount: calcRaw(
+        takerTokenValue,
+        takerDecimals
+      ).toString(),
       cancelledMakerTokenAmount: '0',
       cancelledTakerTokenAmount: '0',
       exchangeContractAddress,
@@ -238,16 +239,12 @@ export class Exchange {
       maker: this.user.address,
       makerFee: '0',
       makerTokenAddress: ethUtils.toChecksumAddress(makerTokenAddress),
-      makerTokenAmount: this.utils
-        .calcRaw(makerTokenValue, makerDecimals)
-        .toString(),
+      makerTokenAmount: calcRaw(makerTokenValue, makerDecimals).toString(),
       salt: Math.floor(Math.random() * 1000000000).toString(),
       taker: ZERO_ADDRESS,
       takerFee: '0',
       takerTokenAddress: ethUtils.toChecksumAddress(takerTokenAddress),
-      takerTokenAmount: this.utils
-        .calcRaw(takerTokenValue, takerDecimals)
-        .toString()
+      takerTokenAmount: calcRaw(takerTokenValue, takerDecimals).toString()
     }
     const orderWithFees = await this._getFees(orderRaw)
     const orderHash = this._getOrderHashHex(orderWithFees)
@@ -256,10 +253,7 @@ export class Exchange {
       ...orderWithFees,
       ecSignature
     }
-    await this._postRequest(
-      `${this.relayApiUrl}/exchange/order`,
-      signedOrderRaw
-    )
+    await this._postRequest(`/exchange/order`, signedOrderRaw)
     return this._formatOrderRaw(signedOrderRaw, makerDecimals, takerDecimals)
   }
 
@@ -343,9 +337,7 @@ export class Exchange {
       [
         orderAddresses,
         orderValues,
-        this.utils.convertToHexString(
-          this.utils.calcRaw(fillTakerTokenValue, takerDecimals)
-        ),
+        convertToHexString(calcRaw(fillTakerTokenValue, takerDecimals)),
         makerPathObj.path.length === 1
           ? makerPathObj.path
           : makerPathObj.path.slice(1),
@@ -367,7 +359,7 @@ export class Exchange {
       }
     )
     return {
-      ethFees: this.utils.convertToAmount(ethFees),
+      ethFees: convertToAmount(ethFees),
       makerMaxFees: makerPathObj.maxFees,
       makerPath: makerPathObj.path,
       rawTx,
@@ -410,9 +402,7 @@ export class Exchange {
       [
         orderAddresses,
         orderValues,
-        this.utils.convertToHexString(
-          this.utils.calcRaw(cancelTakerTokenValue, takerDecimals)
-        )
+        convertToHexString(calcRaw(cancelTakerTokenValue, takerDecimals))
       ],
       {
         gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
@@ -420,7 +410,7 @@ export class Exchange {
       }
     )
     return {
-      ethFees: this.utils.convertToAmount(ethFees),
+      ethFees: convertToAmount(ethFees),
       rawTx
     }
   }
@@ -445,11 +435,11 @@ export class Exchange {
     exchangeAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<AnyExchangeEvent[]> {
-    const baseUrl = `${this.relayApiUrl}/exchange/${exchangeAddress}/users/${
+    const baseUrl = `/exchange/${exchangeAddress}/users/${
       this.user.address
     }/events`
-    const parameterUrl = this.utils.buildUrl(baseUrl, filter)
-    const rawEvents = await this.utils.fetchUrl<AnyExchangeEventRaw[]>(
+    const parameterUrl = buildUrl(baseUrl, filter)
+    const rawEvents = await this.provider.fetchEndpoint<AnyExchangeEventRaw[]>(
       parameterUrl
     )
     const formattedEvents = await this.event.setDecimalsAndFormat(rawEvents)
@@ -483,7 +473,7 @@ export class Exchange {
     return {
       estimatedGas: new BigNumber(40000),
       isNetwork: false,
-      maxFees: this.utils.formatToAmount(0, networkDecimals),
+      maxFees: formatToAmount(0, networkDecimals),
       path: []
     }
   }
@@ -510,14 +500,12 @@ export class Exchange {
    */
   private _getOrderValues(order: Order): string[] {
     return [
-      this.utils.convertToHexString(new BigNumber(order.makerTokenAmount.raw)),
-      this.utils.convertToHexString(new BigNumber(order.takerTokenAmount.raw)),
-      this.utils.convertToHexString(new BigNumber('0')), // NOTE fees disabled
-      this.utils.convertToHexString(new BigNumber('0')), // NOTE fees disabled
-      this.utils.convertToHexString(
-        new BigNumber(order.expirationUnixTimestampSec)
-      ),
-      this.utils.convertToHexString(new BigNumber(order.salt))
+      convertToHexString(new BigNumber(order.makerTokenAmount.raw)),
+      convertToHexString(new BigNumber(order.takerTokenAmount.raw)),
+      convertToHexString(new BigNumber('0')), // NOTE fees disabled
+      convertToHexString(new BigNumber('0')), // NOTE fees disabled
+      convertToHexString(new BigNumber(order.expirationUnixTimestampSec)),
+      convertToHexString(new BigNumber(order.salt))
     ]
   }
 
@@ -561,7 +549,7 @@ export class Exchange {
    * @param payload Body of POST request.
    */
   private _postRequest(path: string, payload: any): Promise<any> {
-    return this.utils.fetchUrl(path, {
+    return this.provider.fetchEndpoint(path, {
       body: JSON.stringify(payload),
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'POST'
@@ -642,44 +630,38 @@ export class Exchange {
   ): SignedOrder {
     return {
       ...signedOrderRaw,
-      availableMakerTokenAmount: this.utils.formatToAmount(
+      availableMakerTokenAmount: formatToAmount(
         signedOrderRaw.availableMakerTokenAmount,
         makerDecimals
       ),
-      availableTakerTokenAmount: this.utils.formatToAmount(
+      availableTakerTokenAmount: formatToAmount(
         signedOrderRaw.availableTakerTokenAmount,
         takerDecimals
       ),
-      cancelledMakerTokenAmount: this.utils.formatToAmount(
+      cancelledMakerTokenAmount: formatToAmount(
         signedOrderRaw.cancelledMakerTokenAmount,
         makerDecimals
       ),
-      cancelledTakerTokenAmount: this.utils.formatToAmount(
+      cancelledTakerTokenAmount: formatToAmount(
         signedOrderRaw.cancelledTakerTokenAmount,
         takerDecimals
       ),
-      filledMakerTokenAmount: this.utils.formatToAmount(
+      filledMakerTokenAmount: formatToAmount(
         signedOrderRaw.filledMakerTokenAmount,
         makerDecimals
       ),
-      filledTakerTokenAmount: this.utils.formatToAmount(
+      filledTakerTokenAmount: formatToAmount(
         signedOrderRaw.filledTakerTokenAmount,
         takerDecimals
       ),
       hash: this._getOrderHashHex(signedOrderRaw),
-      makerFee: this.utils.formatToAmount(
-        signedOrderRaw.makerFee,
-        makerDecimals
-      ),
-      makerTokenAmount: this.utils.formatToAmount(
+      makerFee: formatToAmount(signedOrderRaw.makerFee, makerDecimals),
+      makerTokenAmount: formatToAmount(
         signedOrderRaw.makerTokenAmount,
         makerDecimals
       ),
-      takerFee: this.utils.formatToAmount(
-        signedOrderRaw.takerFee,
-        takerDecimals
-      ),
-      takerTokenAmount: this.utils.formatToAmount(
+      takerFee: formatToAmount(signedOrderRaw.takerFee, takerDecimals),
+      takerTokenAmount: formatToAmount(
         signedOrderRaw.takerTokenAmount,
         takerDecimals
       )

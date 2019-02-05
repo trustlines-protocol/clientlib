@@ -1,8 +1,9 @@
 import { Observable } from 'rxjs/Observable'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { TLProvider } from './providers/TLProvider'
 import { User } from './User'
-import { Utils } from './Utils'
+import { buildUrl, formatEvent, formatExchangeEvent } from './utils'
 
 import {
   AnyEvent,
@@ -21,24 +22,17 @@ const TOKEN = 'Token'
  */
 export class Event {
   private currencyNetwork: CurrencyNetwork
+  private provider: TLProvider
   private user: User
-  private utils: Utils
 
-  private relayApiUrl: string
-  private relayWsApiUrl: string
-
-  constructor(
-    user: User,
-    utils: Utils,
-    currencyNetwork: CurrencyNetwork,
-    relayApiUrl: string,
-    relayWsApiUrl: string
-  ) {
-    this.currencyNetwork = currencyNetwork
-    this.user = user
-    this.utils = utils
-    this.relayApiUrl = relayApiUrl
-    this.relayWsApiUrl = relayWsApiUrl
+  constructor(params: {
+    currencyNetwork: CurrencyNetwork
+    provider: TLProvider
+    user: User
+  }) {
+    this.currencyNetwork = params.currencyNetwork
+    this.provider = params.provider
+    this.user = params.user
   }
 
   /**
@@ -53,19 +47,19 @@ export class Event {
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<T[]> {
-    const baseUrl = `${this.relayApiUrl}/networks/${networkAddress}/users/${
+    const baseUrl = `/networks/${networkAddress}/users/${
       this.user.address
     }/events`
-    const parameterUrl = this.utils.buildUrl(baseUrl, filter)
+    const parameterUrl = buildUrl(baseUrl, filter)
     const [
       events,
       { networkDecimals, interestRateDecimals }
     ] = await Promise.all([
-      this.utils.fetchUrl<AnyNetworkEventRaw[]>(parameterUrl),
+      this.provider.fetchEndpoint<AnyNetworkEventRaw[]>(parameterUrl),
       this.currencyNetwork.getDecimals(networkAddress)
     ])
     return events.map(event =>
-      this.utils.formatEvent<T>(event, networkDecimals, interestRateDecimals)
+      formatEvent<T>(event, networkDecimals, interestRateDecimals)
     )
   }
 
@@ -79,9 +73,11 @@ export class Event {
    * @param filter.fromBlock Start of block range for event logs.
    */
   public async getAll(filter: EventFilterOptions = {}): Promise<AnyEvent[]> {
-    const baseUrl = `${this.relayApiUrl}/users/${this.user.address}/events`
-    const parameterUrl = this.utils.buildUrl(baseUrl, filter)
-    const events = await this.utils.fetchUrl<AnyEventRaw[]>(parameterUrl)
+    const endpoint = `/users/${this.user.address}/events`
+    const parameterUrl = buildUrl(endpoint, filter)
+    const events = await this.provider.fetchEndpoint<AnyEventRaw[]>(
+      parameterUrl
+    )
     return this.setDecimalsAndFormat(events)
   }
 
@@ -89,8 +85,8 @@ export class Event {
    * @hidden
    */
   public updateStream(): Observable<any> {
-    return this.utils
-      .websocketStream(`${this.relayWsApiUrl}/streams/events`, 'subscribe', {
+    return this.provider
+      .createWebsocketStream('/streams/events', 'subscribe', {
         event: 'all',
         user: this.user.address
       })
@@ -99,11 +95,7 @@ export class Event {
           return this.currencyNetwork
             .getDecimals(event.networkAddress)
             .then(({ networkDecimals, interestRateDecimals }) =>
-              this.utils.formatEvent(
-                event,
-                networkDecimals,
-                interestRateDecimals
-              )
+              formatEvent(event, networkDecimals, interestRateDecimals)
             )
         } else {
           return Promise.resolve(event)
@@ -121,7 +113,7 @@ export class Event {
     const decimalsMap = await this.getDecimalsMap(addressesMap)
     return rawEvents.map(event => {
       if ((event as AnyNetworkEventRaw).networkAddress) {
-        return this.utils.formatEvent<AnyNetworkEventRaw>(
+        return formatEvent<AnyNetworkEventRaw>(
           event,
           decimalsMap[(event as AnyNetworkEventRaw).networkAddress]
             .networkDecimals,
@@ -130,7 +122,7 @@ export class Event {
         )
       }
       if ((event as AnyTokenEventRaw).tokenAddress) {
-        return this.utils.formatEvent<AnyTokenEventRaw>(
+        return formatEvent<AnyTokenEventRaw>(
           event,
           decimalsMap[(event as AnyTokenEventRaw).tokenAddress].networkDecimals,
           decimalsMap[(event as AnyTokenEventRaw).tokenAddress]
@@ -142,7 +134,7 @@ export class Event {
           makerTokenAddress,
           takerTokenAddress
         } = event as AnyExchangeEventRaw
-        return this.utils.formatExchangeEvent(
+        return formatExchangeEvent(
           event as AnyExchangeEventRaw,
           decimalsMap[makerTokenAddress].networkDecimals,
           decimalsMap[takerTokenAddress].networkDecimals

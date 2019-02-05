@@ -1,8 +1,10 @@
 import { BigNumber } from 'bignumber.js'
 import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
 
+import { TLProvider } from './providers/TLProvider'
 import { TxSigner } from './signers/TxSigner'
-import { Utils } from './Utils'
+
+import { formatToAmountInternal } from './utils'
 
 import { RawTxObject, TxObjectInternal, TxOptionsInternal } from './typings'
 
@@ -12,14 +14,12 @@ const ETH_DECIMALS = 18
  * The Transaction class contains functions that are needed for Ethereum transactions.
  */
 export class Transaction {
-  private utils: Utils
   private signer: TxSigner
-  private relayApiUrl: string
+  private provider: TLProvider
 
-  constructor(utils: Utils, signer: TxSigner, relayApiUrl: string) {
-    this.utils = utils
-    this.signer = signer
-    this.relayApiUrl = relayApiUrl
+  constructor(params: { signer: TxSigner; provider: TLProvider }) {
+    this.signer = params.signer
+    this.provider = params.provider
   }
 
   /**
@@ -57,7 +57,7 @@ export class Transaction {
     }
     const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
     return {
-      ethFees: this.utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
+      ethFees: formatToAmountInternal(ethFees, ETH_DECIMALS),
       rawTx
     }
   }
@@ -88,7 +88,7 @@ export class Transaction {
     }
     const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
     return {
-      ethFees: this.utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
+      ethFees: formatToAmountInternal(ethFees, ETH_DECIMALS),
       rawTx
     }
   }
@@ -114,6 +114,6 @@ export class Transaction {
    * Returns the latest block number of the underlying blockchain.
    */
   public getBlockNumber(): Promise<number> {
-    return this.utils.fetchUrl<number>(`${this.relayApiUrl}/blocknumber`)
+    return this.provider.fetchEndpoint<number>(`/blocknumber`)
   }
 }

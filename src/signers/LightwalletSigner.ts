@@ -1,8 +1,10 @@
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 
-import { Utils } from '../Utils'
+import { TLProvider } from '../providers/TLProvider'
 import { TxSigner } from './TxSigner'
+
+import { calcRaw, convertToHexString, formatToAmount } from '../utils'
 
 import {
   Amount,
@@ -22,17 +24,15 @@ export class LightwalletSigner implements TxSigner {
   public keystore: any
 
   private lightwallet: any
-  private relayApiUrl: string
-  private utils: Utils
+  private provider: TLProvider
 
   private password = 'ts'
   private signingPath = "m/44'/60'/0'/0" // path for signing keys
   private userNotLoadedError = new Error('No account/keystore loaded.')
 
-  constructor(lightwallet: any, relayApiUrl: string, utils: Utils) {
-    this.lightwallet = lightwallet
-    this.relayApiUrl = relayApiUrl
-    this.utils = utils
+  constructor(params: { lightwallet: any; provider: TLProvider }) {
+    this.lightwallet = params.lightwallet
+    this.provider = params.provider
   }
 
   /**
@@ -128,10 +128,10 @@ export class LightwalletSigner implements TxSigner {
     if (!this._isUserLoaded()) {
       throw this.userNotLoadedError
     }
-    const balance = await this.utils.fetchUrl<string>(
-      `${this.relayApiUrl}/users/${this.address}/balance`
+    const balance = await this.provider.fetchEndpoint<string>(
+      `/users/${this.address}/balance`
     )
-    return this.utils.formatToAmount(this.utils.calcRaw(balance, 18), 18)
+    return formatToAmount(calcRaw(balance, 18), 18)
   }
 
   /**
@@ -282,9 +282,9 @@ export class LightwalletSigner implements TxSigner {
     const txOptions = {
       ...rawTx,
       from: rawTx.from.toLowerCase(),
-      gasLimit: this.utils.convertToHexString(rawTx.gasLimit),
-      gasPrice: this.utils.convertToHexString(rawTx.gasPrice),
-      value: this.utils.convertToHexString(rawTx.value)
+      gasLimit: convertToHexString(rawTx.gasLimit),
+      gasPrice: convertToHexString(rawTx.gasPrice),
+      value: convertToHexString(rawTx.value)
     }
     if (txOptions.to) {
       txOptions.to = txOptions.to.toLowerCase()
@@ -310,10 +310,10 @@ export class LightwalletSigner implements TxSigner {
    *          See type `TxInfos` for more details.
    */
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
-    const endpoint = `${this.relayApiUrl}/users/${userAddress}/txinfos`
-    const { nonce, gasPrice, balance } = await this.utils.fetchUrl<TxInfosRaw>(
-      endpoint
-    )
+    const endpoint = `/users/${userAddress}/txinfos`
+    const { nonce, gasPrice, balance } = await this.provider.fetchEndpoint<
+      TxInfosRaw
+    >(endpoint)
     return {
       balance: new BigNumber(balance),
       gasPrice: new BigNumber(gasPrice),
@@ -332,7 +332,7 @@ export class LightwalletSigner implements TxSigner {
       headers,
       method: 'POST'
     }
-    return this.utils.fetchUrl<string>(`${this.relayApiUrl}/relay`, options)
+    return this.provider.fetchEndpoint<string>(`/relay`, options)
   }
 
   /**

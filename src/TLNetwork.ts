@@ -10,11 +10,15 @@ import { Payment } from './Payment'
 import { Transaction } from './Transaction'
 import { Trustline } from './Trustline'
 import { User } from './User'
-import { Utils } from './Utils'
+
+import { RelayProvider } from './providers/RelayProvider'
+import { TLProvider } from './providers/TLProvider'
 
 import { LightwalletSigner } from './signers/LightwalletSigner'
 import { TxSigner } from './signers/TxSigner'
 import { Web3Signer } from './signers/Web3Signer'
+
+import { buildApiUrl } from './utils'
 
 import { TLNetworkConfig } from './typings'
 
@@ -56,7 +60,7 @@ export class TLNetwork {
   /**
    * @hidden
    */
-  public utils: Utils
+  public utils
   /**
    * Event instance for retrieving and formatting event logs.
    */
@@ -86,80 +90,13 @@ export class TLNetwork {
   public relayWsApiUrl: string
   public web3Provider: any
 
+  public provider: TLProvider
+
   /**
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
    * @param config Configuration object. See type `TLNetworkConfig` for more information.
    */
   constructor(config: TLNetworkConfig = {}) {
-    this.utils = new Utils()
-
-    this.setConfig(config)
-
-    this.currencyNetwork = new CurrencyNetwork(this.relayApiUrl, this.utils)
-    this.web3 = new Web3(config.web3Provider)
-    this.signer = this.web3.eth.currentProvider
-      ? new Web3Signer(this.web3)
-      : new LightwalletSigner(lightwallet, this.relayApiUrl, this.utils)
-    this.transaction = new Transaction(
-      this.utils,
-      this.signer,
-      this.relayApiUrl
-    )
-    this.user = new User(
-      this.signer,
-      this.transaction,
-      this.utils,
-      this.relayApiUrl
-    )
-    this.contact = new Contact(this.relayApiUrl, this.user, this.utils)
-    this.event = new Event(
-      this.user,
-      this.utils,
-      this.currencyNetwork,
-      this.relayApiUrl,
-      this.relayWsApiUrl
-    )
-    this.trustline = new Trustline(
-      this.event,
-      this.user,
-      this.utils,
-      this.transaction,
-      this.currencyNetwork,
-      this.relayApiUrl
-    )
-    this.payment = new Payment(
-      this.event,
-      this.user,
-      this.utils,
-      this.transaction,
-      this.currencyNetwork,
-      this.relayApiUrl
-    )
-    this.exchange = new Exchange(
-      this.event,
-      this.user,
-      this.utils,
-      this.transaction,
-      this.currencyNetwork,
-      this.payment,
-      this.relayApiUrl
-    )
-    this.messaging = new Messaging(
-      this.user,
-      this.utils,
-      this.currencyNetwork,
-      this.relayApiUrl,
-      this.relayWsApiUrl
-    )
-    this.ethWrapper = new EthWrapper(
-      this.relayApiUrl,
-      this.transaction,
-      this.user,
-      this.utils
-    )
-  }
-
-  public setConfig(config: TLNetworkConfig = {}): void {
     const {
       protocol = 'http',
       host = 'localhost',
@@ -170,9 +107,72 @@ export class TLNetwork {
       relayWsApiUrl
     } = config
 
-    this.relayApiUrl =
-      relayApiUrl || this.utils.buildApiUrl(protocol, host, port, path)
-    this.relayWsApiUrl =
-      relayWsApiUrl || this.utils.buildApiUrl(wsProtocol, host, port, path)
+    this.setProvider(
+      new RelayProvider(
+        relayApiUrl || buildApiUrl(protocol, host, port, path),
+        relayWsApiUrl || buildApiUrl(wsProtocol, host, port, path)
+      )
+    )
+
+    this.web3 = new Web3(config.web3Provider)
+    this.signer = this.web3.eth.currentProvider
+      ? new Web3Signer(this.web3)
+      : new LightwalletSigner({ lightwallet, provider: this.provider })
+
+    this.currencyNetwork = new CurrencyNetwork(this.provider)
+    this.transaction = new Transaction({
+      provider: this.provider,
+      signer: this.signer
+    })
+    this.user = new User({
+      provider: this.provider,
+      signer: this.signer,
+      transaction: this.transaction
+    })
+    this.contact = new Contact({
+      provider: this.provider,
+      user: this.user
+    })
+    this.event = new Event({
+      currencyNetwork: this.currencyNetwork,
+      provider: this.provider,
+      user: this.user
+    })
+    this.messaging = new Messaging({
+      currencyNetwork: this.currencyNetwork,
+      provider: this.provider,
+      user: this.user
+    })
+    this.trustline = new Trustline({
+      currencyNetwork: this.currencyNetwork,
+      event: this.event,
+      provider: this.provider,
+      transaction: this.transaction,
+      user: this.user
+    })
+    this.payment = new Payment({
+      currencyNetwork: this.currencyNetwork,
+      event: this.event,
+      provider: this.provider,
+      transaction: this.transaction,
+      user: this.user
+    })
+    this.exchange = new Exchange({
+      currencyNetwork: this.currencyNetwork,
+      event: this.event,
+      payment: this.payment,
+      provider: this.provider,
+      transaction: this.transaction,
+      user: this.user
+    })
+    this.ethWrapper = new EthWrapper({
+      provider: this.provider,
+      transaction: this.transaction,
+      user: this.user
+    })
+  }
+
+  public setProvider(provider: RelayProvider): void {
+    this.provider = provider
   }
 }

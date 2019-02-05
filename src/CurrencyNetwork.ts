@@ -1,6 +1,8 @@
 import * as ethUtils from 'ethereumjs-util'
 
-import { Utils } from './Utils'
+import { TLProvider } from './providers/TLProvider'
+
+import { checkAddress, formatToAmount } from './utils'
 
 import {
   DecimalsObject,
@@ -16,24 +18,22 @@ import {
  * currency network related information.
  */
 export class CurrencyNetwork {
-  private relayApiUrl: string
-  private utils: Utils
+  private provider: TLProvider
 
-  constructor(relayApiUrl: string, utils: Utils) {
-    this.relayApiUrl = relayApiUrl
-    this.utils = utils
+  constructor(provider: TLProvider) {
+    this.provider = provider
   }
 
   /**
    * Returns all registered currency networks.
    */
   public async getAll(): Promise<NetworkDetails[]> {
-    const networks = await this.utils.fetchUrl<NetworkDetailsRaw[]>(
-      `${this.relayApiUrl}/networks`
+    const networks = await this.provider.fetchEndpoint<NetworkDetailsRaw[]>(
+      `/networks`
     )
     return networks.map(network => ({
       ...network,
-      defaultInterestRate: this.utils.formatToAmount(
+      defaultInterestRate: formatToAmount(
         network.defaultInterestRate,
         network.interestRateDecimals
       )
@@ -47,12 +47,12 @@ export class CurrencyNetwork {
    */
   public async getInfo(networkAddress: string): Promise<NetworkDetails> {
     await this._checkAddresses([networkAddress])
-    const networkInfo = await this.utils.fetchUrl<NetworkDetailsRaw>(
-      `${this.relayApiUrl}/networks/${networkAddress}`
+    const networkInfo = await this.provider.fetchEndpoint<NetworkDetailsRaw>(
+      `/networks/${networkAddress}`
     )
     return {
       ...networkInfo,
-      defaultInterestRate: this.utils.formatToAmount(
+      defaultInterestRate: formatToAmount(
         networkInfo.defaultInterestRate,
         networkInfo.interestRateDecimals
       )
@@ -65,8 +65,8 @@ export class CurrencyNetwork {
    */
   public async getUsers(networkAddress: string): Promise<string[]> {
     await this._checkAddresses([networkAddress])
-    return this.utils.fetchUrl<string[]>(
-      `${this.relayApiUrl}/networks/${networkAddress}/users`
+    return this.provider.fetchEndpoint<string[]>(
+      `/networks/${networkAddress}/users`
     )
   }
 
@@ -81,20 +81,17 @@ export class CurrencyNetwork {
   ): Promise<UserOverview> {
     await this._checkAddresses([networkAddress, userAddress])
     const [overview, { networkDecimals }] = await Promise.all([
-      this.utils.fetchUrl<UserOverviewRaw>(
-        `${this.relayApiUrl}/networks/${networkAddress}/users/${userAddress}`
+      this.provider.fetchEndpoint<UserOverviewRaw>(
+        `/networks/${networkAddress}/users/${userAddress}`
       ),
       this.getDecimals(networkAddress)
     ])
     return {
-      balance: this.utils.formatToAmount(overview.balance, networkDecimals),
-      given: this.utils.formatToAmount(overview.given, networkDecimals),
-      leftGiven: this.utils.formatToAmount(overview.leftGiven, networkDecimals),
-      leftReceived: this.utils.formatToAmount(
-        overview.leftReceived,
-        networkDecimals
-      ),
-      received: this.utils.formatToAmount(overview.received, networkDecimals)
+      balance: formatToAmount(overview.balance, networkDecimals),
+      given: formatToAmount(overview.given, networkDecimals),
+      leftGiven: formatToAmount(overview.leftGiven, networkDecimals),
+      leftReceived: formatToAmount(overview.leftReceived, networkDecimals),
+      received: formatToAmount(overview.received, networkDecimals)
     }
   }
 
@@ -156,7 +153,7 @@ export class CurrencyNetwork {
    */
   private async _checkAddresses(addresses: string[]): Promise<boolean> {
     for (const address of addresses) {
-      if (!this.utils.checkAddress(address)) {
+      if (!checkAddress(address)) {
         throw new Error(`${address} is not a valid address.`)
       }
     }
