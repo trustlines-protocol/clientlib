@@ -4,7 +4,7 @@ import * as ethUtils from 'ethereumjs-util'
 import { TLProvider } from '../providers/TLProvider'
 import { TxSigner } from './TxSigner'
 
-import { calcRaw, convertToHexString, formatToAmount } from '../utils'
+import utils from '../utils'
 
 import {
   Amount,
@@ -131,7 +131,7 @@ export class LightwalletSigner implements TxSigner {
     const balance = await this.provider.fetchEndpoint<string>(
       `users/${this.address}/balance`
     )
-    return formatToAmount(calcRaw(balance, 18), 18)
+    return utils.formatToAmount(utils.calcRaw(balance, 18), 18)
   }
 
   /**
@@ -282,9 +282,9 @@ export class LightwalletSigner implements TxSigner {
     const txOptions = {
       ...rawTx,
       from: rawTx.from.toLowerCase(),
-      gasLimit: convertToHexString(rawTx.gasLimit),
-      gasPrice: convertToHexString(rawTx.gasPrice),
-      value: convertToHexString(rawTx.value)
+      gasLimit: utils.convertToHexString(rawTx.gasLimit),
+      gasPrice: utils.convertToHexString(rawTx.gasPrice),
+      value: utils.convertToHexString(rawTx.value)
     }
     if (txOptions.to) {
       txOptions.to = txOptions.to.toLowerCase()

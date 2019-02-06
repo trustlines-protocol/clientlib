@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable'
 
 import { TLProvider } from './TLProvider'
 
-import { fetchUrl, trimUrl, websocketStream } from '../utils'
+import utils from '../utils'
 
 export class RelayProvider implements TLProvider {
   public relayApiUrl: string
@@ -17,8 +17,8 @@ export class RelayProvider implements TLProvider {
     endpoint: string,
     options?: object
   ): Promise<T> {
-    const trimmedEndpoint = trimUrl(endpoint)
-    return fetchUrl<T>(`${this.relayApiUrl}/${trimmedEndpoint}`, options)
+    const trimmedEndpoint = utils.trimUrl(endpoint)
+    return utils.fetchUrl<T>(`${this.relayApiUrl}/${trimmedEndpoint}`, options)
   }
 
   public createWebsocketStream(
@@ -26,8 +26,8 @@ export class RelayProvider implements TLProvider {
     functionName: string,
     args: object
   ): Observable<any> {
-    const trimmedEndpoint = trimUrl(endpoint)
-    return websocketStream(
+    const trimmedEndpoint = utils.trimUrl(endpoint)
+    return utils.websocketStream(
       `${this.relayWsApiUrl}/${trimmedEndpoint}`,
       functionName,
       args

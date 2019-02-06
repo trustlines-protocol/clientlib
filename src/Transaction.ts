@@ -4,7 +4,7 @@ import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
 import { TLProvider } from './providers/TLProvider'
 import { TxSigner } from './signers/TxSigner'
 
-import { formatToAmountInternal } from './utils'
+import utils from './utils'
 
 import { RawTxObject, TxObjectInternal, TxOptionsInternal } from './typings'
 
@@ -57,7 +57,7 @@ export class Transaction {
     }
     const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
     return {
-      ethFees: formatToAmountInternal(ethFees, ETH_DECIMALS),
+      ethFees: utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
       rawTx
     }
   }
@@ -88,7 +88,7 @@ export class Transaction {
     }
     const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
     return {
-      ethFees: formatToAmountInternal(ethFees, ETH_DECIMALS),
+      ethFees: utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
       rawTx
     }
   }

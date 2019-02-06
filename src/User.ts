@@ -4,7 +4,7 @@ import { TLProvider } from './providers/TLProvider'
 import { TxSigner } from './signers/TxSigner'
 import { Transaction } from './Transaction'
 
-import { calcRaw, createLink } from './utils'
+import utils from './utils'
 
 import { Amount, RawTxObject, Signature, UserObject } from './typings'
 
@@ -132,7 +132,7 @@ export class User {
       serializedKeystore
     )
     const params = ['onboardingrequest', username, address, pubKey]
-    return createLink(params)
+    return utils.createLink(params)
   }
 
   /**
@@ -148,7 +148,7 @@ export class User {
     return this.transaction.prepValueTx(
       this.address, // address of onboarder
       newUserAddress, // address of new user who gets onboarded
-      calcRaw(initialValue, 18)
+      utils.calcRaw(initialValue, 18)
     )
   }
 
@@ -168,7 +168,7 @@ export class User {
    */
   public async createLink(username: string): Promise<string> {
     const params = ['contact', this.address, username]
-    return createLink(params)
+    return utils.createLink(params)
   }
 
   /**

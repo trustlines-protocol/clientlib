@@ -95,7 +95,6 @@ export class FakeTLProvider implements TLProvider {
       default:
         break
     }
-    console.log(response)
     return Promise.resolve(response)
   }
 

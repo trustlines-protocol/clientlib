@@ -1,7 +1,7 @@
 import { TLProvider } from './providers/TLProvider'
 import { User } from './User'
 
-import { createLink } from './utils'
+import utils from './utils'
 
 export class Contact {
   private user: User
@@ -22,7 +22,7 @@ export class Contact {
   public createLink(address: string, username: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const params = ['contact', address, username]
-      resolve(createLink(params))
+      resolve(utils.createLink(params))
     })
   }
 }

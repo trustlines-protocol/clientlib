@@ -6,12 +6,7 @@ import { TLProvider } from './providers/TLProvider'
 import { Transaction } from './Transaction'
 import { User } from './User'
 
-import {
-  calcRaw,
-  convertToAmount,
-  convertToHexString,
-  formatToAmount
-} from './utils'
+import utils from './utils'
 
 import {
   ClosePathObject,
@@ -101,8 +96,12 @@ export class Trustline {
     let updateFuncName = 'updateCreditlimits'
     let updateFuncArgs = [
       counterpartyAddress,
-      convertToHexString(calcRaw(creditlineGiven, decimals.networkDecimals)),
-      convertToHexString(calcRaw(creditlineReceived, decimals.networkDecimals))
+      utils.convertToHexString(
+        utils.calcRaw(creditlineGiven, decimals.networkDecimals)
+      ),
+      utils.convertToHexString(
+        utils.calcRaw(creditlineReceived, decimals.networkDecimals)
+      )
     ]
 
     // If interest rates were specified, use `updateTrustline`
@@ -110,14 +109,14 @@ export class Trustline {
       updateFuncName = 'updateTrustline'
       updateFuncArgs = [
         ...updateFuncArgs,
-        convertToHexString(
+        utils.convertToHexString(
           customInterests
-            ? calcRaw(interestRateGiven, decimals.interestRateDecimals)
+            ? utils.calcRaw(interestRateGiven, decimals.interestRateDecimals)
             : defaultInterestRate.raw
         ),
-        convertToHexString(
+        utils.convertToHexString(
           customInterests
-            ? calcRaw(interestRateReceived, decimals.interestRateDecimals)
+            ? utils.calcRaw(interestRateReceived, decimals.interestRateDecimals)
             : defaultInterestRate.raw
         )
       ]
@@ -135,7 +134,7 @@ export class Trustline {
       }
     )
     return {
-      ethFees: convertToAmount(ethFees),
+      ethFees: utils.convertToAmount(ethFees),
       rawTx
     }
   }
@@ -308,7 +307,7 @@ export class Trustline {
       closeFuncName = 'closeTrustlineByTriangularTransfer'
       closeFuncArgs = [
         counterpartyAddress,
-        convertToHexString(new BigNumber(maxFees.raw)),
+        utils.convertToHexString(new BigNumber(maxFees.raw)),
         path.slice(1)
       ]
     }
@@ -329,7 +328,7 @@ export class Trustline {
     )
 
     return {
-      ethFees: convertToAmount(ethFees),
+      ethFees: utils.convertToAmount(ethFees),
       maxFees,
       path,
       rawTx
@@ -384,9 +383,9 @@ export class Trustline {
 
     return {
       estimatedGas: new BigNumber(estimatedGas),
-      maxFees: formatToAmount(fees, decimals.networkDecimals),
+      maxFees: utils.formatToAmount(fees, decimals.networkDecimals),
       path,
-      value: formatToAmount(value, decimals.networkDecimals)
+      value: utils.formatToAmount(value, decimals.networkDecimals)
     }
   }
 
@@ -402,19 +401,22 @@ export class Trustline {
   ): TrustlineObject {
     return {
       ...trustline,
-      balance: formatToAmount(trustline.balance, networkDecimals),
-      given: formatToAmount(trustline.given, networkDecimals),
-      interestRateGiven: formatToAmount(
+      balance: utils.formatToAmount(trustline.balance, networkDecimals),
+      given: utils.formatToAmount(trustline.given, networkDecimals),
+      interestRateGiven: utils.formatToAmount(
         trustline.interestRateGiven,
         interestDecimals
       ),
-      interestRateReceived: formatToAmount(
+      interestRateReceived: utils.formatToAmount(
         trustline.interestRateReceived,
         interestDecimals
       ),
-      leftGiven: formatToAmount(trustline.leftGiven, networkDecimals),
-      leftReceived: formatToAmount(trustline.leftReceived, networkDecimals),
-      received: formatToAmount(trustline.received, networkDecimals)
+      leftGiven: utils.formatToAmount(trustline.leftGiven, networkDecimals),
+      leftReceived: utils.formatToAmount(
+        trustline.leftReceived,
+        networkDecimals
+      ),
+      received: utils.formatToAmount(trustline.received, networkDecimals)
     }
   }
 }

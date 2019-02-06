@@ -4,7 +4,7 @@ import { CurrencyNetwork } from './CurrencyNetwork'
 import { TLProvider } from './providers/TLProvider'
 import { User } from './User'
 
-import { calcRaw, formatEvent, generateRandomNumber } from './utils'
+import utils from './utils'
 
 export class Messaging {
   private user: User
@@ -42,9 +42,9 @@ export class Messaging {
             "direction": "received",
             "user": "${user}",
             "counterParty": "${this.user.address}",
-            "amount": "${calcRaw(value, dec.networkDecimals).toString()}",
+            "amount": "${utils.calcRaw(value, dec.networkDecimals).toString()}",
             "subject": "${subject}",
-            "nonce": "${generateRandomNumber(40)}"
+            "nonce": "${utils.generateRandomNumber(40)}"
           }`,
           type // (optional) hint for notifications
         }),
@@ -72,7 +72,7 @@ export class Messaging {
         return this.currencyNetwork
           .getDecimals(message.networkAddress)
           .then(({ networkDecimals, interestRateDecimals }) =>
-            formatEvent(message, networkDecimals, interestRateDecimals)
+            utils.formatEvent(message, networkDecimals, interestRateDecimals)
           )
       })
   }

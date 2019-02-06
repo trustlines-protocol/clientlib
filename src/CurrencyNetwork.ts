@@ -2,7 +2,7 @@ import * as ethUtils from 'ethereumjs-util'
 
 import { TLProvider } from './providers/TLProvider'
 
-import { checkAddress, formatToAmount } from './utils'
+import utils from './utils'
 
 import {
   DecimalsObject,
@@ -33,7 +33,7 @@ export class CurrencyNetwork {
     )
     return networks.map(network => ({
       ...network,
-      defaultInterestRate: formatToAmount(
+      defaultInterestRate: utils.formatToAmount(
         network.defaultInterestRate,
         network.interestRateDecimals
       )
@@ -52,7 +52,7 @@ export class CurrencyNetwork {
     )
     return {
       ...networkInfo,
-      defaultInterestRate: formatToAmount(
+      defaultInterestRate: utils.formatToAmount(
         networkInfo.defaultInterestRate,
         networkInfo.interestRateDecimals
       )
@@ -87,11 +87,14 @@ export class CurrencyNetwork {
       this.getDecimals(networkAddress)
     ])
     return {
-      balance: formatToAmount(overview.balance, networkDecimals),
-      given: formatToAmount(overview.given, networkDecimals),
-      leftGiven: formatToAmount(overview.leftGiven, networkDecimals),
-      leftReceived: formatToAmount(overview.leftReceived, networkDecimals),
-      received: formatToAmount(overview.received, networkDecimals)
+      balance: utils.formatToAmount(overview.balance, networkDecimals),
+      given: utils.formatToAmount(overview.given, networkDecimals),
+      leftGiven: utils.formatToAmount(overview.leftGiven, networkDecimals),
+      leftReceived: utils.formatToAmount(
+        overview.leftReceived,
+        networkDecimals
+      ),
+      received: utils.formatToAmount(overview.received, networkDecimals)
     }
   }
 
@@ -153,7 +156,7 @@ export class CurrencyNetwork {
    */
   private async _checkAddresses(addresses: string[]): Promise<boolean> {
     for (const address of addresses) {
-      if (!checkAddress(address)) {
+      if (!utils.checkAddress(address)) {
         throw new Error(`${address} is not a valid address.`)
       }
     }

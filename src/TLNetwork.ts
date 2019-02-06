@@ -18,7 +18,7 @@ import { LightwalletSigner } from './signers/LightwalletSigner'
 import { TxSigner } from './signers/TxSigner'
 import { Web3Signer } from './signers/Web3Signer'
 
-import { buildApiUrl } from './utils'
+import utils from './utils'
 
 import { TLNetworkConfig } from './typings'
 
@@ -57,10 +57,6 @@ export class TLNetwork {
    * @hidden
    */
   public contact: Contact
-  /**
-   * @hidden
-   */
-  public utils
   /**
    * Event instance for retrieving and formatting event logs.
    */
@@ -109,8 +105,8 @@ export class TLNetwork {
 
     this.setProvider(
       new RelayProvider(
-        relayApiUrl || buildApiUrl(protocol, host, port, path),
-        relayWsApiUrl || buildApiUrl(wsProtocol, host, port, path)
+        relayApiUrl || utils.buildApiUrl(protocol, host, port, path),
+        relayWsApiUrl || utils.buildApiUrl(wsProtocol, host, port, path)
       )
     )
 

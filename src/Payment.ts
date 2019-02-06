@@ -6,13 +6,7 @@ import { TLProvider } from './providers/TLProvider'
 import { Transaction } from './Transaction'
 import { User } from './User'
 
-import {
-  calcRaw,
-  convertToAmount,
-  convertToHexString,
-  createLink,
-  formatToAmount
-} from './utils'
+import utils from './utils'
 
 import {
   EventFilterOptions,
@@ -91,8 +85,10 @@ export class Payment {
         'transfer',
         [
           receiverAddress,
-          convertToHexString(calcRaw(value, decimals.networkDecimals)),
-          convertToHexString(new BigNumber(maxFees.raw)),
+          utils.convertToHexString(
+            utils.calcRaw(value, decimals.networkDecimals)
+          ),
+          utils.convertToHexString(new BigNumber(maxFees.raw)),
           path.slice(1)
         ],
         {
@@ -103,7 +99,7 @@ export class Payment {
         }
       )
       return {
-        ethFees: convertToAmount(ethFees),
+        ethFees: utils.convertToAmount(ethFees),
         maxFees,
         path,
         rawTx
@@ -130,14 +126,14 @@ export class Payment {
     const { ethFees, rawTx } = await this.transaction.prepValueTx(
       this.user.address,
       receiverAddress,
-      calcRaw(value, 18),
+      utils.calcRaw(value, 18),
       {
         gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
     return {
-      ethFees: convertToAmount(ethFees),
+      ethFees: utils.convertToAmount(ethFees),
       rawTx
     }
   }
@@ -170,7 +166,7 @@ export class Payment {
       maxFees: maximumFees,
       maxHops: maximumHops,
       to: receiverAddress,
-      value: calcRaw(value, decimals.networkDecimals).toString()
+      value: utils.calcRaw(value, decimals.networkDecimals).toString()
     }
     const endpoint = `networks/${networkAddress}/path-info`
     const { estimatedGas, fees, path } = await this.provider.fetchEndpoint<
@@ -182,7 +178,7 @@ export class Payment {
     })
     return {
       estimatedGas: new BigNumber(estimatedGas),
-      maxFees: formatToAmount(fees, decimals.networkDecimals),
+      maxFees: utils.formatToAmount(fees, decimals.networkDecimals),
       path
     }
   }
@@ -229,7 +225,7 @@ export class Payment {
       amount,
       subject
     ]
-    return createLink(params)
+    return utils.createLink(params)
   }
 
   /**
@@ -262,7 +258,7 @@ export class Payment {
     })
 
     return {
-      amount: formatToAmount(result.capacity, networkDecimals),
+      amount: utils.formatToAmount(result.capacity, networkDecimals),
       path: result.path
     }
   }
