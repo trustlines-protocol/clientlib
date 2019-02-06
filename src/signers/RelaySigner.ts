@@ -6,7 +6,7 @@ import { TLSigner } from './TLSigner'
 import { Signature, UserObject } from '../typings'
 
 /**
- * The LightwalletSigner class contains functions for signing transactions with eth-lightwallet.
+ * The RelaySigner class contains wallet related methods.
  */
 export class RelaySigner implements TLSigner {
   public provider: TLProvider
@@ -39,6 +39,9 @@ export class RelaySigner implements TLSigner {
     return this.wallet ? this.wallet.privateKey : undefined
   }
 
+  /**
+   * Returns address of loaded wallet.
+   */
   public async getAddress(): Promise<string> {
     return this.address
   }
@@ -47,6 +50,11 @@ export class RelaySigner implements TLSigner {
   // Creating Instances //
   ////////////////////////
 
+  /**
+   * Creates a new wallet and encrypts it with the provided password.
+   * @param password Password to encrypt keystore.
+   * @param progressCallback Callback function for encryption progress.
+   */
   public async createAccount(
     password: string,
     progressCallback?: any
@@ -63,6 +71,12 @@ export class RelaySigner implements TLSigner {
     }
   }
 
+  /**
+   * Encrypts given keystore and loads wallet.
+   * @param encryptedKeystore Encrypted keystore from `createAccount`.
+   * @param password Password to decrypt keystore.
+   * @param progressCallback Callback function for decryption progress.
+   */
   public async loadAccount(
     encryptedKeystore: string,
     password: string,
@@ -80,6 +94,12 @@ export class RelaySigner implements TLSigner {
     }
   }
 
+  /**
+   * Recovers wallet from mnemonic phrase and encrypts keystore with given password.
+   * @param seed Mnemonic seed phrase.
+   * @param password Password to encrypt recovered keystore.
+   * @param progressCallback Callback function for encryption progress.
+   */
   public async recoverFromSeed(
     seed: string,
     password: string,
@@ -97,6 +117,12 @@ export class RelaySigner implements TLSigner {
     }
   }
 
+  /**
+   * Recovers wallet from private key and encrypts keystore with given password.
+   * @param privateKey Private key to recover wallet from.
+   * @param password Password to encrypt recovered keystore.
+   * @param progressCallback Callback function for encryption progress.
+   */
   public async recoverFromPrivateKey(
     privateKey: string,
     password: string,
@@ -118,6 +144,10 @@ export class RelaySigner implements TLSigner {
   // Signing //
   /////////////
 
+  /**
+   * Signs given hash of message with loaded wallet.
+   * @param msgHash Hash of message to sign.
+   */
   public async signMsgHash(msgHash: string): Promise<Signature> {
     const binaryData = ethers.utils.arrayify(msgHash)
     const flatFormatSignature = await this.wallet.signMessage(binaryData)
@@ -128,6 +158,10 @@ export class RelaySigner implements TLSigner {
     }
   }
 
+  /**
+   * Signs given message with loaded wallet.
+   * @param message Message to sign.
+   */
   public async signMessage(message: ethers.utils.Arrayish): Promise<string> {
     return this.wallet.signMessage(message)
   }
@@ -136,6 +170,10 @@ export class RelaySigner implements TLSigner {
   // Blockchain Operations //
   ///////////////////////////
 
+  /**
+   * Signs and sends given transaction request.
+   * @param transaction Transaction request to sign and send.
+   */
   public async sendTransaction(
     transaction: ethers.providers.TransactionRequest
   ): Promise<ethers.providers.TransactionResponse> {
