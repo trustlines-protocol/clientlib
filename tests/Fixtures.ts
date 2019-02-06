@@ -71,7 +71,11 @@ export const FAKE_NETWORK = {
   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
   customInterests: false,
   decimals: 2,
-  defaultInterestRate: 10,
+  defaultInterestRate: {
+    decimals: 3,
+    raw: '10',
+    value: '0.01'
+  },
   interestRateDecimals: 3,
   name: 'Cash',
   numUsers: 100

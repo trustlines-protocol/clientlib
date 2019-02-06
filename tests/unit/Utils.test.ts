@@ -4,7 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import fetchMock = require('fetch-mock')
 import 'mocha'
 
-import { Utils } from '../../src/Utils'
+import utils from '../../src/utils'
 
 import { ExchangeCancelEvent, ExchangeFillEvent } from '../../src/typings'
 
@@ -23,9 +23,6 @@ describe('unit', () => {
     const DECIMALS = 2
     const RAW_OUTPUT = '123'
     const VALUE_OUTPUT = '1.23'
-
-    // test object
-    const utils = new Utils()
 
     describe('#fetchUrl()', () => {
       afterEach(() => fetchMock.reset())

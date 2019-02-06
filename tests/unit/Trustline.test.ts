@@ -2,21 +2,16 @@ import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
-import { CurrencyNetwork } from '../../src/CurrencyNetwork'
-import { Event } from '../../src/Event'
-import { Transaction } from '../../src/Transaction'
 import { Trustline } from '../../src/Trustline'
-import { User } from '../../src/User'
-import { Utils } from '../../src/Utils'
 
 import { FakeCurrencyNetwork } from '../helpers/FakeCurrencyNetwork'
 import { FakeEvent } from '../helpers/FakeEvent'
+import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTransaction } from '../helpers/FakeTransaction'
 import { FakeTxSigner } from '../helpers/FakeTxSigner'
 import { FakeUser } from '../helpers/FakeUser'
-import { FakeUtils } from '../helpers/FakeUtils'
 
-import { FAKE_ACCOUNT, FAKE_NETWORK, FAKE_RELAY_API } from '../Fixtures'
+import { FAKE_ACCOUNT, FAKE_NETWORK } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -24,71 +19,45 @@ const { assert } = chai
 describe('unit', () => {
   describe('Trustline', () => {
     // Test object
-    let trustline
+    let trustline: Trustline
 
     // Mocked classes
     let fakeUser
-    let fakeUtils
     let fakeCurrencyNetwork
+    let fakeTLProvider
     let fakeTransaction
     let fakeTxSigner
     let fakeEvent
 
-    // initialize test object with mocked classes
-    const initialize = () => {
+    const init = () => {
+      fakeTLProvider = new FakeTLProvider()
       fakeTxSigner = new FakeTxSigner()
-      fakeUtils = new FakeUtils()
-      fakeCurrencyNetwork = new FakeCurrencyNetwork(FAKE_RELAY_API, fakeUtils)
-      fakeTransaction = new FakeTransaction(
-        fakeUtils,
-        fakeTxSigner,
-        FAKE_RELAY_API
-      )
-      fakeUser = new FakeUser(
-        new FakeTxSigner(),
-        fakeTransaction,
-        fakeUtils,
-        FAKE_RELAY_API
-      )
-      fakeEvent = new FakeEvent(
-        fakeUser,
-        fakeUtils,
-        fakeCurrencyNetwork,
-        FAKE_RELAY_API,
-        FAKE_RELAY_API
-      )
-      trustline = new Trustline(
-        fakeEvent,
-        fakeUser,
-        fakeUtils,
-        fakeTransaction,
-        fakeCurrencyNetwork,
-        FAKE_RELAY_API
-      )
+      fakeCurrencyNetwork = new FakeCurrencyNetwork(fakeTLProvider)
+      fakeTransaction = new FakeTransaction({
+        provider: fakeTLProvider,
+        signer: fakeTxSigner
+      })
+      fakeUser = new FakeUser({
+        provider: fakeTLProvider,
+        signer: fakeTxSigner,
+        transaction: fakeTransaction
+      })
+      fakeEvent = new FakeEvent({
+        currencyNetwork: fakeCurrencyNetwork,
+        provider: fakeTLProvider,
+        user: fakeUser
+      })
+      trustline = new Trustline({
+        currencyNetwork: fakeCurrencyNetwork,
+        event: fakeEvent,
+        provider: fakeTLProvider,
+        transaction: fakeTransaction,
+        user: fakeUser
+      })
     }
 
-    describe('#constructor()', () => {
-      beforeEach(() => initialize())
-
-      it('should construct a Trustline instance', () => {
-        trustline = new Trustline(
-          fakeEvent,
-          fakeUser,
-          fakeUtils,
-          fakeTransaction,
-          fakeCurrencyNetwork,
-          FAKE_RELAY_API
-        )
-        assert.instanceOf(trustline.event, Event)
-        assert.instanceOf(trustline.user, User)
-        assert.instanceOf(trustline.utils, Utils)
-        assert.instanceOf(trustline.transaction, Transaction)
-        assert.instanceOf(trustline.currencyNetwork, CurrencyNetwork)
-      })
-    })
-
     describe('#prepareUpdate()', () => {
-      beforeEach(() => initialize())
+      beforeEach(() => init())
 
       it('should return a transaction object w/o options', async () => {
         const tx = await trustline.prepareUpdate(
@@ -107,8 +76,8 @@ describe('unit', () => {
           100,
           200,
           {
-            interestRateGiven: '0.01',
-            interestRateReceived: '0.02'
+            interestRateGiven: 0.01,
+            interestRateReceived: 0.02
           }
         )
         assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
@@ -116,7 +85,7 @@ describe('unit', () => {
     })
 
     describe('#prepareAccept()', () => {
-      beforeEach(() => initialize())
+      beforeEach(() => init())
 
       it('should return a transaction object w/o options', async () => {
         const tx = await trustline.prepareAccept(
@@ -140,7 +109,7 @@ describe('unit', () => {
     })
 
     describe('#confirm()', () => {
-      beforeEach(() => initialize())
+      beforeEach(() => init())
 
       it('should confirm a prepared transaction', async () => {
         const { rawTx } = await trustline.prepareUpdate(
@@ -155,7 +124,7 @@ describe('unit', () => {
     })
 
     describe('#getAll()', () => {
-      beforeEach(() => initialize())
+      beforeEach(() => init())
 
       it('should return mocked formatted trustlines', async () => {
         const trustlines = await trustline.getAll(FAKE_NETWORK.address)
@@ -182,7 +151,7 @@ describe('unit', () => {
     })
 
     describe('#get()', () => {
-      beforeEach(() => initialize())
+      beforeEach(() => init())
 
       it('should return mocked formatted trustlines', async () => {
         const tl = await trustline.get(
@@ -199,7 +168,7 @@ describe('unit', () => {
     })
 
     describe('#getRequests()', () => {
-      beforeEach(() => initialize())
+      beforeEach(() => init())
 
       it('should return mocked TrustlineUpdateRequest events', async () => {
         const [updateRequestEvent] = await trustline.getRequests(
@@ -210,7 +179,7 @@ describe('unit', () => {
     })
 
     describe('#getUpdates()', () => {
-      beforeEach(() => initialize())
+      beforeEach(() => init())
 
       it('should return mocked TrustlineUpdate events', async () => {
         const [updateEvent] = await trustline.getUpdates(FAKE_NETWORK.address)
@@ -219,7 +188,7 @@ describe('unit', () => {
     })
 
     describe('#getClosePath()', () => {
-      beforeEach(() => initialize())
+      beforeEach(() => init())
 
       it('should return mocked close path', async () => {
         const closePath = await trustline.getClosePath(
@@ -237,7 +206,7 @@ describe('unit', () => {
     })
 
     describe('#prepareClose()', () => {
-      beforeEach(() => initialize())
+      beforeEach(() => init())
 
       it('should return mocked close path', async () => {
         const closeTx = await trustline.prepareClose(

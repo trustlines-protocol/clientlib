@@ -4,14 +4,13 @@ import 'mocha'
 
 import { User } from '../../src/User'
 
+import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTransaction } from '../helpers/FakeTransaction'
 import { FakeTxSigner } from '../helpers/FakeTxSigner'
-import { FakeUtils } from '../helpers/FakeUtils'
 
 import {
   FAKE_ACCOUNT,
   FAKE_ENC_OBJECT,
-  FAKE_RELAY_API,
   FAKE_SEED,
   FAKE_VALUE_TX_OBJECT_INTERNAL,
   keystore1
@@ -26,31 +25,33 @@ describe('unit', () => {
     let user
 
     // Mocked classes
+    let fakeTLProvider
     let fakeTxSigner
     let fakeTransaction
-    let fakeUtils
 
     const init = () => {
+      fakeTLProvider = new FakeTLProvider()
       fakeTxSigner = new FakeTxSigner()
-      fakeUtils = new FakeUtils()
-      fakeTransaction = new FakeTransaction(
-        fakeUtils,
-        fakeTxSigner,
-        FAKE_RELAY_API
-      )
-      user = new User(fakeTxSigner, fakeTransaction, fakeUtils, FAKE_RELAY_API)
+      fakeTransaction = new FakeTransaction({
+        provider: fakeTLProvider,
+        signer: fakeTxSigner
+      })
+      user = new User({
+        provider: fakeTLProvider,
+        signer: fakeTxSigner,
+        transaction: fakeTransaction
+      })
     }
 
     describe('#constructor()', () => {
       beforeEach(() => init())
 
       it('should construct a User instance', () => {
-        user = new User(
-          fakeTxSigner,
-          fakeTransaction,
-          fakeUtils,
-          FAKE_RELAY_API
-        )
+        user = new User({
+          provider: fakeTLProvider,
+          signer: fakeTxSigner,
+          transaction: fakeTransaction
+        })
         assert.isString(user.address)
         assert.isString(user.pubKey)
       })

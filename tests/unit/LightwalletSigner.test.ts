@@ -4,8 +4,9 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { LightwalletSigner } from '../../src/signers/LightwalletSigner'
+
 import { FakeEthLightwallet } from '../helpers/FakeEthLightwallet'
-import { FakeUtils } from '../helpers/FakeUtils'
+import { FakeTLProvider } from '../helpers/FakeTLProvider'
 
 import { keystore1, keystore2, user1 } from '../Fixtures'
 
@@ -15,17 +16,15 @@ const { assert } = chai
 describe('unit', () => {
   describe('LightwalletSigner', () => {
     // mocks
-    const fakeUtils = new FakeUtils()
     let fakeEthLightwallet
     let lightwalletSigner
 
-    const initMocks = () => {
+    const init = () => {
       fakeEthLightwallet = new FakeEthLightwallet()
-      lightwalletSigner = new LightwalletSigner(
-        fakeEthLightwallet,
-        'http://relay.network/api/v1',
-        fakeUtils
-      )
+      lightwalletSigner = new LightwalletSigner({
+        lightwallet: fakeEthLightwallet,
+        provider: new FakeTLProvider()
+      })
     }
 
     // test data
@@ -63,7 +62,7 @@ describe('unit', () => {
     }
 
     describe('#createAccount()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should create account using mocked eth-lightwallet', async () => {
         const createdAccount = await lightwalletSigner.createAccount()
@@ -95,7 +94,7 @@ describe('unit', () => {
     })
 
     describe('#loadAccount()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should load keystore using mocked eth-lightwallet', async () => {
         const loadedAccount = await lightwalletSigner.loadAccount(keystore1)
@@ -135,7 +134,7 @@ describe('unit', () => {
     })
 
     describe('#signMsgHash()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should sign message hash using mocked eth-lightwallet', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -179,7 +178,7 @@ describe('unit', () => {
     })
 
     describe('#getBalance()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return ETH balance for loaded user', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -196,7 +195,7 @@ describe('unit', () => {
     })
 
     describe('#encrypt()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return encryption object using mocked eth-lightwallet', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -247,7 +246,7 @@ describe('unit', () => {
         version: 1
       }
 
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should decrypt message using mocked eth-lightwallet', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -282,7 +281,7 @@ describe('unit', () => {
     })
 
     describe('#showSeed()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should show seed for loaded user', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -311,7 +310,7 @@ describe('unit', () => {
     })
 
     describe('#exportPrivateKey()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return private key of loaded user', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -344,7 +343,7 @@ describe('unit', () => {
       const seed =
         'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
 
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should recover account from seed and return it', async () => {
         const recoveredAccount = await lightwalletSigner.recoverFromSeed(seed)
@@ -376,7 +375,7 @@ describe('unit', () => {
     })
 
     describe('#confirm()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should sign and relay a value transaction object and return the transaction hash', async () => {
         await lightwalletSigner.loadAccount(keystore1)
@@ -419,7 +418,7 @@ describe('unit', () => {
     })
 
     describe('#getTxInfos()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return nonce, gasPrice and balance', async () => {
         const txInfos = await lightwalletSigner.getTxInfos(USER_ADDRESS)

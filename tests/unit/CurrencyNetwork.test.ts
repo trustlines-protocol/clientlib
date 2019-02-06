@@ -3,7 +3,8 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { CurrencyNetwork } from '../../src/CurrencyNetwork'
-import { FakeUtils } from '../helpers/FakeUtils'
+
+import { FakeTLProvider } from '../helpers/FakeTLProvider'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -11,17 +12,14 @@ const { assert } = chai
 describe('unit', () => {
   describe('CurrencyNetwork', () => {
     // test object
-    let currencyNetwork
+    let currencyNetwork: CurrencyNetwork
 
-    // mocked classes
-    let fakeUtils
+    // mocks
+    let fakeTLProvider
 
-    const initMocks = () => {
-      fakeUtils = new FakeUtils()
-      currencyNetwork = new CurrencyNetwork(
-        'http://relay.network/api/v1',
-        fakeUtils
-      )
+    const init = () => {
+      fakeTLProvider = new FakeTLProvider()
+      currencyNetwork = new CurrencyNetwork(fakeTLProvider)
     }
 
     // constants
@@ -47,7 +45,7 @@ describe('unit', () => {
     const INVALID_ADDRESS = '0xinvalid'
 
     describe('#getAll()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return mocked currency networks', async () => {
         const networks = await currencyNetwork.getAll()
@@ -57,13 +55,13 @@ describe('unit', () => {
       })
 
       it('should throw mocked error for fakeUtils.fetchUrl()', async () => {
-        fakeUtils.setError('fetchUrl')
+        fakeTLProvider.setError('fetchUrl')
         await assert.isRejected(currencyNetwork.getAll())
       })
     })
 
     describe('#getInfo()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return mocked currency network', async () => {
         const network = await currencyNetwork.getInfo(VALID_ADDRESS)
@@ -76,13 +74,13 @@ describe('unit', () => {
       })
 
       it('should throw mocked error for fakeUtils.fetchUrl()', async () => {
-        fakeUtils.setError('fetchUrl')
+        fakeTLProvider.setError('fetchUrl')
         await assert.isRejected(currencyNetwork.getInfo(VALID_ADDRESS))
       })
     })
 
     describe('#getUsers()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return mocked user addresses', async () => {
         const userAddresses = await currencyNetwork.getUsers(VALID_ADDRESS)
@@ -94,13 +92,13 @@ describe('unit', () => {
       })
 
       it('should throw mocked error for fakeUtils.fetchUrl()', async () => {
-        fakeUtils.setError('fetchUrl')
+        fakeTLProvider.setError('fetchUrl')
         await assert.isRejected(currencyNetwork.getUsers(VALID_ADDRESS))
       })
     })
 
     describe('#getUserOverview()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return mocked user overview', async () => {
         const userOverview = await currencyNetwork.getUserOverview(
@@ -128,7 +126,7 @@ describe('unit', () => {
       })
 
       it('should throw mocked error for fakeUtils.fetchUrl()', async () => {
-        fakeUtils.setError('fetchUrl')
+        fakeTLProvider.setError('fetchUrl')
         await assert.isRejected(
           currencyNetwork.getUserOverview(VALID_ADDRESS, VALID_ADDRESS)
         )
@@ -136,7 +134,7 @@ describe('unit', () => {
     })
 
     describe('#getDecimals()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return network and interest rate decimals', async () => {
         const decimals = await currencyNetwork.getDecimals(VALID_ADDRESS)
@@ -159,13 +157,13 @@ describe('unit', () => {
       })
 
       it('should throw error for fakeUtils.fetchUrl()', async () => {
-        fakeUtils.setError('fetchUrl')
+        fakeTLProvider.setError('fetchUrl')
         await assert.isRejected(currencyNetwork.getDecimals(VALID_ADDRESS))
       })
     })
 
     describe('#isNetwork()', () => {
-      beforeEach(() => initMocks())
+      beforeEach(() => init())
 
       it('should return true', async () => {
         const isNetwork = await currencyNetwork.isNetwork(VALID_ADDRESS)
@@ -184,7 +182,7 @@ describe('unit', () => {
       })
 
       it('should throw error for fakeUtils.fetchUrl()', async () => {
-        fakeUtils.setError('fetchUrl')
+        fakeTLProvider.setError('fetchUrl')
         await assert.isRejected(currencyNetwork.isNetwork(VALID_ADDRESS))
       })
     })
