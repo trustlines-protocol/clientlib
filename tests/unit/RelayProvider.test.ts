@@ -2,15 +2,16 @@ import { BigNumber } from 'bignumber.js'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
 import { ethers } from 'ethers'
+import fetchMock = require('fetch-mock')
 import 'mocha'
 
 import { RelayProvider } from '../../src/providers/RelayProvider'
 
-import { FakeUtils } from '../helpers/FakeUtils'
-
 import {
   FAKE_RELAY_API,
   FAKE_SIGNED_TX,
+  FAKE_TX_HASH,
+  FAKE_TX_INFOS,
   FAKE_USER_ADDRESSES
 } from '../Fixtures'
 
@@ -19,15 +20,17 @@ const { assert } = chai
 
 describe('unit', () => {
   describe('RelayProvider', () => {
+    after(() => fetchMock.reset())
+
     // Test object
     let relayProvider: RelayProvider
 
     const init = () => {
-      relayProvider = new RelayProvider(
-        FAKE_RELAY_API,
-        FAKE_RELAY_API,
-        new FakeUtils()
-      )
+      relayProvider = new RelayProvider(FAKE_RELAY_API, FAKE_RELAY_API)
+      fetchMock.reset()
+      fetchMock.mock('end:/txinfos', FAKE_TX_INFOS)
+      fetchMock.mock('end:/blocknumber', JSON.stringify(12345))
+      fetchMock.mock('end:/relay', JSON.stringify(FAKE_TX_HASH))
     }
 
     describe('#getBalance()', () => {

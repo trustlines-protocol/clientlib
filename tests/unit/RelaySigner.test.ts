@@ -138,23 +138,5 @@ describe('unit', () => {
         assert.equal(signingAddress, USER_1.address)
       })
     })
-
-    describe('#signMessage()', () => {
-      const MESSAGE = 'hello world!'
-
-      beforeEach(async () => {
-        init()
-        await relaySigner.loadAccount(USER_1.keystore, DEFAULT_PASSWORD)
-      })
-
-      it('should sign message with correct address', async () => {
-        const flatSignature = await relaySigner.signMessage(MESSAGE)
-        const signingAddress = ethers.utils.verifyMessage(
-          MESSAGE,
-          flatSignature
-        )
-        assert.equal(signingAddress, USER_1.address)
-      })
-    })
   })
 })
