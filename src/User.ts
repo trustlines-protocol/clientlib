@@ -182,7 +182,7 @@ export class User {
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'POST'
     }
-    return this.provider.fetchEndpoint<string>(`/request-ether`, options)
+    return this.provider.fetchEndpoint<string>(`request-ether`, options)
   }
 
   /**

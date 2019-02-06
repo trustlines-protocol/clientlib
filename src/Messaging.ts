@@ -51,7 +51,7 @@ export class Messaging {
         headers,
         method: 'POST'
       }
-      return this.provider.fetchEndpoint(`/messages/${user}`, options)
+      return this.provider.fetchEndpoint(`messages/${user}`, options)
     })
   }
 

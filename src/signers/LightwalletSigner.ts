@@ -129,7 +129,7 @@ export class LightwalletSigner implements TxSigner {
       throw this.userNotLoadedError
     }
     const balance = await this.provider.fetchEndpoint<string>(
-      `/users/${this.address}/balance`
+      `users/${this.address}/balance`
     )
     return formatToAmount(calcRaw(balance, 18), 18)
   }
@@ -310,7 +310,7 @@ export class LightwalletSigner implements TxSigner {
    *          See type `TxInfos` for more details.
    */
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
-    const endpoint = `/users/${userAddress}/txinfos`
+    const endpoint = `users/${userAddress}/txinfos`
     const { nonce, gasPrice, balance } = await this.provider.fetchEndpoint<
       TxInfosRaw
     >(endpoint)
@@ -332,7 +332,7 @@ export class LightwalletSigner implements TxSigner {
       headers,
       method: 'POST'
     }
-    return this.provider.fetchEndpoint<string>(`/relay`, options)
+    return this.provider.fetchEndpoint<string>(`relay`, options)
   }
 
   /**

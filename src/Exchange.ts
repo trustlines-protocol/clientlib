@@ -93,7 +93,7 @@ export class Exchange {
   ): Promise<SignedOrder> {
     const { makerTokenDecimals, takerTokenDecimals } = options
     const order = await this.provider.fetchEndpoint<SignedOrderRaw>(
-      `/exchange/order/${orderHash}`
+      `exchange/order/${orderHash}`
     )
     const [
       { networkDecimals: makerDecimals },
@@ -121,7 +121,7 @@ export class Exchange {
    * @param query.trader Orders where `maker` or `taker` is `trader`.
    */
   public async getOrders(query: OrdersQuery = {}): Promise<SignedOrder[]> {
-    const queryEndpoint = buildUrl(`/exchange/orders`, {
+    const queryEndpoint = buildUrl(`exchange/orders`, {
       exchangeContractAddress: query.exchangeContractAddress,
       feeRecipient: query.feeRecipient,
       maker: query.maker,
@@ -173,7 +173,7 @@ export class Exchange {
       })
     ])
     const params = { baseTokenAddress, quoteTokenAddress }
-    const endpoint = buildUrl(`/exchange/orderbook`, params)
+    const endpoint = buildUrl(`exchange/orderbook`, params)
     const orderbook = await this.provider.fetchEndpoint<OrderbookRaw>(endpoint)
     const { asks, bids } = orderbook
     return {
@@ -435,7 +435,7 @@ export class Exchange {
     exchangeAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<AnyExchangeEvent[]> {
-    const baseUrl = `/exchange/${exchangeAddress}/users/${
+    const baseUrl = `exchange/${exchangeAddress}/users/${
       this.user.address
     }/events`
     const parameterUrl = buildUrl(baseUrl, filter)

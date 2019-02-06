@@ -9,8 +9,8 @@ export class RelayProvider implements TLProvider {
   public relayWsApiUrl: string
 
   constructor(relayApiUrl: string, relayWsApiUrl: string) {
-    this.relayApiUrl = trimUrl(relayApiUrl)
-    this.relayWsApiUrl = trimUrl(relayWsApiUrl)
+    this.relayApiUrl = relayApiUrl
+    this.relayWsApiUrl = relayWsApiUrl
   }
 
   public async fetchEndpoint<T>(

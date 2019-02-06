@@ -29,7 +29,7 @@ export class CurrencyNetwork {
    */
   public async getAll(): Promise<NetworkDetails[]> {
     const networks = await this.provider.fetchEndpoint<NetworkDetailsRaw[]>(
-      `/networks`
+      `networks`
     )
     return networks.map(network => ({
       ...network,
@@ -48,7 +48,7 @@ export class CurrencyNetwork {
   public async getInfo(networkAddress: string): Promise<NetworkDetails> {
     await this._checkAddresses([networkAddress])
     const networkInfo = await this.provider.fetchEndpoint<NetworkDetailsRaw>(
-      `/networks/${networkAddress}`
+      `networks/${networkAddress}`
     )
     return {
       ...networkInfo,
@@ -66,7 +66,7 @@ export class CurrencyNetwork {
   public async getUsers(networkAddress: string): Promise<string[]> {
     await this._checkAddresses([networkAddress])
     return this.provider.fetchEndpoint<string[]>(
-      `/networks/${networkAddress}/users`
+      `networks/${networkAddress}/users`
     )
   }
 
@@ -82,7 +82,7 @@ export class CurrencyNetwork {
     await this._checkAddresses([networkAddress, userAddress])
     const [overview, { networkDecimals }] = await Promise.all([
       this.provider.fetchEndpoint<UserOverviewRaw>(
-        `/networks/${networkAddress}/users/${userAddress}`
+        `networks/${networkAddress}/users/${userAddress}`
       ),
       this.getDecimals(networkAddress)
     ])

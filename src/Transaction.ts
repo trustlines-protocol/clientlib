@@ -114,6 +114,6 @@ export class Transaction {
    * Returns the latest block number of the underlying blockchain.
    */
   public getBlockNumber(): Promise<number> {
-    return this.provider.fetchEndpoint<number>(`/blocknumber`)
+    return this.provider.fetchEndpoint<number>(`blocknumber`)
   }
 }

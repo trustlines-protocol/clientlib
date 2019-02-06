@@ -172,7 +172,7 @@ export class Payment {
       to: receiverAddress,
       value: calcRaw(value, decimals.networkDecimals).toString()
     }
-    const endpoint = `/networks/${networkAddress}/path-info`
+    const endpoint = `networks/${networkAddress}/path-info`
     const { estimatedGas, fees, path } = await this.provider.fetchEndpoint<
       PathRaw
     >(endpoint, {
@@ -248,7 +248,7 @@ export class Payment {
       networkAddress
     )
     const userAddress = this.user.address
-    const endpoint = `/networks/${networkAddress}/max-capacity-path-info`
+    const endpoint = `networks/${networkAddress}/max-capacity-path-info`
     const result = await this.provider.fetchEndpoint<{
       capacity: number
       path: string[]

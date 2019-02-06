@@ -13,7 +13,7 @@ export class Contact {
   }
 
   public getAll(networkAddress: string): Promise<string[]> {
-    const endpoint = `/networks/${networkAddress}/users/${
+    const endpoint = `networks/${networkAddress}/users/${
       this.user.address
     }/contacts`
     return this.provider.fetchEndpoint(endpoint)

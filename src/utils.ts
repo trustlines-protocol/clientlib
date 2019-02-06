@@ -127,7 +127,7 @@ export const buildUrl = (baseUrl: string, params?: any): string => {
  */
 export const createLink = (params: any[]): string => {
   const base = 'http://trustlines.network/v1'
-  return this.buildUrl(base, params)
+  return buildUrl(base, params)
 }
 
 /**
@@ -168,7 +168,7 @@ export const formatToAmountInternal = (
   return {
     decimals,
     raw: new BigNumber(raw),
-    value: this.calcValue(raw, decimals)
+    value: calcValue(raw, decimals)
   }
 }
 
@@ -196,7 +196,7 @@ export const formatToAmount = (
   return {
     decimals,
     raw: new BigNumber(raw).toString(),
-    value: this.calcValue(raw, decimals).toString()
+    value: calcValue(raw, decimals).toString()
   }
 }
 
@@ -224,7 +224,7 @@ export const formatEvent = <T>(
   ]
   for (const key of keys) {
     if (event[key]) {
-      event[key] = this.formatToAmount(
+      event[key] = formatToAmount(
         event[key],
         key.includes('interestRate') ? interestRateDecimals : networkDecimals
       )
@@ -248,11 +248,11 @@ export const formatExchangeEvent = (
     const fillEventRaw = exchangeEvent as ExchangeFillEventRaw
     return {
       ...fillEventRaw,
-      filledMakerAmount: this.formatToAmount(
+      filledMakerAmount: formatToAmount(
         fillEventRaw.filledMakerAmount,
         makerDecimals
       ),
-      filledTakerAmount: this.formatToAmount(
+      filledTakerAmount: formatToAmount(
         fillEventRaw.filledTakerAmount,
         takerDecimals
       )
@@ -261,11 +261,11 @@ export const formatExchangeEvent = (
     const cancelEventRaw = exchangeEvent as ExchangeCancelEventRaw
     return {
       ...cancelEventRaw,
-      cancelledMakerAmount: this.formatToAmount(
+      cancelledMakerAmount: formatToAmount(
         cancelEventRaw.cancelledMakerAmount,
         makerDecimals
       ),
-      cancelledTakerAmount: this.formatToAmount(
+      cancelledTakerAmount: formatToAmount(
         cancelEventRaw.cancelledTakerAmount,
         takerDecimals
       )
@@ -353,7 +353,7 @@ export const buildApiUrl = (
   path: string
 ): string => {
   return `${protocol}://${host}${port && `:${port}`}${path &&
-    `/${this._trimUrl(path)}`}`
+    `/${trimUrl(path)}`}`
 }
 
 /**

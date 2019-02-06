@@ -47,7 +47,7 @@ export class EthWrapper {
    * Returns all known ETH wrapper contract addresses from the relay server.
    */
   public getAddresses(): Promise<string[]> {
-    return this.provider.fetchEndpoint<string[]>(`/exchange/eth`)
+    return this.provider.fetchEndpoint<string[]>(`exchange/eth`)
   }
 
   /**
@@ -55,7 +55,7 @@ export class EthWrapper {
    * @param ethWrapperAddress Address of ETH wrapper contract.
    */
   public async getBalance(ethWrapperAddress: string): Promise<Amount> {
-    const endpoint = `/tokens/${ethWrapperAddress}/users/${
+    const endpoint = `tokens/${ethWrapperAddress}/users/${
       this.user.address
     }/balance`
     const balance = await this.provider.fetchEndpoint<string>(endpoint)
@@ -180,7 +180,7 @@ export class EthWrapper {
     filter: EventFilterOptions = {}
   ): Promise<AnyTokenEvent[]> {
     const { type, fromBlock } = filter
-    const baseUrl = `/tokens/${ethWrapperAddress}/users/${
+    const baseUrl = `tokens/${ethWrapperAddress}/users/${
       this.user.address
     }/events`
     const events = await this.provider.fetchEndpoint<AnyTokenEventRaw[]>(

@@ -47,7 +47,7 @@ export class Event {
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<T[]> {
-    const baseUrl = `/networks/${networkAddress}/users/${
+    const baseUrl = `networks/${networkAddress}/users/${
       this.user.address
     }/events`
     const parameterUrl = buildUrl(baseUrl, filter)
@@ -73,7 +73,7 @@ export class Event {
    * @param filter.fromBlock Start of block range for event logs.
    */
   public async getAll(filter: EventFilterOptions = {}): Promise<AnyEvent[]> {
-    const endpoint = `/users/${this.user.address}/events`
+    const endpoint = `users/${this.user.address}/events`
     const parameterUrl = buildUrl(endpoint, filter)
     const events = await this.provider.fetchEndpoint<AnyEventRaw[]>(
       parameterUrl
@@ -86,7 +86,7 @@ export class Event {
    */
   public updateStream(): Observable<any> {
     return this.provider
-      .createWebsocketStream('/streams/events', 'subscribe', {
+      .createWebsocketStream('streams/events', 'subscribe', {
         event: 'all',
         user: this.user.address
       })
