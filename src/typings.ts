@@ -13,7 +13,7 @@ export interface TLNetworkConfig {
    */
   host?: string
   /**
-   * Port for communcation
+   * Port for communication
    */
   port?: number
   /**
@@ -21,13 +21,21 @@ export interface TLNetworkConfig {
    */
   path?: string
   /**
-   * Protocol for websockets
+   * Protocol for WebSockets
    */
   wsProtocol?: string
   /**
    * Web3 provider
    */
   web3Provider?: any
+  /**
+   * Full URL for relay rest api
+   */
+  relayApiUrl?: string
+  /**
+   * Full URL for relay WebSocket api
+   */
+  relayWsApiUrl?: string
 }
 
 /**

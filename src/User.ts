@@ -1,8 +1,10 @@
 import * as ethUtils from 'ethereumjs-util'
 
+import { TLProvider } from './providers/TLProvider'
 import { TxSigner } from './signers/TxSigner'
 import { Transaction } from './Transaction'
-import { Utils } from './Utils'
+
+import utils from './utils'
 
 import { Amount, RawTxObject, Signature, UserObject } from './typings'
 
@@ -13,12 +15,16 @@ import { Amount, RawTxObject, Signature, UserObject } from './typings'
 export class User {
   private signer: TxSigner
   private transaction: Transaction
-  private utils: Utils
+  private provider: TLProvider
 
-  constructor(signer: TxSigner, transaction: Transaction, utils: Utils) {
-    this.signer = signer
-    this.transaction = transaction
-    this.utils = utils
+  constructor(params: {
+    provider: TLProvider
+    signer: TxSigner
+    transaction: Transaction
+  }) {
+    this.signer = params.signer
+    this.transaction = params.transaction
+    this.provider = params.provider
   }
 
   /**
@@ -126,7 +132,7 @@ export class User {
       serializedKeystore
     )
     const params = ['onboardingrequest', username, address, pubKey]
-    return this.utils.createLink(params)
+    return utils.createLink(params)
   }
 
   /**
@@ -142,7 +148,7 @@ export class User {
     return this.transaction.prepValueTx(
       this.address, // address of onboarder
       newUserAddress, // address of new user who gets onboarded
-      this.utils.calcRaw(initialValue, 18)
+      utils.calcRaw(initialValue, 18)
     )
   }
 
@@ -162,7 +168,7 @@ export class User {
    */
   public async createLink(username: string): Promise<string> {
     const params = ['contact', this.address, username]
-    return this.utils.createLink(params)
+    return utils.createLink(params)
   }
 
   /**
@@ -176,7 +182,7 @@ export class User {
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'POST'
     }
-    return this.utils.fetchUrl<string>('request-ether', options)
+    return this.provider.fetchEndpoint<string>(`request-ether`, options)
   }
 
   /**

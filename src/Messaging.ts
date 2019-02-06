@@ -1,15 +1,25 @@
-import { CurrencyNetwork } from './CurrencyNetwork'
-import { User } from './User'
-import { Utils } from './Utils'
-
 import { Observable } from 'rxjs/Observable'
 
+import { CurrencyNetwork } from './CurrencyNetwork'
+import { TLProvider } from './providers/TLProvider'
+import { User } from './User'
+
+import utils from './utils'
+
 export class Messaging {
-  constructor(
-    private user: User,
-    private utils: Utils,
-    private currencyNetwork: CurrencyNetwork
-  ) {}
+  private user: User
+  private currencyNetwork: CurrencyNetwork
+  private provider: TLProvider
+
+  constructor(params: {
+    currencyNetwork: CurrencyNetwork
+    provider: TLProvider
+    user: User
+  }) {
+    this.user = params.user
+    this.currencyNetwork = params.currencyNetwork
+    this.provider = params.provider
+  }
 
   public paymentRequest(
     network: string,
@@ -32,24 +42,22 @@ export class Messaging {
             "direction": "received",
             "user": "${user}",
             "counterParty": "${this.user.address}",
-            "amount": "${this.utils
-              .calcRaw(value, dec.networkDecimals)
-              .toString()}",
+            "amount": "${utils.calcRaw(value, dec.networkDecimals).toString()}",
             "subject": "${subject}",
-            "nonce": "${this.utils.generateRandomNumber(40)}"
+            "nonce": "${utils.generateRandomNumber(40)}"
           }`,
           type // (optional) hint for notifications
         }),
         headers,
         method: 'POST'
       }
-      return this.utils.fetchUrl(`messages/${user}`, options)
+      return this.provider.fetchEndpoint(`messages/${user}`, options)
     })
   }
 
   public messageStream(): Observable<any> {
-    return this.utils
-      .websocketStream('streams/messages', 'listen', {
+    return this.provider
+      .createWebsocketStream(`/streams/messages`, 'listen', {
         type: 'all',
         user: this.user.address
       })
@@ -64,11 +72,7 @@ export class Messaging {
         return this.currencyNetwork
           .getDecimals(message.networkAddress)
           .then(({ networkDecimals, interestRateDecimals }) =>
-            this.utils.formatEvent(
-              message,
-              networkDecimals,
-              interestRateDecimals
-            )
+            utils.formatEvent(message, networkDecimals, interestRateDecimals)
           )
       })
   }

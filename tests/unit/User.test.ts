@@ -4,10 +4,9 @@ import 'mocha'
 
 import { User } from '../../src/User'
 
-import { FakeConfiguration } from '../helpers/FakeConfiguration'
+import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTransaction } from '../helpers/FakeTransaction'
 import { FakeTxSigner } from '../helpers/FakeTxSigner'
-import { FakeUtils } from '../helpers/FakeUtils'
 
 import {
   FAKE_ACCOUNT,
@@ -26,34 +25,40 @@ describe('unit', () => {
     let user
 
     // Mocked classes
-    let fakeConfiguration
+    let fakeTLProvider
     let fakeTxSigner
     let fakeTransaction
-    let fakeUtils
+
+    const init = () => {
+      fakeTLProvider = new FakeTLProvider()
+      fakeTxSigner = new FakeTxSigner()
+      fakeTransaction = new FakeTransaction({
+        provider: fakeTLProvider,
+        signer: fakeTxSigner
+      })
+      user = new User({
+        provider: fakeTLProvider,
+        signer: fakeTxSigner,
+        transaction: fakeTransaction
+      })
+    }
 
     describe('#constructor()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-      })
+      beforeEach(() => init())
 
       it('should construct a User instance', () => {
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
+        user = new User({
+          provider: fakeTLProvider,
+          signer: fakeTxSigner,
+          transaction: fakeTransaction
+        })
         assert.isString(user.address)
         assert.isString(user.pubKey)
       })
     })
 
     describe('#create()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should create a new user', async () => {
         const createdUser = await user.create()
@@ -70,13 +75,7 @@ describe('unit', () => {
     })
 
     describe('#load()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should load a user from keystore', async () => {
         const loadedUser = await user.load(keystore1)
@@ -93,13 +92,7 @@ describe('unit', () => {
     })
 
     describe('#signMsgHash()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should digitally sign message hash', async () => {
         const signature = await user.signMsgHash('hello world!')
@@ -115,13 +108,7 @@ describe('unit', () => {
     })
 
     describe('#getBalance()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should return balance as amount', async () => {
         const balance = await user.getBalance()
@@ -135,13 +122,7 @@ describe('unit', () => {
     })
 
     describe('#encrypt()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should return encrypted message as object', async () => {
         const encMsg = await user.encrypt('hello world!')
@@ -162,13 +143,7 @@ describe('unit', () => {
     })
 
     describe('#decrypt()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should return decrypted message', async () => {
         const decryptedMsg = await user.decrypt(FAKE_ENC_OBJECT)
@@ -182,13 +157,7 @@ describe('unit', () => {
     })
 
     describe('#showSeed()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should return seed as string', async () => {
         const seed = await user.showSeed()
@@ -202,13 +171,7 @@ describe('unit', () => {
     })
 
     describe('#exportPrivateKey()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should return private key', async () => {
         const privateKey = await user.exportPrivateKey()
@@ -222,13 +185,7 @@ describe('unit', () => {
     })
 
     describe('#recoverFromSeed()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should recover user from seed', async () => {
         const recoveredUser = await user.recoverFromSeed(FAKE_SEED)
@@ -242,13 +199,7 @@ describe('unit', () => {
     })
 
     describe('#createOnboardingMsg()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should create onboarding message', async () => {
         const onboardingMsg = await user.createOnboardingMsg(
@@ -260,13 +211,7 @@ describe('unit', () => {
     })
 
     describe('#prepOnboarding()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should prepare a onboarding transaction', async () => {
         const preparedOnboardingTx = await user.prepOnboarding(
@@ -283,13 +228,7 @@ describe('unit', () => {
     })
 
     describe('#confirmOnboarding()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should confirm prepared onboarding transaction', async () => {
         const txHash = await user.confirmOnboarding(
@@ -307,13 +246,7 @@ describe('unit', () => {
     })
 
     describe('#createLink()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should return a string', async () => {
         const contactLink = await user.createLink('testname')
@@ -322,13 +255,7 @@ describe('unit', () => {
     })
 
     describe('#requestEth()', () => {
-      beforeEach(() => {
-        fakeConfiguration = new FakeConfiguration()
-        fakeTxSigner = new FakeTxSigner()
-        fakeUtils = new FakeUtils(fakeConfiguration)
-        fakeTransaction = new FakeTransaction(fakeUtils, fakeTxSigner)
-        user = new User(fakeTxSigner, fakeTransaction, fakeUtils)
-      })
+      beforeEach(() => init())
 
       it('should return tx hash', async () => {
         const txHash = await user.requestEth()

@@ -2,9 +2,11 @@ import { BigNumber } from 'bignumber.js'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
+import { TLProvider } from './providers/TLProvider'
 import { Transaction } from './Transaction'
 import { User } from './User'
-import { Utils } from './Utils'
+
+import utils from './utils'
 
 import {
   EventFilterOptions,
@@ -22,24 +24,24 @@ import {
  * trustline transfers and normal ETH transfers.
  */
 export class Payment {
-  private event: Event
-  private user: User
-  private utils: Utils
-  private transaction: Transaction
   private currencyNetwork: CurrencyNetwork
+  private event: Event
+  private provider: TLProvider
+  private transaction: Transaction
+  private user: User
 
-  constructor(
-    event: Event,
-    user: User,
-    utils: Utils,
-    transaction: Transaction,
+  constructor(params: {
+    event: Event
+    user: User
+    transaction: Transaction
     currencyNetwork: CurrencyNetwork
-  ) {
-    this.event = event
-    this.user = user
-    this.utils = utils
-    this.transaction = transaction
-    this.currencyNetwork = currencyNetwork
+    provider: TLProvider
+  }) {
+    this.event = params.event
+    this.user = params.user
+    this.transaction = params.transaction
+    this.currencyNetwork = params.currencyNetwork
+    this.provider = params.provider
   }
 
   /**
@@ -83,10 +85,10 @@ export class Payment {
         'transfer',
         [
           receiverAddress,
-          this.utils.convertToHexString(
-            this.utils.calcRaw(value, decimals.networkDecimals)
+          utils.convertToHexString(
+            utils.calcRaw(value, decimals.networkDecimals)
           ),
-          this.utils.convertToHexString(new BigNumber(maxFees.raw)),
+          utils.convertToHexString(new BigNumber(maxFees.raw)),
           path.slice(1)
         ],
         {
@@ -97,7 +99,7 @@ export class Payment {
         }
       )
       return {
-        ethFees: this.utils.convertToAmount(ethFees),
+        ethFees: utils.convertToAmount(ethFees),
         maxFees,
         path,
         rawTx
@@ -124,14 +126,14 @@ export class Payment {
     const { ethFees, rawTx } = await this.transaction.prepValueTx(
       this.user.address,
       receiverAddress,
-      this.utils.calcRaw(value, 18),
+      utils.calcRaw(value, 18),
       {
         gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
     return {
-      ethFees: this.utils.convertToAmount(ethFees),
+      ethFees: utils.convertToAmount(ethFees),
       rawTx
     }
   }
@@ -164,20 +166,19 @@ export class Payment {
       maxFees: maximumFees,
       maxHops: maximumHops,
       to: receiverAddress,
-      value: this.utils.calcRaw(value, decimals.networkDecimals).toString()
+      value: utils.calcRaw(value, decimals.networkDecimals).toString()
     }
     const endpoint = `networks/${networkAddress}/path-info`
-    const { estimatedGas, fees, path } = await this.utils.fetchUrl<PathRaw>(
-      endpoint,
-      {
-        body: JSON.stringify(data),
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-        method: 'POST'
-      }
-    )
+    const { estimatedGas, fees, path } = await this.provider.fetchEndpoint<
+      PathRaw
+    >(endpoint, {
+      body: JSON.stringify(data),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      method: 'POST'
+    })
     return {
       estimatedGas: new BigNumber(estimatedGas),
-      maxFees: this.utils.formatToAmount(fees, decimals.networkDecimals),
+      maxFees: utils.formatToAmount(fees, decimals.networkDecimals),
       path
     }
   }
@@ -224,7 +225,7 @@ export class Payment {
       amount,
       subject
     ]
-    return this.utils.createLink(params)
+    return utils.createLink(params)
   }
 
   /**
@@ -244,7 +245,7 @@ export class Payment {
     )
     const userAddress = this.user.address
     const endpoint = `networks/${networkAddress}/max-capacity-path-info`
-    const result = await this.utils.fetchUrl<{
+    const result = await this.provider.fetchEndpoint<{
       capacity: number
       path: string[]
     }>(endpoint, {
@@ -257,7 +258,7 @@ export class Payment {
     })
 
     return {
-      amount: this.utils.formatToAmount(result.capacity, networkDecimals),
+      amount: utils.formatToAmount(result.capacity, networkDecimals),
       path: result.path
     }
   }

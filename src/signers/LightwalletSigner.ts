@@ -1,8 +1,10 @@
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 
-import { Utils } from '../Utils'
+import { TLProvider } from '../providers/TLProvider'
 import { TxSigner } from './TxSigner'
+
+import utils from '../utils'
 
 import {
   Amount,
@@ -22,15 +24,15 @@ export class LightwalletSigner implements TxSigner {
   public keystore: any
 
   private lightwallet: any
-  private utils: Utils
+  private provider: TLProvider
 
   private password = 'ts'
   private signingPath = "m/44'/60'/0'/0" // path for signing keys
   private userNotLoadedError = new Error('No account/keystore loaded.')
 
-  constructor(lightwallet: any, utils: Utils) {
-    this.lightwallet = lightwallet
-    this.utils = utils
+  constructor(params: { lightwallet: any; provider: TLProvider }) {
+    this.lightwallet = params.lightwallet
+    this.provider = params.provider
   }
 
   /**
@@ -126,10 +128,10 @@ export class LightwalletSigner implements TxSigner {
     if (!this._isUserLoaded()) {
       throw this.userNotLoadedError
     }
-    const balance = await this.utils.fetchUrl<string>(
+    const balance = await this.provider.fetchEndpoint<string>(
       `users/${this.address}/balance`
     )
-    return this.utils.formatToAmount(this.utils.calcRaw(balance, 18), 18)
+    return utils.formatToAmount(utils.calcRaw(balance, 18), 18)
   }
 
   /**
@@ -280,9 +282,9 @@ export class LightwalletSigner implements TxSigner {
     const txOptions = {
       ...rawTx,
       from: rawTx.from.toLowerCase(),
-      gasLimit: this.utils.convertToHexString(rawTx.gasLimit),
-      gasPrice: this.utils.convertToHexString(rawTx.gasPrice),
-      value: this.utils.convertToHexString(rawTx.value)
+      gasLimit: utils.convertToHexString(rawTx.gasLimit),
+      gasPrice: utils.convertToHexString(rawTx.gasPrice),
+      value: utils.convertToHexString(rawTx.value)
     }
     if (txOptions.to) {
       txOptions.to = txOptions.to.toLowerCase()
@@ -309,9 +311,9 @@ export class LightwalletSigner implements TxSigner {
    */
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
     const endpoint = `users/${userAddress}/txinfos`
-    const { nonce, gasPrice, balance } = await this.utils.fetchUrl<TxInfosRaw>(
-      endpoint
-    )
+    const { nonce, gasPrice, balance } = await this.provider.fetchEndpoint<
+      TxInfosRaw
+    >(endpoint)
     return {
       balance: new BigNumber(balance),
       gasPrice: new BigNumber(gasPrice),
@@ -330,7 +332,7 @@ export class LightwalletSigner implements TxSigner {
       headers,
       method: 'POST'
     }
-    return this.utils.fetchUrl<string>('relay', options)
+    return this.provider.fetchEndpoint<string>(`relay`, options)
   }
 
   /**

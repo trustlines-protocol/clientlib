@@ -1,8 +1,10 @@
 import BigNumber from 'bignumber.js'
 
+import { TLProvider } from './providers/TLProvider'
 import { Transaction } from './Transaction'
 import { User } from './User'
-import { Utils } from './Utils'
+
+import utils from './utils'
 
 import {
   Amount,
@@ -20,21 +22,25 @@ const ETH_DECIMALS = 18
  * The class EthWrapper contains all methods for depositing, withdrawing and transferring wrapped ETH.
  */
 export class EthWrapper {
-  private user: User
-  private utils: Utils
+  private provider: TLProvider
   private transaction: Transaction
+  private user: User
 
-  constructor(user: User, utils: Utils, transaction: Transaction) {
-    this.user = user
-    this.utils = utils
-    this.transaction = transaction
+  constructor(params: {
+    provider: TLProvider
+    transaction: Transaction
+    user: User
+  }) {
+    this.provider = params.provider
+    this.transaction = params.transaction
+    this.user = params.user
   }
 
   /**
    * Returns all known ETH wrapper contract addresses from the relay server.
    */
   public getAddresses(): Promise<string[]> {
-    return this.utils.fetchUrl<string[]>('exchange/eth')
+    return this.provider.fetchEndpoint<string[]>(`exchange/eth`)
   }
 
   /**
@@ -45,8 +51,8 @@ export class EthWrapper {
     const endpoint = `tokens/${ethWrapperAddress}/users/${
       this.user.address
     }/balance`
-    const balance = await this.utils.fetchUrl<string>(endpoint)
-    return this.utils.formatToAmount(balance, ETH_DECIMALS)
+    const balance = await this.provider.fetchEndpoint<string>(endpoint)
+    return utils.formatToAmount(balance, ETH_DECIMALS)
   }
 
   /**
@@ -73,7 +79,7 @@ export class EthWrapper {
       'transfer',
       [
         receiverAddress,
-        this.utils.convertToHexString(this.utils.calcRaw(value, ETH_DECIMALS))
+        utils.convertToHexString(utils.calcRaw(value, ETH_DECIMALS))
       ],
       {
         gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined,
@@ -81,7 +87,7 @@ export class EthWrapper {
       }
     )
     return {
-      ethFees: this.utils.convertToAmount(ethFees),
+      ethFees: utils.convertToAmount(ethFees),
       rawTx
     }
   }
@@ -109,11 +115,11 @@ export class EthWrapper {
       {
         gasLimit: gasPrice ? new BigNumber(gasLimit) : undefined,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined,
-        value: new BigNumber(this.utils.calcRaw(value, ETH_DECIMALS))
+        value: new BigNumber(utils.calcRaw(value, ETH_DECIMALS))
       }
     )
     return {
-      ethFees: this.utils.convertToAmount(ethFees),
+      ethFees: utils.convertToAmount(ethFees),
       rawTx
     }
   }
@@ -137,14 +143,14 @@ export class EthWrapper {
       ethWrapperAddress,
       'UnwEth',
       'withdraw',
-      [this.utils.convertToHexString(this.utils.calcRaw(value, ETH_DECIMALS))],
+      [utils.convertToHexString(utils.calcRaw(value, ETH_DECIMALS))],
       {
         gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
     return {
-      ethFees: this.utils.convertToAmount(ethFees),
+      ethFees: utils.convertToAmount(ethFees),
       rawTx
     }
   }
@@ -173,9 +179,9 @@ export class EthWrapper {
     const baseUrl = `tokens/${ethWrapperAddress}/users/${
       this.user.address
     }/events`
-    const events = await this.utils.fetchUrl<AnyTokenEventRaw[]>(
-      this.utils.buildUrl(baseUrl, { type, fromBlock })
+    const events = await this.provider.fetchEndpoint<AnyTokenEventRaw[]>(
+      utils.buildUrl(baseUrl, { type, fromBlock })
     )
-    return events.map(event => this.utils.formatEvent(event, ETH_DECIMALS, 0))
+    return events.map(event => utils.formatEvent(event, ETH_DECIMALS, 0))
   }
 }

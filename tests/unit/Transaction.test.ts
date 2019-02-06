@@ -3,18 +3,14 @@ import { assert } from 'chai'
 import 'mocha'
 
 import { Transaction } from '../../src/Transaction'
-import { FakeConfiguration } from '../helpers/FakeConfiguration'
+
+import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTxSigner } from '../helpers/FakeTxSigner'
-import { FakeUtils } from '../helpers/FakeUtils'
 
 describe('unit', () => {
   describe('Transaction', () => {
     // test object
     let transaction: Transaction
-
-    // mocked classes
-    let fakeTxSigner
-    let fakeUtils
 
     // test data
     const USER_ADDRESS = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
@@ -32,9 +28,10 @@ describe('unit', () => {
     }
 
     before(() => {
-      fakeUtils = new FakeUtils(new FakeConfiguration())
-      fakeTxSigner = new FakeTxSigner()
-      transaction = new Transaction(fakeUtils, fakeTxSigner)
+      transaction = new Transaction({
+        provider: new FakeTLProvider(),
+        signer: new FakeTxSigner()
+      })
     })
 
     describe('#prepFuncTx()', () => {

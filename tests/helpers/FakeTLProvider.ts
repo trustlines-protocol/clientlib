@@ -1,12 +1,11 @@
-import { Utils } from '../../src/Utils'
-
-import { Amount } from '../../src/typings'
+import { TLProvider } from '../../src/providers/TLProvider'
 
 import {
   FAKE_AMOUNT,
   FAKE_CLOSE_PATH_RAW,
   FAKE_FORMATTED_TRANSFER_EVENT,
   FAKE_NETWORK,
+  FAKE_RELAY_API,
   FAKE_TRANSFER_EVENT,
   FAKE_TRUSTLINE,
   FAKE_TX_HASH,
@@ -15,16 +14,18 @@ import {
   FAKE_USER_ADDRESSES
 } from '../Fixtures'
 
-/**
- * Mock Utils class
- */
-export class FakeUtils extends Utils {
+export class FakeTLProvider implements TLProvider {
+  public relayApiUrl = FAKE_RELAY_API
+  public relayWsApiUrl = FAKE_RELAY_API
   public errors: any = {}
 
   /**
    * Mocks utils.fetchUrl
    */
-  public async fetchUrl<T>(endpoint: string, options?: object): Promise<T> {
+  public async fetchEndpoint<T>(
+    endpoint: string,
+    options?: object
+  ): Promise<T> {
     const splitEndpoint = endpoint.split('/')
     let response
 
@@ -97,24 +98,12 @@ export class FakeUtils extends Utils {
     return Promise.resolve(response)
   }
 
-  public formatToAmount(raw, decimals): Amount {
-    return FAKE_AMOUNT
-  }
-
-  public createLink(params): string {
-    return 'https://fake.link/path/query?param=param1'
-  }
-
-  public buildUrl(baseUrl, filter) {
-    return baseUrl
-  }
-
-  public formatEvent(event, networkDecimals, interestRateDecimals) {
-    return FAKE_FORMATTED_TRANSFER_EVENT as any
-  }
-
-  public convertToHexString(decimalStr) {
-    return '0x'
+  public createWebsocketStream(
+    endpoint: string,
+    functionName: string,
+    args: object
+  ) {
+    throw new Error('Method not implemented.')
   }
 
   public setError(functionName) {

@@ -1,18 +1,28 @@
+import { TLProvider } from './providers/TLProvider'
 import { User } from './User'
-import { Utils } from './Utils'
+
+import utils from './utils'
 
 export class Contact {
-  constructor(private user: User, private utils: Utils) {}
+  private user: User
+  private provider: TLProvider
+
+  constructor(params: { user: User; provider: TLProvider }) {
+    this.user = params.user
+    this.provider = params.provider
+  }
 
   public getAll(networkAddress: string): Promise<string[]> {
-    const url = `networks/${networkAddress}/users/${this.user.address}/contacts`
-    return this.utils.fetchUrl(url)
+    const endpoint = `networks/${networkAddress}/users/${
+      this.user.address
+    }/contacts`
+    return this.provider.fetchEndpoint(endpoint)
   }
 
   public createLink(address: string, username: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const params = ['contact', address, username]
-      resolve(this.utils.createLink(params))
+      resolve(utils.createLink(params))
     })
   }
 }

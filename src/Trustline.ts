@@ -2,9 +2,11 @@ import BigNumber from 'bignumber.js'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
+import { TLProvider } from './providers/TLProvider'
 import { Transaction } from './Transaction'
 import { User } from './User'
-import { Utils } from './Utils'
+
+import utils from './utils'
 
 import {
   ClosePathObject,
@@ -25,24 +27,24 @@ import {
  * editing trustlines.
  */
 export class Trustline {
-  private event: Event
-  private user: User
-  private utils: Utils
-  private transaction: Transaction
   private currencyNetwork: CurrencyNetwork
+  private event: Event
+  private provider: TLProvider
+  private transaction: Transaction
+  private user: User
 
-  constructor(
-    event: Event,
-    user: User,
-    utils: Utils,
-    transaction: Transaction,
+  constructor(params: {
     currencyNetwork: CurrencyNetwork
-  ) {
-    this.event = event
-    this.user = user
-    this.utils = utils
-    this.transaction = transaction
-    this.currencyNetwork = currencyNetwork
+    event: Event
+    provider: TLProvider
+    transaction: Transaction
+    user: User
+  }) {
+    this.event = params.event
+    this.user = params.user
+    this.transaction = params.transaction
+    this.currencyNetwork = params.currencyNetwork
+    this.provider = params.provider
   }
 
   /**
@@ -94,11 +96,11 @@ export class Trustline {
     let updateFuncName = 'updateCreditlimits'
     let updateFuncArgs = [
       counterpartyAddress,
-      this.utils.convertToHexString(
-        this.utils.calcRaw(creditlineGiven, decimals.networkDecimals)
+      utils.convertToHexString(
+        utils.calcRaw(creditlineGiven, decimals.networkDecimals)
       ),
-      this.utils.convertToHexString(
-        this.utils.calcRaw(creditlineReceived, decimals.networkDecimals)
+      utils.convertToHexString(
+        utils.calcRaw(creditlineReceived, decimals.networkDecimals)
       )
     ]
 
@@ -107,20 +109,14 @@ export class Trustline {
       updateFuncName = 'updateTrustline'
       updateFuncArgs = [
         ...updateFuncArgs,
-        this.utils.convertToHexString(
+        utils.convertToHexString(
           customInterests
-            ? this.utils.calcRaw(
-                interestRateGiven,
-                decimals.interestRateDecimals
-              )
+            ? utils.calcRaw(interestRateGiven, decimals.interestRateDecimals)
             : defaultInterestRate.raw
         ),
-        this.utils.convertToHexString(
+        utils.convertToHexString(
           customInterests
-            ? this.utils.calcRaw(
-                interestRateReceived,
-                decimals.interestRateDecimals
-              )
+            ? utils.calcRaw(interestRateReceived, decimals.interestRateDecimals)
             : defaultInterestRate.raw
         )
       ]
@@ -138,7 +134,7 @@ export class Trustline {
       }
     )
     return {
-      ethFees: this.utils.convertToAmount(ethFees),
+      ethFees: utils.convertToAmount(ethFees),
       rawTx
     }
   }
@@ -197,7 +193,7 @@ export class Trustline {
       trustlines,
       { networkDecimals, interestRateDecimals }
     ] = await Promise.all([
-      this.utils.fetchUrl<TrustlineRaw[]>(endpoint),
+      this.provider.fetchEndpoint<TrustlineRaw[]>(endpoint),
       this.currencyNetwork.getDecimals(networkAddress)
     ])
     return trustlines.map(trustline =>
@@ -221,7 +217,7 @@ export class Trustline {
       trustline,
       { networkDecimals, interestRateDecimals }
     ] = await Promise.all([
-      this.utils.fetchUrl<TrustlineRaw>(endpoint),
+      this.provider.fetchEndpoint<TrustlineRaw>(endpoint),
       this.currencyNetwork.getDecimals(networkAddress)
     ])
     return this._formatTrustline(
@@ -311,7 +307,7 @@ export class Trustline {
       closeFuncName = 'closeTrustlineByTriangularTransfer'
       closeFuncArgs = [
         counterpartyAddress,
-        this.utils.convertToHexString(new BigNumber(maxFees.raw)),
+        utils.convertToHexString(new BigNumber(maxFees.raw)),
         path.slice(1)
       ]
     }
@@ -332,7 +328,7 @@ export class Trustline {
     )
 
     return {
-      ethFees: this.utils.convertToAmount(ethFees),
+      ethFees: utils.convertToAmount(ethFees),
       maxFees,
       path,
       rawTx
@@ -374,9 +370,12 @@ export class Trustline {
     }
 
     // Request the relay for a path to settle down the trustline.
-    const { path, estimatedGas, fees, value } = await this.utils.fetchUrl<
-      ClosePathRaw
-    >(endpoint, {
+    const {
+      path,
+      estimatedGas,
+      fees,
+      value
+    } = await this.provider.fetchEndpoint<ClosePathRaw>(endpoint, {
       body: JSON.stringify(data),
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'post'
@@ -384,9 +383,9 @@ export class Trustline {
 
     return {
       estimatedGas: new BigNumber(estimatedGas),
-      maxFees: this.utils.formatToAmount(fees, decimals.networkDecimals),
+      maxFees: utils.formatToAmount(fees, decimals.networkDecimals),
       path,
-      value: this.utils.formatToAmount(value, decimals.networkDecimals)
+      value: utils.formatToAmount(value, decimals.networkDecimals)
     }
   }
 
@@ -402,25 +401,22 @@ export class Trustline {
   ): TrustlineObject {
     return {
       ...trustline,
-      balance: this.utils.formatToAmount(trustline.balance, networkDecimals),
-      given: this.utils.formatToAmount(trustline.given, networkDecimals),
-      interestRateGiven: this.utils.formatToAmount(
+      balance: utils.formatToAmount(trustline.balance, networkDecimals),
+      given: utils.formatToAmount(trustline.given, networkDecimals),
+      interestRateGiven: utils.formatToAmount(
         trustline.interestRateGiven,
         interestDecimals
       ),
-      interestRateReceived: this.utils.formatToAmount(
+      interestRateReceived: utils.formatToAmount(
         trustline.interestRateReceived,
         interestDecimals
       ),
-      leftGiven: this.utils.formatToAmount(
-        trustline.leftGiven,
-        networkDecimals
-      ),
-      leftReceived: this.utils.formatToAmount(
+      leftGiven: utils.formatToAmount(trustline.leftGiven, networkDecimals),
+      leftReceived: utils.formatToAmount(
         trustline.leftReceived,
         networkDecimals
       ),
-      received: this.utils.formatToAmount(trustline.received, networkDecimals)
+      received: utils.formatToAmount(trustline.received, networkDecimals)
     }
   }
 }
