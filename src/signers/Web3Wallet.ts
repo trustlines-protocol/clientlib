@@ -1,13 +1,13 @@
 import { BigNumber } from 'bignumber.js'
 
-import { TxSigner } from './TxSigner'
+import { TLWallet } from './TLWallet'
 
 import { Amount, RawTxObject, Signature, TxInfos, UserObject } from '../typings'
 
 /**
  * The Web3Signer class contains functions for signing transactions with a web3 provider.
  */
-export class Web3Signer implements TxSigner {
+export class Web3Wallet implements TLWallet {
   public address: string
   public pubKey: string
 

@@ -1,14 +1,17 @@
+import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
-import { TLSigner } from './TLSigner'
+import { TLWallet } from './TLWallet'
 
-import { Signature, UserObject } from '../typings'
+import utils from '../utils'
+
+import { Amount, RawTxObject, Signature, UserObject } from '../typings'
 
 /**
- * The RelaySigner class contains wallet related methods.
+ * The EthersWallet class contains wallet related methods.
  */
-export class RelaySigner implements TLSigner {
+export class EthersWallet implements TLWallet {
   public provider: TLProvider
 
   private wallet: ethers.Wallet
@@ -29,21 +32,6 @@ export class RelaySigner implements TLSigner {
     return this.wallet
       ? ethers.utils.computePublicKey(this.wallet.privateKey)
       : undefined
-  }
-
-  public get mnemonic(): string {
-    return this.wallet ? this.wallet.mnemonic : undefined
-  }
-
-  public get privateKey(): string {
-    return this.wallet ? this.wallet.privateKey : undefined
-  }
-
-  /**
-   * Returns address of loaded wallet.
-   */
-  public async getAddress(): Promise<string> {
-    return this.address
   }
 
   ////////////////////////
@@ -149,6 +137,9 @@ export class RelaySigner implements TLSigner {
    * @param msgHash Hash of message to sign.
    */
   public async signMsgHash(msgHash: string): Promise<Signature> {
+    if (!this.wallet) {
+      throw new Error('No wallet loaded.')
+    }
     const binaryData = ethers.utils.arrayify(msgHash)
     const flatFormatSignature = await this.wallet.signMessage(binaryData)
     const { r, s, v } = ethers.utils.splitSignature(flatFormatSignature)
@@ -159,33 +150,70 @@ export class RelaySigner implements TLSigner {
   }
 
   /**
-   * Signs given message with loaded wallet.
-   * @param message Message to sign.
+   * Takes a raw transaction object, turns it into a RLP encoded hex string, signs it with
+   * the loaded user and relays the transaction.
+   * @param rawTx Raw transaction object.
    */
-  public async signMessage(message: ethers.utils.Arrayish): Promise<string> {
-    return this.wallet.signMessage(message)
+  public async confirm(rawTx: RawTxObject): Promise<string> {
+    if (!this.wallet) {
+      throw new Error('No wallet loaded.')
+    }
+    const signedTransaction = await this.wallet.sign({
+      data: rawTx.data,
+      gasLimit: ethers.utils.bigNumberify(
+        rawTx.gasLimit instanceof BigNumber
+          ? rawTx.gasLimit.toString()
+          : rawTx.gasLimit
+      ),
+      gasPrice: ethers.utils.bigNumberify(
+        rawTx.gasPrice instanceof BigNumber
+          ? rawTx.gasPrice.toString()
+          : rawTx.gasPrice
+      ),
+      nonce: rawTx.nonce,
+      to: rawTx.to,
+      value: ethers.utils.bigNumberify(
+        rawTx.value instanceof BigNumber ? rawTx.value.toString() : rawTx.value
+      )
+    })
+    return this.provider.sendSignedTransaction(signedTransaction)
   }
 
-  ///////////////////////////
-  // Blockchain Operations //
-  ///////////////////////////
+  /////////////
+  // Account //
+  /////////////
 
   /**
-   * Signs and sends given transaction request.
-   * @param transaction Transaction request to sign and send.
+   * Returns a `Promise` with the balance of loaded user.
    */
-  public async sendTransaction(
-    transaction: ethers.providers.TransactionRequest
-  ): Promise<ethers.providers.TransactionResponse> {
-    const signedTransaction = await this.wallet.sign({
-      data: transaction.data,
-      gasLimit: transaction.gasLimit,
-      gasPrice: transaction.gasPrice,
-      nonce: transaction.nonce,
-      to: transaction.to,
-      value: transaction.value
-    })
-    return this.provider.sendTransaction(signedTransaction)
+  public async getBalance(): Promise<Amount> {
+    if (!this.wallet) {
+      throw new Error('No wallet loaded.')
+    }
+    const balance = await this.provider.fetchEndpoint<string>(
+      `users/${this.address}/balance`
+    )
+    return utils.formatToAmount(utils.calcRaw(balance, 18), 18)
+  }
+
+  /**
+   * Returns a `Promise` with the mnemonic seed phrase of loaded user.
+   */
+  public async showSeed(): Promise<string> {
+    if (!this.wallet) {
+      throw new Error('No wallet loaded.')
+    }
+    return this.wallet.mnemonic
+  }
+
+  /**
+   * Returns a `Promise` with the private key of loaded user.
+   */
+  public async exportPrivateKey(): Promise<string> {
+    if (!this.wallet) {
+      throw new Error('No wallet loaded.')
+    }
+    return this.wallet.privateKey
   }
 
   /////////////////////////////
