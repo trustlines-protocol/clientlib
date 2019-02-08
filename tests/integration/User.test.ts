@@ -3,7 +3,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { config, keystore1, user1 } from '../Fixtures'
+import { config, USER_1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -12,15 +12,13 @@ describe('integration', () => {
     const { expect } = chai
     const tlNew = new TLNetwork(config)
     const tlExisting = new TLNetwork(config)
-    const seedUser1 =
-      'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
     let newUser
     let existingUser
 
     before(async () => {
       ;[newUser, existingUser] = await Promise.all([
         tlNew.user.create(),
-        tlExisting.user.load(keystore1)
+        tlExisting.user.load(USER_1.keystore)
       ])
     })
 
@@ -33,7 +31,7 @@ describe('integration', () => {
     describe('#load()', () => {
       it('should load existing user/keystore', () => {
         expect(existingUser).to.have.keys('address', 'keystore', 'pubKey')
-        expect(existingUser.address).to.eq(user1.address)
+        expect(existingUser.address).to.eq(USER_1.address)
       })
     })
 
@@ -45,37 +43,18 @@ describe('integration', () => {
 
     describe('#showSeed()', () => {
       it('should show seed of loaded user', () => {
-        expect(tlExisting.user.showSeed()).to.eventually.eq(seedUser1)
+        expect(tlExisting.user.showSeed()).to.eventually.eq(USER_1.mnemonic)
       })
     })
 
     describe('#recoverFromSeed()', () => {
       it('should recover from seed words', async () => {
-        const recoveredUser = await tlExisting.user.recoverFromSeed(seedUser1)
-        expect(recoveredUser.address).to.equal(user1.address)
-        expect(recoveredUser.pubKey).to.equal(user1.pubKey)
-        expect(recoveredUser.keystore).to.be.a('string')
-      })
-    })
-
-    describe('#encrypt()', () => {
-      it('should return encryption object', () => {
-        expect(
-          tlNew.user.encrypt('hello world!', existingUser.pubKey)
-        ).to.eventually.be.an('object')
-      })
-    })
-
-    describe('#decrypt()', () => {
-      it('should decrypt message', async () => {
-        const message = 'hello world!'
-        const cipherText = await tlNew.user.encrypt(
-          message,
-          existingUser.pubKey
+        const recoveredUser = await tlExisting.user.recoverFromSeed(
+          USER_1.mnemonic
         )
-        expect(
-          tlExisting.user.decrypt(cipherText, newUser.pubKey)
-        ).to.eventually.equal('hello world!')
+        expect(recoveredUser.address).to.equal(USER_1.address)
+        expect(recoveredUser.pubKey).to.equal(USER_1.pubKey)
+        expect(recoveredUser.keystore).to.be.a('string')
       })
     })
   })

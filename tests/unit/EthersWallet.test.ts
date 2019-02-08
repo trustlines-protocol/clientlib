@@ -79,7 +79,7 @@ describe('unit', () => {
       it('should recover account from mnemonic', async () => {
         const recoveredAccount = await ethersWallet.recoverFromSeed(
           USER_1.mnemonic,
-          DEFAULT_PASSWORD
+          USER_1.password
         )
         assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
         assert.equal(recoveredAccount.address, USER_1.address)
@@ -89,7 +89,7 @@ describe('unit', () => {
       it('should recover account from mnemonic with progress callback', async () => {
         const recoveredAccount = await ethersWallet.recoverFromSeed(
           USER_1.mnemonic,
-          DEFAULT_PASSWORD,
+          USER_1.password,
           progress => assert.isNumber(progress)
         )
         assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
