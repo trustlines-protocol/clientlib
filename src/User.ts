@@ -1,7 +1,7 @@
 import * as ethUtils from 'ethereumjs-util'
 
 import { TLProvider } from './providers/TLProvider'
-import { TxSigner } from './signers/TxSigner'
+import { TLWallet } from './signers/TLWallet'
 import { Transaction } from './Transaction'
 
 import utils from './utils'
@@ -13,13 +13,15 @@ import { Amount, RawTxObject, Signature, UserObject } from './typings'
  * related methods.
  */
 export class User {
-  private signer: TxSigner
+  private signer: TLWallet
   private transaction: Transaction
   private provider: TLProvider
 
+  private defaultPassword = 'ts'
+
   constructor(params: {
     provider: TLProvider
-    signer: TxSigner
+    signer: TLWallet
     transaction: Transaction
   }) {
     this.signer = params.signer
@@ -44,9 +46,13 @@ export class User {
   /**
    * Creates a new user and the respective keystore using the configured signer.
    * Loads new user into the state and returns the created user object.
+   * @param progressCallback Optional progress callback to call on encryption progress.
    */
-  public async create(): Promise<UserObject> {
-    const createdAccount = await this.signer.createAccount()
+  public async create(progressCallback?: any): Promise<UserObject> {
+    const createdAccount = await this.signer.createAccount(
+      this.defaultPassword,
+      progressCallback
+    )
     return createdAccount
   }
 
@@ -54,9 +60,17 @@ export class User {
    * Loads an existing user and respective keystore.
    * Returns the loaded user object.
    * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) key store.
+   * @param progressCallback Optional progress callback to call on encryption progress.
    */
-  public async load(serializedKeystore: string): Promise<UserObject> {
-    const loadedAccount = await this.signer.loadAccount(serializedKeystore)
+  public async load(
+    serializedKeystore: string,
+    progressCallback?: any
+  ): Promise<UserObject> {
+    const loadedAccount = await this.signer.loadAccount(
+      serializedKeystore,
+      this.defaultPassword,
+      progressCallback
+    )
     return loadedAccount
   }
 
@@ -110,9 +124,17 @@ export class User {
   /**
    * Recovers user / keystore from 12 word seed.
    * @param seed 12 word seed phrase string.
+   * @param progressCallback Optional progress callback to call on encryption progress.
    */
-  public async recoverFromSeed(seed: string): Promise<UserObject> {
-    const recoveredUser = await this.signer.recoverFromSeed(seed)
+  public async recoverFromSeed(
+    seed: string,
+    progressCallback?: any
+  ): Promise<UserObject> {
+    const recoveredUser = await this.signer.recoverFromSeed(
+      seed,
+      this.defaultPassword,
+      progressCallback
+    )
     return recoveredUser
   }
 
@@ -123,13 +145,17 @@ export class User {
    * @param username Name of new user who wants to get onboarded.
    * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet)
    *                           keystore of new user who wants to get onboarded.
+   * @param progressCallback Optional progress callback to call on encryption progress.
    */
   public async createOnboardingMsg(
     username: string,
-    serializedKeystore: string
+    serializedKeystore: string,
+    progressCallback?: any
   ): Promise<string> {
     const { address, pubKey } = await this.signer.loadAccount(
-      serializedKeystore
+      serializedKeystore,
+      this.defaultPassword,
+      progressCallback
     )
     const params = ['onboardingrequest', username, address, pubKey]
     return utils.createLink(params)

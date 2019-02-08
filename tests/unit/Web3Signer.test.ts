@@ -3,16 +3,16 @@ import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
-import { Web3Signer } from '../../src/signers/Web3Signer'
+import { Web3Wallet } from '../../src/signers/Web3Wallet'
 import { FakeWeb3Provider } from '../helpers/FakeWeb3Provider'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
 
 describe('unit', () => {
-  describe('Web3Signer', () => {
+  describe('Web3Wallet', () => {
     // test object
-    let web3Signer: Web3Signer
+    let web3Wallet: Web3Wallet
 
     // mocked web3 provider
     let fakeWeb3Provider
@@ -63,12 +63,12 @@ describe('unit', () => {
 
     beforeEach(() => {
       fakeWeb3Provider = new FakeWeb3Provider()
-      web3Signer = new Web3Signer(fakeWeb3Provider)
+      web3Wallet = new Web3Wallet(fakeWeb3Provider)
     })
 
     describe('#getTxInfos()', () => {
       it('should return nonce, gasPrice and balance', async () => {
-        const txInfos = await web3Signer.getTxInfos(USER_ADDRESS)
+        const txInfos = await web3Wallet.getTxInfos(USER_ADDRESS)
         assert.hasAllKeys(txInfos, ['nonce', 'gasPrice', 'balance'])
         assert.isNumber(txInfos.nonce)
         assert.instanceOf(txInfos.gasPrice, BigNumber)
@@ -78,67 +78,67 @@ describe('unit', () => {
 
     describe('#confirm()', () => {
       it('should return transaction hash', async () => {
-        const transactionHash = await web3Signer.confirm(RAW_TX_OBJECT)
+        const transactionHash = await web3Wallet.confirm(RAW_TX_OBJECT)
         assert.isString(transactionHash)
       })
 
       it('should return transaction hash for raw function tx', async () => {
-        const transactionHash = await web3Signer.confirm(RAW_FUNCTION_TX_OBJECT)
+        const transactionHash = await web3Wallet.confirm(RAW_FUNCTION_TX_OBJECT)
         assert.isString(transactionHash)
       })
     })
 
     describe('#createAccount()', () => {
       it('should throw error', async () => {
-        await assert.isRejected(web3Signer.createAccount())
+        await assert.isRejected(web3Wallet.createAccount())
       })
     })
 
     describe('#loadAccount()', () => {
       it('should throw error', async () => {
-        await assert.isRejected(web3Signer.loadAccount())
+        await assert.isRejected(web3Wallet.loadAccount())
       })
     })
 
     describe('#signMsgHash()', () => {
       it('should throw error', async () => {
-        await assert.isRejected(web3Signer.signMsgHash())
+        await assert.isRejected(web3Wallet.signMsgHash())
       })
     })
 
     describe('#getBalance()', () => {
       it('should throw error', async () => {
-        await assert.isRejected(web3Signer.getBalance())
+        await assert.isRejected(web3Wallet.getBalance())
       })
     })
 
     describe('#encrypt()', () => {
       it('should throw error', async () => {
-        await assert.isRejected(web3Signer.encrypt())
+        await assert.isRejected(web3Wallet.encrypt())
       })
     })
 
     describe('#decrypt()', () => {
       it('should throw error', async () => {
-        await assert.isRejected(web3Signer.decrypt())
+        await assert.isRejected(web3Wallet.decrypt())
       })
     })
 
     describe('#showSeed()', () => {
       it('should throw error', async () => {
-        await assert.isRejected(web3Signer.showSeed())
+        await assert.isRejected(web3Wallet.showSeed())
       })
     })
 
     describe('#recoverFromSeed()', () => {
       it('should throw error', async () => {
-        await assert.isRejected(web3Signer.recoverFromSeed())
+        await assert.isRejected(web3Wallet.recoverFromSeed())
       })
     })
 
     describe('#exportPrivateKey()', () => {
       it('should throw error', async () => {
-        await assert.isRejected(web3Signer.exportPrivateKey())
+        await assert.isRejected(web3Wallet.exportPrivateKey())
       })
     })
   })

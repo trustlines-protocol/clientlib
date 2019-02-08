@@ -5,7 +5,7 @@ import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { NetworkDetails } from '../../src/typings'
-import { config, keystore1, keystore2, wait } from '../Fixtures'
+import { config, createUsers, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -29,14 +29,12 @@ describe('e2e', () => {
     before(async () => {
       // load users, set exchange address and maker, taker tokens
       ;[
-        user1,
-        user2,
+        [user1, user2],
         [exchangeAddress],
         networks,
         [unwEthAddress]
       ] = await Promise.all([
-        tl1.user.load(keystore1),
-        tl2.user.load(keystore2),
+        createUsers([tl1, tl2]),
         tl1.exchange.getExAddresses(),
         tl1.currencyNetwork.getAll(),
         tl1.ethWrapper.getAddresses()

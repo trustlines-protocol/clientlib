@@ -5,7 +5,7 @@ import 'mocha'
 import { Transaction } from '../../src/Transaction'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
-import { FakeTxSigner } from '../helpers/FakeTxSigner'
+import { FakeTLWallet } from '../helpers/FakeTLWallet'
 
 describe('unit', () => {
   describe('Transaction', () => {
@@ -30,7 +30,7 @@ describe('unit', () => {
     before(() => {
       transaction = new Transaction({
         provider: new FakeTLProvider(),
-        signer: new FakeTxSigner()
+        signer: new FakeTLWallet()
       })
     })
 
@@ -211,7 +211,7 @@ describe('unit', () => {
     })
 
     describe('setSigner()', () => {
-      const newTxSigner = new FakeTxSigner()
+      const newTxSigner = new FakeTLWallet()
       newTxSigner.address = 'new address'
 
       it('should set a new signer', () => {

@@ -2,7 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 
 import { TLProvider } from '../providers/TLProvider'
-import { TxSigner } from './TxSigner'
+import { TLWallet } from './TLWallet'
 
 import utils from '../utils'
 
@@ -18,7 +18,7 @@ import {
 /**
  * The LightwalletSigner class contains functions for signing transactions with eth-lightwallet.
  */
-export class LightwalletSigner implements TxSigner {
+export class LightwalletSigner implements TLWallet {
   public address: string
   public pubKey: string
   public keystore: any

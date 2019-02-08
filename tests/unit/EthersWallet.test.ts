@@ -5,7 +5,7 @@ import { ethers } from 'ethers'
 import 'mocha'
 
 import { TLProvider } from '../../src/providers/TLProvider'
-import { RelaySigner } from '../../src/signers/RelaySigner'
+import { EthersWallet } from '../../src/signers/EthersWallet'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 
@@ -15,16 +15,16 @@ chai.use(chaiAsPromised)
 const { assert } = chai
 
 describe('unit', () => {
-  describe('RelaySigner', () => {
+  describe('EthersWallet', () => {
     // Test object
-    let relaySigner: RelaySigner
+    let ethersWallet: EthersWallet
 
     // Mock classes
     let fakeTLProvider: TLProvider
 
     const init = () => {
       fakeTLProvider = new FakeTLProvider()
-      relaySigner = new RelaySigner(fakeTLProvider)
+      ethersWallet = new EthersWallet(fakeTLProvider)
     }
 
     // Constants
@@ -35,12 +35,14 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should create account', async () => {
-        const createdAccount = await relaySigner.createAccount(DEFAULT_PASSWORD)
+        const createdAccount = await ethersWallet.createAccount(
+          DEFAULT_PASSWORD
+        )
         assert.hasAllKeys(createdAccount, ACCOUNT_KEYS)
       })
 
       it('should create account with progress callback', async () => {
-        const createdAccount = await relaySigner.createAccount(
+        const createdAccount = await ethersWallet.createAccount(
           DEFAULT_PASSWORD,
           progress => assert.isNumber(progress)
         )
@@ -52,7 +54,7 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should load account from encrypted json keystore', async () => {
-        const loadedAccount = await relaySigner.loadAccount(
+        const loadedAccount = await ethersWallet.loadAccount(
           USER_1.keystore,
           DEFAULT_PASSWORD
         )
@@ -60,7 +62,7 @@ describe('unit', () => {
       })
 
       it('should load account from encrypted json keystore with progress callback', async () => {
-        const loadedAccount = await relaySigner.loadAccount(
+        const loadedAccount = await ethersWallet.loadAccount(
           USER_1.keystore,
           DEFAULT_PASSWORD,
           progress => assert.isNumber(progress)
@@ -75,7 +77,7 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should recover account from mnemonic', async () => {
-        const recoveredAccount = await relaySigner.recoverFromSeed(
+        const recoveredAccount = await ethersWallet.recoverFromSeed(
           USER_1.mnemonic,
           DEFAULT_PASSWORD
         )
@@ -85,7 +87,7 @@ describe('unit', () => {
       })
 
       it('should recover account from mnemonic with progress callback', async () => {
-        const recoveredAccount = await relaySigner.recoverFromSeed(
+        const recoveredAccount = await ethersWallet.recoverFromSeed(
           USER_1.mnemonic,
           DEFAULT_PASSWORD,
           progress => assert.isNumber(progress)
@@ -100,7 +102,7 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should recover account from private key', async () => {
-        const recoveredAccount = await relaySigner.recoverFromPrivateKey(
+        const recoveredAccount = await ethersWallet.recoverFromPrivateKey(
           USER_1.privateKey,
           DEFAULT_PASSWORD
         )
@@ -110,7 +112,7 @@ describe('unit', () => {
       })
 
       it('should recover account from private key with progress callback', async () => {
-        const recoveredAccount = await relaySigner.recoverFromSeed(
+        const recoveredAccount = await ethersWallet.recoverFromSeed(
           USER_1.mnemonic,
           DEFAULT_PASSWORD,
           progress => assert.isNumber(progress)
@@ -118,24 +120,6 @@ describe('unit', () => {
         assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
         assert.equal(recoveredAccount.address, USER_1.address)
         assert.equal(recoveredAccount.pubKey, USER_1.pubKey)
-      })
-    })
-
-    describe('#signMessage()', () => {
-      const MESSAGE = 'hello world!'
-
-      beforeEach(async () => {
-        init()
-        await relaySigner.loadAccount(USER_1.keystore, DEFAULT_PASSWORD)
-      })
-
-      it('should sign message with correct address', async () => {
-        const flatSignature = await relaySigner.signMessage(MESSAGE)
-        const signingAddress = ethers.utils.verifyMessage(
-          MESSAGE,
-          flatSignature
-        )
-        assert.equal(signingAddress, USER_1.address)
       })
     })
   })

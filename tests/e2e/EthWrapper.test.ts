@@ -4,7 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { config, keystore1, keystore2, wait } from '../Fixtures'
+import { config, createUsers, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -16,16 +16,11 @@ describe('e2e', () => {
     const depositAmount = 0.002
     const withdrawAmount = 0.001
     const transferAmount = 0.0001
-    let user1
-    let user2
     let ethWrapperAddress
 
     before(async () => {
-      // load users
-      ;[user1, user2] = await Promise.all([
-        tl1.user.load(keystore1),
-        tl2.user.load(keystore2)
-      ])
+      // create users
+      await createUsers([tl1, tl2])
       // get eth wrapper address
       const addresses = await tl1.ethWrapper.getAddresses()
       ethWrapperAddress = addresses[0]

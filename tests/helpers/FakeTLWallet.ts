@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 
-import { TxSigner } from '../../src/signers/TxSigner'
+import { TLWallet } from '../../src/signers/TLWallet'
 
 import {
   Amount,
@@ -23,7 +23,7 @@ import {
 /**
  * Mock TxSigner interface
  */
-export class FakeTxSigner implements TxSigner {
+export class FakeTLWallet implements TLWallet {
   public address: string = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
   public pubKey: string =
     'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472'

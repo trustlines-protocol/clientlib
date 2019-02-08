@@ -4,7 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { config, keystore1, wait } from '../Fixtures'
+import { config, USER_1, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -13,14 +13,12 @@ describe('e2e', () => {
     const { expect } = chai
     const tlNew = new TLNetwork(config)
     const tlExisting = new TLNetwork(config)
-    let newUser
-    let existingUser
 
     before(async () => {
       // load users
-      ;[newUser, existingUser] = await Promise.all([
+      await Promise.all([
         tlNew.user.create(),
-        tlExisting.user.load(keystore1)
+        tlExisting.user.load(USER_1.keystore)
       ])
       // make sure existing user has eth
       await tlExisting.user.requestEth()
