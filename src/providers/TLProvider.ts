@@ -1,12 +1,12 @@
 import { ethers } from 'ethers'
 
-import { TxInfos } from '../typings'
+import { Amount, TxInfos } from '../typings'
 
 /**
  * Interface for different provider strategies which extends the given
  * abstract class of `ethers.js`.
  */
-export interface TLProvider extends ethers.providers.Provider {
+export interface TLProvider {
   relayApiUrl: string
   relayWsApiUrl: string
   fetchEndpoint<T>(endpoint: string, options?: object): Promise<T>
@@ -16,4 +16,6 @@ export interface TLProvider extends ethers.providers.Provider {
     args: object
   ): any
   getTxInfos(userAddress: string): Promise<TxInfos>
+  getBalance(userAddress: string): Promise<Amount>
+  sendSignedTransaction(signedTransaction: string): Promise<string>
 }
