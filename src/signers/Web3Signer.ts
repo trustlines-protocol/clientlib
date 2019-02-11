@@ -1,13 +1,13 @@
 import { BigNumber } from 'bignumber.js'
 
-import { TxSigner } from './TxSigner'
+import { TLSigner } from './TLSigner'
 
-import { Amount, RawTxObject, Signature, TxInfos, UserObject } from '../typings'
+import { Amount, RawTxObject, Signature } from '../typings'
 
 /**
  * The Web3Signer class contains functions for signing transactions with a web3 provider.
  */
-export class Web3Signer implements TxSigner {
+export class Web3Signer implements TLSigner {
   public address: string
   public pubKey: string
 
@@ -22,17 +22,6 @@ export class Web3Signer implements TxSigner {
    * @param rawTx Raw transaction object.
    */
   public async confirm(rawTx: RawTxObject): Promise<string> {
-    const { functionCallData } = rawTx
-    if (rawTx.functionCallData) {
-      rawTx = {
-        ...rawTx,
-        data: this._encodeFunctionCall(
-          functionCallData.abi,
-          functionCallData.functionName,
-          functionCallData.args
-        )
-      }
-    }
     const { transactionHash } = await this.web3.eth.sendTransaction({
       ...rawTx,
       gas: new BigNumber(rawTx.gasLimit).toNumber()
@@ -40,100 +29,21 @@ export class Web3Signer implements TxSigner {
     return transactionHash
   }
 
-  /**
-   * Returns needed information for creating an ethereum transaction.
-   * @param userAddress address of user creating the transaction
-   * @returns Information for creating an ethereum transaction for the given user address.
-   *          See type `TxInfos` for more details.
-   */
-  public async getTxInfos(userAddress: string): Promise<TxInfos> {
-    const [gasPrice, nonce, balance] = await Promise.all([
-      this.web3.eth.getGasPrice(),
-      this.web3.eth.getTransactionCount(userAddress),
-      this.web3.eth.getBalance(userAddress)
-    ])
-    return {
-      balance: new BigNumber(balance),
-      gasPrice: new BigNumber(gasPrice),
-      nonce
-    }
+  public async getAddress(): Promise<string> {
+    throw new Error('Method not implemented.')
   }
 
-  /**
-   * TODO
-   */
-  public async createAccount(): Promise<UserObject> {
-    throw new Error('Method for web3 signer not implemented yet.')
+  public async signMessage(
+    message: string | ArrayLike<number>
+  ): Promise<Signature> {
+    throw new Error('Method not implemented.')
   }
 
-  /**
-   * TODO
-   */
-  public async loadAccount(): Promise<UserObject> {
-    throw new Error('Method for web3 signer not implemented yet.')
-  }
-
-  /**
-   * TODO
-   */
   public async signMsgHash(): Promise<Signature> {
     throw new Error('Method for web3 signer not implemented yet.')
   }
 
-  /**
-   * TODO
-   */
   public async getBalance(): Promise<Amount> {
     throw new Error('Method for web3 signer not implemented yet.')
-  }
-
-  /**
-   * TODO
-   */
-  public async encrypt(): Promise<any> {
-    throw new Error('Method for web3 signer not implemented yet.')
-  }
-
-  /**
-   * TODO
-   */
-  public async decrypt(): Promise<any> {
-    throw new Error('Method for web3 signer not implemented yet.')
-  }
-
-  /**
-   * TODO
-   */
-  public async showSeed(): Promise<string> {
-    throw new Error('Method for web3 signer not implemented yet.')
-  }
-
-  /**
-   * TODO
-   */
-  public async recoverFromSeed(): Promise<UserObject> {
-    throw new Error('Method for web3 signer not implemented yet.')
-  }
-
-  /**
-   * TODO
-   */
-  public async exportPrivateKey(): Promise<string> {
-    throw new Error('Method for web3 signer not implemented yet.')
-  }
-
-  /**
-   * Encode function call data to a ABI byte string.
-   * @param abi JSON ABI of contract.
-   * @param functionName Name of contract function to call.
-   * @param args Function arguments.
-   */
-  private _encodeFunctionCall(
-    abi: any[],
-    functionName: string,
-    args: string[]
-  ): string {
-    const [functionAbi] = abi.filter(({ name }) => name === functionName)
-    return this.web3.eth.abi.encodeFunctionCall(functionAbi, args)
   }
 }

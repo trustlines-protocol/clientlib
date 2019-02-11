@@ -11,8 +11,8 @@
     "prettier": "prettier --write './{src,tests}/**/*.ts'",
     "test": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/**/**.test.ts",
     "test:e2e": "nyc mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
-    "test:integration": "nyc mocha --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
-    "test:unit": "nyc mocha --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
+    "test:integration": "nyc mocha --timeout 5000 --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
+    "test:unit": "nyc mocha --timeout 5000 --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "watch:esm": "tsc -w -m es6 --outDir lib-esm",
     "bump": "./bump.sh"
@@ -85,6 +85,7 @@
     "eth-lightwallet": "trustlines-network/eth-lightwallet",
     "ethereumjs-abi": "^0.6.5",
     "ethereumjs-util": "^5.2.0",
+    "ethers": "^4.0.23",
     "html5-websocket": "^2.0.2",
     "rxjs": "^5.4.1",
     "simple-jsonrpc-js": "0.0.10",

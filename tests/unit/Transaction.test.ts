@@ -5,7 +5,7 @@ import 'mocha'
 import { Transaction } from '../../src/Transaction'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
-import { FakeTxSigner } from '../helpers/FakeTxSigner'
+import { FakeTLSigner } from '../helpers/FakeTLSigner'
 
 describe('unit', () => {
   describe('Transaction', () => {
@@ -30,7 +30,7 @@ describe('unit', () => {
     before(() => {
       transaction = new Transaction({
         provider: new FakeTLProvider(),
-        signer: new FakeTxSigner()
+        signer: new FakeTLSigner()
       })
     })
 
@@ -45,13 +45,13 @@ describe('unit', () => {
         )
         assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
+          'data',
           'from',
           'to',
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce',
-          'functionCallData'
+          'nonce'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, CONTRACT_ADDRESS)
@@ -60,11 +60,7 @@ describe('unit', () => {
         assert.instanceOf(rawTxObject.rawTx.gasLimit, BigNumber)
         assert.instanceOf(rawTxObject.rawTx.gasPrice, BigNumber)
         assert.isNumber(rawTxObject.rawTx.nonce)
-        assert.hasAllKeys(rawTxObject.rawTx.functionCallData, [
-          'abi',
-          'functionName',
-          'args'
-        ])
+        assert.isString(rawTxObject.rawTx.data)
         assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
         assert.equal(rawTxObject.ethFees.decimals, 18)
         assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
@@ -89,13 +85,13 @@ describe('unit', () => {
         )
         assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
+          'data',
           'from',
           'to',
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce',
-          'functionCallData'
+          'nonce'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, CONTRACT_ADDRESS)
@@ -115,11 +111,7 @@ describe('unit', () => {
           CUSTOM_GAS_PRICE.toString()
         )
         assert.isNumber(rawTxObject.rawTx.nonce)
-        assert.hasAllKeys(rawTxObject.rawTx.functionCallData, [
-          'abi',
-          'functionName',
-          'args'
-        ])
+        assert.isString(rawTxObject.rawTx.data)
         assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
         assert.equal(rawTxObject.ethFees.decimals, 18)
         assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
@@ -207,23 +199,6 @@ describe('unit', () => {
       it('should return transaction hash', async () => {
         const txHash = await transaction.confirm(RAW_TX_OBJECT)
         assert.isString(txHash)
-      })
-    })
-
-    describe('setSigner()', () => {
-      const newTxSigner = new FakeTxSigner()
-      newTxSigner.address = 'new address'
-
-      it('should set a new signer', () => {
-        const returnedSigner = transaction.setSigner(newTxSigner)
-        assert.deepEqual(returnedSigner, newTxSigner)
-      })
-    })
-
-    describe('#getBlockNumber()', () => {
-      it('should get block number', async () => {
-        const blockNumber = await transaction.getBlockNumber()
-        assert.isNumber(blockNumber)
       })
     })
   })

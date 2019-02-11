@@ -3,7 +3,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { config, user1 } from '../Fixtures'
+import { config, USER_1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -89,7 +89,7 @@ describe('e2e', () => {
       it('should return overview of user in currency network context', async () => {
         const overview = await currencyNetwork.getUserOverview(
           networks[0].address,
-          user1.address
+          USER_1.address
         )
         const { balance, given, received, leftGiven, leftReceived } = overview
         expect(overview).to.have.all.keys(

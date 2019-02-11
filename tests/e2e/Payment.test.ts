@@ -4,7 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { config, keystore1, keystore2, keystore3, wait } from '../Fixtures'
+import { config, createUsers, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -19,13 +19,14 @@ describe('e2e', () => {
 
     before(async () => {
       // set network and load users
-      ;[[network], user1, user2] = await Promise.all([
+      ;[[network], [user1, user2]] = await Promise.all([
         tl1.currencyNetwork.getAll(),
-        tl1.user.load(keystore1),
-        tl2.user.load(keystore2)
+        createUsers([tl1, tl2])
       ])
       // make sure users have eth
       await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
+      // wait for tx to be mined
+      await wait()
       // set up trustlines
       const [tx1, tx2] = await Promise.all([
         tl1.trustline.prepareUpdate(network.address, user2.address, 1000, 500),
@@ -155,7 +156,7 @@ describe('e2e', () => {
       let user3
 
       before(async () => {
-        user3 = await tl3.user.load(keystore3)
+        user3 = await tl3.user.create()
         // make sure users have eth
         await tl3.user.requestEth()
         // set up trustlines

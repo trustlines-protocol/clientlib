@@ -14,9 +14,10 @@ import { User } from './User'
 import { RelayProvider } from './providers/RelayProvider'
 import { TLProvider } from './providers/TLProvider'
 
-import { LightwalletSigner } from './signers/LightwalletSigner'
-import { TxSigner } from './signers/TxSigner'
-import { Web3Signer } from './signers/Web3Signer'
+import { TLSigner } from './signers/TLSigner'
+
+import { EthersWallet } from './wallets/EthersWallet'
+import { TLWallet } from './wallets/TLWallet'
 
 import utils from './utils'
 
@@ -80,7 +81,11 @@ export class TLNetwork {
   /**
    * @hidden
    */
-  public signer: TxSigner
+  public signer: TLSigner
+  /**
+   * @hidden
+   */
+  public wallet: TLWallet
 
   public relayApiUrl: string
   public relayWsApiUrl: string
@@ -110,10 +115,10 @@ export class TLNetwork {
       )
     )
 
-    this.web3 = new Web3(config.web3Provider)
-    this.signer = this.web3.eth.currentProvider
-      ? new Web3Signer(this.web3)
-      : new LightwalletSigner({ lightwallet, provider: this.provider })
+    const ethersWallet = new EthersWallet(this.provider)
+
+    this.wallet = ethersWallet
+    this.signer = ethersWallet
 
     this.currencyNetwork = new CurrencyNetwork(this.provider)
     this.transaction = new Transaction({
@@ -123,7 +128,8 @@ export class TLNetwork {
     this.user = new User({
       provider: this.provider,
       signer: this.signer,
-      transaction: this.transaction
+      transaction: this.transaction,
+      wallet: this.wallet
     })
     this.contact = new Contact({
       provider: this.provider,

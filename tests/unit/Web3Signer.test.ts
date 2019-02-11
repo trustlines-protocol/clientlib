@@ -66,16 +66,6 @@ describe('unit', () => {
       web3Signer = new Web3Signer(fakeWeb3Provider)
     })
 
-    describe('#getTxInfos()', () => {
-      it('should return nonce, gasPrice and balance', async () => {
-        const txInfos = await web3Signer.getTxInfos(USER_ADDRESS)
-        assert.hasAllKeys(txInfos, ['nonce', 'gasPrice', 'balance'])
-        assert.isNumber(txInfos.nonce)
-        assert.instanceOf(txInfos.gasPrice, BigNumber)
-        assert.instanceOf(txInfos.balance, BigNumber)
-      })
-    })
-
     describe('#confirm()', () => {
       it('should return transaction hash', async () => {
         const transactionHash = await web3Signer.confirm(RAW_TX_OBJECT)
@@ -85,60 +75,6 @@ describe('unit', () => {
       it('should return transaction hash for raw function tx', async () => {
         const transactionHash = await web3Signer.confirm(RAW_FUNCTION_TX_OBJECT)
         assert.isString(transactionHash)
-      })
-    })
-
-    describe('#createAccount()', () => {
-      it('should throw error', async () => {
-        await assert.isRejected(web3Signer.createAccount())
-      })
-    })
-
-    describe('#loadAccount()', () => {
-      it('should throw error', async () => {
-        await assert.isRejected(web3Signer.loadAccount())
-      })
-    })
-
-    describe('#signMsgHash()', () => {
-      it('should throw error', async () => {
-        await assert.isRejected(web3Signer.signMsgHash())
-      })
-    })
-
-    describe('#getBalance()', () => {
-      it('should throw error', async () => {
-        await assert.isRejected(web3Signer.getBalance())
-      })
-    })
-
-    describe('#encrypt()', () => {
-      it('should throw error', async () => {
-        await assert.isRejected(web3Signer.encrypt())
-      })
-    })
-
-    describe('#decrypt()', () => {
-      it('should throw error', async () => {
-        await assert.isRejected(web3Signer.decrypt())
-      })
-    })
-
-    describe('#showSeed()', () => {
-      it('should throw error', async () => {
-        await assert.isRejected(web3Signer.showSeed())
-      })
-    })
-
-    describe('#recoverFromSeed()', () => {
-      it('should throw error', async () => {
-        await assert.isRejected(web3Signer.recoverFromSeed())
-      })
-    })
-
-    describe('#exportPrivateKey()', () => {
-      it('should throw error', async () => {
-        await assert.isRejected(web3Signer.exportPrivateKey())
       })
     })
   })

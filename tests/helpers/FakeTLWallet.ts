@@ -1,29 +1,18 @@
-import { BigNumber } from 'bignumber.js'
+import { TLWallet } from '../../src/wallets/TLWallet'
 
-import { TxSigner } from '../../src/signers/TxSigner'
-
-import {
-  Amount,
-  RawTxObject,
-  Signature,
-  TxInfos,
-  UserObject
-} from '../../src/typings'
+import { UserObject } from '../../src/typings'
 
 import {
   FAKE_ACCOUNT,
-  FAKE_AMOUNT,
   FAKE_ENC_OBJECT,
   FAKE_PRIVATE_KEY,
-  FAKE_SEED,
-  FAKE_SIGNED_MSG_HASH,
-  FAKE_TX_HASH
+  FAKE_SEED
 } from '../Fixtures'
 
 /**
  * Mock TxSigner interface
  */
-export class FakeTxSigner implements TxSigner {
+export class FakeTLWallet implements TLWallet {
   public address: string = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
   public pubKey: string =
     'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472'
@@ -32,27 +21,6 @@ export class FakeTxSigner implements TxSigner {
 
   constructor() {
     this.errors = []
-  }
-
-  /**
-   * Mock txSigner.getTxInfos
-   */
-  public async getTxInfos(userAddress: string): Promise<TxInfos> {
-    return Promise.resolve({
-      balance: new BigNumber('1000000'),
-      gasPrice: new BigNumber('2000000'),
-      nonce: 15
-    })
-  }
-
-  /**
-   * Mock txSigner.confirm
-   */
-  public async confirm(rawTx: RawTxObject): Promise<string> {
-    if (this.errors.confirm) {
-      throw new Error('Mocked error in signer.confirm()!')
-    }
-    return Promise.resolve(FAKE_TX_HASH)
   }
 
   public createAccount(): Promise<UserObject> {
@@ -67,20 +35,6 @@ export class FakeTxSigner implements TxSigner {
       throw new Error('Mocked error in signer.loadAccount()!')
     }
     return Promise.resolve(FAKE_ACCOUNT)
-  }
-
-  public signMsgHash(msgHash: string): Promise<Signature> {
-    if (this.errors.signMsgHash) {
-      throw new Error('Mocked error in signer.signMsgHash()!')
-    }
-    return Promise.resolve(FAKE_SIGNED_MSG_HASH)
-  }
-
-  public getBalance(): Promise<Amount> {
-    if (this.errors.getBalance) {
-      throw new Error('Mocked error in signer.getBalance()!')
-    }
-    return Promise.resolve(FAKE_AMOUNT)
   }
 
   public encrypt(msg: string, theirPubKey: string): Promise<any> {

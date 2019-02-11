@@ -5,8 +5,9 @@ import 'mocha'
 import { User } from '../../src/User'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
+import { FakeTLSigner } from '../helpers/FakeTLSigner'
+import { FakeTLWallet } from '../helpers/FakeTLWallet'
 import { FakeTransaction } from '../helpers/FakeTransaction'
-import { FakeTxSigner } from '../helpers/FakeTxSigner'
 
 import {
   FAKE_ACCOUNT,
@@ -22,24 +23,27 @@ const { assert } = chai
 describe('unit', () => {
   describe('User', () => {
     // Test object
-    let user
+    let user: User
 
     // Mocked classes
     let fakeTLProvider
-    let fakeTxSigner
+    let fakeTLWallet
+    let fakeTLSigner
     let fakeTransaction
 
     const init = () => {
       fakeTLProvider = new FakeTLProvider()
-      fakeTxSigner = new FakeTxSigner()
+      fakeTLWallet = new FakeTLWallet()
+      fakeTLSigner = new FakeTLSigner()
       fakeTransaction = new FakeTransaction({
         provider: fakeTLProvider,
-        signer: fakeTxSigner
+        signer: fakeTLWallet
       })
       user = new User({
         provider: fakeTLProvider,
-        signer: fakeTxSigner,
-        transaction: fakeTransaction
+        signer: fakeTLSigner,
+        transaction: fakeTransaction,
+        wallet: fakeTLWallet
       })
     }
 
@@ -49,8 +53,9 @@ describe('unit', () => {
       it('should construct a User instance', () => {
         user = new User({
           provider: fakeTLProvider,
-          signer: fakeTxSigner,
-          transaction: fakeTransaction
+          signer: fakeTLSigner,
+          transaction: fakeTransaction,
+          wallet: fakeTLWallet
         })
         assert.isString(user.address)
         assert.isString(user.pubKey)
@@ -69,7 +74,7 @@ describe('unit', () => {
       })
 
       it('should throw error', async () => {
-        fakeTxSigner.setError('createAccount')
+        fakeTLWallet.setError('createAccount')
         await assert.isRejected(user.create())
       })
     })
@@ -86,7 +91,7 @@ describe('unit', () => {
       })
 
       it('should throw error', async () => {
-        fakeTxSigner.setError('loadAccount')
+        fakeTLWallet.setError('loadAccount')
         await assert.isRejected(user.load(keystore1))
       })
     })
@@ -102,7 +107,7 @@ describe('unit', () => {
       })
 
       it('should throw error', async () => {
-        fakeTxSigner.setError('signMsgHash')
+        fakeTLSigner.setError('signMsgHash')
         await assert.isRejected(user.signMsgHash('hello world!'))
       })
     })
@@ -116,7 +121,7 @@ describe('unit', () => {
       })
 
       it('should throw error', async () => {
-        fakeTxSigner.setError('getBalance')
+        fakeTLSigner.setError('getBalance')
         await assert.isRejected(user.getBalance())
       })
     })
@@ -125,7 +130,7 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should return encrypted message as object', async () => {
-        const encMsg = await user.encrypt('hello world!')
+        const encMsg = await user.encrypt('hello world!', 'pubKey')
         assert.hasAllKeys(encMsg, [
           'asymAlg',
           'encryptedSymKey',
@@ -137,8 +142,8 @@ describe('unit', () => {
       })
 
       it('should throw error', async () => {
-        fakeTxSigner.setError('getBalance')
-        await assert.isRejected(user.getBalance())
+        fakeTLWallet.setError('encrypt')
+        await assert.isRejected(user.encrypt('hello world!', 'pubKey'))
       })
     })
 
@@ -146,13 +151,13 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should return decrypted message', async () => {
-        const decryptedMsg = await user.decrypt(FAKE_ENC_OBJECT)
+        const decryptedMsg = await user.decrypt(FAKE_ENC_OBJECT, 'pubKey')
         assert.isString(decryptedMsg)
       })
 
       it('should throw error', async () => {
-        fakeTxSigner.setError('decrypt')
-        await assert.isRejected(user.decrypt(FAKE_ENC_OBJECT))
+        fakeTLWallet.setError('decrypt')
+        await assert.isRejected(user.decrypt(FAKE_ENC_OBJECT, 'pubKey'))
       })
     })
 
@@ -165,7 +170,7 @@ describe('unit', () => {
       })
 
       it('should throw error', async () => {
-        fakeTxSigner.setError('showSeed')
+        fakeTLWallet.setError('showSeed')
         await assert.isRejected(user.showSeed())
       })
     })
@@ -179,7 +184,7 @@ describe('unit', () => {
       })
 
       it('should throw error', async () => {
-        fakeTxSigner.setError('exportPrivateKey')
+        fakeTLWallet.setError('exportPrivateKey')
         await assert.isRejected(user.exportPrivateKey())
       })
     })
@@ -193,8 +198,8 @@ describe('unit', () => {
       })
 
       it('should throw error', async () => {
-        fakeTxSigner.setError('recoverFromSeed')
-        await assert.isRejected(user.recoverFromSeed())
+        fakeTLWallet.setError('recoverFromSeed')
+        await assert.isRejected(user.recoverFromSeed(FAKE_SEED))
       })
     })
 

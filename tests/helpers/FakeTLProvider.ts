@@ -1,9 +1,10 @@
+import { BigNumber } from 'bignumber.js'
+import { ethers } from 'ethers'
+
 import { TLProvider } from '../../src/providers/TLProvider'
 
 import {
-  FAKE_AMOUNT,
   FAKE_CLOSE_PATH_RAW,
-  FAKE_FORMATTED_TRANSFER_EVENT,
   FAKE_NETWORK,
   FAKE_RELAY_API,
   FAKE_TRANSFER_EVENT,
@@ -13,6 +14,8 @@ import {
   FAKE_USER,
   FAKE_USER_ADDRESSES
 } from '../Fixtures'
+
+import { Amount, TxInfos } from '../../src/typings'
 
 export class FakeTLProvider implements TLProvider {
   public relayApiUrl = FAKE_RELAY_API
@@ -104,6 +107,37 @@ export class FakeTLProvider implements TLProvider {
     args: object
   ) {
     throw new Error('Method not implemented.')
+  }
+
+  public async getTxInfos(userAddress: string): Promise<TxInfos> {
+    if (this.errors.getTxInfos) {
+      throw new Error('Mocked error in provider.getTxInfos()')
+    }
+    return Promise.resolve({
+      balance: new BigNumber('1000000'),
+      gasPrice: new BigNumber('2000000'),
+      nonce: 15
+    })
+  }
+
+  public async getBalance(userAddress: string): Promise<Amount> {
+    if (this.errors.getBalance) {
+      throw new Error('Mocked error in provider.getBalance()')
+    }
+    return Promise.resolve({
+      decimals: 18,
+      raw: '1000000000000000000',
+      value: '1'
+    })
+  }
+
+  public async sendSignedTransaction(
+    signedTransaction: string
+  ): Promise<string> {
+    if (this.errors.sendSignedTransaction) {
+      throw new Error('Mocked error in provider.sendSignedTransaction()')
+    }
+    return Promise.resolve(FAKE_TX_HASH)
   }
 
   public setError(functionName) {

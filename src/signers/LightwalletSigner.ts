@@ -2,7 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
 
 import { TLProvider } from '../providers/TLProvider'
-import { TxSigner } from './TxSigner'
+import { TLSigner } from './TLSigner'
 
 import utils from '../utils'
 
@@ -18,7 +18,7 @@ import {
 /**
  * The LightwalletSigner class contains functions for signing transactions with eth-lightwallet.
  */
-export class LightwalletSigner implements TxSigner {
+export class LightwalletSigner implements TLSigner {
   public address: string
   public pubKey: string
   public keystore: any
@@ -319,6 +319,14 @@ export class LightwalletSigner implements TxSigner {
       gasPrice: new BigNumber(gasPrice),
       nonce
     }
+  }
+
+  public getAddress(): Promise<string> {
+    throw new Error('Method not implemented.')
+  }
+
+  public signMessage(message: string | ArrayLike<number>): Promise<Signature> {
+    throw new Error('Method not implemented.')
   }
 
   /**

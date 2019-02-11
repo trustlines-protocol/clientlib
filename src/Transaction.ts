@@ -1,8 +1,9 @@
 import { BigNumber } from 'bignumber.js'
+import { ethers } from 'ethers'
 import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
 
 import { TLProvider } from './providers/TLProvider'
-import { TxSigner } from './signers/TxSigner'
+import { TLSigner } from './signers/TLSigner'
 
 import utils from './utils'
 
@@ -14,10 +15,10 @@ const ETH_DECIMALS = 18
  * The Transaction class contains functions that are needed for Ethereum transactions.
  */
 export class Transaction {
-  private signer: TxSigner
+  private signer: TLSigner
   private provider: TLProvider
 
-  constructor(params: { signer: TxSigner; provider: TLProvider }) {
+  constructor(params: { signer: TLSigner; provider: TLProvider }) {
     this.signer = params.signer
     this.provider = params.provider
   }
@@ -41,17 +42,16 @@ export class Transaction {
     args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const { gasPrice, nonce } = await this.signer.getTxInfos(userAddress)
+    const txInfos = await this.provider.getTxInfos(userAddress)
+    const abi = new ethers.utils.Interface(
+      TrustlinesContractsAbi[contractName].abi
+    )
     const rawTx = {
+      data: abi.functions[functionName].encode(args),
       from: userAddress,
-      functionCallData: {
-        abi: TrustlinesContractsAbi[contractName].abi,
-        args,
-        functionName
-      },
       gasLimit: options.gasLimit || new BigNumber(600000),
-      gasPrice: options.gasPrice || gasPrice,
-      nonce,
+      gasPrice: options.gasPrice || txInfos.gasPrice,
+      nonce: txInfos.nonce,
       to: contractAddress,
       value: options.value || new BigNumber(0)
     }
@@ -77,7 +77,7 @@ export class Transaction {
     rawValue: BigNumber,
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this.signer.getTxInfos(senderAddress)
+    const txInfos = await this.provider.getTxInfos(senderAddress)
     const rawTx = {
       from: senderAddress,
       gasLimit: options.gasLimit || new BigNumber(21000),
@@ -99,21 +99,5 @@ export class Transaction {
    */
   public async confirm(rawTx: RawTxObject): Promise<string> {
     return this.signer.confirm(rawTx)
-  }
-
-  /**
-   * Sets a new signer strategy for signing and sending transactions.
-   * @param signer New transaction signer.
-   */
-  public setSigner(signer: TxSigner): TxSigner {
-    this.signer = signer
-    return signer
-  }
-
-  /**
-   * Returns the latest block number of the underlying blockchain.
-   */
-  public getBlockNumber(): Promise<number> {
-    return this.provider.fetchEndpoint<number>(`blocknumber`)
   }
 }
