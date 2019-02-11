@@ -1,5 +1,3 @@
-import * as lightwallet from 'eth-lightwallet'
-
 import { Contact } from './Contact'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { EthWrapper } from './EthWrapper'
