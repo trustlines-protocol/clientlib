@@ -133,15 +133,29 @@ export class EthersWallet implements TLWallet {
   /////////////
 
   /**
-   * Signs given hash of message with loaded wallet.
+   * Signs given hex hash of message with loaded wallet.
    * @param msgHash Hash of message to sign.
    */
   public async signMsgHash(msgHash: string): Promise<Signature> {
     if (!this.wallet) {
       throw new Error('No wallet loaded.')
     }
-    const binaryData = ethers.utils.arrayify(msgHash)
-    const flatFormatSignature = await this.wallet.signMessage(binaryData)
+    if (!ethers.utils.isHexString(msgHash)) {
+      throw new Error('Message hash is not a valid hex string.')
+    }
+    const msgHashBytes = ethers.utils.arrayify(msgHash)
+    return this.signMessage(msgHashBytes)
+  }
+
+  /**
+   * Signs given message with loaded wallet.
+   * @param message Message to sign.
+   */
+  public async signMessage(message: ethers.utils.Arrayish): Promise<Signature> {
+    if (!this.wallet) {
+      throw new Error('No wallet loaded.')
+    }
+    const flatFormatSignature = await this.wallet.signMessage(message)
     const { r, s, v } = ethers.utils.splitSignature(flatFormatSignature)
     return {
       concatSig: flatFormatSignature,

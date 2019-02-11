@@ -122,5 +122,36 @@ describe('unit', () => {
         assert.equal(recoveredAccount.pubKey, USER_1.pubKey)
       })
     })
+
+    describe('#signMsgHash()', () => {
+      const MSG_HASH = ethers.utils.id('hello world')
+      const MSG_DIGEST = ethers.utils.hashMessage(
+        ethers.utils.arrayify(MSG_HASH)
+      )
+
+      beforeEach(() => init())
+
+      it('should sign the given message hash', async () => {
+        const user = await ethersWallet.createAccount(DEFAULT_PASSWORD)
+        const { concatSig } = await ethersWallet.signMsgHash(MSG_HASH)
+        assert.equal(
+          ethers.utils.recoverAddress(MSG_DIGEST, concatSig),
+          user.address
+        )
+      })
+    })
+
+    describe('#signMessage()', () => {
+      beforeEach(() => init())
+
+      it('should sign the given message', async () => {
+        const user = await ethersWallet.createAccount(DEFAULT_PASSWORD)
+        const { concatSig } = await ethersWallet.signMessage('hello world')
+        assert.equal(
+          ethers.utils.verifyMessage('hello world', concatSig),
+          user.address
+        )
+      })
+    })
   })
 })
