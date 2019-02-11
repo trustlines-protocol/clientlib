@@ -5,7 +5,7 @@ import { ethers } from 'ethers'
 import 'mocha'
 
 import { TLProvider } from '../../src/providers/TLProvider'
-import { EthersWallet } from '../../src/signers/EthersWallet'
+import { EthersWallet } from '../../src/wallets/EthersWallet'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 

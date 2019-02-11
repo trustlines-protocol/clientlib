@@ -7,6 +7,7 @@ import { Trustline } from '../../src/Trustline'
 import { FakeCurrencyNetwork } from '../helpers/FakeCurrencyNetwork'
 import { FakeEvent } from '../helpers/FakeEvent'
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
+import { FakeTLSigner } from '../helpers/FakeTLSigner'
 import { FakeTLWallet } from '../helpers/FakeTLWallet'
 import { FakeTransaction } from '../helpers/FakeTransaction'
 import { FakeUser } from '../helpers/FakeUser'
@@ -25,6 +26,7 @@ describe('unit', () => {
     let fakeUser
     let fakeCurrencyNetwork
     let fakeTLProvider
+    let fakeTLSigner
     let fakeTransaction
     let fakeTLWallet
     let fakeEvent
@@ -32,6 +34,7 @@ describe('unit', () => {
     const init = () => {
       fakeTLProvider = new FakeTLProvider()
       fakeTLWallet = new FakeTLWallet()
+      fakeTLSigner = new FakeTLSigner()
       fakeCurrencyNetwork = new FakeCurrencyNetwork(fakeTLProvider)
       fakeTransaction = new FakeTransaction({
         provider: fakeTLProvider,
@@ -39,8 +42,9 @@ describe('unit', () => {
       })
       fakeUser = new FakeUser({
         provider: fakeTLProvider,
-        signer: fakeTLWallet,
-        transaction: fakeTransaction
+        signer: fakeTLSigner,
+        transaction: fakeTransaction,
+        wallet: fakeTLWallet
       })
       fakeEvent = new FakeEvent({
         currencyNetwork: fakeCurrencyNetwork,
