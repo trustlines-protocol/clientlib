@@ -1,8 +1,9 @@
 import * as ethUtils from 'ethereumjs-util'
 
 import { TLProvider } from './providers/TLProvider'
-import { TLWallet } from './signers/TLWallet'
+import { TLSigner } from './signers/TLSigner'
 import { Transaction } from './Transaction'
+import { TLWallet } from './wallets/TLWallet'
 
 import utils from './utils'
 
@@ -13,34 +14,37 @@ import { Amount, RawTxObject, Signature, UserObject } from './typings'
  * related methods.
  */
 export class User {
-  private signer: TLWallet
-  private transaction: Transaction
   private provider: TLProvider
+  private signer: TLSigner
+  private transaction: Transaction
+  private wallet: TLWallet
 
   private defaultPassword = 'ts'
 
   constructor(params: {
     provider: TLProvider
-    signer: TLWallet
+    signer: TLSigner
     transaction: Transaction
+    wallet: TLWallet
   }) {
+    this.provider = params.provider
     this.signer = params.signer
     this.transaction = params.transaction
-    this.provider = params.provider
+    this.wallet = params.wallet
   }
 
   /**
    * Checksummed Ethereum address of currently loaded user/keystore.
    */
   public get address(): string {
-    return this.signer.address
+    return this.wallet.address
   }
 
   /**
    * Public key of currently loaded user/keystore.
    */
   public get pubKey(): string {
-    return this.signer.pubKey
+    return this.wallet.pubKey
   }
 
   /**
@@ -49,7 +53,7 @@ export class User {
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
   public async create(progressCallback?: any): Promise<UserObject> {
-    const createdAccount = await this.signer.createAccount(
+    const createdAccount = await this.wallet.createAccount(
       this.defaultPassword,
       progressCallback
     )
@@ -66,7 +70,7 @@ export class User {
     serializedKeystore: string,
     progressCallback?: any
   ): Promise<UserObject> {
-    const loadedAccount = await this.signer.loadAccount(
+    const loadedAccount = await this.wallet.loadAccount(
       serializedKeystore,
       this.defaultPassword,
       progressCallback
@@ -95,7 +99,7 @@ export class User {
    * @param theirPubKey Public key of receiver of message.
    */
   public async encrypt(msg: string, theirPubKey: string): Promise<any> {
-    return this.signer.encrypt(msg, theirPubKey)
+    return this.wallet.encrypt(msg, theirPubKey)
   }
 
   /**
@@ -104,21 +108,21 @@ export class User {
    * @param theirPubKey Public key of sender of message.
    */
   public async decrypt(encMsg: any, theirPubKey: string): Promise<any> {
-    return this.signer.decrypt(encMsg, theirPubKey)
+    return this.wallet.decrypt(encMsg, theirPubKey)
   }
 
   /**
    * Returns the 12 word seed of loaded user.
    */
   public async showSeed(): Promise<string> {
-    return this.signer.showSeed()
+    return this.wallet.showSeed()
   }
 
   /**
    * Returns the private key of loaded user.
    */
   public async exportPrivateKey(): Promise<string> {
-    return this.signer.exportPrivateKey()
+    return this.wallet.exportPrivateKey()
   }
 
   /**
@@ -130,7 +134,7 @@ export class User {
     seed: string,
     progressCallback?: any
   ): Promise<UserObject> {
-    const recoveredUser = await this.signer.recoverFromSeed(
+    const recoveredUser = await this.wallet.recoverFromSeed(
       seed,
       this.defaultPassword,
       progressCallback
@@ -152,7 +156,7 @@ export class User {
     serializedKeystore: string,
     progressCallback?: any
   ): Promise<string> {
-    const { address, pubKey } = await this.signer.loadAccount(
+    const { address, pubKey } = await this.wallet.loadAccount(
       serializedKeystore,
       this.defaultPassword,
       progressCallback

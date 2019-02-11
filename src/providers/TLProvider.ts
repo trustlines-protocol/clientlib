@@ -1,5 +1,3 @@
-import { ethers } from 'ethers'
-
 import { Amount, TxInfos } from '../typings'
 
 /**

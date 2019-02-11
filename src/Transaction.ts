@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
 
 import { TLProvider } from './providers/TLProvider'
-import { TLWallet } from './signers/TLWallet'
+import { TLSigner } from './signers/TLSigner'
 
 import utils from './utils'
 
@@ -15,10 +15,10 @@ const ETH_DECIMALS = 18
  * The Transaction class contains functions that are needed for Ethereum transactions.
  */
 export class Transaction {
-  private signer: TLWallet
+  private signer: TLSigner
   private provider: TLProvider
 
-  constructor(params: { signer: TLWallet; provider: TLProvider }) {
+  constructor(params: { signer: TLSigner; provider: TLProvider }) {
     this.signer = params.signer
     this.provider = params.provider
   }
@@ -99,21 +99,5 @@ export class Transaction {
    */
   public async confirm(rawTx: RawTxObject): Promise<string> {
     return this.signer.confirm(rawTx)
-  }
-
-  /**
-   * Sets a new signer strategy for signing and sending transactions.
-   * @param signer New transaction signer.
-   */
-  public setSigner(signer: TLWallet): TLWallet {
-    this.signer = signer
-    return signer
-  }
-
-  /**
-   * Returns the latest block number of the underlying blockchain.
-   */
-  public getBlockNumber(): Promise<number> {
-    return this.provider.fetchEndpoint<number>(`blocknumber`)
   }
 }

@@ -2,6 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
+import { TLSigner } from '../signers/TLSigner'
 import { TLWallet } from './TLWallet'
 
 import utils from '../utils'
@@ -11,7 +12,7 @@ import { Amount, RawTxObject, Signature, UserObject } from '../typings'
 /**
  * The EthersWallet class contains wallet related methods.
  */
-export class EthersWallet implements TLWallet {
+export class EthersWallet implements TLWallet, TLSigner {
   public provider: TLProvider
 
   private wallet: ethers.Wallet
@@ -32,6 +33,13 @@ export class EthersWallet implements TLWallet {
     return this.wallet
       ? ethers.utils.computePublicKey(this.wallet.privateKey)
       : undefined
+  }
+
+  public async getAddress(): Promise<string> {
+    if (!this.wallet) {
+      throw new Error('No wallet loaded.')
+    }
+    return this.address
   }
 
   ////////////////////////
