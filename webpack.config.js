@@ -17,16 +17,19 @@ module.exports = {
     library: 'trustlines'
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json']
+    extensions: ['.ts', '.js', '.json']
   },
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        loader: 'awesome-typescript-loader',
-        exclude: /node_modules/
+        test: /\.ts?$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'awesome-typescript-loader'
+          }
+        ]
       }
     ]
-  },
-  externals: ['ethers']
+  }
 }
