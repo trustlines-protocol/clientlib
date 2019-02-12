@@ -201,13 +201,6 @@ export interface RawTxObject {
   gasPrice?: number | string | BigNumber
   data?: string
   nonce?: number
-  functionCallData?: FunctionCallData
-}
-
-export interface FunctionCallData {
-  abi: any[]
-  functionName: string
-  args: any[]
 }
 
 export interface Web3TxReceipt {

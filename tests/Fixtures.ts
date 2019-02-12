@@ -158,23 +158,6 @@ export const FAKE_FUNC_TX_OBJECT_INTERNAL = {
   },
   rawTx: {
     from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-    functionCallData: {
-      abi: [
-        {
-          inputs: [
-            {
-              name: 'a',
-              type: 'uint256'
-            }
-          ],
-          name: 'foo',
-          outputs: [],
-          type: 'function'
-        }
-      ],
-      args: [123445],
-      functionName: 'foo'
-    },
     gasLimit: new BigNumber(6000000),
     gasPrice: new BigNumber(1000000),
     nonce: 100,

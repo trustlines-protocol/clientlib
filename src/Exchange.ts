@@ -1,6 +1,5 @@
 import { BigNumber } from 'bignumber.js'
-import * as ethABI from 'ethereumjs-abi'
-import * as ethUtils from 'ethereumjs-util'
+import { ethers } from 'ethers'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
@@ -230,14 +229,14 @@ export class Exchange {
       filledTakerTokenAmount: '0',
       maker: this.user.address,
       makerFee: '0',
-      makerTokenAddress: ethUtils.toChecksumAddress(makerTokenAddress),
+      makerTokenAddress: ethers.utils.getAddress(makerTokenAddress),
       makerTokenAmount: utils
         .calcRaw(makerTokenValue, makerDecimals)
         .toString(),
       salt: Math.floor(Math.random() * 1000000000).toString(),
       taker: ZERO_ADDRESS,
       takerFee: '0',
-      takerTokenAddress: ethUtils.toChecksumAddress(takerTokenAddress),
+      takerTokenAddress: ethers.utils.getAddress(takerTokenAddress),
       takerTokenAmount: utils.calcRaw(takerTokenValue, takerDecimals).toString()
     }
     const orderWithFees = await this._getFees(orderRaw)
@@ -611,8 +610,8 @@ export class Exchange {
     ]
     const types = orderParts.map(part => part.type)
     const values = orderParts.map(part => part.value)
-    const hashBuff = ethABI.soliditySHA3(types, values)
-    return ethUtils.bufferToHex(hashBuff)
+    const hash = ethers.utils.solidityKeccak256(types, values)
+    return hash
   }
 
   /**
