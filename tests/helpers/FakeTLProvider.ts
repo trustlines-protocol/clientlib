@@ -1,5 +1,4 @@
 import { BigNumber } from 'bignumber.js'
-import { ethers } from 'ethers'
 
 import { TLProvider } from '../../src/providers/TLProvider'
 

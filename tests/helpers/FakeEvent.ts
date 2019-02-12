@@ -1,7 +1,5 @@
 import { Event } from '../../src/Event'
 
-import { DecimalsObject } from '../../src/typings'
-
 import {
   FAKE_TRUSTLINE_UPDATE_EVENT,
   FAKE_TRUSTLINE_UPDATE_REQUEST_EVENT

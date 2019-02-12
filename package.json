@@ -82,7 +82,6 @@
   },
   "dependencies": {
     "bignumber.js": "7.2.1",
-    "eth-lightwallet": "trustlines-network/eth-lightwallet",
     "ethereumjs-abi": "^0.6.5",
     "ethereumjs-util": "^5.2.0",
     "ethers": "^4.0.23",

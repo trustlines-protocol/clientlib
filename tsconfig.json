@@ -13,10 +13,7 @@
     "jsx": "react",
     "resolveJsonModule": true
   },
-  "include": [
-    "./src/TLNetwork.ts",
-    "./node_modules/types-ethereumjs-util/index.d.ts"
-  ],
+  "include": ["./src/TLNetwork.ts"],
   "compileOnSave": false,
   "buildOnSave": false
 }
