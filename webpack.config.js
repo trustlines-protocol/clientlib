@@ -6,25 +6,27 @@ const PATHS = {
 }
 
 module.exports = {
-	mode: 'production',
+  mode: 'production',
   entry: {
-    'trustlines-network': [PATHS.entryPoint]
+    'trustlines-clientlib': [PATHS.entryPoint]
   },
   output: {
     path: PATHS.bundles,
     filename: '[name].js',
-    libraryTarget: 'umd',
-    library: 'TLNetwork',
-    umdNamedDefine: true
+    libraryTarget: 'var',
+    library: 'trustlines'
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.json']
   },
   module: {
-    rules: [{
-      test: /\.tsx?$/,
-      loader: 'awesome-typescript-loader',
-      exclude: /node_modules/
-    }]
-  }
+    rules: [
+      {
+        test: /\.tsx?$/,
+        loader: 'awesome-typescript-loader',
+        exclude: /node_modules/
+      }
+    ]
+  },
+  externals: ['ethers']
 }
