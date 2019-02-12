@@ -13,6 +13,7 @@ import { RelayProvider } from './providers/RelayProvider'
 import { TLProvider } from './providers/TLProvider'
 
 import { TLSigner } from './signers/TLSigner'
+import { Web3Signer } from './signers/Web3Signer'
 
 import { EthersWallet } from './wallets/EthersWallet'
 import { TLWallet } from './wallets/TLWallet'
@@ -20,9 +21,6 @@ import { TLWallet } from './wallets/TLWallet'
 import utils from './utils'
 
 import { TLNetworkConfig } from './typings'
-
-// tslint:disable-next-line
-const Web3 = require('web3')
 
 /**
  * The TLNetwork class is the single entry-point into the trustline-network.js library.
@@ -84,11 +82,9 @@ export class TLNetwork {
    * @hidden
    */
   public wallet: TLWallet
-
-  public relayApiUrl: string
-  public relayWsApiUrl: string
-  public web3Provider: any
-
+  /**
+   * @hidden
+   */
   public provider: TLProvider
 
   /**
@@ -103,7 +99,8 @@ export class TLNetwork {
       path = '',
       wsProtocol = 'ws',
       relayApiUrl,
-      relayWsApiUrl
+      relayWsApiUrl,
+      web3Provider
     } = config
 
     this.setProvider(
@@ -114,9 +111,8 @@ export class TLNetwork {
     )
 
     const ethersWallet = new EthersWallet(this.provider)
-
-    this.wallet = ethersWallet
-    this.signer = ethersWallet
+    this.setWallet(ethersWallet)
+    this.setSigner(web3Provider ? new Web3Signer(web3Provider) : ethersWallet)
 
     this.currencyNetwork = new CurrencyNetwork(this.provider)
     this.transaction = new Transaction({
@@ -172,7 +168,24 @@ export class TLNetwork {
     })
   }
 
-  public setProvider(provider: RelayProvider): void {
+  public setProvider(provider: TLProvider): void {
+    if (!(provider instanceof RelayProvider)) {
+      throw new Error('Provider not supported.')
+    }
     this.provider = provider
+  }
+
+  public setSigner(signer: TLSigner): void {
+    if (!(signer instanceof Web3Signer || signer instanceof EthersWallet)) {
+      throw new Error('Signer not supported.')
+    }
+    this.signer = signer
+  }
+
+  public setWallet(wallet: TLWallet): void {
+    if (!(wallet instanceof EthersWallet)) {
+      throw new Error('Wallet not supported.')
+    }
+    this.wallet = wallet
   }
 }
