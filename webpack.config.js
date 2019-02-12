@@ -13,8 +13,8 @@ module.exports = {
   output: {
     path: PATHS.bundles,
     filename: '[name].js',
-    libraryTarget: 'umd',
-    library: 'TLNetwork'
+    libraryTarget: 'var',
+    library: 'trustlines'
   },
   resolve: {
     extensions: ['.ts', '.js', '.json']
