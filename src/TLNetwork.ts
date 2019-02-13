@@ -1,3 +1,5 @@
+import { ethers } from 'ethers'
+
 import { Contact } from './Contact'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { EthWrapper } from './EthWrapper'
@@ -112,7 +114,11 @@ export class TLNetwork {
 
     const ethersWallet = new EthersWallet(this.provider)
     this.setWallet(ethersWallet)
-    this.setSigner(web3Provider ? new Web3Signer(web3Provider) : ethersWallet)
+    this.setSigner(
+      web3Provider
+        ? new Web3Signer(new ethers.providers.Web3Provider(web3Provider))
+        : ethersWallet
+    )
 
     this.currencyNetwork = new CurrencyNetwork(this.provider)
     this.transaction = new Transaction({

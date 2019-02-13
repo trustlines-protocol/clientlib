@@ -16,9 +16,8 @@ export class Web3Signer implements TLSigner {
 
   private signer: ethers.providers.JsonRpcSigner
 
-  constructor(web3Provider: any) {
-    const provider = new ethers.providers.Web3Provider(web3Provider)
-    this.signer = provider.getSigner()
+  constructor(web3Provider: ethers.providers.Web3Provider) {
+    this.signer = web3Provider.getSigner()
   }
 
   /**
@@ -56,9 +55,13 @@ export class Web3Signer implements TLSigner {
     }
     const { hash } = await this.signer.sendTransaction({
       ...rawTx,
-      gasLimit: rawTx.gasLimit && new BigNumber(rawTx.gasLimit).toString(),
-      gasPrice: rawTx.gasPrice && new BigNumber(rawTx.gasPrice).toString(),
-      value: rawTx.value && new BigNumber(rawTx.value).toString()
+      gasLimit: rawTx.gasLimit
+        ? new BigNumber(rawTx.gasLimit).toString()
+        : undefined,
+      gasPrice: rawTx.gasPrice
+        ? new BigNumber(rawTx.gasPrice).toString()
+        : undefined,
+      value: rawTx.value ? new BigNumber(rawTx.value).toString() : undefined
     })
     return hash
   }
