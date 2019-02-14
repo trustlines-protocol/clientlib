@@ -1,4 +1,5 @@
 import { BigNumber } from 'bignumber.js'
+import { ethers } from 'ethers'
 
 export const keystore1 = `{"encSeed":{"encStr":"I4qBGJUmpzHUQoVRMkjMEAqGusa4oI7HEG7SQMYPO31OIH+UlFtEDGfOuADzFYsfHKMbImJIOnhEg5z3VzvnndRlV9V9zHjbPgOysoMkF0K3ZR7DtamiBhk2CW3s8gx9Y2liECI03gOzz2Z51/jFLtDVrKs8HaF+ao4AnpmBZ9BgmX1F2fcZvA==","nonce":"nToBO+VpArhjS3PtICUBpjpc5cEDcmQ0"},"encHdRootPriv":{"encStr":"MMfdnPGEYRuPvOGaZvjrqHkrC+QT+GYSk1Nj1n76BbGjx3Kv37Rptb74wEcL7oRsBDJDHN1fLbeeXdwW6ZoGZaGnB8K+mdNBq+84PMGyfs/pvEQ4b81mPYP/Nw/Lgy8MwvSnwqupI8ZtA67zBDSSTWaQ1qN16Y4CID2SUEaJtQ==","nonce":"Tdsr0BdTZxaP655dmg1l14g8HdF3nTcl"},"addresses":["f8e191d2cd72ff35cb8f012685a29b31996614ea"],"encPrivKeys":{"f8e191d2cd72ff35cb8f012685a29b31996614ea":{"key":"of9sXYDnUtDeO8x3XYS50NN3XtyKXIvgNlfH773sbQAbqvUHqzmKRnMsb45Vlgup","nonce":"dfinYhD8qUzMM9KyK5fpnUmEh1hrEQDE"}},"hdPathString":"m/44\'/60\'/0\'/0","salt":"Wz3bQi0l8ZMncTBB5qTNjXS/uneTMZakQsVrA7Eo9YM=","hdIndex":1,"version":3}`
 
@@ -158,23 +159,6 @@ export const FAKE_FUNC_TX_OBJECT_INTERNAL = {
   },
   rawTx: {
     from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-    functionCallData: {
-      abi: [
-        {
-          inputs: [
-            {
-              name: 'a',
-              type: 'uint256'
-            }
-          ],
-          name: 'foo',
-          outputs: [],
-          type: 'function'
-        }
-      ],
-      args: [123445],
-      functionName: 'foo'
-    },
     gasLimit: new BigNumber(6000000),
     gasPrice: new BigNumber(1000000),
     nonce: 100,
@@ -379,3 +363,35 @@ export const FAKE_CLOSE_PATH_RAW = {
 }
 
 export const FAKE_RELAY_API = 'http://relay.network/api/v1'
+
+export const FAKE_SIGNED_MESSAGE =
+  '0xea09d6e94e52b48489bd66754c9c02a772f029d4a2f136bba9917ab3042a0474301198d8c2afb71351753436b7e5a420745fed77b6c3089bbcca64113575ec3c1c'
+
+export const FAKE_RAW_TX_OBJECT = {
+  data: '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
+  from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  gasLimit: 10000,
+  gasPrice: 10000,
+  nonce: 5,
+  to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  value: 10000
+}
+
+export const FAKE_ETHERS_TX_RECEIPT = {
+  byzantium: false
+}
+
+export const FAKE_ETHERS_TX_RESPONSE = {
+  chainId: 69,
+  confirmations: 1,
+  data: '0xc0de',
+  from: USER_2.address,
+  gasLimit: ethers.utils.bigNumberify('1000000'),
+  gasPrice: ethers.utils.bigNumberify('1000000'),
+  hash: FAKE_TX_HASH,
+  nonce: 12,
+  raw: FAKE_SIGNED_TX,
+  to: USER_1.address,
+  value: ethers.utils.bigNumberify('10000000'),
+  wait: (confirmations?: number) => Promise.resolve(FAKE_ETHERS_TX_RECEIPT)
+}

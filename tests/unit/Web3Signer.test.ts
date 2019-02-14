@@ -1,10 +1,12 @@
-import { BigNumber } from 'bignumber.js'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { Web3Signer } from '../../src/signers/Web3Signer'
+
 import { FakeWeb3Provider } from '../helpers/FakeWeb3Provider'
+
+import { FAKE_RAW_TX_OBJECT, FAKE_TX_HASH } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -15,66 +17,60 @@ describe('unit', () => {
     let web3Signer: Web3Signer
 
     // mocked web3 provider
-    let fakeWeb3Provider
+    let fakeWeb3Provider: FakeWeb3Provider
 
-    // test data
-    const USER_ADDRESS = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
-    const RAW_TX_OBJECT = {
-      data:
-        '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
-      from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-      gasLimit: 10000,
-      gasPrice: 10000,
-      nonce: 5,
-      to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-      value: 10000
-    }
-    const RAW_FUNCTION_TX_OBJECT = {
-      ...RAW_TX_OBJECT,
-      functionCallData: {
-        abi: [
-          {
-            inputs: [
-              {
-                name: 'a',
-                type: 'uint256'
-              }
-            ],
-            name: 'foo',
-            outputs: [],
-            type: 'function'
-          },
-          {
-            inputs: [
-              {
-                name: 'a',
-                type: 'uint256'
-              }
-            ],
-            name: 'foo2',
-            outputs: [],
-            type: 'function'
-          }
-        ],
-        args: [123445],
-        functionName: 'foo'
-      }
-    }
-
-    beforeEach(() => {
+    const init = () => {
       fakeWeb3Provider = new FakeWeb3Provider()
       web3Signer = new Web3Signer(fakeWeb3Provider)
+    }
+
+    describe('#getAddress()', () => {
+      beforeEach(() => init())
+
+      it('should return address', async () => {
+        const address = await web3Signer.getAddress()
+        assert.isString(address)
+      })
+    })
+
+    describe('#getBalance()', () => {
+      beforeEach(() => init())
+
+      it('should return balance', async () => {
+        const balance = await web3Signer.getBalance()
+        assert.hasAllKeys(balance, ['decimals', 'value', 'raw'])
+        assert.isNumber(balance.decimals)
+        assert.isString(balance.value)
+        assert.isString(balance.raw)
+      })
     })
 
     describe('#confirm()', () => {
+      beforeEach(() => init())
+
       it('should return transaction hash', async () => {
-        const transactionHash = await web3Signer.confirm(RAW_TX_OBJECT)
+        const transactionHash = await web3Signer.confirm(FAKE_RAW_TX_OBJECT)
         assert.isString(transactionHash)
       })
+    })
 
-      it('should return transaction hash for raw function tx', async () => {
-        const transactionHash = await web3Signer.confirm(RAW_FUNCTION_TX_OBJECT)
-        assert.isString(transactionHash)
+    describe('#signMessage()', () => {
+      beforeEach(() => init())
+
+      it('should return signed message', async () => {
+        const signature = await web3Signer.signMessage('hello world')
+        assert.hasAllKeys(signature, ['concatSig', 'ecSignature'])
+        assert.hasAllKeys(signature.ecSignature, ['r', 's', 'v'])
+      })
+    })
+
+    describe('#signMsgHash()', () => {
+      beforeEach(() => init())
+
+      it('should return signed message hash', async () => {
+        const signature = await web3Signer.signMsgHash(FAKE_TX_HASH)
+        assert.hasAllKeys(signature, ['concatSig', 'ecSignature'])
+        assert.hasAllKeys(signature.ecSignature, ['r', 's', 'v'])
       })
     })
   })
