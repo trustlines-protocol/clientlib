@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.3.0] - 2019-02-15
+
+Minor breaking change due to migration to `ethers.js`. The API itself did not change, but keystore files of previous versions are not compatible with the new library.
+
+### Added
+
+- Basic unit tests
+- `ethers.js` library and support
+- Optional `progressCallback` for creating and loading `user` instances
+
+### Changed
+
+- Change CI provider to `CircleCI`
+- Build and deploy docker image for `end2end` tests
+- Migration to `ethers.js` for wallet, signer and provider functionalities
+
+### Removed
+
+- `eth-lighwallet` and `web3` dependencies
+- `TravisCI` config files
+- `/tests/testrelay` files
+
 ## [0.2.2] - 2018-12-18
 
 ### Added
