@@ -17,6 +17,7 @@ import {
   ExchangeOptions,
   ExchangeTx,
   ExchangeTxOptions,
+  FeePayer,
   Order,
   Orderbook,
   OrderbookOptions,
@@ -471,6 +472,7 @@ export class Exchange {
     }
     return {
       estimatedGas: new BigNumber(40000),
+      feePayer: FeePayer.Sender,
       isNetwork: false,
       maxFees: utils.formatToAmount(0, networkDecimals),
       path: []

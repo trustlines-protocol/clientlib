@@ -58,6 +58,7 @@ export type TLOptions = TxOptions & DecimalsOptions
 export interface PaymentOptions extends TLOptions {
   maximumHops?: number
   maximumFees?: number
+  feePayer?: FeePayer
 }
 
 export interface TrustlineUpdateOptions extends TLOptions {
@@ -268,8 +269,14 @@ export interface PaymentTxObject extends TxObject {
   maxFees: Amount
 }
 
+export enum FeePayer {
+  Sender = 'sender',
+  Receiver = 'receiver'
+}
+
 export interface PathObject {
   path: string[]
+  feePayer: FeePayer
   maxFees: Amount
   estimatedGas: BigNumber
   isNetwork?: boolean
@@ -277,6 +284,7 @@ export interface PathObject {
 
 export interface PathRaw {
   path: string[]
+  feePayer: string
   fees: string
   estimatedGas: number
 }

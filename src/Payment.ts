@@ -10,6 +10,7 @@ import utils from './utils'
 
 import {
   EventFilterOptions,
+  FeePayer,
   NetworkTransferEvent,
   PathObject,
   PathRaw,
@@ -157,11 +158,17 @@ export class Payment {
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<PathObject> {
-    const { networkDecimals, maximumHops, maximumFees } = options
+    const {
+      networkDecimals,
+      maximumHops,
+      maximumFees,
+      feePayer: feePayerOption
+    } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
     const data = {
+      feePayer: feePayerOption,
       from: senderAddress,
       maxFees: maximumFees,
       maxHops: maximumHops,
@@ -169,15 +176,19 @@ export class Payment {
       value: utils.calcRaw(value, decimals.networkDecimals).toString()
     }
     const endpoint = `networks/${networkAddress}/path-info`
-    const { estimatedGas, fees, path } = await this.provider.fetchEndpoint<
-      PathRaw
-    >(endpoint, {
+    const {
+      estimatedGas,
+      fees,
+      path,
+      feePayer
+    } = await this.provider.fetchEndpoint<PathRaw>(endpoint, {
       body: JSON.stringify(data),
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'POST'
     })
     return {
       estimatedGas: new BigNumber(estimatedGas),
+      feePayer: feePayer as FeePayer,
       maxFees: utils.formatToAmount(fees, decimals.networkDecimals),
       path
     }
