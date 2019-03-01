@@ -4,6 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
+import { FeePayer } from '../../src/typings'
 import { config, createUsers, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
@@ -41,15 +42,32 @@ describe('e2e', () => {
     })
 
     describe('#getPath()', () => {
-      it('should return path', async () => {
+      it('should return sender pays path', async () => {
+        const options = { feePayer: FeePayer.Sender }
         const pathObj = await tl1.payment.getPath(
           network.address,
           user1.address,
           user2.address,
-          1.5
+          1.5,
+          options
         )
         expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
         expect(pathObj.path).to.not.equal([])
+        expect(pathObj.feePayer).to.equal(FeePayer.Sender)
+      })
+
+      it('should return receiver pays path', async () => {
+        const options = { feePayer: FeePayer.Receiver }
+        const pathObj = await tl1.payment.getPath(
+          network.address,
+          user1.address,
+          user2.address,
+          1.5,
+          options
+        )
+        expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
+        expect(pathObj.path).to.not.equal([])
+        expect(pathObj.feePayer).to.equal(FeePayer.Receiver)
       })
 
       it('should return no path', async () => {
