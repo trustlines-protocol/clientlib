@@ -53,7 +53,9 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should return mocked events as array', async () => {
-        const events = await event.get(FAKE_NETWORK.address, { fromBlock: 0 })
+        const events = await event.get(FAKE_NETWORK.address, {
+          fromBlock: 0
+        })
         assert.isArray(events)
       })
 

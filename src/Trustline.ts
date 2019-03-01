@@ -13,6 +13,7 @@ import {
   ClosePathRaw,
   CloseTxObject,
   EventFilterOptions,
+  FeePayer,
   NetworkTrustlineEvent,
   PaymentOptions,
   RawTxObject,
@@ -374,7 +375,8 @@ export class Trustline {
       path,
       estimatedGas,
       fees,
-      value
+      value,
+      feePayer
     } = await this.provider.fetchEndpoint<ClosePathRaw>(endpoint, {
       body: JSON.stringify(data),
       headers: new Headers({ 'Content-Type': 'application/json' }),
@@ -383,6 +385,7 @@ export class Trustline {
 
     return {
       estimatedGas: new BigNumber(estimatedGas),
+      feePayer: feePayer as FeePayer,
       maxFees: utils.formatToAmount(fees, decimals.networkDecimals),
       path,
       value: utils.formatToAmount(value, decimals.networkDecimals)

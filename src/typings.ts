@@ -266,6 +266,7 @@ export interface TxInfos {
 // PAYMENT
 export interface PaymentTxObject extends TxObject {
   path: string[]
+  feePayer: FeePayer
   maxFees: Amount
 }
 
@@ -387,6 +388,10 @@ export interface ClosePathObject {
    */
   path: string[]
   /**
+   * Payer of thee for the closing transaction
+   */
+  feePayer: FeePayer
+  /**
    * Maximal fees that can occur for closing
    */
   maxFees: Amount
@@ -402,12 +407,16 @@ export interface ClosePathObject {
 
 export interface ClosePathRaw {
   path: string[]
+  feePayer: string
   fees: string
   estimatedGas: number
   value: string
 }
 
-export type CloseTxObject = PaymentTxObject
+export interface CloseTxObject extends TxObject {
+  path: string[]
+  maxFees: Amount
+}
 
 // EXCHANGE
 export interface Order {
