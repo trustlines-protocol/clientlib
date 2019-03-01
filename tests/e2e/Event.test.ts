@@ -407,7 +407,9 @@ describe('e2e', () => {
       })
 
       it('should return trustline updates from more than one network', async () => {
-        const allEvents = await tl1.event.getAll({ type: 'TrustlineUpdate' })
+        const allEvents = await tl1.event.getAll({
+          type: 'TrustlineUpdate'
+        })
         const networksOfEvents = allEvents.map(e => {
           if ((e as AnyNetworkEvent).networkAddress) {
             return (e as AnyNetworkEvent).networkAddress

@@ -3,6 +3,7 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
+import { FeePayer } from '../../src/typings'
 import { config, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
@@ -616,10 +617,15 @@ describe('e2e', () => {
           networkWithoutInterestRates.address,
           tl2.user.address
         )
-        expect(closeTx).to.have.keys(['rawTx', 'ethFees', 'maxFees', 'path'])
+        expect(closeTx).to.have.all.keys([
+          'rawTx',
+          'ethFees',
+          'maxFees',
+          'path'
+        ])
         expect(closeTx.path.length).to.equal(0)
-        expect(closeTx.ethFees).to.have.keys(['raw', 'value', 'decimals'])
-        expect(closeTx.maxFees).to.have.keys(['raw', 'value', 'decimals'])
+        expect(closeTx.ethFees).to.have.all.keys(['raw', 'value', 'decimals'])
+        expect(closeTx.maxFees).to.have.all.keys(['raw', 'value', 'decimals'])
       })
 
       it('should sign and relay prepared close transaction without triangulated transfer', async () => {
@@ -703,10 +709,15 @@ describe('e2e', () => {
           networkWithoutInterestRates.address,
           tl2.user.address
         )
-        expect(closeTx).to.have.keys(['rawTx', 'ethFees', 'maxFees', 'path'])
+        expect(closeTx).to.have.all.keys([
+          'rawTx',
+          'ethFees',
+          'maxFees',
+          'path'
+        ])
         expect(closeTx.path).to.include(tl3.user.address)
-        expect(closeTx.ethFees).to.have.keys(['raw', 'value', 'decimals'])
-        expect(closeTx.maxFees).to.have.keys(['raw', 'value', 'decimals'])
+        expect(closeTx.ethFees).to.have.all.keys(['raw', 'value', 'decimals'])
+        expect(closeTx.maxFees).to.have.all.keys(['raw', 'value', 'decimals'])
       })
 
       it('should sign and relay prepared close transaction', async () => {

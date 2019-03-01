@@ -68,7 +68,7 @@ export class Payment {
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
-    const { path, maxFees, estimatedGas } = await this.getPath(
+    const { path, maxFees, estimatedGas, feePayer } = await this.getPath(
       networkAddress,
       this.user.address,
       receiverAddress,
@@ -83,7 +83,8 @@ export class Payment {
         this.user.address,
         networkAddress,
         'CurrencyNetwork',
-        'transfer',
+        // if no options are set for feePayer, the sender pays the fees.
+        feePayer === FeePayer.Receiver ? 'transferReceiverPays' : 'transfer',
         [
           receiverAddress,
           utils.convertToHexString(
@@ -101,6 +102,7 @@ export class Payment {
       )
       return {
         ethFees: utils.convertToAmount(ethFees),
+        feePayer,
         maxFees,
         path,
         rawTx

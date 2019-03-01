@@ -204,7 +204,8 @@ describe('unit', () => {
           'estimatedGas',
           'maxFees',
           'path',
-          'value'
+          'value',
+          'feePayer'
         ])
       })
     })
