@@ -310,7 +310,9 @@ export class Exchange {
         this.user.address,
         maker,
         fillTakerTokenValue,
-        { networkDecimals: takerDecimals }
+        {
+          networkDecimals: takerDecimals
+        }
       )
     ])
     const orderAddresses = this._getOrderAddresses(signedOrder)

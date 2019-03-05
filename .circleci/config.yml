@@ -57,6 +57,15 @@ jobs:
           name: Run Linter
           command: yarn lint
 
+  prettier:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: "~"
+      - run:
+          name: Check Prettier
+          command: yarn prettier:check
+
   unit-test:
     <<: *defaults
     steps:
@@ -192,6 +201,9 @@ workflows:
             tags:
               only: /.*/
       - lint:
+          requires:
+            - build
+      - prettier:
           requires:
             - build
       - unit-test:
