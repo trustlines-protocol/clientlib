@@ -9,6 +9,7 @@
     "doc": "typedoc --options tdconfig.json",
     "lint": "tslint -c tslint.json ./src/**/**.ts ./tests/**/**.ts",
     "prettier": "prettier --write './{src,tests}/**/*.ts'",
+    "prettier:check": "prettier --check './{src,tests}/**/*.ts'",
     "test": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/**/**.test.ts",
     "test:e2e": "nyc mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
     "test:integration": "nyc mocha --timeout 5000 --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
