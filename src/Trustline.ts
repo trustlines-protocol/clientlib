@@ -14,6 +14,7 @@ import {
   CloseTxObject,
   EventFilterOptions,
   FeePayer,
+  isFeePayerValue,
   NetworkTrustlineEvent,
   PaymentOptions,
   RawTxObject,
@@ -382,6 +383,10 @@ export class Trustline {
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'post'
     })
+
+    if (!isFeePayerValue(feePayer)) {
+      throw Error(`Unexpected feePayer value: ${feePayer}`)
+    }
 
     return {
       estimatedGas: new BigNumber(estimatedGas),

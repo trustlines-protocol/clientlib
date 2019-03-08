@@ -357,6 +357,7 @@ export const FAKE_TRUSTLINE = {
 
 export const FAKE_CLOSE_PATH_RAW = {
   estimatedGas: '6000000',
+  feePayer: 'sender',
   fees: '1000000',
   path: ['0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'],
   value: '123'

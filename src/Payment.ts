@@ -11,6 +11,7 @@ import utils from './utils'
 import {
   EventFilterOptions,
   FeePayer,
+  isFeePayerValue,
   NetworkTransferEvent,
   PathObject,
   PathRaw,
@@ -188,6 +189,11 @@ export class Payment {
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'POST'
     })
+
+    if (!isFeePayerValue(feePayer)) {
+      throw Error(`Unexpected feePayer value: ${feePayer}`)
+    }
+
     return {
       estimatedGas: new BigNumber(estimatedGas),
       feePayer: feePayer as FeePayer,
