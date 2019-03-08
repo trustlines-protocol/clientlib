@@ -135,6 +135,12 @@ export const FAKE_USER = {
   received: 300
 }
 
+export const FAKE_IDENTITY = {
+  balance: '1000',
+  identity: '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+  nextNonce: 10
+}
+
 export const FAKE_VALUE_TX_OBJECT_INTERNAL = {
   ethFees: {
     decimals: 18,

@@ -4,6 +4,7 @@ import { TLProvider } from '../../src/providers/TLProvider'
 
 import {
   FAKE_CLOSE_PATH_RAW,
+  FAKE_IDENTITY,
   FAKE_NETWORK,
   FAKE_RELAY_API,
   FAKE_TRANSFER_EVENT,
@@ -61,6 +62,9 @@ export class FakeTLProvider implements TLProvider {
             response = FAKE_TX_INFOS
           }
         }
+        break
+      case 'identities':
+        response = FAKE_IDENTITY
         break
       case 'networks':
         if (splitEndpoint.length === 1) {
