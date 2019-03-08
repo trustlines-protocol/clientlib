@@ -275,6 +275,17 @@ export enum FeePayer {
   Receiver = 'receiver'
 }
 
+export function isFeePayerValue(feePayer: string) {
+  if (
+    Object.keys(FeePayer)
+      .map(k => FeePayer[k as any])
+      .indexOf(feePayer) === -1
+  ) {
+    return false
+  }
+  return true
+}
+
 export interface PathObject {
   path: string[]
   feePayer: FeePayer
