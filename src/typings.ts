@@ -359,6 +359,18 @@ export interface UserObject {
   keystore: string
 }
 
+export interface IdentityUserObject {
+  identityAddress: string
+  pubKey: string
+  keystore: string
+}
+
+export interface DeployedIdentity {
+  identity: string
+  nextNonce: number
+  blance: string
+}
+
 export interface Signature {
   ecSignature: ECSignature
   concatSig: string

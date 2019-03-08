@@ -1,35 +1,28 @@
-import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
-import { TLSigner } from '../signers/TLSigner'
 import { TLWallet } from './TLWallet'
 
-import utils from '../utils'
+import { DeployedIdentity, UserObject } from '../typings'
 
-import { Amount, RawTxObject, Signature, UserObject } from '../typings'
+export class IdentityWallet implements TLWallet {
+  // TODO: make this class a TLSigner as part of https://github.com/trustlines-network/clientlib/issues/194
 
-/**
- * The EthersWallet class contains wallet related methods.
- */
-export class EthersWallet implements TLWallet, TLSigner {
   public provider: TLProvider
 
   private wallet: ethers.Wallet
+  private identityAddress: string
 
   constructor(provider: TLProvider) {
     this.provider = provider
   }
 
-  ///////////////
-  // Accessors //
-  ///////////////
-
   public get address(): string {
-    return this.wallet ? this.wallet.address : undefined
+    return this.identityAddress
   }
 
   public get pubKey(): string {
+    // TODO: this makes no sense to me: it is the pubkey of the owner of the identity
     return this.wallet
       ? ethers.utils.computePublicKey(this.wallet.privateKey)
       : undefined
@@ -42,10 +35,6 @@ export class EthersWallet implements TLWallet, TLSigner {
     return this.address
   }
 
-  ////////////////////////
-  // Creating Instances //
-  ////////////////////////
-
   /**
    * Creates a new wallet and encrypts it with the provided password.
    * @param password Password to encrypt keystore.
@@ -56,12 +45,28 @@ export class EthersWallet implements TLWallet, TLSigner {
     progressCallback?: any
   ): Promise<UserObject> {
     this.wallet = ethers.Wallet.createRandom()
+    const pubKey = this.wallet.address
     const encryptedKeystore = await this.wallet.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
     )
+
+    const deployIdentityEndpoint = 'identities'
+
+    // TODO: extract fetchEndpoint with post method
+    const identity = await this.provider.fetchEndpoint<DeployedIdentity>(
+      deployIdentityEndpoint,
+      {
+        body: JSON.stringify(this.wallet.address),
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        method: 'POST'
+      }
+    )
+
+    this.identityAddress = identity.identity
+
     return {
-      address: this.address,
+      address: identity.identity,
       keystore: encryptedKeystore,
       pubKey: this.pubKey
     }
@@ -71,11 +76,13 @@ export class EthersWallet implements TLWallet, TLSigner {
    * Decrypts given keystore and loads wallet.
    * @param encryptedKeystore Encrypted keystore from `createAccount`.
    * @param password Password to decrypt keystore.
+   * @param identityAddress the address of the corresponding identity contract
    * @param progressCallback Callback function for decryption progress.
    */
   public async loadAccount(
     encryptedKeystore: string,
     password: string,
+    identityAddress: string,
     progressCallback?: any
   ): Promise<UserObject> {
     this.wallet = await ethers.Wallet.fromEncryptedJson(
@@ -83,8 +90,11 @@ export class EthersWallet implements TLWallet, TLSigner {
       password,
       typeof progressCallback === 'function' && progressCallback
     )
+
+    this.identityAddress = identityAddress
+
     return {
-      address: this.address,
+      address: identityAddress,
       keystore: encryptedKeystore,
       pubKey: this.pubKey
     }
@@ -94,14 +104,19 @@ export class EthersWallet implements TLWallet, TLSigner {
    * Recovers wallet from mnemonic phrase and encrypts keystore with given password.
    * @param seed Mnemonic seed phrase.
    * @param password Password to encrypt recovered keystore.
+   * @param identityAddress the address of the corresponding identity contract
    * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromSeed(
     seed: string,
     password: string,
+    identityAddress: string,
     progressCallback?: any
   ): Promise<UserObject> {
     this.wallet = ethers.Wallet.fromMnemonic(seed)
+
+    this.identityAddress = identityAddress
+
     const encryptedKeystore = await this.wallet.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
@@ -117,14 +132,17 @@ export class EthersWallet implements TLWallet, TLSigner {
    * Recovers wallet from private key and encrypts keystore with given password.
    * @param privateKey Private key to recover wallet from.
    * @param password Password to encrypt recovered keystore.
+   * @param identityAddress the address of the corresponding identity contract
    * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromPrivateKey(
     privateKey: string,
     password: string,
+    identityAddress: string,
     progressCallback?: any
   ): Promise<UserObject> {
     this.wallet = new ethers.Wallet(privateKey)
+    this.identityAddress = identityAddress
     const encryptedKeystore = await this.wallet.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
@@ -134,88 +152,6 @@ export class EthersWallet implements TLWallet, TLSigner {
       keystore: encryptedKeystore,
       pubKey: this.pubKey
     }
-  }
-
-  /////////////
-  // Signing //
-  /////////////
-
-  /**
-   * Signs given hex hash of message with loaded wallet.
-   * @param msgHash Hash of message to sign.
-   */
-  public async signMsgHash(msgHash: string): Promise<Signature> {
-    if (!this.wallet) {
-      throw new Error('No wallet loaded.')
-    }
-    if (!ethers.utils.isHexString(msgHash)) {
-      throw new Error('Message hash is not a valid hex string.')
-    }
-    const msgHashBytes = ethers.utils.arrayify(msgHash)
-    return this.signMessage(msgHashBytes)
-  }
-
-  /**
-   * Signs given message with loaded wallet.
-   * @param message Message to sign.
-   */
-  public async signMessage(message: ethers.utils.Arrayish): Promise<Signature> {
-    if (!this.wallet) {
-      throw new Error('No wallet loaded.')
-    }
-    const flatFormatSignature = await this.wallet.signMessage(message)
-    const { r, s, v } = ethers.utils.splitSignature(flatFormatSignature)
-    return {
-      concatSig: flatFormatSignature,
-      ecSignature: { r, s, v }
-    }
-  }
-
-  /**
-   * Takes a raw transaction object, turns it into a RLP encoded hex string, signs it with
-   * the loaded user and relays the transaction.
-   * @param rawTx Raw transaction object.
-   */
-  public async confirm(rawTx: RawTxObject): Promise<string> {
-    if (!this.wallet) {
-      throw new Error('No wallet loaded.')
-    }
-    const signedTransaction = await this.wallet.sign({
-      data: rawTx.data,
-      gasLimit: ethers.utils.bigNumberify(
-        rawTx.gasLimit instanceof BigNumber
-          ? rawTx.gasLimit.toString()
-          : rawTx.gasLimit
-      ),
-      gasPrice: ethers.utils.bigNumberify(
-        rawTx.gasPrice instanceof BigNumber
-          ? rawTx.gasPrice.toString()
-          : rawTx.gasPrice
-      ),
-      nonce: rawTx.nonce,
-      to: rawTx.to,
-      value: ethers.utils.bigNumberify(
-        rawTx.value instanceof BigNumber ? rawTx.value.toString() : rawTx.value
-      )
-    })
-    return this.provider.sendSignedTransaction(signedTransaction)
-  }
-
-  /////////////
-  // Account //
-  /////////////
-
-  /**
-   * Returns a `Promise` with the balance of loaded user.
-   */
-  public async getBalance(): Promise<Amount> {
-    if (!this.wallet) {
-      throw new Error('No wallet loaded.')
-    }
-    const balance = await this.provider.fetchEndpoint<string>(
-      `users/${this.address}/balance`
-    )
-    return utils.formatToAmount(utils.calcRaw(balance, 18), 18)
   }
 
   /**
@@ -237,10 +173,6 @@ export class EthersWallet implements TLWallet, TLSigner {
     }
     return this.wallet.privateKey
   }
-
-  /////////////////////////////
-  // Encryption / Decryption //
-  /////////////////////////////
 
   public async encrypt(msg: string, theirPubKey: string): Promise<any> {
     throw new Error('Method not implemented.')

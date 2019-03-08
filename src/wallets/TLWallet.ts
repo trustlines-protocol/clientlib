@@ -12,11 +12,13 @@ export interface TLWallet {
   loadAccount(
     serializedKeystore: string,
     password: string,
+    identityAddress?: string,
     progressCallback?: any
   ): Promise<UserObject>
   recoverFromSeed(
     seed: string,
     password: string,
+    identityAddress?: string,
     progressCallback?: any
   ): Promise<UserObject>
   encrypt(msg: string, theirPubKey: string): Promise<any>
