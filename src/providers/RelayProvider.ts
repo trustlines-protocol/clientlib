@@ -30,6 +30,18 @@ export class RelayProvider implements TLProvider {
     return utils.fetchUrl<T>(`${this.relayApiUrl}/${trimmedEndpoint}`, options)
   }
 
+  public async fetchPostEndpoint<T>(
+    endpoint: string,
+    data: string
+  ): Promise<T> {
+    const options = {
+      body: JSON.stringify(data),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      method: 'POST'
+    }
+    return this.fetchEndpoint<T>(endpoint, options)
+  }
+
   /**
    * Creates a websocket stream connection to the relay server.
    * @param endpoint Websocket stream endpoint to connect to.
