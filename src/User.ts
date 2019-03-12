@@ -64,15 +64,18 @@ export class User {
    * Loads an existing user and respective keystore.
    * Returns the loaded user object.
    * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) key store.
+   * @param identityAddress Optional the address of the identity contract to load in case of Identity Wallet
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
   public async load(
     serializedKeystore: string,
+    identityAddress?: string,
     progressCallback?: any
   ): Promise<UserObject> {
     const loadedAccount = await this.wallet.loadAccount(
       serializedKeystore,
       this.defaultPassword,
+      identityAddress,
       progressCallback
     )
     return loadedAccount
