@@ -22,10 +22,7 @@ export class IdentityWallet implements TLWallet {
   }
 
   public get pubKey(): string {
-    // TODO: this makes no sense to me: it is the pubkey of the owner of the identity
-    return this.wallet
-      ? ethers.utils.computePublicKey(this.wallet.privateKey)
-      : undefined
+    throw new Error('Method not implemented.')
   }
 
   public async getAddress(): Promise<string> {
@@ -53,7 +50,7 @@ export class IdentityWallet implements TLWallet {
 
     const deployIdentityEndpoint = 'identities'
 
-    const identity = await this.provider.fetchPostEndpoint<DeployedIdentity>(
+    const identity = await this.provider.PostToEndpoint<DeployedIdentity>(
       deployIdentityEndpoint,
       this.wallet.address
     )

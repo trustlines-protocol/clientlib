@@ -368,7 +368,7 @@ export interface IdentityUserObject {
 export interface DeployedIdentity {
   identity: string
   nextNonce: number
-  blance: string
+  balance: string
 }
 
 export interface Signature {

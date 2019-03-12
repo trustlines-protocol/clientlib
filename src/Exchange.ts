@@ -550,11 +550,7 @@ export class Exchange {
    * @param payload Body of POST request.
    */
   private _postRequest(path: string, payload: any): Promise<any> {
-    return this.provider.fetchEndpoint(path, {
-      body: JSON.stringify(payload),
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-      method: 'POST'
-    })
+    return this.provider.PostToEndpoint(path, payload)
   }
 
   /**

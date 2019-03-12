@@ -378,11 +378,7 @@ export class Trustline {
       fees,
       value,
       feePayer
-    } = await this.provider.fetchEndpoint<ClosePathRaw>(endpoint, {
-      body: JSON.stringify(data),
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-      method: 'post'
-    })
+    } = await this.provider.PostToEndpoint<ClosePathRaw>(endpoint, data)
 
     if (!isFeePayerValue(feePayer)) {
       throw Error(`Unexpected feePayer value: ${feePayer}`)
