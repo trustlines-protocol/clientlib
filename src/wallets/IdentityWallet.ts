@@ -53,14 +53,9 @@ export class IdentityWallet implements TLWallet {
 
     const deployIdentityEndpoint = 'identities'
 
-    // TODO: extract fetchEndpoint with post method
-    const identity = await this.provider.fetchEndpoint<DeployedIdentity>(
+    const identity = await this.provider.fetchPostEndpoint<DeployedIdentity>(
       deployIdentityEndpoint,
-      {
-        body: JSON.stringify(this.wallet.address),
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-        method: 'POST'
-      }
+      this.wallet.address
     )
 
     this.identityAddress = identity.identity
