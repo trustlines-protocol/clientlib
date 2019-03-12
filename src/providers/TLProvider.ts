@@ -8,7 +8,7 @@ export interface TLProvider {
   relayApiUrl: string
   relayWsApiUrl: string
   fetchEndpoint<T>(endpoint: string, options?: object): Promise<T>
-  fetchPostEndpoint<T>(endpoint: string, data: string): Promise<T>
+  PostToEndpoint<T>(endpoint: string, data: any): Promise<T>
   createWebsocketStream(
     endpoint: string,
     functionName: string,

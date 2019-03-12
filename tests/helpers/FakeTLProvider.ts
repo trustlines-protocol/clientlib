@@ -104,10 +104,7 @@ export class FakeTLProvider implements TLProvider {
     return Promise.resolve(response)
   }
 
-  public async fetchPostEndpoint<T>(
-    endpoint: string,
-    data: string
-  ): Promise<T> {
+  public async PostToEndpoint<T>(endpoint: string, data: any): Promise<T> {
     const options = {
       body: JSON.stringify(data),
       headers: new Headers({ 'Content-Type': 'application/json' }),
