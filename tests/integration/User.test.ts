@@ -24,13 +24,13 @@ describe('integration', () => {
 
     describe('#create()', () => {
       it('should create new user', () => {
-        expect(newUser).to.have.keys('address', 'keystore', 'pubKey')
+        expect(newUser).to.have.keys('address', 'backup', 'pubKey')
       })
     })
 
     describe('#load()', () => {
-      it('should load existing user/keystore', () => {
-        expect(existingUser).to.have.keys('address', 'keystore', 'pubKey')
+      it('should load existing user/backup', () => {
+        expect(existingUser).to.have.keys('address', 'backup', 'pubKey')
         expect(existingUser.address).to.eq(USER_1.address)
       })
     })
@@ -54,7 +54,7 @@ describe('integration', () => {
         )
         expect(recoveredUser.address).to.equal(USER_1.address)
         expect(recoveredUser.pubKey).to.equal(USER_1.pubKey)
-        expect(recoveredUser.keystore).to.be.a('string')
+        expect(recoveredUser.backup).to.be.a('string')
       })
     })
   })

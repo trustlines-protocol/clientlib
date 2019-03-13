@@ -356,13 +356,7 @@ export interface DecimalsObject {
 export interface UserObject {
   address: string
   pubKey: string
-  keystore: string
-}
-
-export interface IdentityUserObject {
-  identityAddress: string
-  pubKey: string
-  keystore: string
+  backup: string
 }
 
 export interface DeployedIdentity {
@@ -375,6 +369,25 @@ export interface Signature {
   ecSignature: ECSignature
   concatSig: string
 }
+
+export interface IdentityBackup {
+  TLWalletVersion: number
+  ethersKeystore: string
+  identityAddress: string
+  walletType: string
+}
+
+export interface EthersBackup {
+  TLWalletVersion: number
+  ethersKeystore: string
+  walletType: string
+}
+
+export const TL_WALLET_VERSION = 1.0
+
+export const WALLET_TYPE_ETHERS = 'WalletTypeEthers'
+
+export const WALLET_TYPE_IDENTITY = 'WalletTypeIdentity'
 
 // TRUSTLINE
 export interface TrustlineObject {

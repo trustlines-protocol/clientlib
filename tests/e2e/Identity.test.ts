@@ -24,7 +24,7 @@ describe('e2e', () => {
   const relayProvider = new RelayProvider(relayApiUrl, relayWpUrl)
 
   const DEFAULT_PASSWORD = 'ts'
-  const ACCOUNT_KEYS = ['address', 'keystore', 'pubKey']
+  const ACCOUNT_KEYS = ['address', 'backup', 'pubKey']
 
   describe('Deploy identity by creating an identity account', async () => {
     const identityWallet = new IdentityWallet(relayProvider)

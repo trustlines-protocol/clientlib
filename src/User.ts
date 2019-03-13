@@ -10,7 +10,7 @@ import utils from './utils'
 import { Amount, RawTxObject, Signature, UserObject } from './typings'
 
 /**
- * The User class contains all user related functions, which also include keystore
+ * The User class contains all user related functions, which also include backup
  * related methods.
  */
 export class User {
@@ -34,21 +34,21 @@ export class User {
   }
 
   /**
-   * Checksummed Ethereum address of currently loaded user/keystore.
+   * Checksummed Ethereum address of currently loaded user/backup.
    */
   public get address(): string {
     return this.wallet.address
   }
 
   /**
-   * Public key of currently loaded user/keystore.
+   * Public key of currently loaded user/backup.
    */
   public get pubKey(): string {
     return this.wallet.pubKey
   }
 
   /**
-   * Creates a new user and the respective keystore using the configured signer.
+   * Creates a new user and the respective backup using the configured signer.
    * Loads new user into the state and returns the created user object.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
@@ -61,28 +61,25 @@ export class User {
   }
 
   /**
-   * Loads an existing user and respective keystore.
+   * Loads an existing user and respective backup.
    * Returns the loaded user object.
-   * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet) key store.
-   * @param identityAddress Optional the address of the identity contract to load in case of Identity Wallet
+   * @param backup The string backup gotten from createAccount() of a TLWallet.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
   public async load(
-    serializedKeystore: string,
-    identityAddress?: string,
+    backup: string,
     progressCallback?: any
   ): Promise<UserObject> {
     const loadedAccount = await this.wallet.loadAccount(
-      serializedKeystore,
+      backup,
       this.defaultPassword,
-      identityAddress,
       progressCallback
     )
     return loadedAccount
   }
 
   /**
-   * Digitally signs a message hash with the currently loaded user/keystore.
+   * Digitally signs a message hash with the currently loaded user/backup.
    * @param msgHash Hash of message that should be signed.
    */
   public async signMsgHash(msgHash: string): Promise<Signature> {
@@ -129,7 +126,7 @@ export class User {
   }
 
   /**
-   * Recovers user / keystore from 12 word seed.
+   * Recovers user / backup from 12 word seed.
    * @param seed 12 word seed phrase string.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
@@ -151,7 +148,7 @@ export class User {
    * new user who wants to get onboarded, respectively has no ETH or trustline.
    * @param username Name of new user who wants to get onboarded.
    * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet)
-   *                           keystore of new user who wants to get onboarded.
+   *                           backup of new user who wants to get onboarded.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
   public async createOnboardingMsg(

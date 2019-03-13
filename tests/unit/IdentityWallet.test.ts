@@ -6,7 +6,7 @@ import { TLProvider } from '../../src/providers/TLProvider'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 
-import { FAKE_IDENTITY, USER_1 } from '../Fixtures'
+import { FAKE_IDENTITY, USER_1, USER_1_IDENTITY_WALLET_V1 } from '../Fixtures'
 
 import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 
@@ -27,9 +27,10 @@ describe('unit', () => {
     }
 
     // Constants
-    const ACCOUNT_KEYS = ['address', 'keystore', 'pubKey']
+    const ACCOUNT_KEYS = ['address', 'backup', 'pubKey']
     const DEFAULT_PASSWORD = 'ts'
-    const IDENTITY_ADDRESS = FAKE_IDENTITY.identity
+
+    const testUser = USER_1_IDENTITY_WALLET_V1
 
     describe('#createAccount()', () => {
       beforeEach(() => init())
@@ -53,52 +54,34 @@ describe('unit', () => {
     describe('#loadAccount()', () => {
       beforeEach(() => init())
 
-      it('should load account from encrypted json keystore', async () => {
+      it('should load account from encrypted json backup', async () => {
         const loadedAccount = await identityWallet.loadAccount(
-          USER_1.keystore,
-          DEFAULT_PASSWORD,
-          IDENTITY_ADDRESS
+          testUser.backup,
+          DEFAULT_PASSWORD
         )
         assert.hasAllKeys(loadedAccount, ACCOUNT_KEYS)
       })
 
-      it('should load account from encrypted json keystore with progress callback', async () => {
+      it('should load account from encrypted json backup with progress callback', async () => {
         const loadedAccount = await identityWallet.loadAccount(
-          USER_1.keystore,
+          testUser.backup,
           DEFAULT_PASSWORD,
-          IDENTITY_ADDRESS,
           progress => assert.isNumber(progress)
         )
         assert.hasAllKeys(loadedAccount, ACCOUNT_KEYS)
-        assert.equal(loadedAccount.address, IDENTITY_ADDRESS)
-        assert.equal(loadedAccount.pubKey, USER_1.pubKey)
-      })
-    })
-
-    describe('#recoverFromSeed()', () => {
-      beforeEach(() => init())
-
-      it('should recover account from mnemonic', async () => {
-        const recoveredAccount = await identityWallet.recoverFromSeed(
-          USER_1.mnemonic,
-          USER_1.password,
-          IDENTITY_ADDRESS
-        )
-        assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
-        assert.equal(recoveredAccount.address, IDENTITY_ADDRESS)
-        assert.equal(recoveredAccount.pubKey, USER_1.pubKey)
+        assert.equal(loadedAccount.address, testUser.address)
       })
 
-      it('should recover account from mnemonic with progress callback', async () => {
-        const recoveredAccount = await identityWallet.recoverFromSeed(
-          USER_1.mnemonic,
-          USER_1.password,
-          IDENTITY_ADDRESS,
-          progress => assert.isNumber(progress)
+      it('should load same account as created account', async () => {
+        const createdAccount = await identityWallet.createAccount(
+          DEFAULT_PASSWORD
         )
-        assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
-        assert.equal(recoveredAccount.address, IDENTITY_ADDRESS)
-        assert.equal(recoveredAccount.pubKey, USER_1.pubKey)
+        const loadedAccount = await identityWallet.loadAccount(
+          createdAccount.backup,
+          DEFAULT_PASSWORD
+        )
+        assert.equal(createdAccount.backup, loadedAccount.backup)
+        assert.equal(createdAccount.address, loadedAccount.address)
       })
     })
 
@@ -107,25 +90,23 @@ describe('unit', () => {
 
       it('should recover account from private key', async () => {
         const recoveredAccount = await identityWallet.recoverFromPrivateKey(
-          USER_1.privateKey,
+          testUser.privateKey,
           DEFAULT_PASSWORD,
-          IDENTITY_ADDRESS
+          testUser.address
         )
         assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
-        assert.equal(recoveredAccount.address, IDENTITY_ADDRESS)
-        assert.equal(recoveredAccount.pubKey, USER_1.pubKey)
+        assert.equal(recoveredAccount.address, testUser.address)
       })
 
       it('should recover account from private key with progress callback', async () => {
-        const recoveredAccount = await identityWallet.recoverFromSeed(
-          USER_1.mnemonic,
+        const recoveredAccount = await identityWallet.recoverFromPrivateKey(
+          USER_1.privateKey,
           DEFAULT_PASSWORD,
-          IDENTITY_ADDRESS,
+          testUser.address,
           progress => assert.isNumber(progress)
         )
         assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
-        assert.equal(recoveredAccount.address, IDENTITY_ADDRESS)
-        assert.equal(recoveredAccount.pubKey, USER_1.pubKey)
+        assert.equal(recoveredAccount.address, testUser.address)
       })
     })
   })

@@ -3,7 +3,15 @@ import { ethers } from 'ethers'
 import { TLProvider } from '../providers/TLProvider'
 import { TLWallet } from './TLWallet'
 
-import { DeployedIdentity, UserObject } from '../typings'
+import {
+  DeployedIdentity,
+  EthersBackup,
+  IdentityBackup,
+  TL_WALLET_VERSION,
+  UserObject,
+  WALLET_TYPE_ETHERS,
+  WALLET_TYPE_IDENTITY
+} from '../typings'
 
 export class IdentityWallet implements TLWallet {
   // TODO: make this class a TLSigner as part of https://github.com/trustlines-network/clientlib/issues/194
@@ -12,6 +20,8 @@ export class IdentityWallet implements TLWallet {
 
   private wallet: ethers.Wallet
   private identityAddress: string
+
+  private readonly ADDRESS_SIZE = 42
 
   constructor(provider: TLProvider) {
     this.provider = provider
@@ -34,7 +44,7 @@ export class IdentityWallet implements TLWallet {
 
   /**
    * Creates a new wallet and encrypts it with the provided password.
-   * @param password Password to encrypt keystore.
+   * @param password Password to encrypt backup.
    * @param progressCallback Callback function for encryption progress.
    */
   public async createAccount(
@@ -42,7 +52,7 @@ export class IdentityWallet implements TLWallet {
     progressCallback?: any
   ): Promise<UserObject> {
     this.wallet = ethers.Wallet.createRandom()
-    const pubKey = this.wallet.address
+
     const encryptedKeystore = await this.wallet.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
@@ -57,26 +67,35 @@ export class IdentityWallet implements TLWallet {
 
     this.identityAddress = identity.identity
 
+    const backup: string = this.createBackup(
+      encryptedKeystore,
+      identity.identity
+    )
+
     return {
       address: identity.identity,
-      keystore: encryptedKeystore,
-      pubKey: this.pubKey
+      backup,
+      pubKey: 'Not implemented yet'
     }
   }
 
   /**
-   * Decrypts given keystore and loads wallet.
-   * @param encryptedKeystore Encrypted keystore from `createAccount`.
-   * @param password Password to decrypt keystore.
+   * Decrypts given backup and loads wallet.
+   * @param encryptedKeystore Encrypted backup from `createAccount`.
+   * @param password Password to decrypt backup.
    * @param identityAddress the address of the corresponding identity contract
    * @param progressCallback Callback function for decryption progress.
    */
   public async loadAccount(
-    encryptedKeystore: string,
+    backup: string,
     password: string,
-    identityAddress: string,
     progressCallback?: any
   ): Promise<UserObject> {
+    const identityBackup: IdentityBackup = JSON.parse(backup)
+
+    const encryptedKeystore = identityBackup.ethersKeystore
+    const identityAddress = identityBackup.identityAddress
+
     this.wallet = await ethers.Wallet.fromEncryptedJson(
       encryptedKeystore,
       password,
@@ -87,43 +106,29 @@ export class IdentityWallet implements TLWallet {
 
     return {
       address: identityAddress,
-      keystore: encryptedKeystore,
-      pubKey: this.pubKey
+      backup,
+      pubKey: 'Not implemented yet'
     }
   }
 
   /**
-   * Recovers wallet from mnemonic phrase and encrypts keystore with given password.
+   * Recovers wallet from mnemonic phrase and encrypts backup with given password.
    * @param seed Mnemonic seed phrase.
-   * @param password Password to encrypt recovered keystore.
-   * @param identityAddress the address of the corresponding identity contract
+   * @param password Password to encrypt recovered backup.
    * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromSeed(
     seed: string,
     password: string,
-    identityAddress: string,
     progressCallback?: any
   ): Promise<UserObject> {
-    this.wallet = ethers.Wallet.fromMnemonic(seed)
-
-    this.identityAddress = identityAddress
-
-    const encryptedKeystore = await this.wallet.encrypt(
-      password,
-      typeof progressCallback === 'function' && progressCallback
-    )
-    return {
-      address: this.address,
-      keystore: encryptedKeystore,
-      pubKey: this.pubKey
-    }
+    throw new Error('Method not implemented.')
   }
 
   /**
-   * Recovers wallet from private key and encrypts keystore with given password.
+   * Recovers wallet from private key and encrypts backup with given password.
    * @param privateKey Private key to recover wallet from.
-   * @param password Password to encrypt recovered keystore.
+   * @param password Password to encrypt recovered backup.
    * @param identityAddress the address of the corresponding identity contract
    * @param progressCallback Callback function for encryption progress.
    */
@@ -135,14 +140,18 @@ export class IdentityWallet implements TLWallet {
   ): Promise<UserObject> {
     this.wallet = new ethers.Wallet(privateKey)
     this.identityAddress = identityAddress
+
     const encryptedKeystore = await this.wallet.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
     )
+
+    const backup: string = this.createBackup(encryptedKeystore, identityAddress)
+
     return {
       address: this.address,
-      keystore: encryptedKeystore,
-      pubKey: this.pubKey
+      backup,
+      pubKey: 'Not implemented yet'
     }
   }
 
@@ -172,5 +181,21 @@ export class IdentityWallet implements TLWallet {
 
   public async decrypt(encMsg: any, theirPubKey: string): Promise<any> {
     throw new Error('Method not implemented.')
+  }
+
+  private createBackup(
+    encryptedKeystore: string,
+    identityAddress: string
+  ): string {
+    const identityBackup: IdentityBackup = {
+      TLWalletVersion: TL_WALLET_VERSION,
+      ethersKeystore: encryptedKeystore,
+      identityAddress,
+      walletType: WALLET_TYPE_IDENTITY
+    }
+
+    const backup: string = JSON.stringify(identityBackup)
+
+    return backup
   }
 }
