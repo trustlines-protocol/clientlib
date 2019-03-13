@@ -30,7 +30,7 @@ import { TLNetworkConfig } from './typings'
  */
 export class TLNetwork {
   /**
-   * User instance containing all user/keystore related methods.
+   * User instance containing all user/backup related methods.
    */
   public user: User
   /**

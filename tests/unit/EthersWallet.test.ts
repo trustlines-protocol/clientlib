@@ -8,7 +8,7 @@ import { EthersWallet } from '../../src/wallets/EthersWallet'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 
-import { USER_1 } from '../Fixtures'
+import { USER_1, USER_1_ETHERS_WALLET_V1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -27,7 +27,7 @@ describe('unit', () => {
     }
 
     // Constants
-    const ACCOUNT_KEYS = ['address', 'keystore', 'pubKey']
+    const ACCOUNT_KEYS = ['address', 'backup', 'pubKey']
     const DEFAULT_PASSWORD = 'ts'
 
     describe('#createAccount()', () => {
@@ -52,7 +52,7 @@ describe('unit', () => {
     describe('#loadAccount()', () => {
       beforeEach(() => init())
 
-      it('should load account from encrypted json keystore', async () => {
+      it('should load account from encrypted json backup', async () => {
         const loadedAccount = await ethersWallet.loadAccount(
           USER_1.keystore,
           DEFAULT_PASSWORD
@@ -60,7 +60,7 @@ describe('unit', () => {
         assert.hasAllKeys(loadedAccount, ACCOUNT_KEYS)
       })
 
-      it('should load account from encrypted json keystore with progress callback', async () => {
+      it('should load account from encrypted json backup with progress callback', async () => {
         const loadedAccount = await ethersWallet.loadAccount(
           USER_1.keystore,
           DEFAULT_PASSWORD,
@@ -69,6 +69,27 @@ describe('unit', () => {
         assert.hasAllKeys(loadedAccount, ACCOUNT_KEYS)
         assert.equal(loadedAccount.address, USER_1.address)
         assert.equal(loadedAccount.pubKey, USER_1.pubKey)
+      })
+
+      it('should load account from backup version 1.0', async () => {
+        const loadedAccount = await ethersWallet.loadAccount(
+          USER_1_ETHERS_WALLET_V1.backup,
+          DEFAULT_PASSWORD
+        )
+        assert.hasAllKeys(loadedAccount, ACCOUNT_KEYS)
+      })
+
+      it('should load same account as created account', async () => {
+        const createdAccount = await ethersWallet.createAccount(
+          DEFAULT_PASSWORD
+        )
+        const loadedAccount = await ethersWallet.loadAccount(
+          createdAccount.backup,
+          DEFAULT_PASSWORD
+        )
+        assert.equal(createdAccount.backup, loadedAccount.backup)
+        assert.equal(createdAccount.address, loadedAccount.address)
+        assert.equal(createdAccount.pubKey, loadedAccount.pubKey)
       })
     })
 
@@ -111,8 +132,8 @@ describe('unit', () => {
       })
 
       it('should recover account from private key with progress callback', async () => {
-        const recoveredAccount = await ethersWallet.recoverFromSeed(
-          USER_1.mnemonic,
+        const recoveredAccount = await ethersWallet.recoverFromPrivateKey(
+          USER_1.privateKey,
           DEFAULT_PASSWORD,
           progress => assert.isNumber(progress)
         )

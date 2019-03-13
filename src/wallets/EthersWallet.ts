@@ -7,7 +7,17 @@ import { TLWallet } from './TLWallet'
 
 import utils from '../utils'
 
-import { Amount, RawTxObject, Signature, UserObject } from '../typings'
+import {
+  Amount,
+  EthersBackup,
+  IdentityBackup,
+  RawTxObject,
+  Signature,
+  TL_WALLET_VERSION,
+  UserObject,
+  WALLET_TYPE_ETHERS,
+  WALLET_TYPE_IDENTITY
+} from '../typings'
 
 /**
  * The EthersWallet class contains wallet related methods.
@@ -48,7 +58,7 @@ export class EthersWallet implements TLWallet, TLSigner {
 
   /**
    * Creates a new wallet and encrypts it with the provided password.
-   * @param password Password to encrypt keystore.
+   * @param password Password to encrypt backup.
    * @param progressCallback Callback function for encryption progress.
    */
   public async createAccount(
@@ -60,40 +70,67 @@ export class EthersWallet implements TLWallet, TLSigner {
       password,
       typeof progressCallback === 'function' && progressCallback
     )
+
+    const backup = this.createBackup(encryptedKeystore)
+
     return {
       address: this.address,
-      keystore: encryptedKeystore,
+      backup,
       pubKey: this.pubKey
     }
   }
 
   /**
-   * Decrypts given keystore and loads wallet.
-   * @param encryptedKeystore Encrypted keystore from `createAccount`.
-   * @param password Password to decrypt keystore.
+   * Create a backup following the current backup format from an encryptedKeystore
+   * Can be used to migrate from backup version 0 to backup version 1
+   * @param encryptedKeystore
+   */
+  public createBackup(encryptedKeystore: string): string {
+    const ethersBackup: EthersBackup = {
+      TLWalletVersion: TL_WALLET_VERSION,
+      ethersKeystore: encryptedKeystore,
+      walletType: WALLET_TYPE_ETHERS
+    }
+
+    const backup: string = JSON.stringify(ethersBackup)
+
+    return backup
+  }
+
+  /**
+   * Decrypts given backup and loads wallet.
+   * @param encryptedKeystore Encrypted backup from `createAccount`.
+   * @param password Password to decrypt backup.
    * @param progressCallback Callback function for decryption progress.
    */
   public async loadAccount(
-    encryptedKeystore: string,
+    backup: string,
     password: string,
     progressCallback?: any
   ): Promise<UserObject> {
+    const ethersBackup: EthersBackup = JSON.parse(backup)
+
+    // Use the old backup storing method if no TL_WALLET_VERSION key in the backup
+    const encryptedKeystore: string =
+      'TLWalletVersion' in ethersBackup ? ethersBackup.ethersKeystore : backup
+
     this.wallet = await ethers.Wallet.fromEncryptedJson(
       encryptedKeystore,
       password,
       typeof progressCallback === 'function' && progressCallback
     )
+
     return {
       address: this.address,
-      keystore: encryptedKeystore,
+      backup,
       pubKey: this.pubKey
     }
   }
 
   /**
-   * Recovers wallet from mnemonic phrase and encrypts keystore with given password.
+   * Recovers wallet from mnemonic phrase and encrypts backup with given password.
    * @param seed Mnemonic seed phrase.
-   * @param password Password to encrypt recovered keystore.
+   * @param password Password to encrypt recovered backup.
    * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromSeed(
@@ -106,17 +143,20 @@ export class EthersWallet implements TLWallet, TLSigner {
       password,
       typeof progressCallback === 'function' && progressCallback
     )
+
+    const backup = this.createBackup(encryptedKeystore)
+
     return {
       address: this.address,
-      keystore: encryptedKeystore,
+      backup,
       pubKey: this.pubKey
     }
   }
 
   /**
-   * Recovers wallet from private key and encrypts keystore with given password.
+   * Recovers wallet from private key and encrypts backup with given password.
    * @param privateKey Private key to recover wallet from.
-   * @param password Password to encrypt recovered keystore.
+   * @param password Password to encrypt recovered backup.
    * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromPrivateKey(
@@ -129,9 +169,12 @@ export class EthersWallet implements TLWallet, TLSigner {
       password,
       typeof progressCallback === 'function' && progressCallback
     )
+
+    const backup = this.createBackup(encryptedKeystore)
+
     return {
       address: this.address,
-      keystore: encryptedKeystore,
+      backup,
       pubKey: this.pubKey
     }
   }
