@@ -184,7 +184,7 @@ export class Payment {
       fees,
       path,
       feePayer
-    } = await this.provider.PostToEndpoint<PathRaw>(endpoint, data)
+    } = await this.provider.postToEndpoint<PathRaw>(endpoint, data)
 
     if (!isFeePayerValue(feePayer)) {
       throw Error(`Unexpected feePayer value: ${feePayer}`)
@@ -260,7 +260,7 @@ export class Payment {
     )
     const userAddress = this.user.address
     const endpoint = `networks/${networkAddress}/max-capacity-path-info`
-    const result = await this.provider.PostToEndpoint<{
+    const result = await this.provider.postToEndpoint<{
       capacity: number
       path: string[]
     }>(endpoint, {

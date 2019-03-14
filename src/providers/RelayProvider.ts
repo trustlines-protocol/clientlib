@@ -30,7 +30,7 @@ export class RelayProvider implements TLProvider {
     return utils.fetchUrl<T>(`${this.relayApiUrl}/${trimmedEndpoint}`, options)
   }
 
-  public async PostToEndpoint<T>(endpoint: string, data: any): Promise<T> {
+  public async postToEndpoint<T>(endpoint: string, data: any): Promise<T> {
     const options = {
       body: JSON.stringify(data),
       headers: new Headers({ 'Content-Type': 'application/json' }),

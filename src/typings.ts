@@ -36,6 +36,10 @@ export interface TLNetworkConfig {
    * Full URL for relay WebSocket api
    */
   relayWsApiUrl?: string
+  /**
+   * Wallet type to use, either "WalletTypeEthers" or "WalletTypeIdentity".
+   */
+  walletType?: string
 }
 
 /**
@@ -382,12 +386,6 @@ export interface EthersBackup {
   ethersKeystore: string
   walletType: string
 }
-
-export const TL_WALLET_VERSION = 1.0
-
-export const WALLET_TYPE_ETHERS = 'WalletTypeEthers'
-
-export const WALLET_TYPE_IDENTITY = 'WalletTypeIdentity'
 
 // TRUSTLINE
 export interface TrustlineObject {

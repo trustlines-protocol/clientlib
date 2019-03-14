@@ -3,20 +3,16 @@ import { ethers } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
 import { TLSigner } from '../signers/TLSigner'
-import { TLWallet } from './TLWallet'
+import { TL_WALLET_VERSION, TLWallet, WALLET_TYPE_ETHERS } from './TLWallet'
 
 import utils from '../utils'
 
 import {
   Amount,
   EthersBackup,
-  IdentityBackup,
   RawTxObject,
   Signature,
-  TL_WALLET_VERSION,
-  UserObject,
-  WALLET_TYPE_ETHERS,
-  WALLET_TYPE_IDENTITY
+  UserObject
 } from '../typings'
 
 /**
@@ -110,9 +106,28 @@ export class EthersWallet implements TLWallet, TLSigner {
   ): Promise<UserObject> {
     const ethersBackup: EthersBackup = JSON.parse(backup)
 
-    // Use the old backup storing method if no TL_WALLET_VERSION key in the backup
-    const encryptedKeystore: string =
-      'TLWalletVersion' in ethersBackup ? ethersBackup.ethersKeystore : backup
+    let encryptedKeystore: string
+
+    if (!this.correctWalletType(ethersBackup)) {
+      throw new Error(
+        `The backup given is of the wrong wallet type: ${
+          ethersBackup.walletType
+        }`
+      )
+    }
+
+    if (!('TLWalletVersion' in ethersBackup)) {
+      // Use the old backup storing method if no TL_WALLET_VERSION key in the backup
+      encryptedKeystore = backup
+    } else if (ethersBackup.TLWalletVersion === 1) {
+      encryptedKeystore = ethersBackup.ethersKeystore
+    } else {
+      throw new Error(
+        `Backup version for wallet is not handled: version ${
+          ethersBackup.TLWalletVersion
+        }`
+      )
+    }
 
     this.wallet = await ethers.Wallet.fromEncryptedJson(
       encryptedKeystore,
@@ -291,5 +306,12 @@ export class EthersWallet implements TLWallet, TLSigner {
 
   public async decrypt(encMsg: any, theirPubKey: string): Promise<any> {
     throw new Error('Method not implemented.')
+  }
+
+  private correctWalletType(ethersBackup: EthersBackup): boolean {
+    return (
+      ethersBackup.walletType === undefined ||
+      ethersBackup.walletType === WALLET_TYPE_ETHERS
+    )
   }
 }
