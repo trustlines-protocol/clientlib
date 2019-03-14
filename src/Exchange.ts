@@ -550,7 +550,7 @@ export class Exchange {
    * @param payload Body of POST request.
    */
   private _postRequest(path: string, payload: any): Promise<any> {
-    return this.provider.PostToEndpoint(path, payload)
+    return this.provider.postToEndpoint(path, payload)
   }
 
   /**

@@ -1,17 +1,9 @@
 import { ethers } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
-import { TLWallet } from './TLWallet'
+import { TL_WALLET_VERSION, TLWallet, WALLET_TYPE_IDENTITY } from './TLWallet'
 
-import {
-  DeployedIdentity,
-  EthersBackup,
-  IdentityBackup,
-  TL_WALLET_VERSION,
-  UserObject,
-  WALLET_TYPE_ETHERS,
-  WALLET_TYPE_IDENTITY
-} from '../typings'
+import { DeployedIdentity, IdentityBackup, UserObject } from '../typings'
 
 export class IdentityWallet implements TLWallet {
   // TODO: make this class a TLSigner as part of https://github.com/trustlines-network/clientlib/issues/194
@@ -60,7 +52,7 @@ export class IdentityWallet implements TLWallet {
 
     const deployIdentityEndpoint = 'identities'
 
-    const identity = await this.provider.PostToEndpoint<DeployedIdentity>(
+    const identity = await this.provider.postToEndpoint<DeployedIdentity>(
       deployIdentityEndpoint,
       this.wallet.address
     )
@@ -92,6 +84,8 @@ export class IdentityWallet implements TLWallet {
     progressCallback?: any
   ): Promise<UserObject> {
     const identityBackup: IdentityBackup = JSON.parse(backup)
+
+    this.verifyIdentityBackupHandled(identityBackup)
 
     const encryptedKeystore = identityBackup.ethersKeystore
     const identityAddress = identityBackup.identityAddress
@@ -197,5 +191,27 @@ export class IdentityWallet implements TLWallet {
     const backup: string = JSON.stringify(identityBackup)
 
     return backup
+  }
+
+  private verifyIdentityBackupHandled(identityBackup: IdentityBackup): void {
+    const onlyHandledVersion = 1
+
+    if (identityBackup.walletType !== WALLET_TYPE_IDENTITY) {
+      throw new Error(
+        `The backup given is of a wrong wallet type: ${
+          identityBackup.walletType
+        }, expected: ${WALLET_TYPE_IDENTITY}`
+      )
+    }
+
+    if (!('TLWalletVersion' in identityBackup)) {
+      throw new Error(`Backup has no version number.`)
+    } else if (identityBackup.TLWalletVersion !== onlyHandledVersion) {
+      throw new Error(
+        `Backup version for wallet is not handled: version ${
+          identityBackup.TLWalletVersion
+        }, expected: ${onlyHandledVersion}`
+      )
+    }
   }
 }

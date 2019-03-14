@@ -22,3 +22,7 @@ export interface TLWallet {
   encrypt(msg: string, theirPubKey: string): Promise<any>
   decrypt(encMsg: any, theirPubKey: string): Promise<any>
 }
+
+export const TL_WALLET_VERSION = 1.0
+export const WALLET_TYPE_ETHERS = 'WalletTypeEthers'
+export const WALLET_TYPE_IDENTITY = 'WalletTypeIdentity'

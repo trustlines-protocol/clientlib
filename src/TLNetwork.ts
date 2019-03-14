@@ -18,7 +18,11 @@ import { TLSigner } from './signers/TLSigner'
 import { Web3Signer } from './signers/Web3Signer'
 
 import { EthersWallet } from './wallets/EthersWallet'
-import { TLWallet } from './wallets/TLWallet'
+import {
+  TLWallet,
+  WALLET_TYPE_ETHERS,
+  WALLET_TYPE_IDENTITY
+} from './wallets/TLWallet'
 
 import utils from './utils'
 
@@ -30,7 +34,7 @@ import { TLNetworkConfig } from './typings'
  */
 export class TLNetwork {
   /**
-   * User instance containing all user/backup related methods.
+   * User instance containing all user/keystore related methods.
    */
   public user: User
   /**
@@ -102,8 +106,18 @@ export class TLNetwork {
       wsProtocol = 'ws',
       relayApiUrl,
       relayWsApiUrl,
-      web3Provider
+      web3Provider,
+      walletType = WALLET_TYPE_ETHERS
     } = config
+
+    if (walletType === WALLET_TYPE_IDENTITY) {
+      throw new Error(`Identity wallets are not handled yet`)
+    }
+    if (walletType !== WALLET_TYPE_ETHERS) {
+      throw new Error(
+        `Only ethers wallet handled, given wallet type: ${walletType}, expected: ${WALLET_TYPE_ETHERS}`
+      )
+    }
 
     this.setProvider(
       new RelayProvider(
