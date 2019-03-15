@@ -6,8 +6,16 @@ import { TLProvider } from '../../src/providers/TLProvider'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 
-import { FAKE_IDENTITY, USER_1, USER_1_IDENTITY_WALLET_V1 } from '../Fixtures'
+import {
+  FAKE_IDENTITY,
+  FAKE_META_TX,
+  FAKE_META_TX_PRIVATE_KEY,
+  FAKE_META_TX_SIGNATURE,
+  USER_1,
+  USER_1_IDENTITY_WALLET_V1
+} from '../Fixtures'
 
+import { MetaTransaction } from '../../src/typings'
 import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 
 chai.use(chaiAsPromised)
@@ -110,6 +118,36 @@ describe('unit', () => {
         )
         assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
         assert.equal(recoveredAccount.address, testUser.address)
+      })
+    })
+
+    describe('#signMetaTransaction', () => {
+      beforeEach(() => init())
+
+      it('should sign meta-transaction', async () => {
+        await identityWallet.recoverFromPrivateKey(
+          FAKE_META_TX_PRIVATE_KEY,
+          DEFAULT_PASSWORD,
+          testUser.address
+        )
+
+        const metaTransaction: MetaTransaction = FAKE_META_TX
+
+        await identityWallet.signMetaTransaction(metaTransaction)
+
+        // check all but the last two elements, corresponding to the version number
+        assert.equal(
+          metaTransaction.signature.slice(0, -2),
+          FAKE_META_TX_SIGNATURE.slice(0, -2)
+        )
+
+        // check the version number
+        const fakeSignatureVersion = FAKE_META_TX_SIGNATURE.slice(0, -2)
+        const signatureVersion = metaTransaction.signature.slice(0, -2)
+        assert.equal(
+          parseInt(`0x${signatureVersion}`, 16) % 27,
+          parseInt(fakeSignatureVersion, 16) % 27
+        )
       })
     })
   })

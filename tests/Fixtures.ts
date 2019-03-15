@@ -376,6 +376,24 @@ export const FAKE_TX_INFOS = {
   nonce: 12
 }
 
+export const FAKE_META_TX = {
+  data:
+    '0x46432830000000000000000000000000000000000000000000000000000000000000000a',
+  extraData: '0x',
+  from: '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+  nonce: '1',
+  to: '0x51a240271AB8AB9f9a21C82d9a85396b704E164d',
+  value: '0'
+}
+
+export const FAKE_META_TX_PRIVATE_KEY =
+  '0x0000000000000000000000000000000000000000000000000000000000000001'
+
+// The signature on the FAKE_META_TX obtained in the tests of the trustlines-network/contracts repository
+// Obtained by signing with key "0x0000...001"
+export const FAKE_META_TX_SIGNATURE =
+  '0x6d2fe56ef6648cb3f0398966ad3b05d891cde786d8074bdac15bcb92ebfa7222489b8eb6ed87165feeede19b031bb69e12036a5fa13b3a46ad0c2c19d051ea9101'
+
 export const FAKE_TRUSTLINE = {
   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
   balance: '-100',
