@@ -208,6 +208,16 @@ export interface RawTxObject {
   nonce?: number
 }
 
+export interface MetaTransaction {
+  extraData: string
+  from: string
+  to: string
+  value: string
+  data: string
+  nonce: string
+  signature?: string
+}
+
 export interface Web3TxReceipt {
   status: boolean
   blockHash: string

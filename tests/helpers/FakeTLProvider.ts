@@ -41,6 +41,9 @@ export class FakeTLProvider implements TLProvider {
         // mock response of `POST /relay`
         response = FAKE_TX_HASH
         break
+      case 'relay-meta-transaction':
+        response = FAKE_TX_HASH
+        break
       case 'request-ether':
         // mock response of `GET /request-ether`
         response = FAKE_TX_HASH

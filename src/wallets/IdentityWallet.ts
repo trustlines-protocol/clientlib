@@ -4,14 +4,20 @@ import { TLProvider } from '../providers/TLProvider'
 import { TL_WALLET_VERSION, TLWallet, WALLET_TYPE_IDENTITY } from './TLWallet'
 
 import {
+  Amount,
   DeployIdentityResponse,
   IdentityWalletSchema,
+  MetaTransaction,
+  RawTxObject,
+  Signature,
   UserObject
 } from '../typings'
 
-export class IdentityWallet implements TLWallet {
-  // TODO: make this class a TLSigner as part of https://github.com/trustlines-network/clientlib/issues/194
+import { joinSignature, SigningKey } from 'ethers/utils'
+import { TLSigner } from '../signers/TLSigner'
+import utils from '../utils'
 
+export class IdentityWallet implements TLWallet, TLSigner {
   public provider: TLProvider
 
   private wallet: ethers.Wallet
@@ -34,6 +40,16 @@ export class IdentityWallet implements TLWallet {
       throw new Error('No wallet loaded.')
     }
     return this.address
+  }
+
+  public async getBalance(): Promise<Amount> {
+    if (!this.wallet) {
+      throw new Error('No wallet loaded.')
+    }
+    const balance = await this.provider.fetchEndpoint<string>(
+      `users/${this.address}/balance`
+    )
+    return utils.formatToAmount(utils.calcRaw(balance, 18), 18)
   }
 
   /**
@@ -186,6 +202,82 @@ export class IdentityWallet implements TLWallet {
     throw new Error('Method not implemented.')
   }
 
+  public async signMsgHash(msgHash: string): Promise<Signature> {
+    throw new Error('Method not implemented.')
+  }
+
+  public async signMessage(message: ethers.utils.Arrayish): Promise<Signature> {
+    throw new Error('Method not implemented.')
+  }
+
+  /**
+   * Takes a raw transaction object, turns it into a meta-transaction signed by
+   * the loaded user and relays the transaction.
+   * @param rawTx Raw transaction object.
+   */
+  public async confirm(rawTx: RawTxObject): Promise<string> {
+    this.verifyFromField(rawTx)
+
+    const metaTransaction: MetaTransaction = this.buildMetaTransaction(rawTx)
+
+    await this.signMetaTransaction(metaTransaction)
+
+    return this.provider.postToEndpoint<string>('relay-meta-transaction', {
+      metaTransaction
+    })
+  }
+
+  public async signMetaTransaction(
+    metaTransaction: MetaTransaction
+  ): Promise<void> {
+    if (!this.wallet) {
+      throw new Error('No wallet loaded.')
+    }
+
+    const types = [
+      'bytes1',
+      'bytes1',
+      'address',
+      'address',
+      'uint256',
+      'bytes32',
+      'uint256'
+    ]
+    const values = [
+      '0x19',
+      '0x00',
+      metaTransaction.from,
+      metaTransaction.to,
+      metaTransaction.value,
+      ethers.utils.solidityKeccak256(['bytes'], [metaTransaction.data]),
+      metaTransaction.nonce
+    ]
+
+    const hash: string = ethers.utils.solidityKeccak256(types, values)
+
+    metaTransaction.signature = await this.rawSignHash(hash)
+  }
+
+  /**
+   * Takes a string hash and signs it using the loaded wallet without appending `\x19Ethereum Signed Message:\n` to it
+   * and hashing it again, contrary to what ethers.sign or ethers.signMessage does.
+   * @param hash The hash to sign.
+   */
+  private async rawSignHash(hash: string): Promise<string> {
+    // We expect the hash to be 256 bits represented as a hex string prefixed with "0x"
+    const expectedHashLength = (256 / 8) * 2 + 2
+    if (hash.length !== expectedHashLength) {
+      throw new Error(
+        `The input hash given is not a hash hex string prefixed with "0x": ${hash}`
+      )
+    }
+
+    // This is a trick to use ethers to sign the hash without appending `\x19Ethereum Signed Message:\n`
+    const signingKey = new SigningKey(this.wallet.privateKey)
+    const signature = joinSignature(await signingKey.signDigest(hash))
+    return signature
+  }
+
   private serializeWallet(
     encryptedKeystore: string,
     identityAddress: string
@@ -224,5 +316,28 @@ export class IdentityWallet implements TLWallet {
         }, expected: ${onlyHandledVersion}`
       )
     }
+  }
+
+  private verifyFromField(rawTx: RawTxObject) {
+    if (!(rawTx.from === this.address)) {
+      throw new Error(
+        `The from field of the meta-transaction has to match with the address of the identity, from: ${
+          rawTx.from
+        }`
+      )
+    }
+  }
+
+  private buildMetaTransaction(rawTx: RawTxObject): MetaTransaction {
+    const metaTransaction: MetaTransaction = {
+      data: ethers.utils.solidityKeccak256(['bytes'], [rawTx.data]),
+      extraData: '0x',
+      from: rawTx.from,
+      nonce: rawTx.nonce.toString(),
+      to: rawTx.to,
+      value: rawTx.value.toString()
+    }
+
+    return metaTransaction
   }
 }
