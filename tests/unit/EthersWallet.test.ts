@@ -27,7 +27,7 @@ describe('unit', () => {
     }
 
     // Constants
-    const ACCOUNT_KEYS = ['address', 'backup', 'pubKey']
+    const ACCOUNT_KEYS = ['address', 'serializedWallet', 'pubKey']
     const DEFAULT_PASSWORD = 'ts'
 
     describe('#createAccount()', () => {
@@ -52,7 +52,7 @@ describe('unit', () => {
     describe('#loadAccount()', () => {
       beforeEach(() => init())
 
-      it('should load account from encrypted json backup', async () => {
+      it('should load account from encrypted json serialized wallet', async () => {
         const loadedAccount = await ethersWallet.loadAccount(
           USER_1.keystore,
           DEFAULT_PASSWORD
@@ -60,7 +60,7 @@ describe('unit', () => {
         assert.hasAllKeys(loadedAccount, ACCOUNT_KEYS)
       })
 
-      it('should load account from encrypted json backup with progress callback', async () => {
+      it('should load account from encrypted json serialized wallet with progress callback', async () => {
         const loadedAccount = await ethersWallet.loadAccount(
           USER_1.keystore,
           DEFAULT_PASSWORD,
@@ -71,9 +71,9 @@ describe('unit', () => {
         assert.equal(loadedAccount.pubKey, USER_1.pubKey)
       })
 
-      it('should load account from backup version 1.0', async () => {
+      it('should load account from serialized wallet version 1.0', async () => {
         const loadedAccount = await ethersWallet.loadAccount(
-          USER_1_ETHERS_WALLET_V1.backup,
+          USER_1_ETHERS_WALLET_V1.serializedWallet,
           DEFAULT_PASSWORD
         )
         assert.hasAllKeys(loadedAccount, ACCOUNT_KEYS)
@@ -84,10 +84,13 @@ describe('unit', () => {
           DEFAULT_PASSWORD
         )
         const loadedAccount = await ethersWallet.loadAccount(
-          createdAccount.backup,
+          createdAccount.serializedWallet,
           DEFAULT_PASSWORD
         )
-        assert.equal(createdAccount.backup, loadedAccount.backup)
+        assert.equal(
+          createdAccount.serializedWallet,
+          loadedAccount.serializedWallet
+        )
         assert.equal(createdAccount.address, loadedAccount.address)
         assert.equal(createdAccount.pubKey, loadedAccount.pubKey)
       })

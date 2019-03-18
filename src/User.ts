@@ -10,7 +10,7 @@ import utils from './utils'
 import { Amount, RawTxObject, Signature, UserObject } from './typings'
 
 /**
- * The User class contains all user related functions, which also include backup
+ * The User class contains all user related functions, which also include wallet
  * related methods.
  */
 export class User {
@@ -34,21 +34,21 @@ export class User {
   }
 
   /**
-   * Checksummed Ethereum address of currently loaded user/backup.
+   * Checksummed Ethereum address of currently loaded user/wallet.
    */
   public get address(): string {
     return this.wallet.address
   }
 
   /**
-   * Public key of currently loaded user/backup.
+   * Public key of currently loaded user/wallet.
    */
   public get pubKey(): string {
     return this.wallet.pubKey
   }
 
   /**
-   * Creates a new user and the respective backup using the configured signer.
+   * Creates a new user and the respective wallet using the configured signer.
    * Loads new user into the state and returns the created user object.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
@@ -61,17 +61,17 @@ export class User {
   }
 
   /**
-   * Loads an existing user and respective backup.
+   * Loads an existing user and respective wallet.
    * Returns the loaded user object.
-   * @param backup The string backup gotten from createAccount() of a TLWallet.
+   * @param serializedWallet The string serialized wallet gotten from createAccount() of a TLWallet.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
   public async load(
-    backup: string,
+    serializedWallet: string,
     progressCallback?: any
   ): Promise<UserObject> {
     const loadedAccount = await this.wallet.loadAccount(
-      backup,
+      serializedWallet,
       this.defaultPassword,
       progressCallback
     )
@@ -79,7 +79,7 @@ export class User {
   }
 
   /**
-   * Digitally signs a message hash with the currently loaded user/backup.
+   * Digitally signs a message hash with the currently loaded user/wallet.
    * @param msgHash Hash of message that should be signed.
    */
   public async signMsgHash(msgHash: string): Promise<Signature> {
@@ -126,7 +126,7 @@ export class User {
   }
 
   /**
-   * Recovers user / backup from 12 word seed.
+   * Recovers user / wallet from 12 word seed.
    * @param seed 12 word seed phrase string.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
@@ -147,17 +147,16 @@ export class User {
    * and are willing to send some of it to the new user. The function is called by a
    * new user who wants to get onboarded, respectively has no ETH or trustline.
    * @param username Name of new user who wants to get onboarded.
-   * @param serializedKeystore Serialized [eth-lightwallet](https://github.com/ConsenSys/eth-lightwallet)
-   *                           backup of new user who wants to get onboarded.
+   * @param serializedWallet Serialized wallet of new user who wants to get onboarded.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
   public async createOnboardingMsg(
     username: string,
-    serializedKeystore: string,
+    serializedWallet: string,
     progressCallback?: any
   ): Promise<string> {
     const { address, pubKey } = await this.wallet.loadAccount(
-      serializedKeystore,
+      serializedWallet,
       this.defaultPassword,
       progressCallback
     )

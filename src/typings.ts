@@ -360,10 +360,11 @@ export interface DecimalsObject {
 export interface UserObject {
   address: string
   pubKey: string
-  backup: string
+  serializedWallet: string
 }
 
-export interface DeployedIdentity {
+export interface DeployIdentityResponse {
+  // The address of the deployed identity contract, as replied by the relay server
   identity: string
   nextNonce: number
   balance: string
@@ -374,14 +375,14 @@ export interface Signature {
   concatSig: string
 }
 
-export interface IdentityBackup {
+export interface IdentityWalletSchema {
   TLWalletVersion: number
   ethersKeystore: string
   identityAddress: string
   walletType: string
 }
 
-export interface EthersBackup {
+export interface EthersWalletSchema {
   TLWalletVersion: number
   ethersKeystore: string
   walletType: string

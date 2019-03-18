@@ -10,7 +10,7 @@ export interface TLWallet {
   exportPrivateKey(): Promise<string>
   createAccount(password: string, progressCallback?: any): Promise<UserObject>
   loadAccount(
-    backup: string,
+    serializedWallet: string,
     password: string,
     progressCallback?: any
   ): Promise<UserObject>
