@@ -3,7 +3,11 @@ import { ethers } from 'ethers'
 import { TLProvider } from '../providers/TLProvider'
 import { TL_WALLET_VERSION, TLWallet, WALLET_TYPE_IDENTITY } from './TLWallet'
 
-import { DeployedIdentity, IdentityBackup, UserObject } from '../typings'
+import {
+  DeployIdentityResponse,
+  IdentityWalletSchema,
+  UserObject
+} from '../typings'
 
 export class IdentityWallet implements TLWallet {
   // TODO: make this class a TLSigner as part of https://github.com/trustlines-network/clientlib/issues/194
@@ -12,8 +16,6 @@ export class IdentityWallet implements TLWallet {
 
   private wallet: ethers.Wallet
   private identityAddress: string
-
-  private readonly ADDRESS_SIZE = 42
 
   constructor(provider: TLProvider) {
     this.provider = provider
@@ -36,7 +38,7 @@ export class IdentityWallet implements TLWallet {
 
   /**
    * Creates a new wallet and encrypts it with the provided password.
-   * @param password Password to encrypt backup.
+   * @param password Password to encrypt wallet.
    * @param progressCallback Callback function for encryption progress.
    */
   public async createAccount(
@@ -52,43 +54,46 @@ export class IdentityWallet implements TLWallet {
 
     const deployIdentityEndpoint = 'identities'
 
-    const identity = await this.provider.postToEndpoint<DeployedIdentity>(
+    const identity = await this.provider.postToEndpoint<DeployIdentityResponse>(
       deployIdentityEndpoint,
-      this.wallet.address
+      {
+        ownerAddress: this.wallet.address
+      }
     )
 
     this.identityAddress = identity.identity
 
-    const backup: string = this.createBackup(
+    const serializedWallet: string = this.serializeWallet(
       encryptedKeystore,
       identity.identity
     )
 
     return {
       address: identity.identity,
-      backup,
-      pubKey: 'Not implemented yet'
+      pubKey: 'Not implemented yet',
+      serializedWallet
     }
   }
 
   /**
-   * Decrypts given backup and loads wallet.
-   * @param encryptedKeystore Encrypted backup from `createAccount`.
-   * @param password Password to decrypt backup.
-   * @param identityAddress the address of the corresponding identity contract
+   * Decrypts given serialized wallet and loads wallet.
+   * @param serializedWallet serialized wallet from `createAccount`.
+   * @param password Password to decrypt wallet.
    * @param progressCallback Callback function for decryption progress.
    */
   public async loadAccount(
-    backup: string,
+    serializedWallet: string,
     password: string,
     progressCallback?: any
   ): Promise<UserObject> {
-    const identityBackup: IdentityBackup = JSON.parse(backup)
+    const deserializedWallet: IdentityWalletSchema = JSON.parse(
+      serializedWallet
+    )
 
-    this.verifyIdentityBackupHandled(identityBackup)
+    this.verifyDeserializedWalletHandled(deserializedWallet)
 
-    const encryptedKeystore = identityBackup.ethersKeystore
-    const identityAddress = identityBackup.identityAddress
+    const encryptedKeystore = deserializedWallet.ethersKeystore
+    const identityAddress = deserializedWallet.identityAddress
 
     this.wallet = await ethers.Wallet.fromEncryptedJson(
       encryptedKeystore,
@@ -100,15 +105,16 @@ export class IdentityWallet implements TLWallet {
 
     return {
       address: identityAddress,
-      backup,
-      pubKey: 'Not implemented yet'
+      pubKey: 'Not implemented yet',
+      serializedWallet
     }
   }
 
   /**
-   * Recovers wallet from mnemonic phrase and encrypts backup with given password.
+   * Should recover wallet from mnemonic phrase and encrypts it with given password.
+   * Method not implemented yet
    * @param seed Mnemonic seed phrase.
-   * @param password Password to encrypt recovered backup.
+   * @param password Password to encrypt recovered wallet.
    * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromSeed(
@@ -120,9 +126,9 @@ export class IdentityWallet implements TLWallet {
   }
 
   /**
-   * Recovers wallet from private key and encrypts backup with given password.
+   * Recovers wallet from private key and encrypts wallet with given password.
    * @param privateKey Private key to recover wallet from.
-   * @param password Password to encrypt recovered backup.
+   * @param password Password to encrypt recovered wallet.
    * @param identityAddress the address of the corresponding identity contract
    * @param progressCallback Callback function for encryption progress.
    */
@@ -140,12 +146,15 @@ export class IdentityWallet implements TLWallet {
       typeof progressCallback === 'function' && progressCallback
     )
 
-    const backup: string = this.createBackup(encryptedKeystore, identityAddress)
+    const serializedWallet: string = this.serializeWallet(
+      encryptedKeystore,
+      identityAddress
+    )
 
     return {
       address: this.address,
-      backup,
-      pubKey: 'Not implemented yet'
+      pubKey: 'Not implemented yet',
+      serializedWallet
     }
   }
 
@@ -177,39 +186,41 @@ export class IdentityWallet implements TLWallet {
     throw new Error('Method not implemented.')
   }
 
-  private createBackup(
+  private serializeWallet(
     encryptedKeystore: string,
     identityAddress: string
   ): string {
-    const identityBackup: IdentityBackup = {
+    const deserializedWallet: IdentityWalletSchema = {
       TLWalletVersion: TL_WALLET_VERSION,
       ethersKeystore: encryptedKeystore,
       identityAddress,
       walletType: WALLET_TYPE_IDENTITY
     }
 
-    const backup: string = JSON.stringify(identityBackup)
+    const serializedWallet: string = JSON.stringify(deserializedWallet)
 
-    return backup
+    return serializedWallet
   }
 
-  private verifyIdentityBackupHandled(identityBackup: IdentityBackup): void {
+  private verifyDeserializedWalletHandled(
+    deserializedWallet: IdentityWalletSchema
+  ): void {
     const onlyHandledVersion = 1
 
-    if (identityBackup.walletType !== WALLET_TYPE_IDENTITY) {
+    if (deserializedWallet.walletType !== WALLET_TYPE_IDENTITY) {
       throw new Error(
-        `The backup given is of a wrong wallet type: ${
-          identityBackup.walletType
+        `The serialized wallet given is of a wrong wallet type: ${
+          deserializedWallet.walletType
         }, expected: ${WALLET_TYPE_IDENTITY}`
       )
     }
 
-    if (!('TLWalletVersion' in identityBackup)) {
-      throw new Error(`Backup has no version number.`)
-    } else if (identityBackup.TLWalletVersion !== onlyHandledVersion) {
+    if (!('TLWalletVersion' in deserializedWallet)) {
+      throw new Error(`serialized wallet has no version number.`)
+    } else if (deserializedWallet.TLWalletVersion !== onlyHandledVersion) {
       throw new Error(
-        `Backup version for wallet is not handled: version ${
-          identityBackup.TLWalletVersion
+        `serialized wallet version for wallet is not handled: version ${
+          deserializedWallet.TLWalletVersion
         }, expected: ${onlyHandledVersion}`
       )
     }

@@ -27,7 +27,7 @@ describe('unit', () => {
     }
 
     // Constants
-    const ACCOUNT_KEYS = ['address', 'backup', 'pubKey']
+    const ACCOUNT_KEYS = ['address', 'serializedWallet', 'pubKey']
     const DEFAULT_PASSWORD = 'ts'
 
     const testUser = USER_1_IDENTITY_WALLET_V1
@@ -54,17 +54,17 @@ describe('unit', () => {
     describe('#loadAccount()', () => {
       beforeEach(() => init())
 
-      it('should load account from encrypted json backup', async () => {
+      it('should load account from encrypted json serialized wallet', async () => {
         const loadedAccount = await identityWallet.loadAccount(
-          testUser.backup,
+          testUser.serializedWallet,
           DEFAULT_PASSWORD
         )
         assert.hasAllKeys(loadedAccount, ACCOUNT_KEYS)
       })
 
-      it('should load account from encrypted json backup with progress callback', async () => {
+      it('should load account from encrypted json serialized wallet with progress callback', async () => {
         const loadedAccount = await identityWallet.loadAccount(
-          testUser.backup,
+          testUser.serializedWallet,
           DEFAULT_PASSWORD,
           progress => assert.isNumber(progress)
         )
@@ -77,10 +77,13 @@ describe('unit', () => {
           DEFAULT_PASSWORD
         )
         const loadedAccount = await identityWallet.loadAccount(
-          createdAccount.backup,
+          createdAccount.serializedWallet,
           DEFAULT_PASSWORD
         )
-        assert.equal(createdAccount.backup, loadedAccount.backup)
+        assert.equal(
+          createdAccount.serializedWallet,
+          loadedAccount.serializedWallet
+        )
         assert.equal(createdAccount.address, loadedAccount.address)
       })
     })

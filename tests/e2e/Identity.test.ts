@@ -6,7 +6,7 @@ import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 
 import { RelayProvider } from '../../src/providers/RelayProvider'
 
-import { config } from '../Fixtures'
+import { config, USER_1 } from '../Fixtures'
 
 import utils from '../../src/utils'
 
@@ -14,22 +14,33 @@ chai.use(chaiAsPromised)
 const { assert } = chai
 
 describe('e2e', () => {
-  const { expect } = chai
+  describe('Identity', () => {
+    const { expect } = chai
 
-  const { host, path, port, protocol } = config
-  const wsProtocol = 'ws'
+    let relayProvider
+    let DEFAULT_PASSWORD
+    let ACCOUNT_KEYS
 
-  const relayApiUrl = utils.buildApiUrl(protocol, host, port, path)
-  const relayWpUrl = utils.buildApiUrl(wsProtocol, host, port, path)
-  const relayProvider = new RelayProvider(relayApiUrl, relayWpUrl)
+    before(async () => {
+      const { host, path, port, protocol } = config
+      const wsProtocol = 'ws'
 
-  const DEFAULT_PASSWORD = 'ts'
-  const ACCOUNT_KEYS = ['address', 'backup', 'pubKey']
+      const relayApiUrl = utils.buildApiUrl(protocol, host, port, path)
+      const relayWpUrl = utils.buildApiUrl(wsProtocol, host, port, path)
+      relayProvider = new RelayProvider(relayApiUrl, relayWpUrl)
 
-  describe('Deploy identity by creating an identity account', async () => {
-    const identityWallet = new IdentityWallet(relayProvider)
-    const createdAccount = await identityWallet.createAccount(DEFAULT_PASSWORD)
-    assert.hasAllKeys(createdAccount, ACCOUNT_KEYS)
-    expect(createdAccount.address).to.not.equal(undefined)
+      DEFAULT_PASSWORD = 'ts'
+      ACCOUNT_KEYS = ['address', 'serializedWallet', 'pubKey']
+    })
+
+    it('should deploy an identity contract when creating an identity account', async () => {
+      const identityWallet = new IdentityWallet(relayProvider)
+      const createdAccount = await identityWallet.createAccount(
+        DEFAULT_PASSWORD
+      )
+      assert.hasAllKeys(createdAccount, ACCOUNT_KEYS)
+      expect(createdAccount.address.length).to.equal(42)
+      expect(createdAccount.address.slice(0, 2)).to.equal('0x')
+    })
   })
 })

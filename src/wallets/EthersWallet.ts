@@ -9,7 +9,7 @@ import utils from '../utils'
 
 import {
   Amount,
-  EthersBackup,
+  EthersWalletSchema,
   RawTxObject,
   Signature,
   UserObject
@@ -54,7 +54,7 @@ export class EthersWallet implements TLWallet, TLSigner {
 
   /**
    * Creates a new wallet and encrypts it with the provided password.
-   * @param password Password to encrypt backup.
+   * @param password Password to encrypt wallet.
    * @param progressCallback Callback function for encryption progress.
    */
   public async createAccount(
@@ -67,64 +67,64 @@ export class EthersWallet implements TLWallet, TLSigner {
       typeof progressCallback === 'function' && progressCallback
     )
 
-    const backup = this.createBackup(encryptedKeystore)
+    const serializedWallet = this.serializeWallet(encryptedKeystore)
 
     return {
       address: this.address,
-      backup,
-      pubKey: this.pubKey
+      pubKey: this.pubKey,
+      serializedWallet
     }
   }
 
   /**
-   * Create a backup following the current backup format from an encryptedKeystore
-   * Can be used to migrate from backup version 0 to backup version 1
+   * Create a serialized wallet following the current format from an encryptedKeystore
+   * Can be used to migrate from serialized wallet version 0 to serialized wallet version 1
    * @param encryptedKeystore
    */
-  public createBackup(encryptedKeystore: string): string {
-    const ethersBackup: EthersBackup = {
+  public serializeWallet(encryptedKeystore: string): string {
+    const deserializedWallet: EthersWalletSchema = {
       TLWalletVersion: TL_WALLET_VERSION,
       ethersKeystore: encryptedKeystore,
       walletType: WALLET_TYPE_ETHERS
     }
 
-    const backup: string = JSON.stringify(ethersBackup)
+    const serializedWallet: string = JSON.stringify(deserializedWallet)
 
-    return backup
+    return serializedWallet
   }
 
   /**
-   * Decrypts given backup and loads wallet.
-   * @param encryptedKeystore Encrypted backup from `createAccount`.
-   * @param password Password to decrypt backup.
+   * Deserialize the serialized wallet, decrypts given wallet and loads wallet.
+   * @param serializedWallet serialized wallet.
+   * @param password Password to decrypt wallet.
    * @param progressCallback Callback function for decryption progress.
    */
   public async loadAccount(
-    backup: string,
+    serializedWallet: string,
     password: string,
     progressCallback?: any
   ): Promise<UserObject> {
-    const ethersBackup: EthersBackup = JSON.parse(backup)
+    const deserializedWallet: EthersWalletSchema = JSON.parse(serializedWallet)
 
     let encryptedKeystore: string
 
-    if (!this.correctWalletType(ethersBackup)) {
+    if (!this.correctWalletType(deserializedWallet)) {
       throw new Error(
-        `The backup given is of the wrong wallet type: ${
-          ethersBackup.walletType
+        `The serialized wallet given is of the wrong wallet type: ${
+          deserializedWallet.walletType
         }`
       )
     }
 
-    if (!('TLWalletVersion' in ethersBackup)) {
-      // Use the old backup storing method if no TL_WALLET_VERSION key in the backup
-      encryptedKeystore = backup
-    } else if (ethersBackup.TLWalletVersion === 1) {
-      encryptedKeystore = ethersBackup.ethersKeystore
+    if (!('TLWalletVersion' in deserializedWallet)) {
+      // Use the old serialising method if no TL_WALLET_VERSION key in the deserialized wallet
+      encryptedKeystore = serializedWallet
+    } else if (deserializedWallet.TLWalletVersion === 1) {
+      encryptedKeystore = deserializedWallet.ethersKeystore
     } else {
       throw new Error(
-        `Backup version for wallet is not handled: version ${
-          ethersBackup.TLWalletVersion
+        `serialized wallet version is not handled: version ${
+          deserializedWallet.TLWalletVersion
         }`
       )
     }
@@ -137,15 +137,15 @@ export class EthersWallet implements TLWallet, TLSigner {
 
     return {
       address: this.address,
-      backup,
-      pubKey: this.pubKey
+      pubKey: this.pubKey,
+      serializedWallet
     }
   }
 
   /**
-   * Recovers wallet from mnemonic phrase and encrypts backup with given password.
+   * Recovers wallet from mnemonic phrase and encrypts it with given password.
    * @param seed Mnemonic seed phrase.
-   * @param password Password to encrypt recovered backup.
+   * @param password Password to encrypt recovered wallet.
    * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromSeed(
@@ -159,19 +159,19 @@ export class EthersWallet implements TLWallet, TLSigner {
       typeof progressCallback === 'function' && progressCallback
     )
 
-    const backup = this.createBackup(encryptedKeystore)
+    const serializedWallet = this.serializeWallet(encryptedKeystore)
 
     return {
       address: this.address,
-      backup,
-      pubKey: this.pubKey
+      pubKey: this.pubKey,
+      serializedWallet
     }
   }
 
   /**
-   * Recovers wallet from private key and encrypts backup with given password.
+   * Recovers wallet from private key and encrypts it with given password.
    * @param privateKey Private key to recover wallet from.
-   * @param password Password to encrypt recovered backup.
+   * @param password Password to encrypt recovered wallet.
    * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromPrivateKey(
@@ -185,12 +185,12 @@ export class EthersWallet implements TLWallet, TLSigner {
       typeof progressCallback === 'function' && progressCallback
     )
 
-    const backup = this.createBackup(encryptedKeystore)
+    const serializedWallet = this.serializeWallet(encryptedKeystore)
 
     return {
       address: this.address,
-      backup,
-      pubKey: this.pubKey
+      pubKey: this.pubKey,
+      serializedWallet
     }
   }
 
@@ -308,10 +308,12 @@ export class EthersWallet implements TLWallet, TLSigner {
     throw new Error('Method not implemented.')
   }
 
-  private correctWalletType(ethersBackup: EthersBackup): boolean {
+  private correctWalletType(deserializedWallet: EthersWalletSchema): boolean {
+    // Previously, all wallets where `etherswallet` and had no type field
+    // so undefined should be considered as the right types
     return (
-      ethersBackup.walletType === undefined ||
-      ethersBackup.walletType === WALLET_TYPE_ETHERS
+      deserializedWallet.walletType === undefined ||
+      deserializedWallet.walletType === WALLET_TYPE_ETHERS
     )
   }
 }

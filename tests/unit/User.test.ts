@@ -67,9 +67,13 @@ describe('unit', () => {
 
       it('should create a new user', async () => {
         const createdUser = await user.create()
-        assert.hasAllKeys(createdUser, ['address', 'backup', 'pubKey'])
+        assert.hasAllKeys(createdUser, [
+          'address',
+          'serializedWallet',
+          'pubKey'
+        ])
         assert.isString(createdUser.address)
-        assert.isString(createdUser.backup)
+        assert.isString(createdUser.serializedWallet)
         assert.isString(createdUser.pubKey)
       })
 
@@ -82,11 +86,11 @@ describe('unit', () => {
     describe('#load()', () => {
       beforeEach(() => init())
 
-      it('should load a user from backup', async () => {
+      it('should load a user from serialized wallet', async () => {
         const loadedUser = await user.load(keystore1)
-        assert.hasAllKeys(loadedUser, ['address', 'backup', 'pubKey'])
+        assert.hasAllKeys(loadedUser, ['address', 'serializedWallet', 'pubKey'])
         assert.isString(loadedUser.address)
-        assert.isString(loadedUser.backup)
+        assert.isString(loadedUser.serializedWallet)
         assert.isString(loadedUser.pubKey)
       })
 
@@ -194,7 +198,11 @@ describe('unit', () => {
 
       it('should recover user from seed', async () => {
         const recoveredUser = await user.recoverFromSeed(FAKE_SEED)
-        assert.hasAllKeys(recoveredUser, ['address', 'backup', 'pubKey'])
+        assert.hasAllKeys(recoveredUser, [
+          'address',
+          'serializedWallet',
+          'pubKey'
+        ])
       })
 
       it('should throw error', async () => {

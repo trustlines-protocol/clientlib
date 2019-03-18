@@ -3,7 +3,6 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { FeePayer } from '../../src/typings'
 import { config, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
