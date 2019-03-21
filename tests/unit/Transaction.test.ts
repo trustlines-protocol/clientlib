@@ -34,9 +34,9 @@ describe('unit', () => {
       })
     })
 
-    describe('#prepFuncTx()', () => {
+    describe('#prepareContractTransaction()', () => {
       it('should prepare a transaction object for calling a function', async () => {
-        const rawTxObject = await transaction.prepFuncTx(
+        const rawTxObject = await transaction.prepareContractTransaction(
           USER_ADDRESS,
           CONTRACT_ADDRESS,
           'CurrencyNetwork',
@@ -71,7 +71,7 @@ describe('unit', () => {
         const CUSTOM_GAS_LIMIT = 10000000
         const CUSTOM_GAS_PRICE = 1
         const CUSTOM_VALUE = 123
-        const rawTxObject = await transaction.prepFuncTx(
+        const rawTxObject = await transaction.prepareContractTransaction(
           USER_ADDRESS,
           CONTRACT_ADDRESS,
           'CurrencyNetwork',
@@ -119,9 +119,9 @@ describe('unit', () => {
       })
     })
 
-    describe('#prepValueTx()', () => {
+    describe('#prepareValueTransaction()', () => {
       it('should prepare a transaction object for transferring eth', async () => {
-        const rawTxObject = await transaction.prepValueTx(
+        const rawTxObject = await transaction.prepareValueTransaction(
           USER_ADDRESS,
           COUNTER_PARTY_ADDRESS,
           new BigNumber('1')
@@ -152,7 +152,7 @@ describe('unit', () => {
         const CUSTOM_GAS_LIMIT = 10000000
         const CUSTOM_GAS_PRICE = 1
         const CUSTOM_VALUE = 123
-        const rawTxObject = await transaction.prepValueTx(
+        const rawTxObject = await transaction.prepareValueTransaction(
           USER_ADDRESS,
           COUNTER_PARTY_ADDRESS,
           new BigNumber(CUSTOM_VALUE),

@@ -5,7 +5,7 @@ import { TLSigner } from './TLSigner'
 
 import * as utils from '../utils'
 
-import { Amount, RawTxObject, Signature } from '../typings'
+import { Amount, RawTxObject, Signature, TxInfos } from '../typings'
 
 /**
  * The Web3Signer class contains functions for signing transactions with a web3 provider.
@@ -15,8 +15,10 @@ export class Web3Signer implements TLSigner {
   public pubKey: string
 
   private signer: ethers.providers.JsonRpcSigner
+  private web3Provider: ethers.providers.Web3Provider
 
   constructor(web3Provider: ethers.providers.Web3Provider) {
+    this.web3Provider = web3Provider
     this.signer = web3Provider.getSigner()
   }
 
@@ -97,5 +99,26 @@ export class Web3Signer implements TLSigner {
     }
     const msgHashBytes = ethers.utils.arrayify(msgHash)
     return this.signMessage(msgHashBytes)
+  }
+
+  public async getTxInfos(userAddress: string): Promise<TxInfos> {
+    // The bigNumber returned from ethers is not the same one we use in TxInfos
+    // I get strings and convert them to BigNumber later
+    const balanceString: string = await this.web3Provider
+      .getBalance(userAddress)
+      .toString()
+    const nonce: number = await this.web3Provider.getTransactionCount(
+      userAddress
+    )
+
+    // TODO: I am not sure this is correct gas price corresponding to what is returned by the relay server in other getTxInfos
+    const gasPriceString: string = await this.web3Provider
+      .getGasPrice()
+      .toString()
+
+    const gasPrice = new BigNumber(gasPriceString)
+    const balance = new BigNumber(balanceString)
+
+    return { balance, gasPrice, nonce }
   }
 }

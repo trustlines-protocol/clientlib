@@ -12,6 +12,7 @@ import {
   EthersWalletSchema,
   RawTxObject,
   Signature,
+  TxInfos,
   UserObject
 } from '../typings'
 
@@ -306,6 +307,10 @@ export class EthersWallet implements TLWallet, TLSigner {
 
   public async decrypt(encMsg: any, theirPubKey: string): Promise<any> {
     throw new Error('Method not implemented.')
+  }
+
+  public async getTxInfos(userAddress: string): Promise<TxInfos> {
+    return this.provider.getTxInfos(userAddress)
   }
 
   private correctWalletType(deserializedWallet: EthersWalletSchema): boolean {

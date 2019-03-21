@@ -124,7 +124,10 @@ export class Trustline {
       ]
     }
 
-    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+    const {
+      rawTx,
+      ethFees
+    } = await this.transaction.prepareContractTransaction(
       this.user.address,
       networkAddress,
       'CurrencyNetwork',
@@ -315,7 +318,10 @@ export class Trustline {
     }
 
     // Prepare the interaction with the contract.
-    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+    const {
+      rawTx,
+      ethFees
+    } = await this.transaction.prepareContractTransaction(
       this.user.address,
       networkAddress,
       'CurrencyNetwork',

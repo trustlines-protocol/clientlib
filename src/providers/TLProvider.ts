@@ -1,4 +1,4 @@
-import { Amount, TxInfos } from '../typings'
+import { Amount, MetaTransaction, TxInfos } from '../typings'
 
 /**
  * Interface for different provider strategies which extends the given
@@ -15,6 +15,10 @@ export interface TLProvider {
     args: object
   ): any
   getTxInfos(userAddress: string): Promise<TxInfos>
+  getMetaTxInfos(userAddress: string): Promise<TxInfos>
   getBalance(userAddress: string): Promise<Amount>
   sendSignedTransaction(signedTransaction: string): Promise<string>
+  sendSignedMetaTransaction(
+    signedMetaTransaction: MetaTransaction
+  ): Promise<string>
 }

@@ -6,7 +6,7 @@ import utils from '../utils'
 
 import { TLProvider } from './TLProvider'
 
-import { Amount, TxInfos, TxInfosRaw } from '../typings'
+import { Amount, MetaTransaction, TxInfos, TxInfosRaw } from '../typings'
 
 export class RelayProvider implements TLProvider {
   public relayApiUrl: string
@@ -76,6 +76,23 @@ export class RelayProvider implements TLProvider {
   }
 
   /**
+   * Returns needed information for creating a meta transaction.
+   * @param address Address of user creating the transaction
+   * @returns Information for creating an ethereum transaction for the given identity address.
+   *          See type `TxInfos` for more details.
+   */
+  public async getMetaTxInfos(address: string): Promise<TxInfos> {
+    const { identity, nextNonce, balance } = await this.fetchEndpoint<any>(
+      `/identities/${address}`
+    )
+    return {
+      balance: new BigNumber(balance),
+      gasPrice: new BigNumber(0),
+      nonce: nextNonce
+    }
+  }
+
+  /**
    * Returns balance of given address.
    * @param address Address to determine balance for.
    */
@@ -101,5 +118,18 @@ export class RelayProvider implements TLProvider {
       method: 'POST'
     }
     return this.fetchEndpoint<string>(`relay`, options)
+  }
+
+  /**
+   * Send the given signed meta-transaction to a relay server to execute it on the
+   * blockchain and returns a `Promise` with the transaction hash.
+   * @param signedMetaTransaction
+   */
+  public async sendSignedMetaTransaction(
+    metaTransaction: MetaTransaction
+  ): Promise<string> {
+    return this.postToEndpoint<string>('relay-meta-transaction', {
+      metaTransaction
+    })
   }
 }

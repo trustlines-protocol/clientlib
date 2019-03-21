@@ -174,7 +174,7 @@ export class User {
     newUserAddress: string,
     initialValue = 0.1
   ): Promise<object> {
-    return this.transaction.prepValueTx(
+    return this.transaction.prepareValueTransaction(
       this.address, // address of onboarder
       newUserAddress, // address of new user who gets onboarded
       utils.calcRaw(initialValue, 18)

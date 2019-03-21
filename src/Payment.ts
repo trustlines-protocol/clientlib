@@ -80,7 +80,10 @@ export class Payment {
       }
     )
     if (path.length > 0) {
-      const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+      const {
+        rawTx,
+        ethFees
+      } = await this.transaction.prepareContractTransaction(
         this.user.address,
         networkAddress,
         'CurrencyNetwork',
@@ -127,7 +130,7 @@ export class Payment {
     options: PaymentOptions = {}
   ): Promise<TxObject> {
     const { gasLimit, gasPrice } = options
-    const { ethFees, rawTx } = await this.transaction.prepValueTx(
+    const { ethFees, rawTx } = await this.transaction.prepareValueTransaction(
       this.user.address,
       receiverAddress,
       utils.calcRaw(value, 18),

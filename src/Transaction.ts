@@ -29,12 +29,12 @@ export class Transaction {
    * @param contractAddress address of deployed contract
    * @param contractName name of deployed contract
    * @param functionName name of contract function
-   * @param parameters arguments of function in same order as in contract
+   * @param args arguments of function in same order as in contract
    * @param gasPrice (optional)
    * @param gasLimit (optional)
-   * @returns A ethereum transaction object and the estimated transaction fees in ETH.
+   * @returns An ethereum transaction object and the estimated transaction fees in ETH.
    */
-  public async prepFuncTx(
+  public async prepareContractTransaction(
     userAddress: string,
     contractAddress: string,
     contractName: string,
@@ -42,7 +42,8 @@ export class Transaction {
     args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this.provider.getTxInfos(userAddress)
+    const txInfos = await this.signer.getTxInfos(userAddress)
+
     const abi = new ethers.utils.Interface(
       TrustlinesContractsAbi[contractName].abi
     )
@@ -71,13 +72,14 @@ export class Transaction {
    * @param gasLimit (optional)
    * @returns A ethereum transaction object containing and the estimated transaction fees in ETH.
    */
-  public async prepValueTx(
+  public async prepareValueTransaction(
     senderAddress: string,
     receiverAddress: string,
     rawValue: BigNumber,
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this.provider.getTxInfos(senderAddress)
+    const txInfos = await this.signer.getTxInfos(senderAddress)
+
     const rawTx = {
       from: senderAddress,
       gasLimit: options.gasLimit || new BigNumber(21000),
