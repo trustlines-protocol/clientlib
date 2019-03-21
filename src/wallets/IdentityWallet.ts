@@ -10,6 +10,7 @@ import {
   MetaTransaction,
   RawTxObject,
   Signature,
+  TxInfos,
   UserObject
 } from '../typings'
 
@@ -223,9 +224,7 @@ export class IdentityWallet implements TLWallet, TLSigner {
 
     await this.signMetaTransaction(metaTransaction)
 
-    return this.provider.postToEndpoint<string>('relay-meta-transaction', {
-      metaTransaction
-    })
+    return this.provider.sendSignedMetaTransaction(metaTransaction)
   }
 
   public async signMetaTransaction(
@@ -264,6 +263,10 @@ export class IdentityWallet implements TLWallet, TLSigner {
     metaTransaction.signature = await this.rawSignHash(metaTransactionHash)
 
     return metaTransactionHash
+  }
+
+  public async getTxInfos(userAddress: string): Promise<TxInfos> {
+    return this.provider.getMetaTxInfos(userAddress)
   }
 
   /**

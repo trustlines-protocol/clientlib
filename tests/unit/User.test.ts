@@ -232,7 +232,7 @@ describe('unit', () => {
       })
 
       it('should throw error', async () => {
-        fakeTransaction.setError('prepValueTx')
+        fakeTransaction.setError('prepareValueTransaction')
         await assert.isRejected(user.prepOnboarding(FAKE_ACCOUNT.address, 1.23))
       })
     })

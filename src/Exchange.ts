@@ -325,7 +325,10 @@ export class Exchange {
     ) {
       throw new Error('Could not find a path with enough capacity')
     }
-    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+    const {
+      rawTx,
+      ethFees
+    } = await this.transaction.prepareContractTransaction(
       this.user.address,
       exchangeContractAddress,
       'Exchange',
@@ -392,7 +395,10 @@ export class Exchange {
     })
     const orderAddresses = this._getOrderAddresses(signedOrder)
     const orderValues = this._getOrderValues(signedOrder)
-    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+    const {
+      rawTx,
+      ethFees
+    } = await this.transaction.prepareContractTransaction(
       this.user.address,
       exchangeContractAddress,
       'Exchange',

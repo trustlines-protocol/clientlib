@@ -72,7 +72,10 @@ export class EthWrapper {
     options: TxOptions = {}
   ): Promise<TxObject> {
     const { gasPrice, gasLimit } = options
-    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+    const {
+      rawTx,
+      ethFees
+    } = await this.transaction.prepareContractTransaction(
       this.user.address,
       ethWrapperAddress,
       'UnwEth',
@@ -106,7 +109,10 @@ export class EthWrapper {
     options: TxOptions = {}
   ): Promise<TxObject> {
     const { gasPrice, gasLimit } = options
-    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+    const {
+      rawTx,
+      ethFees
+    } = await this.transaction.prepareContractTransaction(
       this.user.address,
       ethWrapperAddress,
       'UnwEth',
@@ -138,7 +144,10 @@ export class EthWrapper {
     options: TxOptions = {}
   ): Promise<TxObject> {
     const { gasPrice, gasLimit } = options
-    const { rawTx, ethFees } = await this.transaction.prepFuncTx(
+    const {
+      rawTx,
+      ethFees
+    } = await this.transaction.prepareContractTransaction(
       this.user.address,
       ethWrapperAddress,
       'UnwEth',

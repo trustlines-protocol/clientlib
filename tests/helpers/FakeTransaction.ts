@@ -20,19 +20,19 @@ import {
 export class FakeTransaction extends Transaction {
   public errors: any = {}
 
-  public async prepValueTx(
+  public async prepareValueTransaction(
     senderAddress: string,
     receiverAddress: string,
     rawValue: BigNumber,
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    if (this.errors.prepValueTx) {
-      throw new Error('Mocked error in transaction.prepValueTx()!')
+    if (this.errors.prepareValueTransaction) {
+      throw new Error('Mocked error in transaction.prepareValueTransaction()!')
     }
     return Promise.resolve(FAKE_VALUE_TX_OBJECT_INTERNAL)
   }
 
-  public async prepFuncTx(
+  public async prepareContractTransaction(
     userAddress: string,
     contractAddress: string,
     contractName: string,
@@ -40,8 +40,10 @@ export class FakeTransaction extends Transaction {
     args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    if (this.errors.prepFuncTx) {
-      throw new Error('Mocked error in transaction.prepFuncTx()!')
+    if (this.errors.prepareContractTransaction) {
+      throw new Error(
+        'Mocked error in transaction.prepareContractTransaction()!'
+      )
     }
     return Promise.resolve(FAKE_FUNC_TX_OBJECT_INTERNAL)
   }

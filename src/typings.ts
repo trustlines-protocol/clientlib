@@ -43,7 +43,7 @@ export interface TLNetworkConfig {
 }
 
 /**
- * For internal use of `prepFuncTx` and `prepValueTx`.
+ * For internal use of `prepareContractTransaction` and `prepareValueTransaction`.
  */
 export interface TxOptionsInternal {
   value?: BigNumber

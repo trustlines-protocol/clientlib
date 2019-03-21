@@ -1,8 +1,13 @@
 import { TLSigner } from '../../src/signers/TLSigner'
 
-import { Amount, RawTxObject, Signature } from '../../src/typings'
+import { Amount, RawTxObject, Signature, TxInfos } from '../../src/typings'
 
-import { FAKE_AMOUNT, FAKE_SIGNED_MSG_HASH, FAKE_TX_HASH } from '../Fixtures'
+import {
+  FAKE_AMOUNT,
+  FAKE_SIGNED_MSG_HASH,
+  FAKE_TX_HASH,
+  FAKE_TX_INFOS
+} from '../Fixtures'
 
 /**
  * Mock TxSigner interface
@@ -57,5 +62,9 @@ export class FakeTLSigner implements TLSigner {
 
   public setError(functionName: string) {
     this.errors[functionName] = true
+  }
+
+  public getTxInfos(userAddress: string): Promise<TxInfos> {
+    return Promise.resolve(FAKE_TX_INFOS)
   }
 }

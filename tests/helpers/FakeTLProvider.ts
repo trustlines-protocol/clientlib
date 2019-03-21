@@ -15,7 +15,7 @@ import {
   FAKE_USER_ADDRESSES
 } from '../Fixtures'
 
-import { Amount, TxInfos } from '../../src/typings'
+import { Amount, MetaTransaction, TxInfos } from '../../src/typings'
 
 export class FakeTLProvider implements TLProvider {
   public relayApiUrl = FAKE_RELAY_API
@@ -135,6 +135,14 @@ export class FakeTLProvider implements TLProvider {
     })
   }
 
+  public async getMetaTxInfos(userAddress: string): Promise<TxInfos> {
+    return Promise.resolve({
+      balance: new BigNumber('0'),
+      gasPrice: new BigNumber('0'),
+      nonce: 1
+    })
+  }
+
   public async getBalance(userAddress: string): Promise<Amount> {
     if (this.errors.getBalance) {
       throw new Error('Mocked error in provider.getBalance()')
@@ -152,6 +160,12 @@ export class FakeTLProvider implements TLProvider {
     if (this.errors.sendSignedTransaction) {
       throw new Error('Mocked error in provider.sendSignedTransaction()')
     }
+    return Promise.resolve(FAKE_TX_HASH)
+  }
+
+  public async sendSignedMetaTransaction(
+    signedTransaction: MetaTransaction
+  ): Promise<string> {
     return Promise.resolve(FAKE_TX_HASH)
   }
 
