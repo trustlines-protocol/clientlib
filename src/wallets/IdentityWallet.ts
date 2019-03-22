@@ -214,6 +214,7 @@ export class IdentityWallet implements TLWallet, TLSigner {
    * Takes a raw transaction object, turns it into a meta-transaction signed by
    * the loaded user and relays the transaction.
    * @param rawTx Raw transaction object.
+   * @returns the hash of the meta-transaction
    */
   public async confirm(rawTx: RawTxObject): Promise<string> {
     this.verifyFromField(rawTx)
@@ -229,7 +230,7 @@ export class IdentityWallet implements TLWallet, TLSigner {
 
   public async signMetaTransaction(
     metaTransaction: MetaTransaction
-  ): Promise<void> {
+  ): Promise<string> {
     if (!this.wallet) {
       throw new Error('No wallet loaded.')
     }
@@ -241,7 +242,8 @@ export class IdentityWallet implements TLWallet, TLSigner {
       'address',
       'uint256',
       'bytes32',
-      'uint256'
+      'uint256',
+      'bytes'
     ]
     const values = [
       '0x19',
@@ -250,12 +252,18 @@ export class IdentityWallet implements TLWallet, TLSigner {
       metaTransaction.to,
       metaTransaction.value,
       ethers.utils.solidityKeccak256(['bytes'], [metaTransaction.data]),
-      metaTransaction.nonce
+      metaTransaction.nonce,
+      metaTransaction.extraData
     ]
 
-    const hash: string = ethers.utils.solidityKeccak256(types, values)
+    const metaTransactionHash: string = ethers.utils.solidityKeccak256(
+      types,
+      values
+    )
 
-    metaTransaction.signature = await this.rawSignHash(hash)
+    metaTransaction.signature = await this.rawSignHash(metaTransactionHash)
+
+    return metaTransactionHash
   }
 
   /**
