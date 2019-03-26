@@ -70,7 +70,7 @@ export class Transaction {
    * @param rawValue transfer amount in wei
    * @param gasPrice (optional)
    * @param gasLimit (optional)
-   * @returns A ethereum transaction object containing and the estimated transaction fees in ETH.
+   * @returns An ethereum transaction object containing and the estimated transaction fees in ETH.
    */
   public async prepareValueTransaction(
     senderAddress: string,

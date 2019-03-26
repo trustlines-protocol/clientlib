@@ -341,7 +341,7 @@ export class IdentityWallet implements TLWallet, TLSigner {
 
   private buildMetaTransaction(rawTx: RawTxObject): MetaTransaction {
     const metaTransaction: MetaTransaction = {
-      data: ethers.utils.solidityKeccak256(['bytes'], [rawTx.data]),
+      data: rawTx.data || '0x',
       extraData: '0x',
       from: rawTx.from,
       nonce: rawTx.nonce.toString(),

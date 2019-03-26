@@ -1,10 +1,9 @@
 import {
   Amount,
+  MetaTransaction,
   RawTxObject,
   Signature,
-  TxInfos,
-  TxObjectInternal,
-  TxOptionsInternal
+  TxInfos
 } from '../typings'
 
 /**

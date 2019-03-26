@@ -27,6 +27,7 @@ import {
 import utils from './utils'
 
 import { TLNetworkConfig } from './typings'
+import { IdentityWallet } from './wallets/IdentityWallet'
 
 /**
  * The TLNetwork class is the single entry-point into the trustline-network.js library.
@@ -110,15 +111,6 @@ export class TLNetwork {
       walletType = WALLET_TYPE_ETHERS
     } = config
 
-    if (walletType === WALLET_TYPE_IDENTITY) {
-      throw new Error(`Identity wallets are not handled yet`)
-    }
-    if (walletType !== WALLET_TYPE_ETHERS) {
-      throw new Error(
-        `Only ethers wallet handled, given wallet type: ${walletType}, expected: ${WALLET_TYPE_ETHERS}`
-      )
-    }
-
     this.setProvider(
       new RelayProvider(
         relayApiUrl || utils.buildApiUrl(protocol, host, port, path),
@@ -126,13 +118,8 @@ export class TLNetwork {
       )
     )
 
-    const ethersWallet = new EthersWallet(this.provider)
-    this.setWallet(ethersWallet)
-    this.setSigner(
-      web3Provider
-        ? new Web3Signer(new ethers.providers.Web3Provider(web3Provider))
-        : ethersWallet
-    )
+    this.setWallet(walletType, this.provider)
+    this.setSigner(web3Provider, this.wallet)
 
     this.currencyNetwork = new CurrencyNetwork(this.provider)
     this.transaction = new Transaction({
@@ -195,17 +182,34 @@ export class TLNetwork {
     this.provider = provider
   }
 
-  public setSigner(signer: TLSigner): void {
-    if (!(signer instanceof Web3Signer || signer instanceof EthersWallet)) {
+  public setSigner(web3Provider, wallet): void {
+    const signer = web3Provider
+      ? new Web3Signer(new ethers.providers.Web3Provider(web3Provider))
+      : wallet
+
+    if (
+      !(
+        signer instanceof Web3Signer ||
+        signer instanceof EthersWallet ||
+        signer instanceof IdentityWallet
+      )
+    ) {
       throw new Error('Signer not supported.')
     }
     this.signer = signer
   }
 
-  public setWallet(wallet: TLWallet): void {
-    if (!(wallet instanceof EthersWallet)) {
-      throw new Error('Wallet not supported.')
+  public setWallet(walletType: string, provider: TLProvider): void {
+    let wallet: TLWallet
+
+    if (walletType === WALLET_TYPE_IDENTITY) {
+      wallet = new IdentityWallet(provider)
+    } else if (walletType === WALLET_TYPE_ETHERS) {
+      wallet = new EthersWallet(provider)
+    } else {
+      throw new Error(`Wallet type given is not handled: ${walletType}`)
     }
+
     this.wallet = wallet
   }
 }
