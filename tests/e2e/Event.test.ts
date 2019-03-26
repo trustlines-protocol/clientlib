@@ -14,20 +14,21 @@ import {
 } from '../../src/typings'
 
 import {
-  config,
   createUsers,
   requestEth,
   setTrustlines,
+  TLNetworkConfig,
   wait
 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
 describe('e2e', () => {
-  describe('Events', () => {
+  describe(`Events`, () => {
     const { expect } = chai
-    const tl1 = new TLNetwork(config)
-    const tl2 = new TLNetwork(config)
+
+    const tl1 = new TLNetwork(TLNetworkConfig)
+    const tl2 = new TLNetwork(TLNetworkConfig)
     let user1
     let user2
     let networks

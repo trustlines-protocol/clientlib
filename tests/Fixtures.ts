@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
+import { WALLET_TYPE_IDENTITY } from '../src/wallets/TLWallet'
 
 export const keystore1 = `{"encSeed":{"encStr":"I4qBGJUmpzHUQoVRMkjMEAqGusa4oI7HEG7SQMYPO31OIH+UlFtEDGfOuADzFYsfHKMbImJIOnhEg5z3VzvnndRlV9V9zHjbPgOysoMkF0K3ZR7DtamiBhk2CW3s8gx9Y2liECI03gOzz2Z51/jFLtDVrKs8HaF+ao4AnpmBZ9BgmX1F2fcZvA==","nonce":"nToBO+VpArhjS3PtICUBpjpc5cEDcmQ0"},"encHdRootPriv":{"encStr":"MMfdnPGEYRuPvOGaZvjrqHkrC+QT+GYSk1Nj1n76BbGjx3Kv37Rptb74wEcL7oRsBDJDHN1fLbeeXdwW6ZoGZaGnB8K+mdNBq+84PMGyfs/pvEQ4b81mPYP/Nw/Lgy8MwvSnwqupI8ZtA67zBDSSTWaQ1qN16Y4CID2SUEaJtQ==","nonce":"Tdsr0BdTZxaP655dmg1l14g8HdF3nTcl"},"addresses":["f8e191d2cd72ff35cb8f012685a29b31996614ea"],"encPrivKeys":{"f8e191d2cd72ff35cb8f012685a29b31996614ea":{"key":"of9sXYDnUtDeO8x3XYS50NN3XtyKXIvgNlfH773sbQAbqvUHqzmKRnMsb45Vlgup","nonce":"dfinYhD8qUzMM9KyK5fpnUmEh1hrEQDE"}},"hdPathString":"m/44\'/60\'/0\'/0","salt":"Wz3bQi0l8ZMncTBB5qTNjXS/uneTMZakQsVrA7Eo9YM=","hdIndex":1,"version":3}`
 
@@ -8,12 +9,25 @@ export const keystore2 = `{"encSeed":{"encStr":"UJrWA2ZaPF6lnWVktF/VjtLFJ3EZRpmh
 export const keystore3 =
   '{"encSeed":{"encStr":"eEM0n29iCxQIm67Xt5XQseVllcfNEX1PTV5COHBxaUlmyOASd8jmTRjB1ruItlUqB0+T758EQz1oCgRfW6oluGI2SEF5liaNf4ku2wqpgMMJX3xKhiCQ4oeSEAM/SfmZ/TQ4S+14crRgsZxS8fDdu2G8uOT6DWJ3LpOY3aKW34BIA5YepfjrFg==","nonce":"Wsc2oXdrXX/LSbZ4n6pciSHd+MPJ5eeN"},"encHdRootPriv":{"encStr":"qHQ6BXF6SZoku0++cPMfG3/cOmqR+Zzk95CCk0vnMUluvbIaqEK+wN4Sc0trcnUmIOoOtFrO15lgJETMcjB/nHBLAmSdeVH92rLBB5GIMA2AHXf4GYXETgl/Z8rq6Rm3GvqLFKwghewFspvgV5Ykjritd7/yajxsSKye7DcW1Q==","nonce":"9MfuGFodFQP9fmD3+OUz9oKCURDd16r/"},"addresses":["c7d6401b81a2f70c5906e8a6fbebe680c69fa03d"],"encPrivKeys":{"c7d6401b81a2f70c5906e8a6fbebe680c69fa03d":{"key":"nrum/qp+I6oF+AypB/6xVDdbmH7S4plVf3VxSCmRwiz8rF3HDyLwafYh3Hur4foC","nonce":"/HC96G1H5OCXCJSPN5Z5Rq4++3d1C+TO"}},"hdPathString":"m/44\'/60\'/0\'/0","salt":"pXfIg1o/mPRVUwiXBkYnl0WpJfu4oRqi61rjZx1SfNY=","hdIndex":1,"version":3}'
 
-export const config = {
+export const TLNetworkConfig = {
   host: process.env.RELAY_HOSTNAME || 'localhost',
   path: 'api/v1/',
   port: 5000,
   protocol: 'http'
 }
+
+export const TLNetworkConfigIdentity = {
+  host: process.env.RELAY_HOSTNAME || 'localhost',
+  path: 'api/v1/',
+  port: 5000,
+  protocol: 'http',
+  walletType: WALLET_TYPE_IDENTITY
+}
+
+export const parametrizedTLNetworkConfig = [
+  { config: TLNetworkConfig, walletType: 'Ethers' },
+  { config: TLNetworkConfigIdentity, walletType: 'Identity' }
+]
 
 export const user1 = {
   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',

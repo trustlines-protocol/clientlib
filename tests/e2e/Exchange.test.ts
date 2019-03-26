@@ -5,15 +5,16 @@ import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { NetworkDetails } from '../../src/typings'
-import { config, createUsers, wait } from '../Fixtures'
+import { createUsers, TLNetworkConfig, wait } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
 describe('e2e', () => {
-  describe('Exchange', () => {
+  describe(`Exchange`, () => {
     const { expect } = chai
-    const tl1 = new TLNetwork(config)
-    const tl2 = new TLNetwork(config)
+
+    const tl1 = new TLNetwork(TLNetworkConfig)
+    const tl2 = new TLNetwork(TLNetworkConfig)
 
     let user1
     let user2
