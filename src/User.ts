@@ -147,20 +147,9 @@ export class User {
    * and are willing to send some of it to the new user. The function is called by a
    * new user who wants to get onboarded, respectively has no ETH or trustline.
    * @param username Name of new user who wants to get onboarded.
-   * @param serializedWallet Serialized wallet of new user who wants to get onboarded.
-   * @param progressCallback Optional progress callback to call on encryption progress.
    */
-  public async createOnboardingMsg(
-    username: string,
-    serializedWallet: string,
-    progressCallback?: any
-  ): Promise<string> {
-    const { address, pubKey } = await this.wallet.loadAccount(
-      serializedWallet,
-      this.defaultPassword,
-      progressCallback
-    )
-    const params = ['onboardingrequest', username, address, pubKey]
+  public async createOnboardingMsg(username: string): Promise<string> {
+    const params = ['onboardingrequest', username, this.address, this.pubKey]
     return utils.createLink(params)
   }
 
