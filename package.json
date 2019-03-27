@@ -7,7 +7,7 @@
     "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
     "build:esm": "tsc -m es6 --outDir lib-esm",
     "doc": "typedoc --options tdconfig.json",
-    "lint": "tslint -c tslint.json ./src/**/**.ts ./tests/**/**.ts",
+    "lint": "tslint -c tslint.json './src/**/**.ts' './tests/**/**.ts'",
     "prettier": "prettier --write './{src,tests}/**/*.ts'",
     "prettier:check": "prettier --check './{src,tests}/**/*.ts'",
     "prettier:big-tabs": "prettier --write --print-width 120 --no-semi --single-quote --tab-width 4  './{src,tests}/**/*.ts'",
