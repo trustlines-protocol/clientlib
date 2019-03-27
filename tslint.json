@@ -4,6 +4,7 @@
     "interface-name": [true, "never-prefix"],
     "no-submodule-imports": false,
     "no-console": false,
-    "no-implicit-dependencies": false
+    "no-implicit-dependencies": false,
+    "object-literal-sort-keys": false
   }
 }
