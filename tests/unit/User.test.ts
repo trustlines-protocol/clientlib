@@ -215,10 +215,7 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should create onboarding message', async () => {
-        const onboardingMsg = await user.createOnboardingMsg(
-          'testname',
-          keystore1
-        )
+        const onboardingMsg = await user.createOnboardingMsg('testname')
         assert.isString(onboardingMsg)
       })
     })
