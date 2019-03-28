@@ -146,7 +146,7 @@ jobs:
       - run:
           name: Checkout end2end repo
           command: |
-            git clone https://github.com/trustlines-network/end2end.git
+            git clone https://github.com/trustlines-network/end2end.git -b feature/reportcoverage
       - run:
           name: Load docker image
           command: |
@@ -155,12 +155,7 @@ jobs:
           name: run end2end tests
           command: |
             docker tag $LOCAL_IMAGE $DOCKER_REPO
-            cd end2end
-            ./run-e2e.sh
-      - run:
-          name: Copy coverage results
-          command: |
-            docker cp e2e:/clientlib/.nyc_output /.nyc_output
+            ./end2end/run-e2e.sh -c
       - run-code-coverage:
           flag: end2end
 
