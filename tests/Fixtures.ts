@@ -9,14 +9,14 @@ export const keystore2 = `{"encSeed":{"encStr":"UJrWA2ZaPF6lnWVktF/VjtLFJ3EZRpmh
 export const keystore3 =
   '{"encSeed":{"encStr":"eEM0n29iCxQIm67Xt5XQseVllcfNEX1PTV5COHBxaUlmyOASd8jmTRjB1ruItlUqB0+T758EQz1oCgRfW6oluGI2SEF5liaNf4ku2wqpgMMJX3xKhiCQ4oeSEAM/SfmZ/TQ4S+14crRgsZxS8fDdu2G8uOT6DWJ3LpOY3aKW34BIA5YepfjrFg==","nonce":"Wsc2oXdrXX/LSbZ4n6pciSHd+MPJ5eeN"},"encHdRootPriv":{"encStr":"qHQ6BXF6SZoku0++cPMfG3/cOmqR+Zzk95CCk0vnMUluvbIaqEK+wN4Sc0trcnUmIOoOtFrO15lgJETMcjB/nHBLAmSdeVH92rLBB5GIMA2AHXf4GYXETgl/Z8rq6Rm3GvqLFKwghewFspvgV5Ykjritd7/yajxsSKye7DcW1Q==","nonce":"9MfuGFodFQP9fmD3+OUz9oKCURDd16r/"},"addresses":["c7d6401b81a2f70c5906e8a6fbebe680c69fa03d"],"encPrivKeys":{"c7d6401b81a2f70c5906e8a6fbebe680c69fa03d":{"key":"nrum/qp+I6oF+AypB/6xVDdbmH7S4plVf3VxSCmRwiz8rF3HDyLwafYh3Hur4foC","nonce":"/HC96G1H5OCXCJSPN5Z5Rq4++3d1C+TO"}},"hdPathString":"m/44\'/60\'/0\'/0","salt":"pXfIg1o/mPRVUwiXBkYnl0WpJfu4oRqi61rjZx1SfNY=","hdIndex":1,"version":3}'
 
-export const TLNetworkConfig = {
+export const tlNetworkConfig = {
   host: process.env.RELAY_HOSTNAME || 'localhost',
   path: 'api/v1/',
   port: 5000,
   protocol: 'http'
 }
 
-export const TLNetworkConfigIdentity = {
+export const tlNetworkConfigIdentity = {
   host: process.env.RELAY_HOSTNAME || 'localhost',
   path: 'api/v1/',
   port: 5000,
@@ -25,8 +25,8 @@ export const TLNetworkConfigIdentity = {
 }
 
 export const parametrizedTLNetworkConfig = [
-  { config: TLNetworkConfig, walletType: 'Ethers' },
-  { config: TLNetworkConfigIdentity, walletType: 'Identity' }
+  { config: tlNetworkConfig, walletType: 'Ethers' },
+  { config: tlNetworkConfigIdentity, walletType: 'Identity' }
 ]
 
 export const user1 = {
@@ -386,6 +386,12 @@ export const FAKE_CANCEL_EVENT = {
 export const FAKE_TX_INFOS = {
   balance: new BigNumber('2000000'),
   gasPrice: new BigNumber('2000000'),
+  nonce: 12
+}
+
+export const FAKE_WEB3_TX_INFOS = {
+  balance: new ethers.utils.BigNumber('2000000'),
+  gasPrice: new ethers.utils.BigNumber('2000000'),
   nonce: 12
 }
 

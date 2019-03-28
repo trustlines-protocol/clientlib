@@ -123,14 +123,14 @@ export class RelayProvider implements TLProvider {
   /**
    * Send the given signed meta-transaction to a relay server to execute it on the
    * blockchain and returns a `Promise` with the transaction hash.
-   * @param metaTransaction Signed meta-transaction to be sent to the relay server
+   * @param signedMetaTransaction Signed meta-transaction to be sent to the relay server
    * @returns The hash of the transaction sent by the relay server, not to be confused with the hash of the meta-transaction
    */
   public async sendSignedMetaTransaction(
-    metaTransaction: MetaTransaction
+    signedMetaTransaction: MetaTransaction
   ): Promise<string> {
     return this.postToEndpoint<string>('relay-meta-transaction', {
-      metaTransaction
+      metaTransaction: signedMetaTransaction
     })
   }
 }

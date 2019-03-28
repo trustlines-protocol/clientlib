@@ -5,8 +5,8 @@ import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import {
-  TLNetworkConfig,
-  TLNetworkConfigIdentity,
+  tlNetworkConfig,
+  tlNetworkConfigIdentity,
   USER_1_ETHERS_WALLET_V1,
   USER_1_IDENTITY_WALLET_V1,
   wait
@@ -17,12 +17,12 @@ chai.use(chaiAsPromised)
 describe('e2e', () => {
   const parametrizedTest = [
     {
-      config: TLNetworkConfig,
+      config: tlNetworkConfig,
       user: USER_1_ETHERS_WALLET_V1,
       walletType: 'Ethers'
     },
     {
-      config: TLNetworkConfigIdentity,
+      config: tlNetworkConfigIdentity,
       user: USER_1_IDENTITY_WALLET_V1,
       walletType: 'Identity'
     }

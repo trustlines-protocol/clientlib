@@ -3,15 +3,15 @@ import * as chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { TLNetworkConfig, USER_1 } from '../Fixtures'
+import { tlNetworkConfig, USER_1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
 describe('integration', () => {
   describe('User', () => {
     const { expect } = chai
-    const tlNew = new TLNetwork(TLNetworkConfig)
-    const tlExisting = new TLNetwork(TLNetworkConfig)
+    const tlNew = new TLNetwork(tlNetworkConfig)
+    const tlExisting = new TLNetwork(tlNetworkConfig)
     let newUser
     let existingUser
 

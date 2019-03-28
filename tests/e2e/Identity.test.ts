@@ -8,7 +8,7 @@ import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 
 import { RelayProvider } from '../../src/providers/RelayProvider'
 
-import { TLNetworkConfig, TLNetworkConfigIdentity, wait } from '../Fixtures'
+import { tlNetworkConfig, tlNetworkConfigIdentity, wait } from '../Fixtures'
 
 import { FeePayer, RawTxObject, UserObject } from '../../src/typings'
 import utils from '../../src/utils'
@@ -35,15 +35,15 @@ describe('e2e', () => {
     let trustlinesNetwork2: TLNetwork
 
     before(async () => {
-      const { host, path, port, protocol } = TLNetworkConfig
+      const { host, path, port, protocol } = tlNetworkConfig
       const wsProtocol = 'ws'
 
       const relayApiUrl = utils.buildApiUrl(protocol, host, port, path)
       const relayWpUrl = utils.buildApiUrl(wsProtocol, host, port, path)
       relayProvider = new RelayProvider(relayApiUrl, relayWpUrl)
 
-      trustlinesNetwork = new TLNetwork(TLNetworkConfigIdentity)
-      trustlinesNetwork2 = new TLNetwork(TLNetworkConfigIdentity)
+      trustlinesNetwork = new TLNetwork(tlNetworkConfigIdentity)
+      trustlinesNetwork2 = new TLNetwork(tlNetworkConfigIdentity)
 
       identityWallet = new IdentityWallet(relayProvider)
 

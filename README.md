@@ -31,13 +31,13 @@ Use the following configuration to connect to the currently deployed test setup.
 ```javascript
 import { TLNetwork } from 'trustlines-clientlib'
 
-const TLNetworkConfig = {
+const tlNetworkConfig = {
   protocol: 'https',
   host: 'relay0.testnet.trustlines.network',
   path: 'api/v1/'
 }
 
-const tlNetwork = new TLNetwork(TLNetworkConfig)
+const tlNetwork = new TLNetwork(tlNetworkConfig)
 ```
 
 ## Example
