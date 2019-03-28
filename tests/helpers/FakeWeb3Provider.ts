@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import {
   FAKE_ETHERS_TX_RESPONSE,
   FAKE_SIGNED_MESSAGE,
+  FAKE_WEB3_TX_INFOS,
   USER_1
 } from '../Fixtures'
 
@@ -33,5 +34,17 @@ export class FakeWeb3Provider extends ethers.providers.Web3Provider {
       > => FAKE_ETHERS_TX_RESPONSE,
       signMessage: async (): Promise<string> => FAKE_SIGNED_MESSAGE
     }
+  }
+
+  public getBalance(addressOrName: string): Promise<ethers.utils.BigNumber> {
+    return Promise.resolve<ethers.utils.BigNumber>(FAKE_WEB3_TX_INFOS.balance)
+  }
+
+  public getTransactionCount(addressOrName: string): Promise<number> {
+    return Promise.resolve<number>(FAKE_WEB3_TX_INFOS.nonce)
+  }
+
+  public getGasPrice(): Promise<ethers.utils.BigNumber> {
+    return Promise.resolve<ethers.utils.BigNumber>(FAKE_WEB3_TX_INFOS.gasPrice)
   }
 }

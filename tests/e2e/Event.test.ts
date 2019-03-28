@@ -17,7 +17,7 @@ import {
   createUsers,
   requestEth,
   setTrustlines,
-  TLNetworkConfig,
+  tlNetworkConfig,
   wait
 } from '../Fixtures'
 
@@ -27,8 +27,8 @@ describe('e2e', () => {
   describe(`Events`, () => {
     const { expect } = chai
 
-    const tl1 = new TLNetwork(TLNetworkConfig)
-    const tl2 = new TLNetwork(TLNetworkConfig)
+    const tl1 = new TLNetwork(tlNetworkConfig)
+    const tl2 = new TLNetwork(tlNetworkConfig)
     let user1
     let user2
     let networks

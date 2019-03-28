@@ -96,7 +96,7 @@ export class TLNetwork {
 
   /**
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
-   * @param config Configuration object. See type `TLNetworkConfig` for more information.
+   * @param config Configuration object. See type `tlNetworkConfig` for more information.
    */
   constructor(config: TLNetworkConfig = {}) {
     const {

@@ -6,13 +6,19 @@ import { Web3Signer } from '../../src/signers/Web3Signer'
 
 import { FakeWeb3Provider } from '../helpers/FakeWeb3Provider'
 
-import { FAKE_RAW_TX_OBJECT, FAKE_TX_HASH } from '../Fixtures'
+import {
+  FAKE_RAW_TX_OBJECT,
+  FAKE_TX_HASH,
+  FAKE_TX_INFOS,
+  USER_1
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
 
 describe('unit', () => {
   describe('Web3Signer', () => {
+    const { expect } = chai
     // test object
     let web3Signer: Web3Signer
 
@@ -71,6 +77,15 @@ describe('unit', () => {
         const signature = await web3Signer.signMsgHash(FAKE_TX_HASH)
         assert.hasAllKeys(signature, ['concatSig', 'ecSignature'])
         assert.hasAllKeys(signature.ecSignature, ['r', 's', 'v'])
+      })
+    })
+
+    describe('#getTxInfos()', () => {
+      beforeEach(() => init())
+
+      it('should return txinfos', async () => {
+        const txInfos = await web3Signer.getTxInfos(USER_1.address)
+        expect(txInfos).to.deep.equal(FAKE_TX_INFOS)
       })
     })
   })
