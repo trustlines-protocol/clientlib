@@ -196,7 +196,7 @@ workflows:
       - run-end2end-tests:
           requires:
             - build-e2e-image
-            - install
+            - build
       - build:
           filters:
             tags:
