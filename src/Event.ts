@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs/Observable'
+import { fromPromise } from 'rxjs/observable/fromPromise'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { TLProvider } from './providers/TLProvider'
@@ -48,9 +49,7 @@ export class Event {
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<T[]> {
-    const baseUrl = `networks/${networkAddress}/users/${
-      this.user.address
-    }/events`
+    const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/events`
     const parameterUrl = utils.buildUrl(baseUrl, filter)
     const [
       events,
@@ -74,7 +73,7 @@ export class Event {
    * @param filter.fromBlock Start of block range for event logs.
    */
   public async getAll(filter: EventFilterOptions = {}): Promise<AnyEvent[]> {
-    const endpoint = `users/${this.user.address}/events`
+    const endpoint = `users/${await this.user.getAddress()}/events`
     const parameterUrl = utils.buildUrl(endpoint, filter)
     const events = await this.provider.fetchEndpoint<AnyEventRaw[]>(
       parameterUrl
@@ -86,11 +85,13 @@ export class Event {
    * @hidden
    */
   public updateStream(): Observable<any> {
-    return this.provider
-      .createWebsocketStream('streams/events', 'subscribe', {
-        event: 'all',
-        user: this.user.address
-      })
+    return fromPromise(this.user.getAddress())
+      .map(userAddress =>
+        this.provider.createWebsocketStream('streams/events', 'subscribe', {
+          event: 'all',
+          user: userAddress
+        })
+      )
       .mergeMap(event => {
         if (event.hasOwnProperty('networkAddress')) {
           return this.currencyNetwork

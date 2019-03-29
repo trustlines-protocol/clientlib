@@ -12,17 +12,13 @@ export class Contact {
     this.provider = params.provider
   }
 
-  public getAll(networkAddress: string): Promise<string[]> {
-    const endpoint = `networks/${networkAddress}/users/${
-      this.user.address
-    }/contacts`
-    return this.provider.fetchEndpoint(endpoint)
+  public async getAll(networkAddress: string): Promise<string[]> {
+    const endpoint = `networks/${networkAddress}/users/${await this.user.getAddress()}/contacts`
+    return this.provider.fetchEndpoint<string[]>(endpoint)
   }
 
-  public createLink(address: string, username: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const params = ['contact', address, username]
-      resolve(utils.createLink(params))
-    })
+  public async createLink(address: string, username: string): Promise<string> {
+    const params = ['contact', address, username]
+    return utils.createLink(params)
   }
 }

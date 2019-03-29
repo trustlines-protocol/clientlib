@@ -48,9 +48,7 @@ export class EthWrapper {
    * @param ethWrapperAddress Address of ETH wrapper contract.
    */
   public async getBalance(ethWrapperAddress: string): Promise<Amount> {
-    const endpoint = `tokens/${ethWrapperAddress}/users/${
-      this.user.address
-    }/balance`
+    const endpoint = `tokens/${ethWrapperAddress}/users/${await this.user.getAddress()}/balance`
     const balance = await this.provider.fetchEndpoint<string>(endpoint)
     return utils.formatToAmount(balance, ETH_DECIMALS)
   }
@@ -76,7 +74,7 @@ export class EthWrapper {
       rawTx,
       ethFees
     } = await this.transaction.prepareContractTransaction(
-      this.user.address,
+      await this.user.getAddress(),
       ethWrapperAddress,
       'UnwEth',
       'transfer',
@@ -113,7 +111,7 @@ export class EthWrapper {
       rawTx,
       ethFees
     } = await this.transaction.prepareContractTransaction(
-      this.user.address,
+      await this.user.getAddress(),
       ethWrapperAddress,
       'UnwEth',
       'deposit',
@@ -148,7 +146,7 @@ export class EthWrapper {
       rawTx,
       ethFees
     } = await this.transaction.prepareContractTransaction(
-      this.user.address,
+      await this.user.getAddress(),
       ethWrapperAddress,
       'UnwEth',
       'withdraw',
@@ -185,9 +183,7 @@ export class EthWrapper {
     filter: EventFilterOptions = {}
   ): Promise<AnyTokenEvent[]> {
     const { type, fromBlock } = filter
-    const baseUrl = `tokens/${ethWrapperAddress}/users/${
-      this.user.address
-    }/events`
+    const baseUrl = `tokens/${ethWrapperAddress}/users/${await this.user.getAddress()}/events`
     const events = await this.provider.fetchEndpoint<AnyTokenEventRaw[]>(
       utils.buildUrl(baseUrl, { type, fromBlock })
     )

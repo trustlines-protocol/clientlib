@@ -55,17 +55,23 @@ export class Web3Signer implements TLSigner {
     if (!this.signer) {
       throw new Error('No signer set.')
     }
-    // NOTE: ethers.JsonRpcSigner throws error if key `from` exists
-    delete rawTx.from
     const { hash } = await this.signer.sendTransaction({
-      ...rawTx,
-      gasLimit: rawTx.gasLimit
-        ? new BigNumber(rawTx.gasLimit).toString()
-        : null,
-      gasPrice: rawTx.gasPrice
-        ? new BigNumber(rawTx.gasPrice).toString()
-        : null,
-      value: rawTx.value ? new BigNumber(rawTx.value).toString() : null
+      data: rawTx.data,
+      gasLimit: ethers.utils.bigNumberify(
+        rawTx.gasLimit instanceof BigNumber
+          ? rawTx.gasLimit.toString()
+          : rawTx.gasLimit
+      ),
+      gasPrice: ethers.utils.bigNumberify(
+        rawTx.gasPrice instanceof BigNumber
+          ? rawTx.gasPrice.toString()
+          : rawTx.gasPrice
+      ),
+      nonce: rawTx.nonce,
+      to: rawTx.to,
+      value: ethers.utils.bigNumberify(
+        rawTx.value instanceof BigNumber ? rawTx.value.toString() : rawTx.value
+      )
     })
     return hash
   }

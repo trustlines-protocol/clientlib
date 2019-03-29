@@ -6,6 +6,7 @@ import { UserObject } from '../typings'
 export interface TLWallet {
   address: string
   pubKey: string
+  getAddress(): Promise<string>
   showSeed(): Promise<string>
   exportPrivateKey(): Promise<string>
   createAccount(password: string, progressCallback?: any): Promise<UserObject>
