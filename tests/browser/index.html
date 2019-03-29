@@ -1,19 +1,50 @@
 <html>
   <head>
-    <script type="text/javascript" src="../../_bundles/trustlines-clientlib.js"></script>
+    <script type="text/javascript" src="/_bundles/trustlines-clientlib.js"></script>
     <script>
-      const config = {
-        protocol: 'http',
-        host: 'localhost',
+      const tlNetwork1 = new trustlines.TLNetwork({
         port: 5000,
-        useWebSockets: false,
-        path: 'api/v1/'
+        path: 'api/v1',
+        web3Provider: web3.currentProvider
+      })
+
+      let address
+
+      tlNetwork1.signer.getAddress().then(address => {
+        address = address
+        document.getElementById("address").innerText = "Address: " + address
+        tlNetwork1.signer.getTxInfos(address).then(txInfos => {
+          document.getElementById("nonce").innerText = "Nonce: " + txInfos.nonce
+          document.getElementById("gas-price").innerText = "Gas-Price: " + txInfos.gasPrice.toString()
+        })
+      })
+
+      tlNetwork1.signer.getBalance().then(balance => {
+        document.getElementById("balance").innerText = "Balance: " + balance.value
+      })
+
+      function signMessage() {
+        tlNetwork1.signer.signMessage('test').then(signedMsg => {
+          document.getElementById("signed-msg").innerText = "Signed Msg: " + signedMsg.concatSig
+        })
       }
-      const tlNetwork = new trustlines.TLNetwork(config)
-      const tlNetwork2 = new trustlines.TLNetwork(config)
+
+      function confirm() {
+        const rawTxObj = {  }
+        tlNetwork1.signer.confirm(rawTxObj).then(tx => {
+          console.log(tx)
+          document.getElementById("signed-msg").innerText = "Signed Msg: " + signedMsg.concatSig
+        })
+      }
     </script>
   </head>
   <body>
-    <button>hello</button>
+    <div id="address"></div>
+    <div id="balance"></div>
+    <div id="nonce"></div>
+    <div id="gas-price"></div>
+    <div id="signed-msg"></div>
+    <button onclick="signMessage()">Sign Message</button>
+    <button onclick="confirm()">Confirm</button>
   </body>
 </html>
