@@ -1,0 +1,85 @@
+<html>
+  <head>
+    <script type="text/javascript" src="/_bundles/trustlines-clientlib.js"></script>
+    <script>
+      const tlNetwork1 = new trustlines.TLNetwork({
+        port: 5000,
+        path: 'api/v1',
+        web3Provider: web3.currentProvider
+      })
+
+      let address, network
+
+      tlNetwork1.currencyNetwork.getAll().then(networks => {
+        network = networks[0]
+        document.getElementById("network").innerText = network.address
+      })
+
+      tlNetwork1.signer.getAddress().then(address => {
+        address = address
+        document.getElementById("address").innerText = address
+        tlNetwork1.signer.getTxInfos(address).then(txInfos => {
+          document.getElementById("nonce").innerText = txInfos.nonce
+          document.getElementById("gas-price").innerText = txInfos.gasPrice.toString()
+        })
+      })
+
+      tlNetwork1.signer.getBalance().then(balance => {
+        document.getElementById("balance").innerText = balance.value
+      })
+
+      function signMessage() {
+        const message = document.getElementById("message").value
+        tlNetwork1.signer.signMessage(message).then(signedMsg => {
+          document.getElementById("signed-msg").innerText = "Signed Msg: " + signedMsg.concatSig
+        })
+      }
+
+      function confirm() {
+        tlNetwork1.trustline.prepareUpdate(
+          network.address,
+          document.getElementById("other").value,
+          100,
+          100
+        ).then(tx => {
+          tlNetwork1.trustline.confirm(tx.rawTx).then(hash => {
+            document.getElementById("hash").innerText = hash
+          })
+        })
+      }
+    </script>
+  </head>
+  <body>
+    <p>Make sure MetaMask is connected to a JSON RPC.</p>
+    <div>
+      Network: <span id="network"></span>
+    </div>
+    <div>
+      Address: <span id="address"></span>
+    </div>
+    <div>
+      Balance: <span id="balance"></span>
+    </div>
+    <div>
+      Nonce: <span id="nonce"></span>
+    </div>
+    <div>
+      Gas price: <span id="gas-price"></span>
+    </div>
+    <p></p>
+    <div>
+      <label for="message">Message to sign: </label>
+      <input id="message" />
+      <button onclick="signMessage()">Sign</button>
+      <div id="signed-msg"></div>
+    </div>
+    <p></p>
+    <div>
+      <div>Send trustline request of 100 to other party.</div>
+      <label for="other">Address of other: </label>
+      <input id="other"/>
+      <button onclick="confirm()">Send</button>
+      <div id="hash"></div>
+    </div>
+  </body>
+</html>
