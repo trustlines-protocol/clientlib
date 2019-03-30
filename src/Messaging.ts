@@ -61,26 +61,26 @@ export class Messaging {
   }
 
   public messageStream(): Observable<any> {
-    return fromPromise(this.user.getAddress())
-      .map(userAddress =>
-        this.provider.createWebsocketStream(`/streams/messages`, 'listen', {
+    return fromPromise(this.user.getAddress()).flatMap(userAddress =>
+      this.provider
+        .createWebsocketStream(`/streams/messages`, 'listen', {
           type: 'all',
           user: userAddress
         })
-      )
-      .mergeMap(data => {
-        if (data.type) {
-          return [data]
-        }
-        const message = {
-          ...JSON.parse(data.message),
-          timestamp: data.timestamp
-        }
-        return this.currencyNetwork
-          .getDecimals(message.networkAddress)
-          .then(({ networkDecimals, interestRateDecimals }) =>
-            utils.formatEvent(message, networkDecimals, interestRateDecimals)
-          )
-      })
+        .mergeMap(data => {
+          if (data.type) {
+            return [data]
+          }
+          const message = {
+            ...JSON.parse(data.message),
+            timestamp: data.timestamp
+          }
+          return this.currencyNetwork
+            .getDecimals(message.networkAddress)
+            .then(({ networkDecimals, interestRateDecimals }) =>
+              utils.formatEvent(message, networkDecimals, interestRateDecimals)
+            )
+        })
+    )
   }
 }

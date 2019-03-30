@@ -85,24 +85,24 @@ export class Event {
    * @hidden
    */
   public updateStream(): Observable<any> {
-    return fromPromise(this.user.getAddress())
-      .map(userAddress =>
-        this.provider.createWebsocketStream('streams/events', 'subscribe', {
+    return fromPromise(this.user.getAddress()).flatMap(userAddress =>
+      this.provider
+        .createWebsocketStream('streams/events', 'subscribe', {
           event: 'all',
           user: userAddress
         })
-      )
-      .mergeMap(event => {
-        if (event.hasOwnProperty('networkAddress')) {
-          return this.currencyNetwork
-            .getDecimals(event.networkAddress)
-            .then(({ networkDecimals, interestRateDecimals }) =>
-              utils.formatEvent(event, networkDecimals, interestRateDecimals)
-            )
-        } else {
-          return Promise.resolve(event)
-        }
-      })
+        .mergeMap(event => {
+          if (event.hasOwnProperty('networkAddress')) {
+            return this.currencyNetwork
+              .getDecimals(event.networkAddress)
+              .then(({ networkDecimals, interestRateDecimals }) =>
+                utils.formatEvent(event, networkDecimals, interestRateDecimals)
+              )
+          } else {
+            return Promise.resolve(event)
+          }
+        })
+    )
   }
 
   /**
