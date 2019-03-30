@@ -54,7 +54,7 @@ try {
 
 ## Running injected web3 example
 
-To run the example make sure to have (MetaMask)[https://metamask.io/] installed and connected to a JSON RPC.
+To run the example make sure to have [MetaMask](https://metamask.io/) installed and connected to a JSON RPC.
 
 ```bash
 yarn serve
