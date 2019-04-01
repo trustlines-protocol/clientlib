@@ -28,6 +28,10 @@
     "*.{ts,js,json,css,md}": [
       "prettier --write",
       "git add"
+    ],
+    "*.ts": [
+      "tslint -c tslint.json --fix",
+      "git add"
     ]
   },
   "nyc": {
