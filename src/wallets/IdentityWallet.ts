@@ -15,10 +15,9 @@ import {
 } from '../typings'
 
 import { joinSignature, SigningKey } from 'ethers/utils'
-import { TLSigner } from '../signers/TLSigner'
 import utils from '../utils'
 
-export class IdentityWallet implements TLWallet, TLSigner {
+export class IdentityWallet implements TLWallet {
   public provider: TLProvider
 
   private wallet: ethers.Wallet

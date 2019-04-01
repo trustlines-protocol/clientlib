@@ -1,9 +1,10 @@
 import { UserObject } from '../typings'
+import { TLSigner } from '../signers/TLSigner'
 
 /**
  * Interface for different wallet strategies.
  */
-export interface TLWallet {
+export interface TLWallet extends TLSigner {
   address: string
   pubKey: string
   showSeed(): Promise<string>

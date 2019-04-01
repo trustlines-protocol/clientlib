@@ -2,7 +2,6 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
-import { TLSigner } from '../signers/TLSigner'
 import { TL_WALLET_VERSION, TLWallet, WALLET_TYPE_ETHERS } from './TLWallet'
 
 import utils from '../utils'
@@ -19,7 +18,7 @@ import {
 /**
  * The EthersWallet class contains wallet related methods.
  */
-export class EthersWallet implements TLWallet, TLSigner {
+export class EthersWallet implements TLWallet {
   public provider: TLProvider
 
   private wallet: ethers.Wallet
