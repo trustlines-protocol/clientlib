@@ -1,5 +1,5 @@
-import { UserObject } from '../typings'
 import { TLSigner } from '../signers/TLSigner'
+import { UserObject } from '../typings'
 
 /**
  * Interface for different wallet strategies.

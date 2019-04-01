@@ -182,8 +182,8 @@ export class TLNetwork {
     this.provider = provider
   }
 
-  public setSigner(web3Provider, wallet): void {
-    const signer = web3Provider
+  public setSigner(web3Provider, wallet: TLWallet): void {
+    const signer: TLSigner = web3Provider
       ? new Web3Signer(new ethers.providers.Web3Provider(web3Provider))
       : wallet
 
