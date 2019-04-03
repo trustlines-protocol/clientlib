@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs/Observable'
+import { fromPromise } from 'rxjs/observable/fromPromise'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { TLProvider } from './providers/TLProvider'
@@ -21,59 +22,65 @@ export class Messaging {
     this.provider = params.provider
   }
 
-  public paymentRequest(
-    network: string,
-    user: string,
+  public async paymentRequest(
+    networkAddress: string,
+    counterPartyAddress: string,
     value: number | string,
     subject?: string
   ) {
     const headers = new Headers({
       'Content-Type': 'application/json'
     })
-    return this.currencyNetwork.getDecimals(network).then(dec => {
-      const type = 'PaymentRequest'
-      const options = {
-        body: JSON.stringify({
-          message: `{
-            "type": "${type}",
-            "networkAddress": "${network}",
-            "from": "${this.user.address}",
-            "to": "${user}",
-            "direction": "received",
-            "user": "${user}",
-            "counterParty": "${this.user.address}",
-            "amount": "${utils.calcRaw(value, dec.networkDecimals).toString()}",
-            "subject": "${subject}",
-            "nonce": "${utils.generateRandomNumber(40)}"
-          }`,
-          type // (optional) hint for notifications
-        }),
-        headers,
-        method: 'POST'
-      }
-      return this.provider.fetchEndpoint(`messages/${user}`, options)
-    })
+    const decimals = await this.currencyNetwork.getDecimals(networkAddress)
+    const type = 'PaymentRequest'
+    const options = {
+      body: JSON.stringify({
+        message: `{
+          "type": "${type}",
+          "networkAddress": "${networkAddress}",
+          "from": "${await this.user.getAddress()}",
+          "to": "${counterPartyAddress}",
+          "direction": "received",
+          "user": "${counterPartyAddress}",
+          "counterParty": "${await this.user.getAddress()}",
+          "amount": "${utils
+            .calcRaw(value, decimals.networkDecimals)
+            .toString()}",
+          "subject": "${subject}",
+          "nonce": "${utils.generateRandomNumber(40)}"
+        }`,
+        type // (optional) hint for notifications
+      }),
+      headers,
+      method: 'POST'
+    }
+    return this.provider.fetchEndpoint(
+      `messages/${counterPartyAddress}`,
+      options
+    )
   }
 
   public messageStream(): Observable<any> {
-    return this.provider
-      .createWebsocketStream(`/streams/messages`, 'listen', {
-        type: 'all',
-        user: this.user.address
-      })
-      .mergeMap(data => {
-        if (data.type) {
-          return [data]
-        }
-        const message = {
-          ...JSON.parse(data.message),
-          timestamp: data.timestamp
-        }
-        return this.currencyNetwork
-          .getDecimals(message.networkAddress)
-          .then(({ networkDecimals, interestRateDecimals }) =>
-            utils.formatEvent(message, networkDecimals, interestRateDecimals)
-          )
-      })
+    return fromPromise(this.user.getAddress()).flatMap(userAddress =>
+      this.provider
+        .createWebsocketStream(`/streams/messages`, 'listen', {
+          type: 'all',
+          user: userAddress
+        })
+        .mergeMap(data => {
+          if (data.type) {
+            return [data]
+          }
+          const message = {
+            ...JSON.parse(data.message),
+            timestamp: data.timestamp
+          }
+          return this.currencyNetwork
+            .getDecimals(message.networkAddress)
+            .then(({ networkDecimals, interestRateDecimals }) =>
+              utils.formatEvent(message, networkDecimals, interestRateDecimals)
+            )
+        })
+    )
   }
 }

@@ -228,7 +228,7 @@ export class Exchange {
       feeRecipient: ZERO_ADDRESS,
       filledMakerTokenAmount: '0',
       filledTakerTokenAmount: '0',
-      maker: this.user.address,
+      maker: await this.user.getAddress(),
       makerFee: '0',
       makerTokenAddress: ethers.utils.getAddress(makerTokenAddress),
       makerTokenAmount: utils
@@ -298,7 +298,7 @@ export class Exchange {
       this._getPathObj(
         makerTokenAddress,
         maker,
-        this.user.address,
+        await this.user.getAddress(),
         this._getPartialAmount(
           fillTakerTokenValue,
           takerTokenAmount.value,
@@ -308,7 +308,7 @@ export class Exchange {
       ),
       this._getPathObj(
         takerTokenAddress,
-        this.user.address,
+        await this.user.getAddress(),
         maker,
         fillTakerTokenValue,
         {
@@ -329,7 +329,7 @@ export class Exchange {
       rawTx,
       ethFees
     } = await this.transaction.prepareContractTransaction(
-      this.user.address,
+      await this.user.getAddress(),
       exchangeContractAddress,
       'Exchange',
       'fillOrderTrustlines',
@@ -399,7 +399,7 @@ export class Exchange {
       rawTx,
       ethFees
     } = await this.transaction.prepareContractTransaction(
-      this.user.address,
+      await this.user.getAddress(),
       exchangeContractAddress,
       'Exchange',
       'cancelOrder',
@@ -441,9 +441,7 @@ export class Exchange {
     exchangeAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<AnyExchangeEvent[]> {
-    const baseUrl = `exchange/${exchangeAddress}/users/${
-      this.user.address
-    }/events`
+    const baseUrl = `exchange/${exchangeAddress}/users/${await this.user.getAddress()}/events`
     const parameterUrl = utils.buildUrl(baseUrl, filter)
     const rawEvents = await this.provider.fetchEndpoint<AnyExchangeEventRaw[]>(
       parameterUrl

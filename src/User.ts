@@ -48,6 +48,13 @@ export class User {
   }
 
   /**
+   * Async `address` getter for loaded user.
+   */
+  public async getAddress(): Promise<string> {
+    return this.signer.getAddress()
+  }
+
+  /**
    * Creates a new user and the respective wallet using the configured signer.
    * Loads new user into the state and returns the created user object.
    * @param progressCallback Optional progress callback to call on encryption progress.

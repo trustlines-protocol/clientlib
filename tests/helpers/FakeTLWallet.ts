@@ -73,6 +73,13 @@ export class FakeTLWallet extends FakeTLSigner implements TLWallet {
     return Promise.resolve(FAKE_PRIVATE_KEY)
   }
 
+  public getAddress(): Promise<string> {
+    if (this.errors.getAddress) {
+      throw new Error('Mocked error in signer.getAddress()!')
+    }
+    return Promise.resolve(FAKE_ACCOUNT.address)
+  }
+
   public setError(functionName: string) {
     this.errors[functionName] = true
   }

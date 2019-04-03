@@ -128,7 +128,7 @@ export class Trustline {
       rawTx,
       ethFees
     } = await this.transaction.prepareContractTransaction(
-      this.user.address,
+      await this.user.getAddress(),
       networkAddress,
       'CurrencyNetwork',
       updateFuncName,
@@ -191,9 +191,7 @@ export class Trustline {
    * @param networkAddress Address of a currency network.
    */
   public async getAll(networkAddress: string): Promise<TrustlineObject[]> {
-    const endpoint = `networks/${networkAddress}/users/${
-      this.user.address
-    }/trustlines`
+    const endpoint = `networks/${networkAddress}/users/${await this.user.getAddress()}/trustlines`
     const [
       trustlines,
       { networkDecimals, interestRateDecimals }
@@ -215,9 +213,7 @@ export class Trustline {
     networkAddress: string,
     counterpartyAddress: string
   ): Promise<TrustlineObject> {
-    const endpoint = `networks/${networkAddress}/users/${
-      this.user.address
-    }/trustlines/${counterpartyAddress}`
+    const endpoint = `networks/${networkAddress}/users/${await this.user.getAddress()}/trustlines/${counterpartyAddress}`
     const [
       trustline,
       { networkDecimals, interestRateDecimals }
@@ -287,7 +283,7 @@ export class Trustline {
     // Get close path
     const { path, maxFees, estimatedGas, value } = await this.getClosePath(
       networkAddress,
-      this.user.address,
+      await this.user.getAddress(),
       counterpartyAddress,
       {
         ...options,
@@ -322,7 +318,7 @@ export class Trustline {
       rawTx,
       ethFees
     } = await this.transaction.prepareContractTransaction(
-      this.user.address,
+      await this.user.getAddress(),
       networkAddress,
       'CurrencyNetwork',
       closeFuncName,

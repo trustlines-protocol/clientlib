@@ -71,7 +71,7 @@ export class Payment {
     })
     const { path, maxFees, estimatedGas, feePayer } = await this.getPath(
       networkAddress,
-      this.user.address,
+      await this.user.getAddress(),
       receiverAddress,
       value,
       {
@@ -84,7 +84,7 @@ export class Payment {
         rawTx,
         ethFees
       } = await this.transaction.prepareContractTransaction(
-        this.user.address,
+        await this.user.getAddress(),
         networkAddress,
         'CurrencyNetwork',
         // if no options are set for feePayer, the sender pays the fees.
@@ -131,7 +131,7 @@ export class Payment {
   ): Promise<TxObject> {
     const { gasLimit, gasPrice } = options
     const { ethFees, rawTx } = await this.transaction.prepareValueTransaction(
-      this.user.address,
+      await this.user.getAddress(),
       receiverAddress,
       utils.calcRaw(value, 18),
       {
@@ -239,7 +239,7 @@ export class Payment {
     const params = [
       'paymentrequest',
       networkAddress,
-      this.user.address,
+      await this.user.getAddress(),
       amount,
       subject
     ]
@@ -261,7 +261,7 @@ export class Payment {
     const { networkDecimals } = await this.currencyNetwork.getDecimals(
       networkAddress
     )
-    const userAddress = this.user.address
+    const userAddress = await this.user.getAddress()
     const endpoint = `networks/${networkAddress}/max-capacity-path-info`
     const result = await this.provider.postToEndpoint<{
       capacity: number

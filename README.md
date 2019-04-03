@@ -51,3 +51,13 @@ try {
   console.log('Caught error:', error)
 }
 ```
+
+## Running injected web3 example
+
+To run the example make sure to have [MetaMask](https://metamask.io/) installed and connected to a JSON RPC.
+
+```bash
+yarn serve
+```
+
+This serves the injected web3 example app on `http://127.0.0.1:8080`. You can find the app under `./examples/injected-web3`.

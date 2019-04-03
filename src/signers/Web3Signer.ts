@@ -56,14 +56,22 @@ export class Web3Signer implements TLSigner {
       throw new Error('No signer set.')
     }
     const { hash } = await this.signer.sendTransaction({
-      ...rawTx,
-      gasLimit: rawTx.gasLimit
-        ? new BigNumber(rawTx.gasLimit).toString()
-        : undefined,
-      gasPrice: rawTx.gasPrice
-        ? new BigNumber(rawTx.gasPrice).toString()
-        : undefined,
-      value: rawTx.value ? new BigNumber(rawTx.value).toString() : undefined
+      data: rawTx.data,
+      gasLimit: ethers.utils.bigNumberify(
+        rawTx.gasLimit instanceof BigNumber
+          ? rawTx.gasLimit.toString()
+          : rawTx.gasLimit
+      ),
+      gasPrice: ethers.utils.bigNumberify(
+        rawTx.gasPrice instanceof BigNumber
+          ? rawTx.gasPrice.toString()
+          : rawTx.gasPrice
+      ),
+      nonce: rawTx.nonce,
+      to: rawTx.to,
+      value: ethers.utils.bigNumberify(
+        rawTx.value instanceof BigNumber ? rawTx.value.toString() : rawTx.value
+      )
     })
     return hash
   }
