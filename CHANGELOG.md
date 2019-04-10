@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.4.0] - 2019-04-10
+
+### Added
+
+- Additional option `feePayer` in `payment.prepare` which specifies who pays network fees for transfer
+- `IdentityWallet` for creating and interacting with identity contracts
+- Additional configuration option `walletType` for initializing `TLNetwork` instance
+  - Defaults to `'WalletTypeEthers'`
+  - When using `'WalletTypeIdentity'` it enables meta-transactions which are relayed by configured relay server
+- Basic example app for using clientlib with injected web3 instance via MetaMask under `/examples/injected-web3`
+
+### Changed
+
+- Copyright transferred to trustlines foundation
+- Every call to `user.address` has been replaced with `await user.getAddress`
+
+### Removed
+
+- Obsolete parameters `serializedWallet` and `progressCallback` in `user.createOnboardingMsg`
+
+### Fixed
+
+- Bug when using `Web3Signer` via MetaMask which referenced an empty address
+- Wrong devDependency of `reconnecting-websocket` which should be a normal dependency
+
 ## [0.3.0] - 2019-02-15
 
 Minor breaking change due to migration to `ethers.js`. The API itself did not change, but keystore files of previous versions are not compatible with the new library.
