@@ -58,6 +58,7 @@ export class Payment {
    * @param options.maximumFees Max. transfer fees user is willing to pay.
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
+   * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
    */
   public async prepare(
     networkAddress: string,
@@ -153,6 +154,7 @@ export class Payment {
    * @param value Amount to transfer in biggest unit,
    *              i.e. 1.23 if currency network has 2 decimals.
    * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
    * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
