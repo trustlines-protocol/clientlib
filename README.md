@@ -1,8 +1,8 @@
 # trustlines-network clientlib
 
 [![npm](https://img.shields.io/npm/v/trustlines-clientlib.svg)](https://www.npmjs.com/package/trustlines-clientlib)
-[![Travis (.org) branch](https://img.shields.io/travis/trustlines-network/clientlib/develop.svg)](https://travis-ci.org/trustlines-network/clientlib)
-[![Codecov branch](https://img.shields.io/codecov/c/github/trustlines-network/clientlib/develop.svg)](https://codecov.io/gh/trustlines-network/clientlib)
+[![CircleCI branch](https://img.shields.io/circleci/project/github/trustlines-protocol/clientlib/master.svg)](https://circleci.com/gh/trustlines-protocol/clientlib)
+[![Codecov branch](https://img.shields.io/codecov/c/github/trustlines-protocol/clientlib/master.svg)](https://codecov.io/gh/trustlines-protocol/clientlib)
 
 A TypeScript/Javascript library for interacting with the [trustlines-network protocol](https://trustlines.network/).
 
