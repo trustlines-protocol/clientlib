@@ -20,14 +20,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Copyright transferred to trustlines foundation
 - Every call to `user.address` has been replaced with `await user.getAddress`
 
-### Removed
-
-- Obsolete parameters `serializedWallet` and `progressCallback` in `user.createOnboardingMsg`
-
 ### Fixed
 
 - Bug when using `Web3Signer` via MetaMask which referenced an empty address
 - Wrong devDependency of `reconnecting-websocket` which should be a normal dependency
+
+### BREAKING
+
+- Removed obsolete parameters `serializedWallet` and `progressCallback` in `user.createOnboardingMsg` (only mandatory parameter is now `username`)
 
 ## [0.3.0] - 2019-02-15
 
