@@ -220,7 +220,7 @@ workflows:
             - run-end2end-tests
           filters:
             branches:
-              only: develop
+              only: master
       - deploy-latest:
           context: npm-credentials
           requires:
