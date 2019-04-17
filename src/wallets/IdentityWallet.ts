@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { ethers, utils as ethersUtils } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
 import { TL_WALLET_VERSION, TLWallet, WALLET_TYPE_IDENTITY } from './TLWallet'
@@ -14,7 +14,6 @@ import {
   UserObject
 } from '../typings'
 
-import { joinSignature, SigningKey } from 'ethers/utils'
 import utils from '../utils'
 
 export class IdentityWallet implements TLWallet {
@@ -283,8 +282,10 @@ export class IdentityWallet implements TLWallet {
     }
 
     // This is a trick to use ethers to sign the hash without appending `\x19Ethereum Signed Message:\n`
-    const signingKey = new SigningKey(this.wallet.privateKey)
-    const signature = joinSignature(await signingKey.signDigest(hash))
+    const signingKey = new ethersUtils.SigningKey(this.wallet.privateKey)
+    const signature = ethersUtils.joinSignature(
+      await signingKey.signDigest(hash)
+    )
     return signature
   }
 

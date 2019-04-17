@@ -7,10 +7,6 @@ const PATHS = {
 
 module.exports = {
   mode: 'production',
-  node: {
-    fs: 'empty',
-    child_process: 'empty'
-  },
   entry: {
     'trustlines-clientlib': [PATHS.entryPoint]
   },
