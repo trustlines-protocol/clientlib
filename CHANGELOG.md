@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.4.1] - 2019-04-17
+
+### Fixed
+
+- `Can not resolve module child_process` bug in react-native
+
 ## [0.4.0] - 2019-04-10
 
 ### Added
