@@ -61,7 +61,8 @@ export const websocketStream = (
 ): Observable<any> => {
   return Observable.create((observer: Observer<any>) => {
     const options = {
-      WebSocket: (global as any).WebSocket ? undefined : NodeWebSocket
+      WebSocket: (global as any).WebSocket ? undefined : NodeWebSocket,
+      minReconnectionDelay: 1
     }
     const ws = new ReconnectingWebSocket(url, undefined, options)
     const jrpc = new JsonRPC()
