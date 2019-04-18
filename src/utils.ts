@@ -6,6 +6,7 @@ import 'rxjs/add/operator/mergeMap'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import JsonRPC from 'simple-jsonrpc-js'
+import NodeWebSocket from 'ws'
 
 import {
   Amount,
@@ -59,7 +60,10 @@ export const websocketStream = (
   args: object
 ): Observable<any> => {
   return Observable.create((observer: Observer<any>) => {
-    const ws = new ReconnectingWebSocket(url)
+    const options = {
+      WebSocket: (global as any).WebSocket ? undefined : NodeWebSocket
+    }
+    const ws = new ReconnectingWebSocket(url, undefined, options)
     const jrpc = new JsonRPC()
 
     jrpc.toStream = (message: string) => {

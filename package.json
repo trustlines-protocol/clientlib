@@ -94,6 +94,7 @@
     "reconnecting-websocket": "^4.1.10",
     "rxjs": "^5.4.1",
     "simple-jsonrpc-js": "0.0.10",
-    "trustlines-contracts-abi": "dev"
+    "trustlines-contracts-abi": "dev",
+    "ws": "^6.2.1"
   }
 }
