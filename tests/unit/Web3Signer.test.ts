@@ -1,5 +1,5 @@
-import * as chai from 'chai'
-import * as chaiAsPromised from 'chai-as-promised'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { Web3Signer } from '../../src/signers/Web3Signer'
