@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.4.2] - 2019-04-18
+
+### Changed
+
+- Dependency update of `reconnecting-websocket`
+
+### Fixed
+
+- `Object is not a constructor (new ReconnectingWebSocket)` bug in react-native
+
 ## [0.4.1] - 2019-04-17
 
 ### Fixed
