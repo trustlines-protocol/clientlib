@@ -1,12 +1,11 @@
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
-import * as WebSocket from 'html5-websocket'
-import * as ReconnectingWebSocket from 'reconnecting-websocket'
+import ReconnectingWebSocket from 'reconnecting-websocket'
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/mergeMap'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
-import * as JsonRPC from 'simple-jsonrpc-js'
+import JsonRPC from 'simple-jsonrpc-js'
 
 import {
   Amount,
@@ -60,8 +59,7 @@ export const websocketStream = (
   args: object
 ): Observable<any> => {
   return Observable.create((observer: Observer<any>) => {
-    const options = { constructor: WebSocket }
-    const ws = new ReconnectingWebSocket(url, undefined, options)
+    const ws = new ReconnectingWebSocket(url)
     const jrpc = new JsonRPC()
 
     jrpc.toStream = (message: string) => {
@@ -93,7 +91,7 @@ export const websocketStream = (
     }
 
     return () => {
-      ws.close(1000, '', { keepClosed: true })
+      ws.close(1000, '')
     }
   })
 }

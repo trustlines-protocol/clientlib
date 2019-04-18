@@ -91,8 +91,7 @@
     "bignumber.js": "7.2.1",
     "ethereumjs-util": "^5.2.0",
     "ethers": "^4.0.23",
-    "html5-websocket": "^2.0.2",
-    "reconnecting-websocket": "^3.0.7",
+    "reconnecting-websocket": "^4.1.10",
     "rxjs": "^5.4.1",
     "simple-jsonrpc-js": "0.0.10",
     "trustlines-contracts-abi": "dev"
