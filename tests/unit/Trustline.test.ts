@@ -43,7 +43,6 @@ describe('unit', () => {
       fakeUser = new FakeUser({
         provider: fakeTLProvider,
         signer: fakeTLSigner,
-        transaction: fakeTransaction,
         wallet: fakeTLWallet
       })
       fakeEvent = new FakeEvent({
