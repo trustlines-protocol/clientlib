@@ -57,8 +57,8 @@ describe('unit', () => {
 
     describe('#buildUrl()', () => {
       it('should only return base url', () => {
-        const base = 'http://trustlines.network/v1'
-        assert.equal(utils.buildUrl(base), 'http://trustlines.network/v1')
+        const base = 'http://trustlines'
+        assert.equal(utils.buildUrl(base), 'http://trustlines')
       })
 
       it('should return query url with encoded params', () => {
@@ -73,10 +73,9 @@ describe('unit', () => {
       })
 
       it('should return url with encoded path', () => {
-        const base = 'http://trustlines.network/v1'
+        const base = 'http://trustlines'
         const params = ['contact', '0x00', 'username with spaces']
-        const url =
-          'http://trustlines.network/v1/contact/0x00/username%20with%20spaces'
+        const url = 'http://trustlines/contact/0x00/username%20with%20spaces'
         assert.equal(utils.buildUrl(base, params), url)
       })
     })
@@ -84,8 +83,13 @@ describe('unit', () => {
     describe('#createLink()', () => {
       it('should return url in trustlines link schema', () => {
         const params = ['contact', '0x']
-        const url = 'http://trustlines.network/v1/contact/0x'
+        const url = 'trustlines://contact/0x'
         assert.equal(utils.createLink(params), url)
+      })
+      it('should return url in custom link schema', () => {
+        const params = ['contact', '0x']
+        const url = 'http://custom/contact/0x'
+        assert.equal(utils.createLink(params, 'http://custom'), url)
       })
     })
 

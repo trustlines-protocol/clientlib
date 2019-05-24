@@ -119,9 +119,10 @@ export const buildUrl = (baseUrl: string, params?: any): string => {
       .filter(key => params[key])
       .reduce(
         (acc, paramKey) =>
-          `${acc}/${
-            baseUrl.indexOf('?') === -1 ? '?' : '&'
-          }${paramKey}=${encodeURIComponent(params[paramKey])}`
+          `${acc}${
+            acc.indexOf('?') === -1 ? '?' : '&'
+          }${paramKey}=${encodeURIComponent(params[paramKey])}`,
+        baseUrl
       )
   }
   return baseUrl
