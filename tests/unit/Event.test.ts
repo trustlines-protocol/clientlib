@@ -8,7 +8,6 @@ import { FakeCurrencyNetwork } from '../helpers/FakeCurrencyNetwork'
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTLSigner } from '../helpers/FakeTLSigner'
 import { FakeTLWallet } from '../helpers/FakeTLWallet'
-import { FakeTransaction } from '../helpers/FakeTransaction'
 import { FakeUser } from '../helpers/FakeUser'
 
 import {
@@ -32,14 +31,9 @@ describe('unit', () => {
       const fakeCurrencyNetwork = new FakeCurrencyNetwork(fakeTLProvider)
       const fakeTLSigner = new FakeTLSigner()
       const fakeTLWallet = new FakeTLWallet()
-      const fakeTransaction = new FakeTransaction({
-        provider: fakeTLProvider,
-        signer: fakeTLSigner
-      })
       const fakeUser = new FakeUser({
         provider: fakeTLProvider,
         signer: fakeTLSigner,
-        transaction: fakeTransaction,
         wallet: fakeTLWallet
       })
       event = new Event({

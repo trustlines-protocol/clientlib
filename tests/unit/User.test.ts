@@ -9,13 +9,7 @@ import { FakeTLSigner } from '../helpers/FakeTLSigner'
 import { FakeTLWallet } from '../helpers/FakeTLWallet'
 import { FakeTransaction } from '../helpers/FakeTransaction'
 
-import {
-  FAKE_ACCOUNT,
-  FAKE_ENC_OBJECT,
-  FAKE_SEED,
-  FAKE_VALUE_TX_OBJECT_INTERNAL,
-  keystore1
-} from '../Fixtures'
+import { FAKE_ENC_OBJECT, FAKE_SEED, keystore1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -29,20 +23,14 @@ describe('unit', () => {
     let fakeTLProvider
     let fakeTLWallet
     let fakeTLSigner
-    let fakeTransaction
 
     const init = () => {
       fakeTLProvider = new FakeTLProvider()
       fakeTLWallet = new FakeTLWallet()
       fakeTLSigner = new FakeTLSigner()
-      fakeTransaction = new FakeTransaction({
-        provider: fakeTLProvider,
-        signer: fakeTLWallet
-      })
       user = new User({
         provider: fakeTLProvider,
         signer: fakeTLSigner,
-        transaction: fakeTransaction,
         wallet: fakeTLWallet
       })
     }
@@ -54,7 +42,6 @@ describe('unit', () => {
         user = new User({
           provider: fakeTLProvider,
           signer: fakeTLSigner,
-          transaction: fakeTransaction,
           wallet: fakeTLWallet
         })
         assert.isString(user.address)
@@ -208,50 +195,6 @@ describe('unit', () => {
       it('should throw error', async () => {
         fakeTLWallet.setError('recoverFromSeed')
         await assert.isRejected(user.recoverFromSeed(FAKE_SEED))
-      })
-    })
-
-    describe('#createOnboardingMsg()', () => {
-      beforeEach(() => init())
-
-      it('should create onboarding message', async () => {
-        const onboardingMsg = await user.createOnboardingMsg('testname')
-        assert.isString(onboardingMsg)
-      })
-    })
-
-    describe('#prepOnboarding()', () => {
-      beforeEach(() => init())
-
-      it('should prepare a onboarding transaction', async () => {
-        const preparedOnboardingTx = await user.prepOnboarding(
-          FAKE_ACCOUNT.address,
-          1.23
-        )
-        assert.hasAllKeys(preparedOnboardingTx, ['rawTx', 'ethFees'])
-      })
-
-      it('should throw error', async () => {
-        fakeTransaction.setError('prepareValueTransaction')
-        await assert.isRejected(user.prepOnboarding(FAKE_ACCOUNT.address, 1.23))
-      })
-    })
-
-    describe('#confirmOnboarding()', () => {
-      beforeEach(() => init())
-
-      it('should confirm prepared onboarding transaction', async () => {
-        const txHash = await user.confirmOnboarding(
-          FAKE_VALUE_TX_OBJECT_INTERNAL.rawTx
-        )
-        assert.isString(txHash)
-      })
-
-      it('should throw error', async () => {
-        fakeTransaction.setError('confirm')
-        await assert.isRejected(
-          user.confirmOnboarding(FAKE_VALUE_TX_OBJECT_INTERNAL.rawTx)
-        )
       })
     })
 

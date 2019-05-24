@@ -2,12 +2,11 @@ import * as ethUtils from 'ethereumjs-util'
 
 import { TLProvider } from './providers/TLProvider'
 import { TLSigner } from './signers/TLSigner'
-import { Transaction } from './Transaction'
 import { TLWallet } from './wallets/TLWallet'
 
 import utils from './utils'
 
-import { Amount, RawTxObject, Signature, UserObject } from './typings'
+import { Amount, Signature, UserObject } from './typings'
 
 /**
  * The User class contains all user related functions, which also include wallet
@@ -16,7 +15,6 @@ import { Amount, RawTxObject, Signature, UserObject } from './typings'
 export class User {
   private provider: TLProvider
   private signer: TLSigner
-  private transaction: Transaction
   private wallet: TLWallet
 
   private defaultPassword = 'ts'
@@ -24,12 +22,10 @@ export class User {
   constructor(params: {
     provider: TLProvider
     signer: TLSigner
-    transaction: Transaction
     wallet: TLWallet
   }) {
     this.provider = params.provider
     this.signer = params.signer
-    this.transaction = params.transaction
     this.wallet = params.wallet
   }
 
@@ -147,43 +143,6 @@ export class User {
       progressCallback
     )
     return recoveredUser
-  }
-
-  /**
-   * Returns a shareable link, which can be opened by other users who already have ETH
-   * and are willing to send some of it to the new user. The function is called by a
-   * new user who wants to get onboarded, respectively has no ETH or trustline.
-   * @param username Name of new user who wants to get onboarded.
-   */
-  public async createOnboardingMsg(username: string): Promise<string> {
-    const params = ['onboardingrequest', username, this.address, this.pubKey]
-    return utils.createLink(params)
-  }
-
-  /**
-   * Returns an ethereum transaction object for onboarding a new user. Called by a user who already has ETH
-   * and wants to onboard a new user by sending some of it.
-   * @param newUserAddress Address of new user who wants to get onboarded.
-   * @param initialValue Value of ETH to send, default is 0.1 ETH.
-   */
-  public async prepOnboarding(
-    newUserAddress: string,
-    initialValue = 0.1
-  ): Promise<object> {
-    return this.transaction.prepareValueTransaction(
-      this.address, // address of onboarder
-      newUserAddress, // address of new user who gets onboarded
-      utils.calcRaw(initialValue, 18)
-    )
-  }
-
-  /**
-   * Signs a raw transaction object as returned by `prepOnboarding`
-   * and sends the signed transaction.
-   * @param rawTx Raw transaction object.
-   */
-  public async confirmOnboarding(rawTx: RawTxObject): Promise<string> {
-    return this.transaction.confirm(rawTx)
   }
 
   /**

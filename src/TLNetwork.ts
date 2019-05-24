@@ -129,7 +129,6 @@ export class TLNetwork {
     this.user = new User({
       provider: this.provider,
       signer: this.signer,
-      transaction: this.transaction,
       wallet: this.wallet
     })
     this.contact = new Contact({
