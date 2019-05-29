@@ -7,7 +7,6 @@ import { User } from '../../src/User'
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTLSigner } from '../helpers/FakeTLSigner'
 import { FakeTLWallet } from '../helpers/FakeTLWallet'
-import { FakeTransaction } from '../helpers/FakeTransaction'
 
 import { FAKE_ENC_OBJECT, FAKE_SEED, keystore1 } from '../Fixtures'
 
@@ -201,9 +200,25 @@ describe('unit', () => {
     describe('#createLink()', () => {
       beforeEach(() => init())
 
-      it('should return a string', async () => {
-        const contactLink = await user.createLink('testname')
-        assert.isString(contactLink)
+      const username = 'testname'
+
+      it('should create trustlines:// link', async () => {
+        const contactLink = await user.createLink(username)
+        assert.equal(
+          contactLink,
+          `trustlines://contact/${user.address}/${username}`
+        )
+      })
+
+      it('should create custom link', async () => {
+        const contactLink = await user.createLink(
+          username,
+          'http://custom.network'
+        )
+        assert.equal(
+          contactLink,
+          `http://custom.network/contact/${user.address}/${username}`
+        )
       })
     })
 

@@ -232,11 +232,13 @@ export class Payment {
    * @param networkAddress Address of a currency network.
    * @param amount Requested transfer amount.
    * @param subject Additional information for payment request.
+   * @param customBase Optional custom base for link. Default `trustlines://`.
    */
   public async createRequest(
     networkAddress: string,
     amount: number,
-    subject: string
+    subject: string,
+    customBase?: string
   ): Promise<string> {
     const params = [
       'paymentrequest',
@@ -245,7 +247,7 @@ export class Payment {
       amount,
       subject
     ]
-    return utils.createLink(params)
+    return utils.createLink(params, customBase)
   }
 
   /**

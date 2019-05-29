@@ -149,10 +149,14 @@ export class User {
    * Returns a shareable link which can be send to other users.
    * Contains username and address.
    * @param username Custom username.
+   * @param customBase Optional custom base for link. Default `trustlines://`.
    */
-  public async createLink(username: string): Promise<string> {
+  public async createLink(
+    username: string,
+    customBase?: string
+  ): Promise<string> {
     const params = ['contact', this.address, username]
-    return utils.createLink(params)
+    return utils.createLink(params, customBase)
   }
 
   /**

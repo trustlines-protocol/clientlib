@@ -57,26 +57,68 @@ describe('unit', () => {
 
     describe('#buildUrl()', () => {
       it('should only return base url', () => {
-        const base = 'http://trustlines.network/v1'
-        assert.equal(utils.buildUrl(base), 'http://trustlines.network/v1')
+        const base = 'http://trustlines'
+        assert.equal(utils.buildUrl(base), 'http://trustlines')
       })
 
-      it('should return query url with encoded params', () => {
-        const base = '/path'
+      it('should return query url with encoded params for base http://test.com/api', () => {
+        const base = 'http://test.com/api'
         const params = {
           key1: 'value1',
           key2: ' ',
           key3: '?'
         }
-        const queryUrl = '/path?key1=value1&key2=%20&key3=%3F'
+        const queryUrl = 'http://test.com/api?key1=value1&key2=%20&key3=%3F'
         assert.equal(utils.buildUrl(base, params), queryUrl)
       })
 
-      it('should return url with encoded path', () => {
-        const base = 'http://trustlines.network/v1'
+      it('should return query url with encoded params for base http://test.com/api/', () => {
+        const base = 'http://test.com/api/'
+        const params = {
+          key1: 'value1',
+          key2: ' ',
+          key3: '?'
+        }
+        const queryUrl = 'http://test.com/api?key1=value1&key2=%20&key3=%3F'
+        assert.equal(utils.buildUrl(base, params), queryUrl)
+      })
+
+      it('should return query url with encoded params for base trustlines://', () => {
+        const base = 'trustlines://action'
+        const params = {
+          key1: 'value1',
+          key2: ' ',
+          key3: '?'
+        }
+        const queryUrl = 'trustlines://action?key1=value1&key2=%20&key3=%3F'
+        assert.equal(utils.buildUrl(base, params), queryUrl)
+      })
+
+      it('should return url with encoded path for http://trustlines', () => {
+        const base = 'http://trustlines'
         const params = ['contact', '0x00', 'username with spaces']
-        const url =
-          'http://trustlines.network/v1/contact/0x00/username%20with%20spaces'
+        const url = 'http://trustlines/contact/0x00/username%20with%20spaces'
+        assert.equal(utils.buildUrl(base, params), url)
+      })
+
+      it('should return url with encoded path http://test.com/api', () => {
+        const base = 'http://test.com/api'
+        const params = ['contact', '0x00', 'username with spaces']
+        const url = 'http://test.com/api/contact/0x00/username%20with%20spaces'
+        assert.equal(utils.buildUrl(base, params), url)
+      })
+
+      it('should return url with encoded path http://test.com/api/', () => {
+        const base = 'http://test.com/api/'
+        const params = ['contact', '0x00', 'username with spaces']
+        const url = 'http://test.com/api/contact/0x00/username%20with%20spaces'
+        assert.equal(utils.buildUrl(base, params), url)
+      })
+
+      it('should return url with encoded path trustlines://', () => {
+        const base = 'trustlines://'
+        const params = ['contact', '0x00', 'username with spaces']
+        const url = 'trustlines://contact/0x00/username%20with%20spaces'
         assert.equal(utils.buildUrl(base, params), url)
       })
     })
@@ -84,8 +126,20 @@ describe('unit', () => {
     describe('#createLink()', () => {
       it('should return url in trustlines link schema', () => {
         const params = ['contact', '0x']
-        const url = 'http://trustlines.network/v1/contact/0x'
+        const url = 'trustlines://contact/0x'
         assert.equal(utils.createLink(params), url)
+      })
+
+      it('should return url in custom link schema for http://custom.com/api', () => {
+        const params = ['contact', '0x']
+        const url = 'http://custom.com/api/contact/0x'
+        assert.equal(utils.createLink(params, 'http://custom.com/api'), url)
+      })
+
+      it('should return url in custom link schema for http://custom.com/api/', () => {
+        const params = ['contact', '0x']
+        const url = 'http://custom.com/api/contact/0x'
+        assert.equal(utils.createLink(params, 'http://custom.com/api/'), url)
       })
     })
 

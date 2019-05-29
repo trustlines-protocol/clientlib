@@ -106,30 +106,38 @@ export const websocketStream = (
  * @param baseUrl base URL
  * @param params (optional) parameters for queries
  */
-export const buildUrl = (baseUrl: string, params?: any): string => {
+export const buildUrl = (baseUrl: string, params?: any[] | object): string => {
   if (Array.isArray(params)) {
-    baseUrl = params.reduce(
-      (acc, param) => `${acc}/${encodeURIComponent(param)}`,
-      baseUrl
+    return params.reduce(
+      (acc, param, i) =>
+        `${acc}${encodeURIComponent(param)}${
+          i === params.length - 1 ? '' : '/'
+        }`,
+      baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
     )
-  } else if (typeof params === 'object') {
-    for (const key in params) {
-      if (params[key]) {
-        const param = encodeURIComponent(params[key])
-        baseUrl += baseUrl.indexOf('?') === -1 ? '?' : '&'
-        baseUrl += `${key}=${param}`
-      }
-    }
+  }
+  if (typeof params === 'object') {
+    const paramKeys = Object.keys(params)
+    return paramKeys
+      .filter(key => params[key])
+      .reduce(
+        (acc, paramKey) =>
+          `${acc}${
+            acc.indexOf('?') === -1 ? '?' : '&'
+          }${paramKey}=${encodeURIComponent(params[paramKey])}`,
+        baseUrl.endsWith('/') ? baseUrl.slice(0, baseUrl.length - 1) : baseUrl
+      )
   }
   return baseUrl
 }
 
 /**
- * Returns a trustlines.network link.
- * @param params parameters for link
+ * Returns a `trustlines://` link.
+ * @param params Parameters of link.
+ * @param customBase Optional custom base instead of `trustlines://`.
  */
-export const createLink = (params: any[]): string => {
-  const base = 'http://trustlines.network/v1'
+export const createLink = (params: any[], customBase?: string): string => {
+  const base = customBase || 'trustlines://'
   return buildUrl(base, params)
 }
 

@@ -17,8 +17,18 @@ export class Contact {
     return this.provider.fetchEndpoint<string[]>(endpoint)
   }
 
-  public async createLink(address: string, username: string): Promise<string> {
+  /**
+   * Creates sharable contact link.
+   * @param address Address of contact to share.
+   * @param username Name of contact to share.
+   * @param customBase Optional custom base for link. Default `trustlines://`.
+   */
+  public async createLink(
+    address: string,
+    username: string,
+    customBase?: string
+  ): Promise<string> {
     const params = ['contact', address, username]
-    return utils.createLink(params)
+    return utils.createLink(params, customBase)
   }
 }
