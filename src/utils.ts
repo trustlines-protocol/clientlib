@@ -106,11 +106,14 @@ export const websocketStream = (
  * @param baseUrl base URL
  * @param params (optional) parameters for queries
  */
-export const buildUrl = (baseUrl: string, params?: any): string => {
+export const buildUrl = (baseUrl: string, params?: any[] | object): string => {
   if (Array.isArray(params)) {
     return params.reduce(
-      (acc, param) => `${acc}/${encodeURIComponent(param)}`,
-      baseUrl
+      (acc, param, i) =>
+        `${acc}${encodeURIComponent(param)}${
+          i === params.length - 1 ? '' : '/'
+        }`,
+      baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
     )
   }
   if (typeof params === 'object') {
@@ -122,7 +125,7 @@ export const buildUrl = (baseUrl: string, params?: any): string => {
           `${acc}${
             acc.indexOf('?') === -1 ? '?' : '&'
           }${paramKey}=${encodeURIComponent(params[paramKey])}`,
-        baseUrl
+        baseUrl.endsWith('/') ? baseUrl.slice(0, baseUrl.length - 1) : baseUrl
       )
   }
   return baseUrl
@@ -134,7 +137,7 @@ export const buildUrl = (baseUrl: string, params?: any): string => {
  * @param customBase Optional custom base instead of `trustlines://`.
  */
 export const createLink = (params: any[], customBase?: string): string => {
-  const base = customBase || 'trustlines:/'
+  const base = customBase || 'trustlines://'
   return buildUrl(base, params)
 }
 
