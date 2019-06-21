@@ -22,44 +22,54 @@ export class Messaging {
     this.provider = params.provider
   }
 
+  /**
+   * Sends a payment request to given `counterParty` and returns created payment request.
+   * @param networkAddress Address of currency network.
+   * @param counterPartyAddress Address of counter party.
+   * @param value Requested payment amount.
+   * @param subject Optional subject of payment request.
+   */
   public async paymentRequest(
     networkAddress: string,
     counterPartyAddress: string,
     value: number | string,
     subject?: string
   ) {
-    const headers = new Headers({
-      'Content-Type': 'application/json'
-    })
     const decimals = await this.currencyNetwork.getDecimals(networkAddress)
     const type = 'PaymentRequest'
-    const options = {
-      body: JSON.stringify({
-        message: `{
-          "type": "${type}",
-          "networkAddress": "${networkAddress}",
-          "from": "${await this.user.getAddress()}",
-          "to": "${counterPartyAddress}",
-          "direction": "received",
-          "user": "${counterPartyAddress}",
-          "counterParty": "${await this.user.getAddress()}",
-          "amount": "${utils
-            .calcRaw(value, decimals.networkDecimals)
-            .toString()}",
-          "subject": "${subject}",
-          "nonce": "${utils.generateRandomNumber(40)}"
-        }`,
-        type // (optional) hint for notifications
-      }),
-      headers,
-      method: 'POST'
+    const paymentRequest = {
+      type,
+      networkAddress,
+      from: await this.user.getAddress(),
+      to: counterPartyAddress,
+      amount: utils.calcRaw(value, decimals.networkDecimals).toString(),
+      subject,
+      nonce: utils.generateRandomNumber(20).toNumber()
     }
-    return this.provider.fetchEndpoint(
-      `messages/${counterPartyAddress}`,
-      options
-    )
+    await this.provider.postToEndpoint(`messages/${counterPartyAddress}`, {
+      type,
+      message: JSON.stringify({
+        ...paymentRequest,
+        counterParty: await this.user.getAddress(),
+        direction: 'received',
+        user: counterPartyAddress
+      })
+    })
+    return {
+      ...paymentRequest,
+      amount: utils.formatToAmount(
+        utils.calcRaw(value, decimals.networkDecimals),
+        decimals.networkDecimals
+      ),
+      counterParty: counterPartyAddress,
+      direction: 'sent',
+      user: await this.user.getAddress()
+    }
   }
 
+  /**
+   * Returns a websocket observable that can be subscribed to.
+   */
   public messageStream(): Observable<any> {
     return fromPromise(this.user.getAddress()).flatMap(userAddress =>
       this.provider
