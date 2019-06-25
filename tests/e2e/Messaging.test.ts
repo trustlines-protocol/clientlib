@@ -27,6 +27,32 @@ describe('e2e', () => {
         ])
       })
 
+      describe('#paymentRequest()', () => {
+        it('should return sent payment request', async () => {
+          const sentPaymentRequest = await tl1.messaging.paymentRequest(
+            network.address,
+            tl2.user.address,
+            10,
+            'test subject'
+          )
+          expect(sentPaymentRequest.type).to.equal('PaymentRequest')
+          expect(sentPaymentRequest.networkAddress).to.equal(network.address)
+          expect(sentPaymentRequest.from).to.equal(tl1.user.address)
+          expect(sentPaymentRequest.to).to.equal(tl2.user.address)
+          expect(sentPaymentRequest.amount).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(sentPaymentRequest.amount.value).to.equal('10')
+          expect(sentPaymentRequest.subject).to.equal('test subject')
+          expect(sentPaymentRequest.nonce).to.be.a('number')
+          expect(sentPaymentRequest.counterParty).to.equal(tl2.user.address)
+          expect(sentPaymentRequest.direction).to.equal('sent')
+          expect(sentPaymentRequest.user).to.equal(tl1.user.address)
+        })
+      })
+
       describe('#messageStream()', () => {
         const messages = []
         let stream
@@ -36,9 +62,6 @@ describe('e2e', () => {
             .messageStream()
             .subscribe(message => messages.push(message))
           await wait()
-        })
-
-        it('should receive payment requests', async () => {
           await tl2.messaging.paymentRequest(
             network.address,
             user1.address,
@@ -46,6 +69,9 @@ describe('e2e', () => {
             'Hello'
           )
           await wait()
+        })
+
+        it('should receive payment requests', async () => {
           expect(messages).to.have.lengthOf(2)
           expect(messages[1]).to.have.property('type', 'PaymentRequest')
           expect(messages[1].amount).to.have.keys('raw', 'value', 'decimals')
