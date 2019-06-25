@@ -150,6 +150,21 @@ export interface TokenAmountEvent extends TokenEvent {
 export type AnyTokenEvent = TokenAmountEvent
 export type AnyTokenEventRaw = TokenAmountEventRaw
 
+export interface PaymentRequestEvent {
+  type: string
+  networkAddress: string
+  from: string
+  to: string
+  subject?: string
+  nonce: number
+  amount: Amount
+  counterParty: string
+  direction: Direction
+  user: string
+}
+
+export type Direction = 'sent' | 'received'
+
 export interface ExchangeEvent extends TLEvent {
   exchangeAddress: string
   makerTokenAddress: string
