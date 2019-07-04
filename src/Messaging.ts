@@ -50,7 +50,10 @@ export class Messaging {
       networkAddress,
       from: await this.user.getAddress(),
       to: counterPartyAddress,
-      amount: utils.calcRaw(value, decimals.networkDecimals).toString(),
+      amount: utils.formatToAmount(
+        utils.calcRaw(value, decimals.networkDecimals),
+        decimals.networkDecimals
+      ),
       subject,
       nonce: utils.generateRandomNumber(20).toNumber()
     }
@@ -65,10 +68,6 @@ export class Messaging {
     })
     return {
       ...paymentRequest,
-      amount: utils.formatToAmount(
-        utils.calcRaw(value, decimals.networkDecimals),
-        decimals.networkDecimals
-      ),
       counterParty: counterPartyAddress,
       direction: 'sent',
       user: await this.user.getAddress()
@@ -89,15 +88,10 @@ export class Messaging {
           if (data.type) {
             return [data]
           }
-          const message = {
+          return Promise.resolve({
             ...JSON.parse(data.message),
             timestamp: data.timestamp
-          }
-          return this.currencyNetwork
-            .getDecimals(message.networkAddress)
-            .then(({ networkDecimals, interestRateDecimals }) =>
-              utils.formatEvent(message, networkDecimals, interestRateDecimals)
-            )
+          })
         })
     )
   }
