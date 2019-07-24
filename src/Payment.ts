@@ -59,12 +59,14 @@ export class Payment {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
+   * @param extraData Extra data that will appear in the Transfer event when successful
    */
   public async prepare(
     networkAddress: string,
     receiverAddress: string,
     value: number | string,
-    options: PaymentOptions = {}
+    options: PaymentOptions = {},
+    extraData: string = '0x'
   ): Promise<PaymentTxObject> {
     const { gasPrice, gasLimit, networkDecimals } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
@@ -78,7 +80,8 @@ export class Payment {
       {
         ...options,
         networkDecimals: decimals.networkDecimals
-      }
+      },
+      extraData
     )
     if (path.length > 0) {
       const {
@@ -96,7 +99,8 @@ export class Payment {
             utils.calcRaw(value, decimals.networkDecimals)
           ),
           utils.convertToHexString(new BigNumber(maxFees.raw)),
-          path.slice(1)
+          path.slice(1),
+          extraData
         ],
         {
           gasLimit: gasLimit
@@ -164,7 +168,8 @@ export class Payment {
     senderAddress: string,
     receiverAddress: string,
     value: number | string,
-    options: PaymentOptions = {}
+    options: PaymentOptions = {},
+    extraData = '0x'
   ): Promise<PathObject> {
     const {
       networkDecimals,
@@ -181,7 +186,8 @@ export class Payment {
       maxFees: maximumFees,
       maxHops: maximumHops,
       to: receiverAddress,
-      value: utils.calcRaw(value, decimals.networkDecimals).toString()
+      value: utils.calcRaw(value, decimals.networkDecimals).toString(),
+      extraData: extraData
     }
     const endpoint = `networks/${networkAddress}/path-info`
     const {
