@@ -5,7 +5,12 @@ import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { FeePayer } from '../../src/typings'
-import { createUsers, parametrizedTLNetworkConfig, wait } from '../Fixtures'
+import {
+  createUsers,
+  extraData,
+  parametrizedTLNetworkConfig,
+  wait
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -58,7 +63,8 @@ describe('e2e', () => {
             user1.address,
             user2.address,
             1.5,
-            options
+            options,
+            extraData
           )
           expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
           expect(pathObj.path).to.not.equal([])
@@ -72,7 +78,8 @@ describe('e2e', () => {
             user1.address,
             user2.address,
             1.5,
-            options
+            options,
+            extraData
           )
           expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
           expect(pathObj.path).to.not.equal([])
@@ -97,7 +104,9 @@ describe('e2e', () => {
           const preparedPayment = await tl1.payment.prepare(
             network.address,
             user2.address,
-            2.25
+            2.25,
+            undefined,
+            extraData
           )
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
@@ -116,7 +125,8 @@ describe('e2e', () => {
             network.address,
             user2.address,
             2.25,
-            options
+            options,
+            extraData
           )
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
@@ -140,7 +150,9 @@ describe('e2e', () => {
           const { rawTx } = await tl1.payment.prepare(
             network.address,
             user2.address,
-            1
+            1,
+            undefined,
+            extraData
           )
           const txId = await tl1.payment.confirm(rawTx)
           await wait()
@@ -153,7 +165,8 @@ describe('e2e', () => {
             network.address,
             user2.address,
             1,
-            options
+            options,
+            extraData
           )
           const txId = await tl1.payment.confirm(rawTx)
           await wait()
