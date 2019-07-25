@@ -110,10 +110,12 @@ export interface NetworkEvent extends TLEvent {
 
 export interface NetworkTransferEventRaw extends NetworkEvent {
   amount: string
+  extraData: string
 }
 
 export interface NetworkTransferEvent extends NetworkEvent {
   amount: Amount
+  extraData: string
 }
 
 export interface NetworkTrustlineEventRaw extends NetworkEvent {
