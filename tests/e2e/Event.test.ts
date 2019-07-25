@@ -15,6 +15,7 @@ import {
 
 import {
   createUsers,
+  extraData,
   requestEth,
   setTrustlines,
   tlNetworkConfig,
@@ -66,7 +67,9 @@ describe('e2e', () => {
         const { rawTx } = await tl1.payment.prepare(
           network1.address,
           user2.address,
-          1.5
+          1.5,
+          undefined,
+          extraData
         )
         await tl1.payment.confirm(rawTx)
         await wait()
@@ -89,6 +92,7 @@ describe('e2e', () => {
         expect(last.status).to.be.a('string')
         expect(last.amount).to.have.keys('raw', 'value', 'decimals')
         expect(last.amount.value).to.eq('1.5')
+        expect(last.extraData).to.eq(extraData)
       })
     })
 
@@ -131,7 +135,9 @@ describe('e2e', () => {
         const tlTransferTx = await tl1.payment.prepare(
           network2.address,
           user2.address,
-          1
+          1,
+          undefined,
+          extraData
         )
         tlTransferTxId = await tl1.payment.confirm(tlTransferTx.rawTx)
         await wait()
@@ -263,6 +269,9 @@ describe('e2e', () => {
         expect(
           (tlTransferEvents[0] as NetworkTransferEvent).amount
         ).to.have.keys('raw', 'decimals', 'value')
+        expect(
+          (tlTransferEvents[0] as NetworkTransferEvent).extraData
+        ).to.equal(extraData)
 
         // events thrown on deposit
         const depositEvents = allEvents.filter(
@@ -439,7 +448,9 @@ describe('e2e', () => {
         const { rawTx } = await tl1.payment.prepare(
           network1.address,
           user2.address,
-          2.5
+          2.5,
+          undefined,
+          extraData
         )
         await tl1.payment.confirm(rawTx)
         await wait()
@@ -471,6 +482,7 @@ describe('e2e', () => {
         expect(transferEvent).to.have.property('to', user2.address)
         expect(transferEvent).to.have.property('counterParty', user2.address)
         expect(transferEvent).to.have.property('user', user1.address)
+        expect(transferEvent).to.have.property('extraData', extraData)
 
         const networkBalanceEvent = events.filter(
           event => event.type === 'NetworkBalance'

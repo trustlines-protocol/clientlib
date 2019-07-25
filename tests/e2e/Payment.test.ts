@@ -157,6 +157,10 @@ describe('e2e', () => {
           const txId = await tl1.payment.confirm(rawTx)
           await wait()
           expect(txId).to.be.a('string')
+          expect(
+            (await tl1.trustline.get(network.address, user2.address)).balance
+              .value
+          ).to.equal('-1')
         })
 
         it('should confirm trustline transferReceiverPays', async () => {
@@ -179,7 +183,9 @@ describe('e2e', () => {
           const { rawTx } = await tl1.payment.prepare(
             network.address,
             user2.address,
-            1.5
+            1.5,
+            undefined,
+            extraData
           )
           await tl1.payment.confirm(rawTx)
           await wait()
@@ -196,6 +202,7 @@ describe('e2e', () => {
           expect(latestTransfer.counterParty).to.be.equal(tl2.user.address)
           expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
           expect(latestTransfer.amount.value).to.eq('1.5')
+          expect(latestTransfer.extraData).to.eq(extraData)
           expect(latestTransfer.blockNumber).to.be.a('number')
           expect(latestTransfer.direction).to.equal('sent')
           expect(latestTransfer.networkAddress).to.be.a('string')

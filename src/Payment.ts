@@ -187,7 +187,7 @@ export class Payment {
       maxHops: maximumHops,
       to: receiverAddress,
       value: utils.calcRaw(value, decimals.networkDecimals).toString(),
-      extraData: extraData
+      extraData
     }
     const endpoint = `networks/${networkAddress}/path-info`
     const {
