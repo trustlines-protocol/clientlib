@@ -151,7 +151,7 @@ export class Payment {
   }
 
   /**
-   * Returns a path for a trustlines transfer.
+   * Returns a path for a trustlines transfer, along with estimated fees and gas costs.
    * @param networkAddress Address of a currency network.
    * @param senderAddress Address of sender of transfer.
    * @param receiverAddress Address of receiver of transfer.
@@ -162,6 +162,7 @@ export class Payment {
    * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
+   * @param extraData Extra data as used for logging purposes in the transfer. Used for estimating gas costs.
    */
   public async getPath(
     networkAddress: string,
