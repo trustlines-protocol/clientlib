@@ -12,6 +12,7 @@ import {
   ClosePathObject,
   ClosePathRaw,
   CloseTxObject,
+  DecimalsOptions,
   EventFilterOptions,
   FeePayer,
   isFeePayerValue,
@@ -21,8 +22,7 @@ import {
   TrustlineObject,
   TrustlineRaw,
   TrustlineUpdateOptions,
-  TxObject,
-  DecimalsOptions
+  TxObject
 } from './typings'
 
 /**
