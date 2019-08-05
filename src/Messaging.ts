@@ -7,7 +7,7 @@ import { User } from './User'
 
 import utils from './utils'
 
-import { PaymentRequestEvent } from './typings'
+import { DecimalsOptions, PaymentRequestEvent } from './typings'
 
 export class Messaging {
   private user: User
@@ -35,9 +35,15 @@ export class Messaging {
     networkAddress: string,
     counterPartyAddress: string,
     value: number | string,
-    subject?: string
+    subject?: string,
+    options: {
+      decimalsOptions?: DecimalsOptions
+    } = {}
   ): Promise<PaymentRequestEvent> {
-    const decimals = await this.currencyNetwork.getDecimals(networkAddress)
+    const decimals = await this.currencyNetwork.getDecimals(
+      networkAddress,
+      options.decimalsOptions || {}
+    )
     const type = 'PaymentRequest'
     const paymentRequest = {
       type,

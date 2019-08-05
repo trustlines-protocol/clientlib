@@ -77,14 +77,17 @@ export class CurrencyNetwork {
    */
   public async getUserOverview(
     networkAddress: string,
-    userAddress: string
+    userAddress: string,
+    options: {
+      decimalsOptions?: DecimalsOptions
+    } = {}
   ): Promise<UserOverview> {
     await this._checkAddresses([networkAddress, userAddress])
     const [overview, { networkDecimals }] = await Promise.all([
       this.provider.fetchEndpoint<UserOverviewRaw>(
         `networks/${networkAddress}/users/${userAddress}`
       ),
-      this.getDecimals(networkAddress)
+      this.getDecimals(networkAddress, options.decimalsOptions || {})
     ])
     return {
       balance: utils.formatToAmount(overview.balance, networkDecimals),

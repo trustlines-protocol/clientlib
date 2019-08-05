@@ -13,6 +13,7 @@ import {
   AnyExchangeEventRaw,
   AnyNetworkEventRaw,
   AnyTokenEventRaw,
+  DecimalsOptions,
   EventFilterOptions
 } from './typings'
 
@@ -47,7 +48,10 @@ export class Event {
    */
   public async get<T>(
     networkAddress: string,
-    filter: EventFilterOptions = {}
+    filter: EventFilterOptions = {},
+    options: {
+      decimalsOptions?: DecimalsOptions
+    } = {}
   ): Promise<T[]> {
     const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/events`
     const parameterUrl = utils.buildUrl(baseUrl, filter)
@@ -56,7 +60,10 @@ export class Event {
       { networkDecimals, interestRateDecimals }
     ] = await Promise.all([
       this.provider.fetchEndpoint<AnyNetworkEventRaw[]>(parameterUrl),
-      this.currencyNetwork.getDecimals(networkAddress)
+      this.currencyNetwork.getDecimals(
+        networkAddress,
+        options.decimalsOptions || {}
+      )
     ])
     return events.map(event =>
       utils.formatEvent<T>(event, networkDecimals, interestRateDecimals)
