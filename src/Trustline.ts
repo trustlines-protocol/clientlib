@@ -21,7 +21,8 @@ import {
   TrustlineObject,
   TrustlineRaw,
   TrustlineUpdateOptions,
-  TxObject
+  TxObject,
+  DecimalsOptions
 } from './typings'
 
 /**
@@ -189,15 +190,24 @@ export class Trustline {
   /**
    * Returns all trustlines of a loaded user in a currency network.
    * @param networkAddress Address of a currency network.
+   * @param options Extra options for user, network or trustline.
    */
-  public async getAll(networkAddress: string): Promise<TrustlineObject[]> {
+  public async getAll(
+    networkAddress: string,
+    options: {
+      decimalsOptions?: DecimalsOptions
+    } = {}
+  ): Promise<TrustlineObject[]> {
     const endpoint = `networks/${networkAddress}/users/${await this.user.getAddress()}/trustlines`
     const [
       trustlines,
       { networkDecimals, interestRateDecimals }
     ] = await Promise.all([
       this.provider.fetchEndpoint<TrustlineRaw[]>(endpoint),
-      this.currencyNetwork.getDecimals(networkAddress)
+      this.currencyNetwork.getDecimals(
+        networkAddress,
+        options.decimalsOptions || {}
+      )
     ])
     return trustlines.map(trustline =>
       this._formatTrustline(trustline, networkDecimals, interestRateDecimals)
@@ -211,7 +221,10 @@ export class Trustline {
    */
   public async get(
     networkAddress: string,
-    counterpartyAddress: string
+    counterpartyAddress: string,
+    options: {
+      decimalsOptions?: DecimalsOptions
+    } = {}
   ): Promise<TrustlineObject> {
     const endpoint = `networks/${networkAddress}/users/${await this.user.getAddress()}/trustlines/${counterpartyAddress}`
     const [
@@ -219,7 +232,10 @@ export class Trustline {
       { networkDecimals, interestRateDecimals }
     ] = await Promise.all([
       this.provider.fetchEndpoint<TrustlineRaw>(endpoint),
-      this.currencyNetwork.getDecimals(networkAddress)
+      this.currencyNetwork.getDecimals(
+        networkAddress,
+        options.decimalsOptions || {}
+      )
     ])
     return this._formatTrustline(
       trustline,
