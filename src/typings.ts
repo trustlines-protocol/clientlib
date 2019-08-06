@@ -63,6 +63,7 @@ export interface PaymentOptions extends TLOptions {
   maximumHops?: number
   maximumFees?: number
   feePayer?: FeePayer
+  extraData?: string
 }
 
 export interface TrustlineUpdateOptions extends TLOptions {

@@ -6,6 +6,7 @@ import { Transaction } from '../../src/Transaction'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTLSigner } from '../helpers/FakeTLSigner'
+
 import { extraData } from '../Fixtures'
 
 describe('unit', () => {

@@ -59,16 +59,15 @@ export class Payment {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
-   * @param extraData Extra data that will appear in the Transfer event when successful
+   * @param options.extraData Extra data that will appear in the Transfer event when successful.
    */
   public async prepare(
     networkAddress: string,
     receiverAddress: string,
     value: number | string,
-    options: PaymentOptions = {},
-    extraData: string = '0x'
+    options: PaymentOptions = {}
   ): Promise<PaymentTxObject> {
-    const { gasPrice, gasLimit, networkDecimals } = options
+    const { gasPrice, gasLimit, networkDecimals, extraData = '0x' } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
@@ -85,8 +84,7 @@ export class Payment {
       {
         ...options,
         networkDecimals: decimals.networkDecimals
-      },
-      extraData
+      }
     )
     if (path.length > 0) {
       const {
@@ -167,21 +165,21 @@ export class Payment {
    * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
-   * @param extraData Extra data as used for logging purposes in the transfer. Used for estimating gas costs.
+   * @param options.extraData Extra data as used for logging purposes in the transfer. Used for estimating gas costs.
    */
   public async getTransferPathInfo(
     networkAddress: string,
     senderAddress: string,
     receiverAddress: string,
     value: number | string,
-    options: PaymentOptions = {},
-    extraData = '0x'
+    options: PaymentOptions = {}
   ): Promise<PathObject> {
     const {
       networkDecimals,
       maximumHops,
       maximumFees,
-      feePayer: feePayerOption
+      feePayer: feePayerOption,
+      extraData = '0x'
     } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals

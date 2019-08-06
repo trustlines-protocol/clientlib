@@ -46,7 +46,7 @@ export const user3 = {
   pubKey: '3a1430b32ded788f4059ba31cbe6157ac8788f7198d4aed41e1091a97bff2857'
 }
 
-export const extraData = '0x12345678123456781234567812345678' // * 12345678123456781234567812345678'
+export const extraData = '0x12345678123456781234567812345678'
 
 export function createUsers(tlInstances) {
   return Promise.all(tlInstances.map(tl => tl.user.create()))

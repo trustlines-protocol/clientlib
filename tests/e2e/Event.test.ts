@@ -68,8 +68,7 @@ describe('e2e', () => {
           network1.address,
           user2.address,
           1.5,
-          undefined,
-          extraData
+          { extraData }
         )
         await tl1.payment.confirm(rawTx)
         await wait()
@@ -136,8 +135,7 @@ describe('e2e', () => {
           network2.address,
           user2.address,
           1,
-          undefined,
-          extraData
+          { extraData }
         )
         tlTransferTxId = await tl1.payment.confirm(tlTransferTx.rawTx)
         await wait()
@@ -449,8 +447,7 @@ describe('e2e', () => {
           network1.address,
           user2.address,
           2.5,
-          undefined,
-          extraData
+          { extraData }
         )
         await tl1.payment.confirm(rawTx)
         await wait()
