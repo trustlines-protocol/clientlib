@@ -6,6 +6,7 @@ import { Transaction } from '../../src/Transaction'
 
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTLSigner } from '../helpers/FakeTLSigner'
+import { extraData } from '../Fixtures'
 
 describe('unit', () => {
   describe('Transaction', () => {
@@ -16,6 +17,7 @@ describe('unit', () => {
     const USER_ADDRESS = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
     const COUNTER_PARTY_ADDRESS = '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18'
     const CONTRACT_ADDRESS = '0xd0a6E6C54DbC68Db5db3A091B171A77407Ff7ccf'
+    const EXTRA_DATA = extraData
     const RAW_TX_OBJECT = {
       data:
         '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
@@ -41,7 +43,13 @@ describe('unit', () => {
           CONTRACT_ADDRESS,
           'CurrencyNetwork',
           'transfer',
-          [COUNTER_PARTY_ADDRESS, '10000', '0', [COUNTER_PARTY_ADDRESS]]
+          [
+            COUNTER_PARTY_ADDRESS,
+            '10000',
+            '0',
+            [COUNTER_PARTY_ADDRESS],
+            EXTRA_DATA
+          ]
         )
         assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
@@ -76,7 +84,13 @@ describe('unit', () => {
           CONTRACT_ADDRESS,
           'CurrencyNetwork',
           'transfer',
-          [COUNTER_PARTY_ADDRESS, '10000', '0', [COUNTER_PARTY_ADDRESS]],
+          [
+            COUNTER_PARTY_ADDRESS,
+            '10000',
+            '0',
+            [COUNTER_PARTY_ADDRESS],
+            EXTRA_DATA
+          ],
           {
             gasLimit: new BigNumber(CUSTOM_GAS_LIMIT),
             gasPrice: new BigNumber(CUSTOM_GAS_PRICE),

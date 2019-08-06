@@ -72,7 +72,12 @@ export class Payment {
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
-    const { path, maxFees, estimatedGas, feePayer } = await this.getPath(
+    const {
+      path,
+      maxFees,
+      estimatedGas,
+      feePayer
+    } = await this.getTransferPathInfo(
       networkAddress,
       await this.user.getAddress(),
       receiverAddress,
@@ -164,7 +169,7 @@ export class Payment {
    * @param options.maximumFees Max. transfer fees user if willing to pay.
    * @param extraData Extra data as used for logging purposes in the transfer. Used for estimating gas costs.
    */
-  public async getPath(
+  public async getTransferPathInfo(
     networkAddress: string,
     senderAddress: string,
     receiverAddress: string,

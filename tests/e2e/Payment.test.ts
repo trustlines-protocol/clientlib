@@ -55,10 +55,10 @@ describe('e2e', () => {
         await wait()
       })
 
-      describe('#getPath()', () => {
+      describe('#getTransferPathInfo()', () => {
         it('should return sender pays path', async () => {
           const options = { feePayer: FeePayer.Sender }
-          const pathObj = await tl1.payment.getPath(
+          const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
             user1.address,
             user2.address,
@@ -73,7 +73,7 @@ describe('e2e', () => {
 
         it('should return receiver pays path', async () => {
           const options = { feePayer: FeePayer.Receiver }
-          const pathObj = await tl1.payment.getPath(
+          const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
             user1.address,
             user2.address,
@@ -87,7 +87,7 @@ describe('e2e', () => {
         })
 
         it('should return no path', async () => {
-          const pathObj = await tl1.payment.getPath(
+          const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
             user1.address,
             user2.address,
