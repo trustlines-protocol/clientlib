@@ -8,8 +8,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Added `extraData` to `PaymentOptions` for transfers, used for logging arbitrary data
-- Added `extraData` to queried transfer events
+- Added `extraData` to `PaymentOptions` for transfers, used for logging arbitrary data (BREAKING)
+- Added `extraData` to queried transfer events (BREAKING)
+
+## [0.5.1] - 2019-08-08
+
+### Added
+
 - Added `DecimalsOptions` to avoid querying decimals from the server when not necessary
 
 ## [0.5.0] - 2019-06-25
