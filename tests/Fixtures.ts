@@ -46,6 +46,8 @@ export const user3 = {
   pubKey: '3a1430b32ded788f4059ba31cbe6157ac8788f7198d4aed41e1091a97bff2857'
 }
 
+export const extraData = '0x12345678123456781234567812345678'
+
 export function createUsers(tlInstances) {
   return Promise.all(tlInstances.map(tl => tl.user.create()))
 }
@@ -288,7 +290,8 @@ export const FAKE_FORMATTED_TRANSFER_EVENT = {
   transactionId:
     '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
   type: 'Transfer',
-  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  extraData
 }
 
 export const FAKE_TRUSTLINE_UPDATE_REQUEST_EVENT = {

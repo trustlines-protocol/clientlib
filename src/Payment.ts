@@ -59,6 +59,7 @@ export class Payment {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
+   * @param options.extraData Extra data that will appear in the Transfer event when successful.
    */
   public async prepare(
     networkAddress: string,
@@ -66,11 +67,16 @@ export class Payment {
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<PaymentTxObject> {
-    const { gasPrice, gasLimit, networkDecimals } = options
+    const { gasPrice, gasLimit, networkDecimals, extraData = '0x' } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
-    const { path, maxFees, estimatedGas, feePayer } = await this.getPath(
+    const {
+      path,
+      maxFees,
+      estimatedGas,
+      feePayer
+    } = await this.getTransferPathInfo(
       networkAddress,
       await this.user.getAddress(),
       receiverAddress,
@@ -96,7 +102,8 @@ export class Payment {
             utils.calcRaw(value, decimals.networkDecimals)
           ),
           utils.convertToHexString(new BigNumber(maxFees.raw)),
-          path.slice(1)
+          path.slice(1),
+          extraData
         ],
         {
           gasLimit: gasLimit
@@ -147,7 +154,7 @@ export class Payment {
   }
 
   /**
-   * Returns a path for a trustlines transfer.
+   * Returns a path for a trustlines transfer, along with estimated fees and gas costs.
    * @param networkAddress Address of a currency network.
    * @param senderAddress Address of sender of transfer.
    * @param receiverAddress Address of receiver of transfer.
@@ -158,8 +165,9 @@ export class Payment {
    * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
+   * @param options.extraData Extra data as used for logging purposes in the transfer. Used for estimating gas costs.
    */
-  public async getPath(
+  public async getTransferPathInfo(
     networkAddress: string,
     senderAddress: string,
     receiverAddress: string,
@@ -170,7 +178,8 @@ export class Payment {
       networkDecimals,
       maximumHops,
       maximumFees,
-      feePayer: feePayerOption
+      feePayer: feePayerOption,
+      extraData = '0x'
     } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
@@ -181,7 +190,8 @@ export class Payment {
       maxFees: maximumFees,
       maxHops: maximumHops,
       to: receiverAddress,
-      value: utils.calcRaw(value, decimals.networkDecimals).toString()
+      value: utils.calcRaw(value, decimals.networkDecimals).toString(),
+      extraData
     }
     const endpoint = `networks/${networkAddress}/path-info`
     const {

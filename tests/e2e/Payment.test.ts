@@ -5,7 +5,12 @@ import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { FeePayer } from '../../src/typings'
-import { createUsers, parametrizedTLNetworkConfig, wait } from '../Fixtures'
+import {
+  createUsers,
+  extraData,
+  parametrizedTLNetworkConfig,
+  wait
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -50,10 +55,10 @@ describe('e2e', () => {
         await wait()
       })
 
-      describe('#getPath()', () => {
+      describe('#getTransferPathInfo()', () => {
         it('should return sender pays path', async () => {
-          const options = { feePayer: FeePayer.Sender }
-          const pathObj = await tl1.payment.getPath(
+          const options = { feePayer: FeePayer.Sender, extraData }
+          const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
             user1.address,
             user2.address,
@@ -66,8 +71,8 @@ describe('e2e', () => {
         })
 
         it('should return receiver pays path', async () => {
-          const options = { feePayer: FeePayer.Receiver }
-          const pathObj = await tl1.payment.getPath(
+          const options = { feePayer: FeePayer.Receiver, extraData }
+          const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
             user1.address,
             user2.address,
@@ -80,7 +85,7 @@ describe('e2e', () => {
         })
 
         it('should return no path', async () => {
-          const pathObj = await tl1.payment.getPath(
+          const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
             user1.address,
             user2.address,
@@ -97,7 +102,8 @@ describe('e2e', () => {
           const preparedPayment = await tl1.payment.prepare(
             network.address,
             user2.address,
-            2.25
+            2.25,
+            { extraData }
           )
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
@@ -110,7 +116,7 @@ describe('e2e', () => {
         })
 
         it('should prepare tx for trustline transferReceiverPays', async () => {
-          const options = { feePayer: FeePayer.Receiver }
+          const options = { feePayer: FeePayer.Receiver, extraData }
 
           const preparedPayment = await tl1.payment.prepare(
             network.address,
@@ -140,15 +146,20 @@ describe('e2e', () => {
           const { rawTx } = await tl1.payment.prepare(
             network.address,
             user2.address,
-            1
+            1,
+            { extraData }
           )
           const txId = await tl1.payment.confirm(rawTx)
           await wait()
           expect(txId).to.be.a('string')
+          expect(
+            (await tl1.trustline.get(network.address, user2.address)).balance
+              .value
+          ).to.equal('-1')
         })
 
         it('should confirm trustline transferReceiverPays', async () => {
-          const options = { feePayer: FeePayer.Receiver }
+          const options = { feePayer: FeePayer.Receiver, extraData }
           const { rawTx } = await tl1.payment.prepare(
             network.address,
             user2.address,
@@ -166,7 +177,8 @@ describe('e2e', () => {
           const { rawTx } = await tl1.payment.prepare(
             network.address,
             user2.address,
-            1.5
+            1.5,
+            { extraData }
           )
           await tl1.payment.confirm(rawTx)
           await wait()
@@ -183,6 +195,7 @@ describe('e2e', () => {
           expect(latestTransfer.counterParty).to.be.equal(tl2.user.address)
           expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
           expect(latestTransfer.amount.value).to.eq('1.5')
+          expect(latestTransfer.extraData).to.eq(extraData)
           expect(latestTransfer.blockNumber).to.be.a('number')
           expect(latestTransfer.direction).to.equal('sent')
           expect(latestTransfer.networkAddress).to.be.a('string')

@@ -470,7 +470,7 @@ export class Exchange {
     const { networkDecimals } = options
     const isNetwork = await this.currencyNetwork.isNetwork(tokenAddress)
     if (isNetwork) {
-      return this.payment.getPath(tokenAddress, from, to, value, {
+      return this.payment.getTransferPathInfo(tokenAddress, from, to, value, {
         networkDecimals
       })
     }

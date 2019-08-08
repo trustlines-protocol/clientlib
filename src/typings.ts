@@ -63,6 +63,7 @@ export interface PaymentOptions extends TLOptions {
   maximumHops?: number
   maximumFees?: number
   feePayer?: FeePayer
+  extraData?: string
 }
 
 export interface TrustlineUpdateOptions extends TLOptions {
@@ -110,10 +111,12 @@ export interface NetworkEvent extends TLEvent {
 
 export interface NetworkTransferEventRaw extends NetworkEvent {
   amount: string
+  extraData: string
 }
 
 export interface NetworkTransferEvent extends NetworkEvent {
   amount: Amount
+  extraData: string
 }
 
 export interface NetworkTrustlineEventRaw extends NetworkEvent {

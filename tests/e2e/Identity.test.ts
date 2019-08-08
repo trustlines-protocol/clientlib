@@ -187,7 +187,7 @@ describe('e2e', () => {
         await wait()
 
         const options = { feePayer: FeePayer.Sender }
-        const pathObj = await trustlinesNetwork.payment.getPath(
+        const pathObj = await trustlinesNetwork.payment.getTransferPathInfo(
           network.address,
           user1.address,
           user2.address,
