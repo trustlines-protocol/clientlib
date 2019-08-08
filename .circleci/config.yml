@@ -190,9 +190,10 @@ workflows:
           context: docker-credentials
           requires:
             - build-e2e-image
+            - run-end2end-tests
           filters:
             branches:
-              only: develop
+              only: master
       - run-end2end-tests:
           requires:
             - build-e2e-image
