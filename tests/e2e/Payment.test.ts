@@ -4,7 +4,7 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { FeePayer } from '../../src/typings'
+import { FeePayer, PathRaw } from '../../src/typings'
 import {
   createUsers,
   extraData,
@@ -94,6 +94,25 @@ describe('e2e', () => {
           expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
           expect(pathObj.maxFees.raw).to.equal('0')
           expect(pathObj.path).to.deep.equal([])
+        })
+
+        it('should return path using no extra data', async () => {
+          // Goes around using `tl1.payment.getTransferPathInfo` because it provides a default value of `0x`
+          // If we use `undefined`, the default of `0x` will be used.
+          // If we use `null` the relay throws an error on input validation
+          const data = {
+            from: user1.address,
+            to: user2.address,
+            value: '1000'
+          }
+          const endpoint = `networks/${network.address}/path-info`
+          const pathRaw = await tl1.provider.postToEndpoint<PathRaw>(
+            endpoint,
+            data
+          )
+
+          expect(pathRaw.fees).to.equal('0')
+          expect(pathRaw.path).to.not.equal([])
         })
       })
 
