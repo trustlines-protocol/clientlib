@@ -26,7 +26,7 @@ import { TLNetwork } from 'trustlines-clientlib'
 
 Use the following configuration to connect to the currently deployed test setup.
 
-**NOTE: The [trustlines-network contracts](https://github.com/trustlines-network/contracts) are deployed on the Kovan testnet. Some Kovan Test ETH is therefore required to interact with the contracts in this setup.**
+**NOTE: The [trustlines-network contracts](https://github.com/trustlines-network/contracts) are deployed on the Laika Testnet ([Laika Blockexplorer](https://explorelaika.trustlines.foundation/)), the test network of Trustlines. Some Laika test `TLC` is therefore required to interact with the contracts in this setup.**
 
 ```javascript
 import { TLNetwork } from 'trustlines-clientlib'
