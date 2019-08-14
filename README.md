@@ -6,7 +6,7 @@
 
 A TypeScript/Javascript library for interacting with the [trustlines-network protocol](https://trustlines.network/).
 
-## Read the [Documentation](https://trustlines-network.github.io/clientlib-docs/)
+## Read the [Documentation](https://docs.trustlines.network/)
 
 ## Installation
 
