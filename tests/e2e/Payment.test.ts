@@ -97,22 +97,17 @@ describe('e2e', () => {
         })
 
         it('should return path using no extra data', async () => {
-          // Goes around using `tl1.payment.getTransferPathInfo` because it provides a default value of `0x`
-          // If we use `undefined`, the default of `0x` will be used.
-          // If we use `null` the relay throws an error on input validation
-          const data = {
-            from: user1.address,
-            to: user2.address,
-            value: '1000'
-          }
-          const endpoint = `networks/${network.address}/path-info`
-          const pathRaw = await tl1.provider.postToEndpoint<PathRaw>(
-            endpoint,
-            data
+          const options = { feePayer: FeePayer.Sender }
+          const pathObj = await tl1.payment.getTransferPathInfo(
+            network.address,
+            user1.address,
+            user2.address,
+            1.5,
+            options
           )
-
-          expect(pathRaw.fees).to.equal('0')
-          expect(pathRaw.path).to.not.equal([])
+          expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
+          expect(pathObj.path).to.not.equal([])
+          expect(pathObj.feePayer).to.equal(FeePayer.Sender)
         })
       })
 
@@ -123,6 +118,22 @@ describe('e2e', () => {
             user2.address,
             2.25,
             { extraData }
+          )
+          expect(preparedPayment).to.have.all.keys(
+            'rawTx',
+            'feePayer',
+            'ethFees',
+            'maxFees',
+            'path'
+          )
+          expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
+        })
+
+        it('should prepare tx for trustline transfer without extraData', async () => {
+          const preparedPayment = await tl1.payment.prepare(
+            network.address,
+            user2.address,
+            2.25
           )
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
