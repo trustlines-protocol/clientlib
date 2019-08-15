@@ -4,7 +4,7 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { FeePayer } from '../../src/typings'
+import { FeePayer, PathRaw } from '../../src/typings'
 import {
   createUsers,
   extraData,
@@ -95,6 +95,20 @@ describe('e2e', () => {
           expect(pathObj.maxFees.raw).to.equal('0')
           expect(pathObj.path).to.deep.equal([])
         })
+
+        it('should return path using no extra data', async () => {
+          const options = { feePayer: FeePayer.Sender }
+          const pathObj = await tl1.payment.getTransferPathInfo(
+            network.address,
+            user1.address,
+            user2.address,
+            1.5,
+            options
+          )
+          expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
+          expect(pathObj.path).to.not.equal([])
+          expect(pathObj.feePayer).to.equal(FeePayer.Sender)
+        })
       })
 
       describe('#prepare()', () => {
@@ -104,6 +118,22 @@ describe('e2e', () => {
             user2.address,
             2.25,
             { extraData }
+          )
+          expect(preparedPayment).to.have.all.keys(
+            'rawTx',
+            'feePayer',
+            'ethFees',
+            'maxFees',
+            'path'
+          )
+          expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
+        })
+
+        it('should prepare tx for trustline transfer without extraData', async () => {
+          const preparedPayment = await tl1.payment.prepare(
+            network.address,
+            user2.address,
+            2.25
           )
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
