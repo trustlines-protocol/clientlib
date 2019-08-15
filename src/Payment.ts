@@ -67,7 +67,7 @@ export class Payment {
     value: number | string,
     options: PaymentOptions = {}
   ): Promise<PaymentTxObject> {
-    const { gasPrice, gasLimit, networkDecimals, extraData = '0x' } = options
+    const { gasPrice, gasLimit, networkDecimals, extraData } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
@@ -103,7 +103,7 @@ export class Payment {
           ),
           utils.convertToHexString(new BigNumber(maxFees.raw)),
           path.slice(1),
-          extraData
+          extraData || '0x'
         ],
         {
           gasLimit: gasLimit
@@ -179,7 +179,7 @@ export class Payment {
       maximumHops,
       maximumFees,
       feePayer: feePayerOption,
-      extraData = '0x'
+      extraData
     } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
