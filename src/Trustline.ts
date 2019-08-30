@@ -63,6 +63,7 @@ export class Trustline {
    *                See type `TrustlineUpdateOptions` for more information.
    * @param options.interestRateGiven Proposed interest rate given by initiator to counterparty in % per year.
    * @param options.interestRateReceived Proposed interest rate received by initiator from counterparty in % per year.
+   * @param options.isFrozen Whether we propose to freeze the trustline.
    * @param options.networkDecimals Decimals of currency network can be provided manually if known.
    * @param options.interestRateDecimals Decimals of interest rate in currency network can be provided manually if known.
    * @param options.gasLimit Custom gas limit.
@@ -81,7 +82,8 @@ export class Trustline {
       networkDecimals,
       interestRateDecimals,
       gasLimit,
-      gasPrice
+      gasPrice,
+      isFrozen
     } = options
     const [
       decimals,
@@ -97,7 +99,7 @@ export class Trustline {
     // Contract function name and args to use, which can either be
     // `updateTrustline` or `updateCreditlimits`.
     let updateFuncName = 'updateCreditlimits'
-    let updateFuncArgs = [
+    let updateFuncArgs: any[] = [
       counterpartyAddress,
       utils.convertToHexString(
         utils.calcRaw(creditlineGiven, decimals.networkDecimals)
@@ -108,7 +110,12 @@ export class Trustline {
     ]
 
     // If interest rates were specified, use `updateTrustline`
-    if (interestRateGiven && interestRateReceived) {
+
+    if (
+      interestRateGiven !== undefined &&
+      interestRateReceived !== undefined &&
+      isFrozen !== undefined
+    ) {
       updateFuncName = 'updateTrustline'
       updateFuncArgs = [
         ...updateFuncArgs,
@@ -121,8 +128,17 @@ export class Trustline {
           customInterests
             ? utils.calcRaw(interestRateReceived, decimals.interestRateDecimals)
             : defaultInterestRate.raw
-        )
+        ),
+        isFrozen
       ]
+    } else if (
+      interestRateGiven !== undefined ||
+      interestRateReceived !== undefined ||
+      isFrozen !== undefined
+    ) {
+      throw new Error(
+        'Invalid input parameters: if any of interestRateGiven, interestRateReceived, or isFrozen is given, all have to be given.'
+      )
     }
 
     const {
@@ -157,6 +173,7 @@ export class Trustline {
    * @param options Options for creating a ethereum transaction. See type `TLOptions` for more information.
    * @param options.interestRateGiven Proposed interest rate given by receiver to initiator in % per year.
    * @param options.interestRateReceived Proposed interest rate received by initiator from receiver in % per year.
+   * @param options.isFrozen Whether we propose to freeze the trustline.
    * @param options.interestRateDecimals Decimals of interest rate in currency network can be provided manually if known.
    * @param options.decimals Decimals of currency network can be provided manually if known.
    * @param options.gasLimit Custom gas limit.
@@ -260,7 +277,7 @@ export class Trustline {
   }
 
   /**
-   * Returns trustline updates of loaded user in a currency network. A update
+   * Returns trustline updates of loaded user in a currency network. An update
    * happens when a user accepts a trustline update request.
    * @param networkAddress Address of a currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.

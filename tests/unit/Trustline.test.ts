@@ -80,7 +80,8 @@ describe('unit', () => {
           200,
           {
             interestRateGiven: 0.01,
-            interestRateReceived: 0.02
+            interestRateReceived: 0.02,
+            isFrozen: false
           }
         )
         assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
