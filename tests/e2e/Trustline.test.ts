@@ -94,7 +94,24 @@ describe('e2e', () => {
               1000,
               {
                 interestRateGiven: 1,
-                interestRateReceived: 2
+                interestRateReceived: 2,
+                isFrozen: false
+              }
+            )
+          ).to.eventually.have.keys('rawTx', 'ethFees')
+        })
+
+        it('should prepare raw trustline update request tx with freezing', () => {
+          expect(
+            tl1.trustline.prepareUpdate(
+              networkCustomInterestRates.address,
+              user2.address,
+              2000,
+              1000,
+              {
+                interestRateGiven: 1,
+                interestRateReceived: 2,
+                isFrozen: true
               }
             )
           ).to.eventually.have.keys('rawTx', 'ethFees')
@@ -139,12 +156,30 @@ describe('e2e', () => {
             1000,
             {
               interestRateGiven: 0.02,
-              interestRateReceived: 0.01
+              interestRateReceived: 0.01,
+              isFrozen: false
             }
           )
           expect(
             tl1.trustline.confirm(txCustomInterestRates.rawTx)
           ).to.eventually.be.a('string')
+        })
+
+        it('should return txId for trustline update request with freezing', async () => {
+          const txFreezing = await tl1.trustline.prepareUpdate(
+            networkCustomInterestRates.address,
+            user2.address,
+            2000,
+            1000,
+            {
+              interestRateGiven: 0.02,
+              interestRateReceived: 0.01,
+              isFrozen: true
+            }
+          )
+          expect(tl1.trustline.confirm(txFreezing.rawTx)).to.eventually.be.a(
+            'string'
+          )
         })
       })
 
@@ -271,7 +306,8 @@ describe('e2e', () => {
             received,
             {
               interestRateGiven,
-              interestRateReceived
+              interestRateReceived,
+              isFrozen
             }
           )
           const txId = await tl1.trustline.confirm(rawTx)
@@ -322,6 +358,63 @@ describe('e2e', () => {
           expect(latestRequest.isFrozen).to.eq(isFrozen)
           expect(latestRequest.type).to.equal('TrustlineUpdateRequest')
         })
+
+        it('should return latest request for trustline update request with freezing', async () => {
+          const { rawTx } = await tl1.trustline.prepareUpdate(
+            networkCustomInterestRates.address,
+            user2.address,
+            given,
+            received,
+            { interestRateGiven, interestRateReceived, isFrozen: true }
+          )
+          const txId = await tl1.trustline.confirm(rawTx)
+
+          // make sure tx is mined
+          await wait()
+
+          const requests = await tl1.trustline.getRequests(
+            networkCustomInterestRates.address
+          )
+          const latestRequest = requests[requests.length - 1]
+          expect(latestRequest.direction).to.equal('sent')
+          expect(latestRequest.from).to.equal(user1.address)
+          expect(latestRequest.transactionId).to.equal(txId)
+          expect(latestRequest.to).to.equal(user2.address)
+          expect(latestRequest.blockNumber).to.be.a('number')
+          expect(latestRequest.timestamp).to.be.a('number')
+          expect(latestRequest.counterParty).to.equal(user2.address)
+          expect(latestRequest.user).to.equal(user1.address)
+          expect(latestRequest.networkAddress).to.equal(
+            networkCustomInterestRates.address
+          )
+          expect(latestRequest.status).to.be.a('string')
+          expect(latestRequest.received).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(latestRequest.received.value).to.eq(received.toString())
+          expect(latestRequest.given).to.have.keys('raw', 'value', 'decimals')
+          expect(latestRequest.given.value).to.eq(given.toString())
+          expect(latestRequest.interestRateReceived).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(latestRequest.interestRateReceived.value).to.eq(
+            interestRateReceived.toString()
+          )
+          expect(latestRequest.interestRateGiven).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(latestRequest.interestRateGiven.value).to.eq(
+            interestRateGiven.toString()
+          )
+          expect(latestRequest.isFrozen).to.eq(true)
+          expect(latestRequest.type).to.equal('TrustlineUpdateRequest')
+        })
       })
 
       describe('#prepareAccept()', () => {
@@ -356,7 +449,24 @@ describe('e2e', () => {
               1000,
               {
                 interestRateGiven: 0.01,
-                interestRateReceived: 0.02
+                interestRateReceived: 0.02,
+                isFrozen: false
+              }
+            )
+          ).to.eventually.have.keys('rawTx', 'ethFees')
+        })
+
+        it('should prepare accept tx for trustline update with freezing', async () => {
+          expect(
+            tl2.trustline.prepareAccept(
+              networkCustomInterestRates.address,
+              user1.address,
+              1250,
+              1000,
+              {
+                interestRateGiven: 0.02,
+                interestRateReceived: 0.01,
+                isFrozen: true
               }
             )
           ).to.eventually.have.keys('rawTx', 'ethFees')
@@ -402,7 +512,8 @@ describe('e2e', () => {
             received,
             {
               interestRateGiven,
-              interestRateReceived
+              interestRateReceived,
+              isFrozen
             }
           )
           await tl1.trustline.confirm(updateTxCustomInterestRates.rawTx)
@@ -440,7 +551,8 @@ describe('e2e', () => {
             given,
             {
               interestRateGiven: interestRateReceived,
-              interestRateReceived: interestRateGiven
+              interestRateReceived: interestRateGiven,
+              isFrozen
             }
           )
           acceptTxIdCustomInterestRates = await tl2.trustline.confirm(
@@ -551,6 +663,116 @@ describe('e2e', () => {
           expect(latestUpdate.transactionId).to.equal(
             acceptTxIdCustomInterestRates
           )
+          expect(latestUpdate.type).to.equal('TrustlineUpdate')
+          expect(latestUpdate.received).to.have.keys('raw', 'value', 'decimals')
+          expect(latestUpdate.received.value).to.eq(received.toString())
+          expect(latestUpdate.given).to.have.keys('raw', 'value', 'decimals')
+          expect(latestUpdate.given.value).to.eq(given.toString())
+          expect(latestUpdate.interestRateReceived).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(latestUpdate.interestRateReceived.value).to.eq(
+            interestRateReceived.toString()
+          )
+          expect(latestUpdate.interestRateGiven).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(latestUpdate.interestRateGiven.value).to.eq(
+            interestRateGiven.toString()
+          )
+          expect(latestUpdate.isFrozen).to.eq(isFrozen)
+        })
+      })
+
+      describe('#getUpdates() for freezing a trustline', () => {
+        const given = 3000
+        const received = 2000
+        const interestRateGiven = 0.03
+        const interestRateReceived = 0.02
+        const isFrozen = true
+
+        let acceptTxId
+
+        before(async () => {
+          const updateTx = await tl1.trustline.prepareUpdate(
+            networkCustomInterestRates.address,
+            user2.address,
+            given,
+            received,
+            { interestRateGiven, interestRateReceived, isFrozen }
+          )
+          await tl1.trustline.confirm(updateTx.rawTx)
+
+          await wait()
+
+          const acceptTx = await tl2.trustline.prepareAccept(
+            networkCustomInterestRates.address,
+            user1.address,
+            received,
+            given,
+            {
+              interestRateGiven: interestRateReceived,
+              interestRateReceived: interestRateGiven,
+              isFrozen
+            }
+          )
+          acceptTxId = await tl2.trustline.confirm(acceptTx.rawTx)
+
+          await wait()
+        })
+
+        after(async () => {
+          // make sure TL is not frozen for other tests
+          const updateTxCustomInterestRates = await tl1.trustline.prepareUpdate(
+            networkCustomInterestRates.address,
+            user2.address,
+            given,
+            received,
+            {
+              interestRateGiven,
+              interestRateReceived,
+              isFrozen: false
+            }
+          )
+          await tl1.trustline.confirm(updateTxCustomInterestRates.rawTx)
+
+          const acceptTxCustomInterestRates = await tl2.trustline.prepareAccept(
+            networkCustomInterestRates.address,
+            user1.address,
+            received,
+            given,
+            {
+              interestRateGiven: interestRateReceived,
+              interestRateReceived: interestRateGiven,
+              isFrozen: false
+            }
+          )
+          await tl2.trustline.confirm(acceptTxCustomInterestRates.rawTx)
+
+          await wait()
+        })
+
+        it('should return latest update for trustline update with freezing', async () => {
+          const updates = await tl1.trustline.getUpdates(
+            networkCustomInterestRates.address
+          )
+          const latestUpdate = updates[updates.length - 1]
+          expect(latestUpdate.direction).to.equal('sent')
+          expect(latestUpdate.from).to.equal(user1.address)
+          expect(latestUpdate.to).to.equal(user2.address)
+          expect(latestUpdate.counterParty).to.equal(user2.address)
+          expect(latestUpdate.user).to.equal(user1.address)
+          expect(latestUpdate.blockNumber).to.be.a('number')
+          expect(latestUpdate.timestamp).to.be.a('number')
+          expect(latestUpdate.networkAddress).to.equal(
+            networkCustomInterestRates.address
+          )
+          expect(latestUpdate.status).to.be.a('string')
+          expect(latestUpdate.transactionId).to.equal(acceptTxId)
           expect(latestUpdate.type).to.equal('TrustlineUpdate')
           expect(latestUpdate.received).to.have.keys('raw', 'value', 'decimals')
           expect(latestUpdate.received.value).to.eq(received.toString())

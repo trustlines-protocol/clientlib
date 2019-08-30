@@ -69,6 +69,7 @@ export interface PaymentOptions extends TLOptions {
 export interface TrustlineUpdateOptions extends TLOptions {
   interestRateGiven?: number
   interestRateReceived?: number
+  isFrozen?: boolean
 }
 
 export interface AmountInternal {
