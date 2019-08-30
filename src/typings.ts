@@ -124,6 +124,7 @@ export interface NetworkTrustlineEventRaw extends NetworkEvent {
   received: string
   interestRateGiven: string
   interestRateReceived: string
+  isFrozen: boolean
 }
 
 export interface NetworkTrustlineEvent extends NetworkEvent {
@@ -131,6 +132,7 @@ export interface NetworkTrustlineEvent extends NetworkEvent {
   received: Amount
   interestRateGiven: Amount
   interestRateReceived: Amount
+  isFrozen: boolean
 }
 
 export type AnyNetworkEvent = NetworkTransferEvent | NetworkTrustlineEvent
@@ -360,6 +362,7 @@ export interface NetworkDetailsRaw extends Network {
 
 export interface UserOverview {
   balance: Amount
+  frozenBalance: Amount
   given: Amount
   received: Amount
   leftGiven: Amount
@@ -369,6 +372,7 @@ export interface UserOverview {
 export interface UserOverviewRaw {
   leftReceived: string
   balance: string
+  frozenBalance: string
   given: string
   received: string
   leftGiven: string
@@ -427,6 +431,7 @@ export interface TrustlineObject {
   leftReceived: Amount
   interestRateGiven: Amount
   interestRateReceived: Amount
+  isFrozen: boolean
 }
 
 export interface TrustlineRaw {
@@ -439,6 +444,7 @@ export interface TrustlineRaw {
   leftReceived: string
   interestRateGiven: string
   interestRateReceived: string
+  isFrozen: boolean
 }
 
 /**

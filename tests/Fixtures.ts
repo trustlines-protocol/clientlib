@@ -172,7 +172,8 @@ export const FAKE_AMOUNT = {
 
 export const FAKE_USER = {
   balance: 100,
-  given: 200,
+  balanceFrozen: 100,
+  given: 300,
   leftGiven: 100,
   leftReceived: 400,
   received: 300
@@ -423,6 +424,7 @@ export const FAKE_TRUSTLINE = {
   id: '123456798',
   interestRateGiven: '1',
   interestRateReceived: '1',
+  isFrozen: false,
   leftGiven: '200',
   leftReceived: '0',
   received: '100'

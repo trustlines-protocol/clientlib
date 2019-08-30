@@ -36,6 +36,7 @@ describe('unit', () => {
     const AMOUNT_KEYS = ['decimals', 'raw', 'value']
     const USER_OVERVIEW_KEYS = [
       'balance',
+      'frozenBalance',
       'given',
       'leftGiven',
       'leftReceived',
@@ -107,6 +108,7 @@ describe('unit', () => {
         )
         assert.hasAllKeys(userOverview, USER_OVERVIEW_KEYS)
         assert.hasAllKeys(userOverview.balance, AMOUNT_KEYS)
+        assert.hasAllKeys(userOverview.frozenBalance, AMOUNT_KEYS)
         assert.hasAllKeys(userOverview.given, AMOUNT_KEYS)
         assert.hasAllKeys(userOverview.leftGiven, AMOUNT_KEYS)
         assert.hasAllKeys(userOverview.leftReceived, AMOUNT_KEYS)

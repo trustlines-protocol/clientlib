@@ -153,6 +153,7 @@ describe('e2e', () => {
         const received = 1000
         const interestRateGiven = 0.01
         const interestRateReceived = 0.02
+        const isFrozen = false
 
         it('should return latest request for network WITHOUT interest rates', async () => {
           const { rawTx } = await tl1.trustline.prepareUpdate(
@@ -202,6 +203,7 @@ describe('e2e', () => {
             'decimals'
           )
           expect(latestRequest.interestRateGiven.value).to.eq('0')
+          expect(latestRequest.isFrozen).to.eq(isFrozen)
           expect(latestRequest.type).to.equal('TrustlineUpdateRequest')
         })
 
@@ -257,6 +259,7 @@ describe('e2e', () => {
           expect(latestRequest.interestRateGiven.value).to.eq(
             networkDefaultInterestRates.defaultInterestRate.value
           )
+          expect(latestRequest.isFrozen).to.eq(isFrozen)
           expect(latestRequest.type).to.equal('TrustlineUpdateRequest')
         })
 
@@ -316,6 +319,7 @@ describe('e2e', () => {
           expect(latestRequest.interestRateGiven.value).to.eq(
             interestRateGiven.toString()
           )
+          expect(latestRequest.isFrozen).to.eq(isFrozen)
           expect(latestRequest.type).to.equal('TrustlineUpdateRequest')
         })
       })
@@ -364,6 +368,7 @@ describe('e2e', () => {
         const received = 2000
         const interestRateGiven = 0.03
         const interestRateReceived = 0.02
+        const isFrozen = false
 
         let acceptTxIdWithoutInterestRates
         let acceptTxIdDefaultInterestRates
@@ -481,6 +486,7 @@ describe('e2e', () => {
             'decimals'
           )
           expect(latestUpdate.interestRateGiven.value).to.eq('0')
+          expect(latestUpdate.isFrozen).to.eq(isFrozen)
         })
 
         it('should return latest update for network with DEFAULT interest rates', async () => {
@@ -523,6 +529,7 @@ describe('e2e', () => {
           expect(latestUpdate.interestRateGiven.value).to.eq(
             networkDefaultInterestRates.defaultInterestRate.value
           )
+          expect(latestUpdate.isFrozen).to.eq(isFrozen)
         })
 
         it('should return latest update for network with CUSTOM interest rates', async () => {
@@ -565,6 +572,7 @@ describe('e2e', () => {
           expect(latestUpdate.interestRateGiven.value).to.eq(
             interestRateGiven.toString()
           )
+          expect(latestUpdate.isFrozen).to.eq(isFrozen)
         })
       })
 
@@ -585,7 +593,8 @@ describe('e2e', () => {
             'leftReceived',
             'received',
             'interestRateGiven',
-            'interestRateReceived'
+            'interestRateReceived',
+            'isFrozen'
           ])
         })
       })

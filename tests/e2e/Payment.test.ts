@@ -117,7 +117,9 @@ describe('e2e', () => {
             network.address,
             user2.address,
             2.25,
-            { extraData }
+            {
+              extraData
+            }
           )
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
