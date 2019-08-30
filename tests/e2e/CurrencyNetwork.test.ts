@@ -97,15 +97,24 @@ describe('e2e', () => {
             networks[0].address,
             USER_1.address
           )
-          const { balance, given, received, leftGiven, leftReceived } = overview
+          const {
+            balance,
+            frozenBalance,
+            given,
+            received,
+            leftGiven,
+            leftReceived
+          } = overview
           expect(overview).to.have.all.keys(
             'balance',
+            'frozenBalance',
             'given',
             'received',
             'leftGiven',
             'leftReceived'
           )
           expect(balance).to.have.all.keys('decimals', 'raw', 'value')
+          expect(frozenBalance).to.have.all.keys('decimals', 'raw', 'value')
           expect(given).to.have.all.keys('decimals', 'raw', 'value')
           expect(received).to.have.all.keys('decimals', 'raw', 'value')
           expect(leftGiven).to.have.all.keys('decimals', 'raw', 'value')

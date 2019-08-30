@@ -150,6 +150,7 @@ describe('unit', () => {
           'value',
           'raw'
         ])
+        assert.isBoolean(trustlines[0].isFrozen)
       })
     })
 
@@ -167,6 +168,7 @@ describe('unit', () => {
         assert.hasAllKeys(tl.leftReceived, ['decimals', 'value', 'raw'])
         assert.hasAllKeys(tl.interestRateGiven, ['decimals', 'value', 'raw'])
         assert.hasAllKeys(tl.interestRateReceived, ['decimals', 'value', 'raw'])
+        assert.isBoolean(tl.isFrozen)
       })
     })
 

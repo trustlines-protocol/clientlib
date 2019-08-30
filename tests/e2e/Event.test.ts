@@ -208,6 +208,9 @@ describe('e2e', () => {
           (updateRequestEvents[0] as NetworkTrustlineEvent).networkAddress
         ).to.equal(network2.address)
         expect(
+          (updateRequestEvents[0] as NetworkTrustlineEvent).isFrozen
+        ).to.be.a('boolean')
+        expect(
           (updateRequestEvents[0] as NetworkTrustlineEvent).given
         ).to.have.keys('raw', 'decimals', 'value')
         expect(
@@ -233,6 +236,9 @@ describe('e2e', () => {
         expect(
           (updateEvents[0] as NetworkTrustlineEvent).networkAddress
         ).to.equal(network2.address)
+        expect(
+          (updateRequestEvents[0] as NetworkTrustlineEvent).isFrozen
+        ).to.be.a('boolean')
         expect((updateEvents[0] as NetworkTrustlineEvent).given).to.have.keys(
           'raw',
           'decimals',
@@ -585,6 +591,7 @@ describe('e2e', () => {
           'value',
           'decimals'
         )
+        expect(trustlineRequestEvent.isFrozen).to.be.a('boolean')
         expect(trustlineRequestEvent).to.have.nested.property(
           'given.value',
           '4001'

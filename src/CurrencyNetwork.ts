@@ -91,6 +91,10 @@ export class CurrencyNetwork {
     ])
     return {
       balance: utils.formatToAmount(overview.balance, networkDecimals),
+      frozenBalance: utils.formatToAmount(
+        overview.frozenBalance,
+        networkDecimals
+      ),
       given: utils.formatToAmount(overview.given, networkDecimals),
       leftGiven: utils.formatToAmount(overview.leftGiven, networkDecimals),
       leftReceived: utils.formatToAmount(
