@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.7.0] - 2019-09-03
+
+### Added
+
+- Added `frozenBalance` to UserOverview to return the sum of all frozen balances for a user's trustlines
+- Added `isFrozen` to trustline events
+- Added `isFrozen` to `prepareUpdate` and `prepareAccept` options argument to freeze a trustline (BREAKING)
+
 ## [0.6.0] - 2019-08-08
 
 ### Added
