@@ -142,11 +142,12 @@ describe('unit', () => {
         )
 
         // check the version number
-        const fakeSignatureVersion = FAKE_META_TX_SIGNATURE.slice(0, -2)
-        const signatureVersion = metaTransaction.signature.slice(0, -2)
+        const fakeSignatureVersion = FAKE_META_TX_SIGNATURE.slice(-2)
+        const signatureVersion = metaTransaction.signature.slice(-2)
         assert.equal(
           parseInt(`0x${signatureVersion}`, 16) % 27,
-          parseInt(fakeSignatureVersion, 16) % 27
+          parseInt(fakeSignatureVersion, 16) % 27,
+          'Signature version number does not match'
         )
       })
     })
