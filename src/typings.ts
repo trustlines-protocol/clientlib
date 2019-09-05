@@ -227,6 +227,8 @@ export interface RawTxObject {
   gasPrice?: number | string | BigNumber
   data?: string
   nonce?: number
+  delegationFees?: number | string | BigNumber
+  currencyNetworkOfFees?: string
 }
 
 export interface MetaTransaction {
@@ -235,6 +237,8 @@ export interface MetaTransaction {
   to: string
   value: string
   data: string
+  delegationFees: string
+  currencyNetworkOfFees: string
   nonce: string
   signature?: string
 }

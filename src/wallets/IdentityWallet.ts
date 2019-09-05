@@ -239,6 +239,8 @@ export class IdentityWallet implements TLWallet {
       'address',
       'uint256',
       'bytes32',
+      'uint64',
+      'address',
       'uint256',
       'bytes'
     ]
@@ -249,6 +251,8 @@ export class IdentityWallet implements TLWallet {
       metaTransaction.to,
       metaTransaction.value,
       ethers.utils.solidityKeccak256(['bytes'], [metaTransaction.data]),
+      metaTransaction.delegationFees,
+      metaTransaction.currencyNetworkOfFees,
       metaTransaction.nonce,
       metaTransaction.extraData
     ]
@@ -346,7 +350,9 @@ export class IdentityWallet implements TLWallet {
       from: rawTx.from,
       nonce: rawTx.nonce.toString(),
       to: rawTx.to,
-      value: rawTx.value.toString()
+      value: rawTx.value.toString(),
+      delegationFees: (rawTx.delegationFees || 0).toString(),
+      currencyNetworkOfFees: rawTx.currencyNetworkOfFees || rawTx.to
     }
 
     return metaTransaction
