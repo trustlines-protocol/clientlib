@@ -86,6 +86,20 @@ describe('unit', () => {
         )
         assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
       })
+
+      it('should return a transaction object with specified interests, with default isFrozen value', async () => {
+        const tx = await trustline.prepareUpdate(
+          FAKE_NETWORK.address,
+          '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
+          100,
+          200,
+          {
+            interestRateGiven: 0.01,
+            interestRateReceived: 0.02
+          }
+        )
+        assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
+      })
     })
 
     describe('#prepareAccept()', () => {
@@ -101,12 +115,17 @@ describe('unit', () => {
         assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
       })
 
-      it('should return a transaction object w/o options', async () => {
+      it('should return a transaction object with specified interests', async () => {
         const tx = await trustline.prepareAccept(
           FAKE_NETWORK.address,
           '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
           100,
-          200
+          200,
+          {
+            interestRateGiven: 0.01,
+            interestRateReceived: 0.02,
+            isFrozen: false
+          }
         )
         assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
       })

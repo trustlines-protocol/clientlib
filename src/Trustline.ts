@@ -76,6 +76,15 @@ export class Trustline {
     creditlineReceived: number | string,
     options: TrustlineUpdateOptions = {}
   ): Promise<TxObject> {
+    // TODO: remove the following quickfix to have a default isFrozen when attempting to update interests rate
+    if (
+      options.interestRateGiven !== undefined &&
+      options.interestRateReceived !== undefined &&
+      options.isFrozen === undefined
+    ) {
+      options.isFrozen = false
+    }
+
     const {
       interestRateGiven,
       interestRateReceived,
@@ -110,7 +119,6 @@ export class Trustline {
     ]
 
     // If interest rates were specified, use `updateTrustline`
-
     if (
       interestRateGiven !== undefined &&
       interestRateReceived !== undefined &&
@@ -136,8 +144,9 @@ export class Trustline {
       interestRateReceived !== undefined ||
       isFrozen !== undefined
     ) {
+      // TODO: once the quick fix for the default value of isFrozen is removed, rewrite the following error message
       throw new Error(
-        'Invalid input parameters: if any of interestRateGiven, interestRateReceived, or isFrozen is given, all have to be given.'
+        'Invalid input parameters: if any of interestRateGiven, or interestRateReceived is given, both have to be given. If isFrozen is given, both interest rates have to be given.'
       )
     }
 
