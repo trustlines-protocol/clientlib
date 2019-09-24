@@ -4072,10 +4072,10 @@ trim-right@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
 
-trustlines-contracts-abi@dev:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/trustlines-contracts-abi/-/trustlines-contracts-abi-0.8.0.tgz#f798d4f00bddb00f6a8b163d8e50b682145fade7"
-  integrity sha512-3E0tjJgIX3qHXVSUSu5HAD7Bc7Nh8X6h915ZDKRrexYwC3sAGMNNEgIb8+kmyHZWBiayWrt8AFXT7thC86m1IA==
+trustlines-contracts-abi@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/trustlines-contracts-abi/-/trustlines-contracts-abi-0.9.0.tgz#322889b0f86cf929d030d32bb3d412c8a800f9ae"
+  integrity sha512-cAfye+CPO/937OV1IskqVT9ntsrN/ywE8mIWhwiiWmV++Yyw5FulR6Gj6G5EZ9q5dy7DjiQHPTdx/O8hH5ZArA==
 
 ts-node@^7.0.0:
   version "7.0.1"
