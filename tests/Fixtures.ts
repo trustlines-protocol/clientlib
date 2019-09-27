@@ -49,7 +49,12 @@ export const user3 = {
 export const extraData = '0x12ab34ef'
 
 export function createUsers(tlInstances) {
-  return Promise.all(tlInstances.map(tl => tl.user.create()))
+  return Promise.all(
+    tlInstances.map(async tl => {
+      await tl.user.create()
+      return tl.user.deployIdentity()
+    })
+  )
 }
 
 export function requestEth(tlInstances) {
@@ -89,10 +94,13 @@ export const ETHERS_JSON_KEYSTORE_2 = `{"address":"21b07ba7af3688270cd6ec3f58f4b
 export const ETHERS_JSON_KEYSTORE_3 = `{"address":"bc2b254c2b6a3cb288940e1b0cc7656bbb56aa95","id":"92948846-b0c6-4515-8ec1-4917be740779","version":3,"Crypto":{"cipher":"aes-128-ctr","cipherparams":{"iv":"b9f2d9502297108dbe6ec5c5a99c1cca"},"ciphertext":"522e8a3333db4dbda7ac1c0ee34b1861c85331b764200f1649c8bee4f1f2e620","kdf":"scrypt","kdfparams":{"salt":"12bfecec25bf42db1d22817f9e2efb94b8def753b487c5a3d1b2da9208425a0e","n":131072,"dklen":32,"p":1,"r":8},"mac":"bb9e73e2e0cb7ccecade6f5655663f0b1b261e72c58b1bae289408462e4a5de1"},"x-ethers":{"client":"ethers.js","gethFilename":"UTC--2019-01-29T11-27-58.0Z--bc2b254c2b6a3cb288940e1b0cc7656bbb56aa95","mnemonicCounter":"d2e098a9ae633867463cb37022c450c9","mnemonicCiphertext":"b301d4f40302f10eec6da03c934b958a","version":"0.1"}}`
 
 export const WALLET_JSON_ETHERS_V1 = `{"TLWalletVersion":1,"ethersKeystore":"{\\"address\\":\\"f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"id\\":\\"58f882de-6c78-4ef5-a260-ea41078080a5\\",\\"version\\":3,\\"Crypto\\":{\\"cipher\\":\\"aes-128-ctr\\",\\"cipherparams\\":{\\"iv\\":\\"3b2df3f31c4a65e3b0f932199b6fca91\\"},\\"ciphertext\\":\\"64aeb97e2bbac76e92535ba770c18caaf4e54b2aa383912b205079d587f35809\\",\\"kdf\\":\\"scrypt\\",\\"kdfparams\\":{\\"salt\\":\\"c0e4776c2e04d134c02d8310e542e74f151b8dc288e6e194d20fc1f1e894257e\\",\\"n\\":131072,\\"dklen\\":32,\\"p\\":1,\\"r\\":8},\\"mac\\":\\"af27838802b5095713c2127b932ad049c873f9b6498586fa4e4b00ca0b6c8b89\\"},\\"x-ethers\\":{\\"client\\":\\"ethers.js\\",\\"gethFilename\\":\\"UTC--2019-01-29T09-34-34.0Z--f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"mnemonicCounter\\":\\"0ffc0cd7eab7e49dc2ef31d14e67be4b\\",\\"mnemonicCiphertext\\":\\"0dc419d4eb3b37f5f0d0a815f4cdbeb6\\",\\"version\\":\\"0.1\\"}}","walletType":"WalletTypeEthers"}`
-export const WALLET_JSON_IDENTITY_V1 = `{"TLWalletVersion":1,"identityAddress":"0xF9fD1DaF400404A62B8cDCb1834317894c714625","ethersKeystore":"{\\"address\\":\\"f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"id\\":\\"58f882de-6c78-4ef5-a260-ea41078080a5\\",\\"version\\":3,\\"Crypto\\":{\\"cipher\\":\\"aes-128-ctr\\",\\"cipherparams\\":{\\"iv\\":\\"3b2df3f31c4a65e3b0f932199b6fca91\\"},\\"ciphertext\\":\\"64aeb97e2bbac76e92535ba770c18caaf4e54b2aa383912b205079d587f35809\\",\\"kdf\\":\\"scrypt\\",\\"kdfparams\\":{\\"salt\\":\\"c0e4776c2e04d134c02d8310e542e74f151b8dc288e6e194d20fc1f1e894257e\\",\\"n\\":131072,\\"dklen\\":32,\\"p\\":1,\\"r\\":8},\\"mac\\":\\"af27838802b5095713c2127b932ad049c873f9b6498586fa4e4b00ca0b6c8b89\\"},\\"x-ethers\\":{\\"client\\":\\"ethers.js\\",\\"gethFilename\\":\\"UTC--2019-01-29T09-34-34.0Z--f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"mnemonicCounter\\":\\"0ffc0cd7eab7e49dc2ef31d14e67be4b\\",\\"mnemonicCiphertext\\":\\"0dc419d4eb3b37f5f0d0a815f4cdbeb6\\",\\"version\\":\\"0.1\\"}}","walletType":"WalletTypeIdentity"}`
+export const WALLET_JSON_IDENTITY_V1 = `{"TLWalletVersion":1,"identityAddress":"0x4aa41cbd43daa1e068bb964b881792e190141ffa","ethersKeystore":"{\\"address\\":\\"f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"id\\":\\"58f882de-6c78-4ef5-a260-ea41078080a5\\",\\"version\\":3,\\"Crypto\\":{\\"cipher\\":\\"aes-128-ctr\\",\\"cipherparams\\":{\\"iv\\":\\"3b2df3f31c4a65e3b0f932199b6fca91\\"},\\"ciphertext\\":\\"64aeb97e2bbac76e92535ba770c18caaf4e54b2aa383912b205079d587f35809\\",\\"kdf\\":\\"scrypt\\",\\"kdfparams\\":{\\"salt\\":\\"c0e4776c2e04d134c02d8310e542e74f151b8dc288e6e194d20fc1f1e894257e\\",\\"n\\":131072,\\"dklen\\":32,\\"p\\":1,\\"r\\":8},\\"mac\\":\\"af27838802b5095713c2127b932ad049c873f9b6498586fa4e4b00ca0b6c8b89\\"},\\"x-ethers\\":{\\"client\\":\\"ethers.js\\",\\"gethFilename\\":\\"UTC--2019-01-29T09-34-34.0Z--f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"mnemonicCounter\\":\\"0ffc0cd7eab7e49dc2ef31d14e67be4b\\",\\"mnemonicCiphertext\\":\\"0dc419d4eb3b37f5f0d0a815f4cdbeb6\\",\\"version\\":\\"0.1\\"}}","walletType":"WalletTypeIdentity"}`
 
+export const USER_1_ADDRESS = '0xF9fD1DaF400404A62B8cDCb1834317894c714625'
+export const USER_1_IDENTITY_ADDRESS =
+  '0x4aa41cbd43daa1e068bb964b881792e190141ffa'
 export const USER_1 = {
-  address: '0xF9fD1DaF400404A62B8cDCb1834317894c714625',
+  address: USER_1_ADDRESS,
   keystore: ETHERS_JSON_KEYSTORE_1,
   mnemonic:
     'deer cave charge core farm retire daughter peanut project multiply smart wash',
@@ -120,7 +128,7 @@ export const USER_3 = {
 }
 
 export const USER_1_ETHERS_WALLET_V1 = {
-  address: '0xF9fD1DaF400404A62B8cDCb1834317894c714625',
+  address: USER_1_ADDRESS,
   mnemonic:
     'deer cave charge core farm retire daughter peanut project multiply smart wash',
   password: 'ts',
@@ -132,16 +140,23 @@ export const USER_1_ETHERS_WALLET_V1 = {
 }
 
 export const USER_1_IDENTITY_WALLET_V1 = {
-  address: '0xF9fD1DaF400404A62B8cDCb1834317894c714625',
+  address: USER_1_IDENTITY_ADDRESS,
   mnemonic:
     'deer cave charge core farm retire daughter peanut project multiply smart wash',
   password: 'ts',
   privateKey:
     '0xf6692380c18c54bba568dcfcb825ae89dafe16cdcea65e68fdf7e85bde5d8bf0',
-  pubKey:
-    '0x045356586d5d56ef75da99a528b7f4366234cd2e73487837cd0777add536c225fd965d7881f172b7c50dcc705698594d27fdda2f60d620dfa7ff7fed127fc91aae',
+  pubKey: 'Not implemented yet',
   serializedWallet: WALLET_JSON_IDENTITY_V1
 }
+
+export const IDENTITY_FACTORY_ADDRESS =
+  '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b'
+export const IDENTITY_IMPLEMENTATION_ADDRESS =
+  '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+export const IDENTITY_OWNER_ADDRESS =
+  '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'
+export const IDENTITY_ADDRESS = '0x08209bb6de441fa36e21b4c02bac9b1dd2918506'
 
 export const FAKE_NETWORK = {
   abbreviation: 'CASH',
@@ -181,7 +196,7 @@ export const FAKE_USER = {
 
 export const FAKE_IDENTITY = {
   balance: '1000',
-  identity: '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+  identity: USER_1_IDENTITY_ADDRESS,
   nextNonce: 10
 }
 

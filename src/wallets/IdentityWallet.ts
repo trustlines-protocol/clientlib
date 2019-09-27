@@ -1,3 +1,4 @@
+import { isValidAddress } from 'ethereumjs-util'
 import { ethers, utils as ethersUtils } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
@@ -16,13 +17,23 @@ import {
 
 import utils from '../utils'
 
+const initcodeWithPadding =
+  '0x608060405234801561001057600080fd5b5060405160208061023c8339810180604052602081101561003057600080fd5b50506101fb806100416000396000f3fe6080604052600436106100295760003560e01c80636d7203cb1461005c578063d784d4261461008d575b600080546040516001600160a01b0390911691369082376000803683855af43d6000833e808015610058573d83f35b3d83fd5b34801561006857600080fd5b506100716100c2565b604080516001600160a01b039092168252519081900360200190f35b34801561009957600080fd5b506100c0600480360360208110156100b057600080fd5b50356001600160a01b03166100d1565b005b6000546001600160a01b031681565b6000546001600160a01b031661010e576000805473ffffffffffffffffffffffffffffffffffffffff19166001600160a01b03831617905561018f565b333014610166576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252603d815260200180610193603d913960400191505060405180910390fd5b6000805473ffffffffffffffffffffffffffffffffffffffff19166001600160a01b0383161790555b5056fe54686520696d706c656d656e746174696f6e2063616e206f6e6c79206265206368616e6765642062792074686520636f6e747261637420697473656c66a165627a7a723058207cd2968997410c5053b2fe83b3875cbaca17001f398f7eb6871746a38a8970e90029000000000000000000000000'
+
 export class IdentityWallet implements TLWallet {
   public provider: TLProvider
 
   private wallet: ethers.Wallet
   private identityAddress: string
+  private identityFactoryAddress: string
+  private identityImplementationAddress: string
 
-  constructor(provider: TLProvider) {
+  constructor(
+    provider: TLProvider,
+    { identityFactoryAddress, identityImplementationAddress }
+  ) {
+    this.identityFactoryAddress = identityFactoryAddress
+    this.identityImplementationAddress = identityImplementationAddress
     this.provider = provider
   }
 
@@ -61,33 +72,56 @@ export class IdentityWallet implements TLWallet {
     progressCallback?: any
   ): Promise<UserObject> {
     this.wallet = ethers.Wallet.createRandom()
+    this.identityAddress = calculateIdentityAddress(
+      this.identityFactoryAddress,
+      this.wallet.address
+    )
 
     const encryptedKeystore = await this.wallet.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
     )
 
-    const deployIdentityEndpoint = 'identities'
-
-    const identity = await this.provider.postToEndpoint<DeployIdentityResponse>(
-      deployIdentityEndpoint,
-      {
-        ownerAddress: this.wallet.address
-      }
-    )
-
-    this.identityAddress = identity.identity
-
     const serializedWallet: string = this.serializeWallet(
       encryptedKeystore,
-      identity.identity
+      this.identityAddress
     )
 
     return {
-      address: identity.identity,
+      address: this.address,
       pubKey: 'Not implemented yet',
       serializedWallet
     }
+  }
+
+  /**
+   * Deploys a new identity contract on the chain
+   */
+  public async deployIdentity(): Promise<string> {
+    const messageHash: string = ethers.utils.solidityKeccak256(
+      ['bytes1', 'bytes1', 'address'],
+      ['0x19', '0x00', this.identityImplementationAddress]
+    )
+    const signature = await this.rawSignHash(messageHash)
+
+    const deployIdentityEndpoint = 'identities'
+    const response = await this.provider.postToEndpoint<DeployIdentityResponse>(
+      deployIdentityEndpoint,
+      {
+        implementationAddress: this.identityImplementationAddress,
+        factoryAddress: this.identityFactoryAddress,
+        signature
+      }
+    )
+    if (this.address !== response.identity) {
+      throw new Error(
+        `Delegate did not deploy the right identity contract. Deployed ${
+          response.identity
+        } instead of ${this.address}`
+      )
+    }
+
+    return this.address
   }
 
   /**
@@ -137,7 +171,27 @@ export class IdentityWallet implements TLWallet {
     password: string,
     progressCallback?: any
   ): Promise<UserObject> {
-    throw new Error('Method not implemented.')
+    this.wallet = ethers.Wallet.fromMnemonic(seed)
+    this.identityAddress = calculateIdentityAddress(
+      this.identityFactoryAddress,
+      this.wallet.address
+    )
+
+    const encryptedKeystore = await this.wallet.encrypt(
+      password,
+      typeof progressCallback === 'function' && progressCallback
+    )
+
+    const serializedWallet = this.serializeWallet(
+      encryptedKeystore,
+      this.identityAddress
+    )
+
+    return {
+      address: this.address,
+      pubKey: 'Not implemented yet',
+      serializedWallet
+    }
   }
 
   /**
@@ -150,11 +204,13 @@ export class IdentityWallet implements TLWallet {
   public async recoverFromPrivateKey(
     privateKey: string,
     password: string,
-    identityAddress: string,
     progressCallback?: any
   ): Promise<UserObject> {
     this.wallet = new ethers.Wallet(privateKey)
-    this.identityAddress = identityAddress
+    this.identityAddress = calculateIdentityAddress(
+      this.identityFactoryAddress,
+      this.wallet.address
+    )
 
     const encryptedKeystore = await this.wallet.encrypt(
       password,
@@ -163,7 +219,7 @@ export class IdentityWallet implements TLWallet {
 
     const serializedWallet: string = this.serializeWallet(
       encryptedKeystore,
-      identityAddress
+      this.address
     )
 
     return {
@@ -357,4 +413,29 @@ export class IdentityWallet implements TLWallet {
 
     return metaTransaction
   }
+}
+
+export function calculateIdentityAddress(
+  factoryAddress: string,
+  ownerAddress: string
+) {
+  if (!isValidAddress(factoryAddress)) {
+    throw new Error(`Invalid factory address: ${factoryAddress}`)
+  }
+  if (!isValidAddress(ownerAddress)) {
+    throw new Error(`Invalid owner address: ${ownerAddress}`)
+  }
+
+  const initCode = initcodeWithPadding + ownerAddress.slice(2)
+  const initCodeHash = ethers.utils.solidityKeccak256(['bytes'], [initCode])
+  // address = keccak256( 0xff ++ address ++ salt ++ keccak256(init_code))[12:]
+  const address =
+    '0x' +
+    ethers.utils
+      .solidityKeccak256(
+        ['bytes1', 'address', 'uint', 'bytes32'],
+        ['0xff', factoryAddress, 0, initCodeHash]
+      )
+      .slice(2 + 2 * 12)
+  return address
 }
