@@ -57,15 +57,17 @@ describe('e2e', () => {
         const createdAccount = await identityWallet.createAccount(
           DEFAULT_PASSWORD
         )
+        const address = await identityWallet.deployIdentity()
         assert.hasAllKeys(createdAccount, ACCOUNT_KEYS)
         expect(createdAccount.address.length).to.equal(42)
         expect(createdAccount.address.slice(0, 2)).to.equal('0x')
+        expect(address).to.equal(createdAccount.address)
       })
     })
-
     describe('Identity infos', () => {
       before(async () => {
         await identityWallet.createAccount(DEFAULT_PASSWORD)
+        await identityWallet.deployIdentity()
       })
 
       it('should give a different nonce after transaction was sent', async () => {
@@ -115,6 +117,7 @@ describe('e2e', () => {
     describe('Interaction with identity', () => {
       beforeEach(async () => {
         await identityWallet.createAccount(DEFAULT_PASSWORD)
+        await identityWallet.deployIdentity()
       })
 
       it('should relay meta transaction and return a transaction hash', async () => {

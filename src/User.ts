@@ -82,6 +82,13 @@ export class User {
   }
 
   /**
+   * Deploys a new identity on the chain if it has to
+   */
+  public async deployIdentity(): Promise<string> {
+    return this.wallet.deployIdentity()
+  }
+
+  /**
    * Digitally signs a message hash with the currently loaded user/wallet.
    * @param msgHash Hash of message that should be signed.
    */
