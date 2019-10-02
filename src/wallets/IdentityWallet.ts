@@ -99,8 +99,13 @@ export class IdentityWallet implements TLWallet {
    */
   public async deployIdentity(): Promise<string> {
     const messageHash: string = ethers.utils.solidityKeccak256(
-      ['bytes1', 'bytes1', 'address'],
-      ['0x19', '0x00', this.identityImplementationAddress]
+      ['bytes1', 'bytes1', 'address', 'address'],
+      [
+        '0x19',
+        '0x00',
+        this.identityFactoryAddress,
+        this.identityImplementationAddress
+      ]
     )
     const signature = await this.rawSignHash(messageHash)
 
