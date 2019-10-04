@@ -42,6 +42,7 @@ describe('e2e', () => {
           tlNew.user.create(),
           tlExisting.user.load(user1.serializedWallet)
         ])
+        await tlNew.user.deployIdentity()
         // make sure existing user has eth
         await tlExisting.user.requestEth()
       })

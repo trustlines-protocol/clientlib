@@ -15,6 +15,7 @@ import {
 
 import {
   createUsers,
+  deployIdentities,
   extraData,
   requestEth,
   setTrustlines,
@@ -59,6 +60,7 @@ describe('e2e', () => {
       before(async () => {
         // create new users
         ;[user1, user2] = await createUsers([tl1, tl2])
+        await deployIdentities([tl1, tl2])
         // request ETH
         await requestEth([tl1, tl2])
         // set trustlines
@@ -109,6 +111,7 @@ describe('e2e', () => {
       before(async () => {
         // create new users
         ;[user1, user2] = await createUsers([tl1, tl2])
+        await deployIdentities([tl1, tl2])
         // request ETH
         await requestEth([tl1, tl2])
         // set trustlines
@@ -442,6 +445,7 @@ describe('e2e', () => {
       before(async () => {
         // create new users
         ;[user1, user2] = await createUsers([tl1, tl2])
+        await deployIdentities([tl1, tl2])
         // request ETH
         await requestEth([tl1, tl2])
         // set trustlines
@@ -545,6 +549,7 @@ describe('e2e', () => {
       before(async () => {
         // create new users
         ;[user1, user2] = await createUsers([tl1, tl2])
+        await deployIdentities([tl1, tl2])
         // request ETH
         await requestEth([tl1, tl2])
         // set trustlines

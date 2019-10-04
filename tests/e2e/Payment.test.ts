@@ -7,6 +7,7 @@ import { TLNetwork } from '../../src/TLNetwork'
 import { FeePayer, PathRaw } from '../../src/typings'
 import {
   createUsers,
+  deployIdentities,
   extraData,
   parametrizedTLNetworkConfig,
   wait
@@ -33,6 +34,7 @@ describe('e2e', () => {
           tl1.currencyNetwork.getAll(),
           createUsers([tl1, tl2])
         ])
+        await deployIdentities([tl1, tl2])
         // make sure users have eth
         await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
         // wait for tx to be mined
@@ -271,6 +273,7 @@ describe('e2e', () => {
 
         before(async () => {
           user3 = await tl3.user.create()
+          await tl3.user.deployIdentity()
           // make sure users have eth
           await tl3.user.requestEth()
           // set up trustlines

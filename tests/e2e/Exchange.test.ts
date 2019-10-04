@@ -5,7 +5,12 @@ import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { NetworkDetails } from '../../src/typings'
-import { createUsers, tlNetworkConfig, wait } from '../Fixtures'
+import {
+  createUsers,
+  deployIdentities,
+  tlNetworkConfig,
+  wait
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -40,6 +45,7 @@ describe('e2e', () => {
         tl1.currencyNetwork.getAll(),
         tl1.ethWrapper.getAddresses()
       ])
+      await deployIdentities([tl1, tl2])
       const networksWithInfo = await Promise.all(
         networks.map(network => tl1.currencyNetwork.getInfo(network.address))
       )
