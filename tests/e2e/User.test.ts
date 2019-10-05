@@ -76,4 +76,27 @@ describe('e2e', () => {
       })
     })
   })
+
+  describe(`User for wallet type: Identity`, () => {
+    const { expect } = chai
+
+    const tl = new TLNetwork(tlNetworkConfigIdentity)
+
+    describe('#isIdentityDeployed()', () => {
+      before(async () => {
+        await tl.user.create()
+      })
+
+      it('should return false for not deployed identity', async () => {
+        const isDeployed = await tl.user.isIdentityDeployed()
+        expect(isDeployed).to.equal(false)
+      })
+
+      it('should return true for deployed identity', async () => {
+        await tl.user.deployIdentity()
+        const isDeployed = await tl.user.isIdentityDeployed()
+        expect(isDeployed).to.equal(true)
+      })
+    })
+  })
 })
