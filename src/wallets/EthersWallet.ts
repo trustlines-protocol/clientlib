@@ -85,7 +85,7 @@ export class EthersWallet implements TLWallet {
   }
 
   public async isIdentityDeployed(): Promise<boolean> {
-    return false
+    return true
   }
 
   /**
