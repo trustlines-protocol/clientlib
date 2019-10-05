@@ -32,10 +32,17 @@ export class FakeTLWallet extends FakeTLSigner implements TLWallet {
   }
 
   public deployIdentity(): Promise<string> {
-    if (this.errors.createAccount) {
+    if (this.errors.deployIdentity) {
       throw new Error('Mocked error in signer.deployIdentity()!')
     }
     return Promise.resolve(this.address)
+  }
+
+  public async isIdentityDeployed(): Promise<boolean> {
+    if (this.errors.isIdentityDeployed) {
+      throw new Error('Mocked error in signer.isIdentityDeployed()!')
+    }
+    return false
   }
 
   public loadAccount(serializedKeystore: string): Promise<UserObject> {
