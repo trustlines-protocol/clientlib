@@ -88,6 +88,10 @@ export class User {
     return this.wallet.deployIdentity()
   }
 
+  public async isIdentityDeployed(): Promise<boolean> {
+    return this.wallet.isIdentityDeployed()
+  }
+
   /**
    * Digitally signs a message hash with the currently loaded user/wallet.
    * @param msgHash Hash of message that should be signed.

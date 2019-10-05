@@ -130,6 +130,16 @@ export class IdentityWallet implements TLWallet {
     return this.address
   }
 
+  public async isIdentityDeployed(): Promise<boolean> {
+    const response = await this.provider.fetchEndpoint<any>(
+      `/identities/${this.address}`
+    )
+    if ('not found' in response) {
+      return false
+    }
+    return true
+  }
+
   /**
    * Decrypts given serialized wallet and loads wallet.
    * @param serializedWallet serialized wallet from `createAccount`.
