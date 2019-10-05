@@ -4,7 +4,12 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { createUsers, parametrizedTLNetworkConfig, wait } from '../Fixtures'
+import {
+  createUsers,
+  deployIdentities,
+  parametrizedTLNetworkConfig,
+  wait
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -25,6 +30,7 @@ describe('e2e', () => {
       before(async () => {
         // create users
         await createUsers([tl1, tl2])
+        await deployIdentities([tl1, tl2])
         // get eth wrapper address
         const addresses = await tl1.ethWrapper.getAddresses()
         ethWrapperAddress = addresses[0]

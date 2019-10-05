@@ -11,12 +11,19 @@ import {
   FAKE_META_TX,
   FAKE_META_TX_PRIVATE_KEY,
   FAKE_META_TX_SIGNATURE,
+  IDENTITY_ADDRESS,
+  IDENTITY_FACTORY_ADDRESS,
+  IDENTITY_IMPLEMENTATION_ADDRESS,
+  IDENTITY_OWNER_ADDRESS,
   USER_1,
   USER_1_IDENTITY_WALLET_V1
 } from '../Fixtures'
 
 import { MetaTransaction } from '../../src/typings'
-import { IdentityWallet } from '../../src/wallets/IdentityWallet'
+import {
+  calculateIdentityAddress,
+  IdentityWallet
+} from '../../src/wallets/IdentityWallet'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -31,7 +38,10 @@ describe('unit', () => {
 
     const init = () => {
       fakeTLProvider = new FakeTLProvider()
-      identityWallet = new IdentityWallet(fakeTLProvider)
+      identityWallet = new IdentityWallet(fakeTLProvider, {
+        identityFactoryAddress: IDENTITY_FACTORY_ADDRESS,
+        identityImplementationAddress: IDENTITY_IMPLEMENTATION_ADDRESS
+      })
     }
 
     // Constants
@@ -96,14 +106,38 @@ describe('unit', () => {
       })
     })
 
+    describe('#recoverFromSeed()', () => {
+      beforeEach(() => init())
+
+      it('should recover account from mnemonic', async () => {
+        const recoveredAccount = await identityWallet.recoverFromSeed(
+          testUser.mnemonic,
+          testUser.password
+        )
+        assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
+        assert.equal(recoveredAccount.address, testUser.address)
+        assert.equal(recoveredAccount.pubKey, testUser.pubKey)
+      })
+
+      it('should recover account from mnemonic with progress callback', async () => {
+        const recoveredAccount = await identityWallet.recoverFromSeed(
+          testUser.mnemonic,
+          testUser.password,
+          progress => assert.isNumber(progress)
+        )
+        assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
+        assert.equal(recoveredAccount.address, testUser.address)
+        assert.equal(recoveredAccount.pubKey, testUser.pubKey)
+      })
+    })
+
     describe('#recoverFromPrivateKey()', () => {
       beforeEach(() => init())
 
       it('should recover account from private key', async () => {
         const recoveredAccount = await identityWallet.recoverFromPrivateKey(
           testUser.privateKey,
-          DEFAULT_PASSWORD,
-          testUser.address
+          DEFAULT_PASSWORD
         )
         assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
         assert.equal(recoveredAccount.address, testUser.address)
@@ -113,11 +147,23 @@ describe('unit', () => {
         const recoveredAccount = await identityWallet.recoverFromPrivateKey(
           USER_1.privateKey,
           DEFAULT_PASSWORD,
-          testUser.address,
           progress => assert.isNumber(progress)
         )
         assert.hasAllKeys(recoveredAccount, ACCOUNT_KEYS)
         assert.equal(recoveredAccount.address, testUser.address)
+      })
+    })
+
+    describe('#deployIdentity', () => {
+      beforeEach(() => init())
+
+      it('should deploy an identity', async () => {
+        await identityWallet.recoverFromSeed(
+          testUser.mnemonic,
+          testUser.password
+        )
+        const address = await identityWallet.deployIdentity()
+        assert.equal(address, identityWallet.address)
       })
     })
 
@@ -148,6 +194,18 @@ describe('unit', () => {
           parseInt(`0x${signatureVersion}`, 16) % 27,
           parseInt(fakeSignatureVersion, 16) % 27,
           'Signature version number does not match'
+        )
+      })
+    })
+
+    describe('#calculateIdentityAddress', () => {
+      it('should calculate the right identity contract address', () => {
+        assert.equal(
+          calculateIdentityAddress(
+            IDENTITY_FACTORY_ADDRESS,
+            IDENTITY_OWNER_ADDRESS
+          ),
+          IDENTITY_ADDRESS
         )
       })
     })

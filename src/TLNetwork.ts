@@ -108,6 +108,8 @@ export class TLNetwork {
       relayApiUrl,
       relayWsApiUrl,
       web3Provider,
+      identityFactoryAddress,
+      identityImplementationAddress,
       walletType = WALLET_TYPE_ETHERS
     } = config
 
@@ -118,7 +120,10 @@ export class TLNetwork {
       )
     )
 
-    this.setWallet(walletType, this.provider)
+    this.setWallet(walletType, this.provider, {
+      identityFactoryAddress,
+      identityImplementationAddress
+    })
     this.setSigner(web3Provider, this.wallet)
 
     this.currencyNetwork = new CurrencyNetwork(this.provider)
@@ -198,11 +203,18 @@ export class TLNetwork {
     this.signer = signer
   }
 
-  public setWallet(walletType: string, provider: TLProvider): void {
+  public setWallet(
+    walletType: string,
+    provider: TLProvider,
+    { identityFactoryAddress, identityImplementationAddress }
+  ): void {
     let wallet: TLWallet
 
     if (walletType === WALLET_TYPE_IDENTITY) {
-      wallet = new IdentityWallet(provider)
+      wallet = new IdentityWallet(provider, {
+        identityFactoryAddress,
+        identityImplementationAddress
+      })
     } else if (walletType === WALLET_TYPE_ETHERS) {
       wallet = new EthersWallet(provider)
     } else {

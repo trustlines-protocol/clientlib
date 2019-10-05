@@ -40,6 +40,14 @@ export interface TLNetworkConfig {
    * Wallet type to use, either "WalletTypeEthers" or "WalletTypeIdentity".
    */
   walletType?: string
+  /**
+   * Address of the identity factory
+   */
+  identityFactoryAddress?: string
+  /**
+   * Address of the implementation of the identity contract
+   */
+  identityImplementationAddress?: string
 }
 
 /**

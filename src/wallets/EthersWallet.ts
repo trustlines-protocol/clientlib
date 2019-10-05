@@ -77,6 +77,18 @@ export class EthersWallet implements TLWallet {
   }
 
   /**
+   * Deploys a new identity contract on the chain
+   */
+  public async deployIdentity(): Promise<string> {
+    // This does not have to deploy any identity, because it does not have it
+    return this.address
+  }
+
+  public async isIdentityDeployed(): Promise<boolean> {
+    return true
+  }
+
+  /**
    * Create a serialized wallet following the current format from an encryptedKeystore
    * Can be used to migrate from serialized wallet version 0 to serialized wallet version 1
    * @param encryptedKeystore

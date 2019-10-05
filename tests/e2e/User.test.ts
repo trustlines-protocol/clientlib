@@ -42,6 +42,7 @@ describe('e2e', () => {
           tlNew.user.create(),
           tlExisting.user.load(user1.serializedWallet)
         ])
+        await tlNew.user.deployIdentity()
         // make sure existing user has eth
         await tlExisting.user.requestEth()
       })
@@ -72,6 +73,29 @@ describe('e2e', () => {
           expect(balance).to.have.keys('raw', 'value', 'decimals')
           expect(new BigNumber(balance.raw).toNumber()).to.be.above(0)
         })
+      })
+    })
+  })
+
+  describe(`User for wallet type: Identity`, () => {
+    const { expect } = chai
+
+    const tl = new TLNetwork(tlNetworkConfigIdentity)
+
+    describe('#isIdentityDeployed()', () => {
+      before(async () => {
+        await tl.user.create()
+      })
+
+      it('should return false for not deployed identity', async () => {
+        const isDeployed = await tl.user.isIdentityDeployed()
+        expect(isDeployed).to.equal(false)
+      })
+
+      it('should return true for deployed identity', async () => {
+        await tl.user.deployIdentity()
+        const isDeployed = await tl.user.isIdentityDeployed()
+        expect(isDeployed).to.equal(true)
       })
     })
   })

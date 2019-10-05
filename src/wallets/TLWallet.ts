@@ -11,6 +11,8 @@ export interface TLWallet extends TLSigner {
   showSeed(): Promise<string>
   exportPrivateKey(): Promise<string>
   createAccount(password: string, progressCallback?: any): Promise<UserObject>
+  deployIdentity(): Promise<string>
+  isIdentityDeployed(): Promise<boolean>
   loadAccount(
     serializedWallet: string,
     password: string,

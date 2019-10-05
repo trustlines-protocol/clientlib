@@ -8,7 +8,13 @@ import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 
 import { RelayProvider } from '../../src/providers/RelayProvider'
 
-import { tlNetworkConfig, tlNetworkConfigIdentity, wait } from '../Fixtures'
+import {
+  identityFactoryAddress,
+  identityImplementationAddress,
+  tlNetworkConfig,
+  tlNetworkConfigIdentity,
+  wait
+} from '../Fixtures'
 
 import { FeePayer, RawTxObject, UserObject } from '../../src/typings'
 import utils from '../../src/utils'
@@ -45,7 +51,10 @@ describe('e2e', () => {
       trustlinesNetwork = new TLNetwork(tlNetworkConfigIdentity)
       trustlinesNetwork2 = new TLNetwork(tlNetworkConfigIdentity)
 
-      identityWallet = new IdentityWallet(relayProvider)
+      identityWallet = new IdentityWallet(relayProvider, {
+        identityFactoryAddress,
+        identityImplementationAddress
+      })
 
       DEFAULT_PASSWORD = 'ts'
       ACCOUNT_KEYS = ['address', 'serializedWallet', 'pubKey']
@@ -53,19 +62,22 @@ describe('e2e', () => {
     })
 
     describe('Deploy identity', () => {
-      it('should deploy an identity contract when creating an identity account', async () => {
+      it('should deploy an identity contract after creating an identity account', async () => {
         const createdAccount = await identityWallet.createAccount(
           DEFAULT_PASSWORD
         )
+        const address = await identityWallet.deployIdentity()
         assert.hasAllKeys(createdAccount, ACCOUNT_KEYS)
         expect(createdAccount.address.length).to.equal(42)
         expect(createdAccount.address.slice(0, 2)).to.equal('0x')
+        expect(address).to.equal(createdAccount.address)
       })
     })
 
     describe('Identity infos', () => {
       before(async () => {
         await identityWallet.createAccount(DEFAULT_PASSWORD)
+        await identityWallet.deployIdentity()
       })
 
       it('should give a different nonce after transaction was sent', async () => {
@@ -115,6 +127,7 @@ describe('e2e', () => {
     describe('Interaction with identity', () => {
       beforeEach(async () => {
         await identityWallet.createAccount(DEFAULT_PASSWORD)
+        await identityWallet.deployIdentity()
       })
 
       it('should relay meta transaction and return a transaction hash', async () => {
@@ -133,7 +146,10 @@ describe('e2e', () => {
       })
 
       it('should transfer eth via a meta-transaction', async () => {
-        const secondWallet = new IdentityWallet(relayProvider)
+        const secondWallet = new IdentityWallet(relayProvider, {
+          identityFactoryAddress,
+          identityImplementationAddress
+        })
         await secondWallet.createAccount(DEFAULT_PASSWORD)
 
         await relayProvider.postToEndpoint(`request-ether`, {
@@ -161,6 +177,10 @@ describe('e2e', () => {
       it('should get a path in a currency network', async () => {
         const user1: UserObject = await trustlinesNetwork.user.create()
         const user2: UserObject = await trustlinesNetwork2.user.create()
+        await [
+          trustlinesNetwork2.user.deployIdentity(),
+          trustlinesNetwork.user.deployIdentity()
+        ]
         const [network] = await trustlinesNetwork.currencyNetwork.getAll()
 
         // set up trustlines
