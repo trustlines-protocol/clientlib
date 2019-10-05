@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.9.0] - 2019-10-05
+
+### Added
+- Added function to deploy an identity contract 
+- Added function to check if identity contract is deployed
+- Implemented recover from seed for identity wallet
+
+### Changed
+
+- Changed user.create will no longer deploy an identity contract (BREAKING)
+- Changed config of clientlib will need the factory address and the implementation address to configure the identity wallet (BREAKING)
+
+
 ## [0.8.0] - 2019-10-01
 
 ### Changed
