@@ -72,6 +72,29 @@ describe('e2e', () => {
         expect(createdAccount.address.slice(0, 2)).to.equal('0x')
         expect(address).to.equal(createdAccount.address)
       })
+
+      it('should deploy two identities in parallel', async () => {
+        const [user1, user2] = await Promise.all([
+          trustlinesNetwork.user.recoverFromSeed(
+            'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
+          ),
+          trustlinesNetwork2.user.recoverFromSeed(
+            'license street diagram tribe pig join advance ice wing ill oyster crazy'
+          )
+        ])
+        expect(user1.address).to.equal(
+          '0x559dB56D41c125a5c266B50C62243888c0A62ff3'
+        )
+        expect(user2.address).to.equal(
+          '0x3104056b618942f2E94b1eec7CE105eFcA451c49'
+        )
+        // Delegate did not deploy the right identity contract.
+        // Deployed 0x559dB56D41c125a5c266B50C62243888c0A62ff3 instead of 0x3104056b618942f2E94b1eec7CE105eFcA451c49
+        await Promise.all([
+          trustlinesNetwork.user.deployIdentity(),
+          trustlinesNetwork2.user.deployIdentity()
+        ])
+      })
     })
 
     describe('Identity infos', () => {
