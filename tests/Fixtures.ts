@@ -58,16 +58,12 @@ export const user3 = {
 
 export const extraData = '0x12ab34ef'
 
-export function createUsers(tlInstances) {
+export function createUsers(tlInstances: TLNetwork[]) {
   return Promise.all(tlInstances.map(tl => tl.user.create()))
 }
 
-export async function deployIdentities(tlInstances) {
-  // TODO: understand why deploying identities in parallel does not work:
-  //  the received address does not match pre-calculated address
-  for (const tl of tlInstances) {
-    await tl.user.deployIdentity()
-  }
+export async function deployIdentities(tlInstances: TLNetwork[]) {
+  return Promise.all(tlInstances.map(tl => tl.user.deployIdentity()))
 }
 
 export function requestEth(tlInstances) {

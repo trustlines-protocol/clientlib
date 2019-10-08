@@ -9,6 +9,8 @@ import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 import { RelayProvider } from '../../src/providers/RelayProvider'
 
 import {
+  createUsers,
+  deployIdentities,
   identityFactoryAddress,
   identityImplementationAddress,
   tlNetworkConfig,
@@ -22,6 +24,7 @@ import utils from '../../src/utils'
 import { TLNetwork } from '../../src/TLNetwork'
 
 import { TLProvider } from '../../src/providers/TLProvider'
+import { User } from '../../src/User'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -75,21 +78,9 @@ describe('e2e', () => {
 
       it('should deploy two identities in parallel', async () => {
         const [user1, user2] = await Promise.all([
-          trustlinesNetwork.user.recoverFromSeed(
-            'mesh park casual casino sorry giraffe half shrug wool anger chef amateur'
-          ),
-          trustlinesNetwork2.user.recoverFromSeed(
-            'license street diagram tribe pig join advance ice wing ill oyster crazy'
-          )
+          trustlinesNetwork.user.create(),
+          trustlinesNetwork2.user.create()
         ])
-        expect(user1.address).to.equal(
-          '0x559dB56D41c125a5c266B50C62243888c0A62ff3'
-        )
-        expect(user2.address).to.equal(
-          '0x3104056b618942f2E94b1eec7CE105eFcA451c49'
-        )
-        // Delegate did not deploy the right identity contract.
-        // Deployed 0x559dB56D41c125a5c266B50C62243888c0A62ff3 instead of 0x3104056b618942f2E94b1eec7CE105eFcA451c49
         await Promise.all([
           trustlinesNetwork.user.deployIdentity(),
           trustlinesNetwork2.user.deployIdentity()
@@ -198,12 +189,11 @@ describe('e2e', () => {
       })
 
       it('should get a path in a currency network', async () => {
-        const user1: UserObject = await trustlinesNetwork.user.create()
-        const user2: UserObject = await trustlinesNetwork2.user.create()
-        await [
-          trustlinesNetwork2.user.deployIdentity(),
-          trustlinesNetwork.user.deployIdentity()
-        ]
+        const [user1, user2] = await createUsers([
+          trustlinesNetwork,
+          trustlinesNetwork2
+        ])
+        await deployIdentities([trustlinesNetwork, trustlinesNetwork2])
         const [network] = await trustlinesNetwork.currencyNetwork.getAll()
 
         // set up trustlines
