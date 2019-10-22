@@ -1,8 +1,12 @@
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
-import { WALLET_TYPE_IDENTITY } from '../src/wallets/TLWallet'
+import {
+  WALLET_TYPE_ETHERS,
+  WALLET_TYPE_IDENTITY
+} from '../src/wallets/TLWallet'
 
 import { TLNetwork } from '../src/TLNetwork'
+import { EthersWalletSchema, TLWalletSchema } from '../src/typings'
 import identityConfig from './e2e-config/addresses.json'
 
 export const keystore1 = `{"encSeed":{"encStr":"I4qBGJUmpzHUQoVRMkjMEAqGusa4oI7HEG7SQMYPO31OIH+UlFtEDGfOuADzFYsfHKMbImJIOnhEg5z3VzvnndRlV9V9zHjbPgOysoMkF0K3ZR7DtamiBhk2CW3s8gx9Y2liECI03gOzz2Z51/jFLtDVrKs8HaF+ao4AnpmBZ9BgmX1F2fcZvA==","nonce":"nToBO+VpArhjS3PtICUBpjpc5cEDcmQ0"},"encHdRootPriv":{"encStr":"MMfdnPGEYRuPvOGaZvjrqHkrC+QT+GYSk1Nj1n76BbGjx3Kv37Rptb74wEcL7oRsBDJDHN1fLbeeXdwW6ZoGZaGnB8K+mdNBq+84PMGyfs/pvEQ4b81mPYP/Nw/Lgy8MwvSnwqupI8ZtA67zBDSSTWaQ1qN16Y4CID2SUEaJtQ==","nonce":"Tdsr0BdTZxaP655dmg1l14g8HdF3nTcl"},"addresses":["f8e191d2cd72ff35cb8f012685a29b31996614ea"],"encPrivKeys":{"f8e191d2cd72ff35cb8f012685a29b31996614ea":{"key":"of9sXYDnUtDeO8x3XYS50NN3XtyKXIvgNlfH773sbQAbqvUHqzmKRnMsb45Vlgup","nonce":"dfinYhD8qUzMM9KyK5fpnUmEh1hrEQDE"}},"hdPathString":"m/44\'/60\'/0\'/0","salt":"Wz3bQi0l8ZMncTBB5qTNjXS/uneTMZakQsVrA7Eo9YM=","hdIndex":1,"version":3}`
@@ -58,8 +62,14 @@ export const user3 = {
 
 export const extraData = '0x12ab34ef'
 
-export function createUsers(tlInstances: TLNetwork[]) {
-  return Promise.all(tlInstances.map(tl => tl.user.create()))
+export async function createAndLoadUsers(tlInstances: TLNetwork[]) {
+  return Promise.all(
+    tlInstances.map(async tl => {
+      const createdUser = await tl.user.create()
+      await tl.user.load(createdUser.wallet)
+      return createdUser
+    })
+  )
 }
 
 export async function deployIdentities(tlInstances: TLNetwork[]) {
@@ -104,6 +114,12 @@ export const ETHERS_JSON_KEYSTORE_3 = `{"address":"bc2b254c2b6a3cb288940e1b0cc76
 
 export const WALLET_JSON_ETHERS_V1 = `{"TLWalletVersion":1,"ethersKeystore":"{\\"address\\":\\"f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"id\\":\\"58f882de-6c78-4ef5-a260-ea41078080a5\\",\\"version\\":3,\\"Crypto\\":{\\"cipher\\":\\"aes-128-ctr\\",\\"cipherparams\\":{\\"iv\\":\\"3b2df3f31c4a65e3b0f932199b6fca91\\"},\\"ciphertext\\":\\"64aeb97e2bbac76e92535ba770c18caaf4e54b2aa383912b205079d587f35809\\",\\"kdf\\":\\"scrypt\\",\\"kdfparams\\":{\\"salt\\":\\"c0e4776c2e04d134c02d8310e542e74f151b8dc288e6e194d20fc1f1e894257e\\",\\"n\\":131072,\\"dklen\\":32,\\"p\\":1,\\"r\\":8},\\"mac\\":\\"af27838802b5095713c2127b932ad049c873f9b6498586fa4e4b00ca0b6c8b89\\"},\\"x-ethers\\":{\\"client\\":\\"ethers.js\\",\\"gethFilename\\":\\"UTC--2019-01-29T09-34-34.0Z--f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"mnemonicCounter\\":\\"0ffc0cd7eab7e49dc2ef31d14e67be4b\\",\\"mnemonicCiphertext\\":\\"0dc419d4eb3b37f5f0d0a815f4cdbeb6\\",\\"version\\":\\"0.1\\"}}","walletType":"WalletTypeEthers"}`
 export const WALLET_JSON_IDENTITY_V1 = `{"TLWalletVersion":1,"identityAddress":"0x8125d8ee13FC4dB90E08adee64e054a443C9d926","ethersKeystore":"{\\"address\\":\\"f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"id\\":\\"58f882de-6c78-4ef5-a260-ea41078080a5\\",\\"version\\":3,\\"Crypto\\":{\\"cipher\\":\\"aes-128-ctr\\",\\"cipherparams\\":{\\"iv\\":\\"3b2df3f31c4a65e3b0f932199b6fca91\\"},\\"ciphertext\\":\\"64aeb97e2bbac76e92535ba770c18caaf4e54b2aa383912b205079d587f35809\\",\\"kdf\\":\\"scrypt\\",\\"kdfparams\\":{\\"salt\\":\\"c0e4776c2e04d134c02d8310e542e74f151b8dc288e6e194d20fc1f1e894257e\\",\\"n\\":131072,\\"dklen\\":32,\\"p\\":1,\\"r\\":8},\\"mac\\":\\"af27838802b5095713c2127b932ad049c873f9b6498586fa4e4b00ca0b6c8b89\\"},\\"x-ethers\\":{\\"client\\":\\"ethers.js\\",\\"gethFilename\\":\\"UTC--2019-01-29T09-34-34.0Z--f9fd1daf400404a62b8cdcb1834317894c714625\\",\\"mnemonicCounter\\":\\"0ffc0cd7eab7e49dc2ef31d14e67be4b\\",\\"mnemonicCiphertext\\":\\"0dc419d4eb3b37f5f0d0a815f4cdbeb6\\",\\"version\\":\\"0.1\\"}}","walletType":"WalletTypeIdentity"}`
+
+export const TL_WALLET: TLWalletSchema = {
+  TLWalletVersion: 2,
+  walletType: WALLET_TYPE_ETHERS,
+  meta: {}
+}
 
 export const USER_1_ADDRESS = '0xF9fD1DaF400404A62B8cDCb1834317894c714625'
 export const USER_1_IDENTITY_ADDRESS =
@@ -249,8 +265,7 @@ export const FAKE_SIGNED_TX =
 
 export const FAKE_ACCOUNT = {
   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  pubKey: 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472',
-  serializedWallet: keystore1
+  wallet: TL_WALLET
 }
 
 export const FAKE_SIGNED_MSG_HASH = {
@@ -496,3 +511,15 @@ export const FAKE_ETHERS_TX_RESPONSE = {
   value: ethers.utils.bigNumberify('10000000'),
   wait: (confirmations?: number) => Promise.resolve(FAKE_ETHERS_TX_RECEIPT)
 }
+
+export const ACCOUNT_KEYS = ['address', 'wallet']
+export const TL_WALLET_KEYS = ['TLWalletVersion', 'walletType', 'meta']
+export const ETHERS_WALLET_META_KEYS = ['walletFromEthers']
+export const ENC_ETHERS_WALLET_META_KEYS = ['ethersKeystore']
+export const IDENTITY_WALLET_META_KEYS = ['walletFromEthers', 'identityAddress']
+export const ENC_IDENTITY_WALLET_META_KEYS = [
+  'ethersKeystore',
+  'identityAddress'
+]
+export const DEFAULT_PASSWORD = 'ts'
+export const AMOUNT_KEYS = ['raw', 'value', 'decimals']

@@ -1,5 +1,5 @@
 import { TLSigner } from '../signers/TLSigner'
-import { UserObject } from '../typings'
+import { TLWalletSchema, UserObject } from '../typings'
 
 /**
  * Interface for different wallet strategies.
@@ -10,23 +10,26 @@ export interface TLWallet extends TLSigner {
   getAddress(): Promise<string>
   showSeed(): Promise<string>
   exportPrivateKey(): Promise<string>
-  createAccount(password: string, progressCallback?: any): Promise<UserObject>
+  createAccount(): Promise<UserObject>
   deployIdentity(): Promise<string>
   isIdentityDeployed(): Promise<boolean>
-  loadAccount(
-    serializedWallet: string,
+  loadAccount(wallet: TLWalletSchema): Promise<void>
+  recoverFromSeed(seed: string): Promise<UserObject>
+  recoverFromEncryptedWallet(
+    serializedEncryptedWallet: string,
     password: string,
-    progressCallback?: any
+    progressCallback?: (progress: number) => any
   ): Promise<UserObject>
-  recoverFromSeed(
-    seed: string,
+  recoverFromPrivateKey(privateKey: string): Promise<UserObject>
+  encryptWallet(
+    wallet: TLWalletSchema,
     password: string,
-    progressCallback?: any
-  ): Promise<UserObject>
+    progressCallback?: (progress: number) => any
+  ): Promise<string>
   encrypt(msg: string, theirPubKey: string): Promise<any>
   decrypt(encMsg: any, theirPubKey: string): Promise<any>
 }
 
-export const TL_WALLET_VERSION = 1.0
+export const TL_WALLET_VERSION = 2
 export const WALLET_TYPE_ETHERS = 'WalletTypeEthers'
 export const WALLET_TYPE_IDENTITY = 'WalletTypeIdentity'

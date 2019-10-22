@@ -7,6 +7,7 @@ import { TL_WALLET_VERSION, TLWallet, WALLET_TYPE_IDENTITY } from './TLWallet'
 import {
   Amount,
   DeployIdentityResponse,
+  EncryptedIdentityWalletSchema,
   IdentityWalletSchema,
   MetaTransaction,
   RawTxObject,
@@ -24,7 +25,7 @@ const initcodeWithPadding =
 export class IdentityWallet implements TLWallet {
   public provider: TLProvider
 
-  private wallet: ethers.Wallet
+  private walletFromEthers: ethers.Wallet
   private identityAddress: string
   private identityFactoryAddress: string
   private identityImplementationAddress: string
@@ -47,14 +48,14 @@ export class IdentityWallet implements TLWallet {
   }
 
   public async getAddress(): Promise<string> {
-    if (!this.wallet) {
+    if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
     return this.address
   }
 
   public async getBalance(): Promise<Amount> {
-    if (!this.wallet) {
+    if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
     const balance = await this.provider.fetchEndpoint<string>(
@@ -64,34 +65,17 @@ export class IdentityWallet implements TLWallet {
   }
 
   /**
-   * Creates a new wallet and encrypts it with the provided password.
-   * @param password Password to encrypt wallet.
-   * @param progressCallback Callback function for encryption progress.
+   * Creates a new account with wallet of type `WALLET_TYPE_IDENTITY`.
    */
-  public async createAccount(
-    password: string,
-    progressCallback?: any
-  ): Promise<UserObject> {
-    this.wallet = ethers.Wallet.createRandom()
-    this.identityAddress = calculateIdentityAddress(
+  public async createAccount(): Promise<UserObject<IdentityWalletSchema>> {
+    const walletFromEthers = ethers.Wallet.createRandom()
+    const identityAddress = calculateIdentityAddress(
       this.identityFactoryAddress,
-      this.wallet.address
+      await walletFromEthers.getAddress()
     )
-
-    const encryptedKeystore = await this.wallet.encrypt(
-      password,
-      typeof progressCallback === 'function' && progressCallback
-    )
-
-    const serializedWallet: string = this.serializeWallet(
-      encryptedKeystore,
-      this.identityAddress
-    )
-
     return {
-      address: this.address,
-      pubKey: 'Not implemented yet',
-      serializedWallet
+      address: identityAddress,
+      wallet: this.getIdentityWallet(walletFromEthers, identityAddress)
     }
   }
 
@@ -156,31 +140,43 @@ export class IdentityWallet implements TLWallet {
    * @param progressCallback Callback function for decryption progress.
    */
   public async loadAccount(
-    serializedWallet: string,
+    identityWallet: IdentityWalletSchema
+  ): Promise<void> {
+    const { walletFromEthers, identityAddress } = identityWallet.meta
+    this.walletFromEthers = walletFromEthers
+    this.identityAddress = toChecksumAddress(identityAddress)
+  }
+
+  /**
+   * Recovers wallet from a serialized encrypted TLWallet or standard JSON keystore
+   * string (e.g. as returned by `ethers.Wallet.encrypt`).
+   * @param serializedEncryptedWallet Serialized `TLWallet` or standard JSON keystore.
+   * @param password Password to decrypt serialized wallet with.
+   * @param progressCallback Callback function for decryption progress.
+   */
+  public async recoverFromEncryptedWallet(
+    serializedEncryptedWallet: string,
     password: string,
-    progressCallback?: any
-  ): Promise<UserObject> {
-    const deserializedWallet: IdentityWalletSchema = JSON.parse(
-      serializedWallet
-    )
+    progressCallback?: (progress: number) => any
+  ): Promise<UserObject<IdentityWalletSchema>> {
+    const deserializedWallet = JSON.parse(serializedEncryptedWallet)
 
     this.verifyDeserializedWalletHandled(deserializedWallet)
 
-    const encryptedKeystore = deserializedWallet.ethersKeystore
-    const identityAddress = deserializedWallet.identityAddress
+    const { ethersKeystore, identityAddress } =
+      deserializedWallet.TLWalletVersion === 1
+        ? deserializedWallet
+        : deserializedWallet.meta
 
-    this.wallet = await ethers.Wallet.fromEncryptedJson(
-      encryptedKeystore,
+    const walletFromEthers = await ethers.Wallet.fromEncryptedJson(
+      ethersKeystore,
       password,
       typeof progressCallback === 'function' && progressCallback
     )
 
-    this.identityAddress = toChecksumAddress(identityAddress)
-
     return {
       address: identityAddress,
-      pubKey: 'Not implemented yet',
-      serializedWallet
+      wallet: this.getIdentityWallet(walletFromEthers, identityAddress)
     }
   }
 
@@ -188,34 +184,18 @@ export class IdentityWallet implements TLWallet {
    * Should recover wallet from mnemonic phrase and encrypts it with given password.
    * Method not implemented yet
    * @param seed Mnemonic seed phrase.
-   * @param password Password to encrypt recovered wallet.
-   * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromSeed(
-    seed: string,
-    password: string,
-    progressCallback?: any
-  ): Promise<UserObject> {
-    this.wallet = ethers.Wallet.fromMnemonic(seed)
-    this.identityAddress = calculateIdentityAddress(
+    seed: string
+  ): Promise<UserObject<IdentityWalletSchema>> {
+    const walletFromEthers = ethers.Wallet.fromMnemonic(seed)
+    const identityAddress = calculateIdentityAddress(
       this.identityFactoryAddress,
-      this.wallet.address
+      await walletFromEthers.getAddress()
     )
-
-    const encryptedKeystore = await this.wallet.encrypt(
-      password,
-      typeof progressCallback === 'function' && progressCallback
-    )
-
-    const serializedWallet = this.serializeWallet(
-      encryptedKeystore,
-      this.identityAddress
-    )
-
     return {
-      address: this.address,
-      pubKey: 'Not implemented yet',
-      serializedWallet
+      address: identityAddress,
+      wallet: this.getIdentityWallet(walletFromEthers, identityAddress)
     }
   }
 
@@ -227,30 +207,16 @@ export class IdentityWallet implements TLWallet {
    * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromPrivateKey(
-    privateKey: string,
-    password: string,
-    progressCallback?: any
-  ): Promise<UserObject> {
-    this.wallet = new ethers.Wallet(privateKey)
-    this.identityAddress = calculateIdentityAddress(
+    privateKey: string
+  ): Promise<UserObject<IdentityWalletSchema>> {
+    const walletFromEthers = new ethers.Wallet(privateKey)
+    const identityAddress = calculateIdentityAddress(
       this.identityFactoryAddress,
-      this.wallet.address
+      await walletFromEthers.getAddress()
     )
-
-    const encryptedKeystore = await this.wallet.encrypt(
-      password,
-      typeof progressCallback === 'function' && progressCallback
-    )
-
-    const serializedWallet: string = this.serializeWallet(
-      encryptedKeystore,
-      this.address
-    )
-
     return {
-      address: this.address,
-      pubKey: 'Not implemented yet',
-      serializedWallet
+      address: identityAddress,
+      wallet: this.getIdentityWallet(walletFromEthers, identityAddress)
     }
   }
 
@@ -258,20 +224,20 @@ export class IdentityWallet implements TLWallet {
    * Returns a `Promise` with the mnemonic seed phrase of loaded user.
    */
   public async showSeed(): Promise<string> {
-    if (!this.wallet) {
+    if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    return this.wallet.mnemonic
+    return this.walletFromEthers.mnemonic
   }
 
   /**
    * Returns a `Promise` with the private key of loaded user.
    */
   public async exportPrivateKey(): Promise<string> {
-    if (!this.wallet) {
+    if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    return this.wallet.privateKey
+    return this.walletFromEthers.privateKey
   }
 
   public async encrypt(msg: string, theirPubKey: string): Promise<any> {
@@ -309,7 +275,7 @@ export class IdentityWallet implements TLWallet {
   public async signMetaTransaction(
     metaTransaction: MetaTransaction
   ): Promise<string> {
-    if (!this.wallet) {
+    if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
 
@@ -353,6 +319,25 @@ export class IdentityWallet implements TLWallet {
   }
 
   /**
+   * Encrypts and serializes the given wallet.
+   * @param identityWallet `TLWallet` of type `WALLET_TYPE_IDENTITY`.
+   * @param password Password to encrypt wallet with.
+   * @param progressCallback Optional encryption progress callback.
+   */
+  public async encryptWallet(
+    identityWallet: IdentityWalletSchema,
+    password: string,
+    progressCallback?: (progress: number) => any
+  ): Promise<string> {
+    const { walletFromEthers, identityAddress } = identityWallet.meta
+    const encryptedKeystore = await walletFromEthers.encrypt(
+      password,
+      typeof progressCallback === 'function' && progressCallback
+    )
+    return this.serializeWallet(encryptedKeystore, identityAddress)
+  }
+
+  /**
    * Takes a string hash and signs it using the loaded wallet without appending `\x19Ethereum Signed Message:\n` to it
    * and hashing it again, contrary to what ethers.sign or ethers.signMessage does.
    * @param hash The hash to sign.
@@ -367,7 +352,9 @@ export class IdentityWallet implements TLWallet {
     }
 
     // This is a trick to use ethers to sign the hash without appending `\x19Ethereum Signed Message:\n`
-    const signingKey = new ethersUtils.SigningKey(this.wallet.privateKey)
+    const signingKey = new ethersUtils.SigningKey(
+      this.walletFromEthers.privateKey
+    )
     const signature = ethersUtils.joinSignature(
       await signingKey.signDigest(hash)
     )
@@ -378,22 +365,22 @@ export class IdentityWallet implements TLWallet {
     encryptedKeystore: string,
     identityAddress: string
   ): string {
-    const deserializedWallet: IdentityWalletSchema = {
+    const deserializedWallet: EncryptedIdentityWalletSchema = {
       TLWalletVersion: TL_WALLET_VERSION,
-      ethersKeystore: encryptedKeystore,
-      identityAddress,
-      walletType: WALLET_TYPE_IDENTITY
+      walletType: WALLET_TYPE_IDENTITY,
+      meta: {
+        ethersKeystore: encryptedKeystore,
+        identityAddress
+      }
     }
-
-    const serializedWallet: string = JSON.stringify(deserializedWallet)
-
+    const serializedWallet = JSON.stringify(deserializedWallet)
     return serializedWallet
   }
 
   private verifyDeserializedWalletHandled(
     deserializedWallet: IdentityWalletSchema
   ): void {
-    const onlyHandledVersion = 1
+    const onlyHandledVersions = [1, 2]
 
     if (deserializedWallet.walletType !== WALLET_TYPE_IDENTITY) {
       throw new Error(
@@ -405,11 +392,13 @@ export class IdentityWallet implements TLWallet {
 
     if (!('TLWalletVersion' in deserializedWallet)) {
       throw new Error(`serialized wallet has no version number.`)
-    } else if (deserializedWallet.TLWalletVersion !== onlyHandledVersion) {
+    } else if (
+      onlyHandledVersions.indexOf(deserializedWallet.TLWalletVersion) === -1
+    ) {
       throw new Error(
         `serialized wallet version for wallet is not handled: version ${
           deserializedWallet.TLWalletVersion
-        }, expected: ${onlyHandledVersion}`
+        }, expected one of: ${onlyHandledVersions}`
       )
     }
   }
@@ -437,6 +426,20 @@ export class IdentityWallet implements TLWallet {
     }
 
     return metaTransaction
+  }
+
+  private getIdentityWallet(
+    walletFromEthers: ethers.Wallet,
+    identityAddress: string
+  ): IdentityWalletSchema {
+    return {
+      TLWalletVersion: TL_WALLET_VERSION,
+      walletType: WALLET_TYPE_IDENTITY,
+      meta: {
+        walletFromEthers,
+        identityAddress
+      }
+    }
   }
 }
 

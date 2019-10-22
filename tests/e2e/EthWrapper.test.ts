@@ -5,7 +5,7 @@ import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import {
-  createUsers,
+  createAndLoadUsers,
   deployIdentities,
   parametrizedTLNetworkConfig,
   wait
@@ -29,7 +29,7 @@ describe('e2e', () => {
 
       before(async () => {
         // create users
-        await createUsers([tl1, tl2])
+        await createAndLoadUsers([tl1, tl2])
         await deployIdentities([tl1, tl2])
         // get eth wrapper address
         const addresses = await tl1.ethWrapper.getAddresses()

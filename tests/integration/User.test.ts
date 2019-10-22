@@ -3,7 +3,12 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { tlNetworkConfig, USER_1 } from '../Fixtures'
+import {
+  ACCOUNT_KEYS,
+  TL_WALLET_KEYS,
+  tlNetworkConfig,
+  USER_1
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -18,23 +23,23 @@ describe('integration', () => {
     before(async () => {
       ;[newUser, existingUser] = await Promise.all([
         tlNew.user.create(),
-        tlExisting.user.load(USER_1.keystore)
+        tlExisting.user.recoverFromSeed(USER_1.mnemonic)
+      ])
+      await Promise.all([
+        tlNew.user.load(newUser.wallet),
+        tlExisting.user.load(existingUser.wallet)
       ])
     })
 
     describe('#create()', () => {
       it('should create new user', () => {
-        expect(newUser).to.have.keys('address', 'serializedWallet', 'pubKey')
+        expect(newUser).to.have.keys(ACCOUNT_KEYS)
       })
     })
 
     describe('#load()', () => {
       it('should load existing user/wallet', () => {
-        expect(existingUser).to.have.keys(
-          'address',
-          'serializedWallet',
-          'pubKey'
-        )
+        expect(existingUser).to.have.keys(ACCOUNT_KEYS)
         expect(existingUser.address).to.eq(USER_1.address)
       })
     })
@@ -57,8 +62,8 @@ describe('integration', () => {
           USER_1.mnemonic
         )
         expect(recoveredUser.address).to.equal(USER_1.address)
-        expect(recoveredUser.pubKey).to.equal(USER_1.pubKey)
-        expect(recoveredUser.serializedWallet).to.be.a('string')
+        expect(recoveredUser).to.have.keys(ACCOUNT_KEYS)
+        expect(recoveredUser.wallet).to.have.keys(TL_WALLET_KEYS)
       })
     })
   })

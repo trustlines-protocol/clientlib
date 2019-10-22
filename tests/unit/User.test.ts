@@ -8,7 +8,13 @@ import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTLSigner } from '../helpers/FakeTLSigner'
 import { FakeTLWallet } from '../helpers/FakeTLWallet'
 
-import { FAKE_ENC_OBJECT, FAKE_SEED, keystore1 } from '../Fixtures'
+import {
+  ACCOUNT_KEYS,
+  FAKE_ENC_OBJECT,
+  FAKE_SEED,
+  TL_WALLET,
+  TL_WALLET_KEYS
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -53,14 +59,9 @@ describe('unit', () => {
 
       it('should create a new user', async () => {
         const createdUser = await user.create()
-        assert.hasAllKeys(createdUser, [
-          'address',
-          'serializedWallet',
-          'pubKey'
-        ])
         assert.isString(createdUser.address)
-        assert.isString(createdUser.serializedWallet)
-        assert.isString(createdUser.pubKey)
+        assert.hasAllKeys(createdUser, ACCOUNT_KEYS)
+        assert.hasAllKeys(createdUser.wallet, TL_WALLET_KEYS)
       })
 
       it('should throw error', async () => {
@@ -73,16 +74,13 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should load a user from serialized wallet', async () => {
-        const loadedUser = await user.load(keystore1)
-        assert.hasAllKeys(loadedUser, ['address', 'serializedWallet', 'pubKey'])
-        assert.isString(loadedUser.address)
-        assert.isString(loadedUser.serializedWallet)
-        assert.isString(loadedUser.pubKey)
+        const loadedUser = await user.load(TL_WALLET)
+        assert.isUndefined(loadedUser)
       })
 
       it('should throw error', async () => {
         fakeTLWallet.setError('loadAccount')
-        await assert.isRejected(user.load(keystore1))
+        await assert.isRejected(user.load(TL_WALLET))
       })
     })
 
@@ -184,11 +182,7 @@ describe('unit', () => {
 
       it('should recover user from seed', async () => {
         const recoveredUser = await user.recoverFromSeed(FAKE_SEED)
-        assert.hasAllKeys(recoveredUser, [
-          'address',
-          'serializedWallet',
-          'pubKey'
-        ])
+        assert.hasAllKeys(recoveredUser, ACCOUNT_KEYS)
       })
 
       it('should throw error', async () => {

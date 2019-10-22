@@ -6,7 +6,7 @@ import 'mocha'
 import { TLNetwork } from '../../src/TLNetwork'
 import { FeePayer, PathRaw } from '../../src/typings'
 import {
-  createUsers,
+  createAndLoadUsers,
   deployIdentities,
   extraData,
   parametrizedTLNetworkConfig,
@@ -32,7 +32,7 @@ describe('e2e', () => {
         // set network and load users
         ;[[network], [user1, user2]] = await Promise.all([
           tl1.currencyNetwork.getAll(),
-          createUsers([tl1, tl2])
+          createAndLoadUsers([tl1, tl2])
         ])
         await deployIdentities([tl1, tl2])
         // make sure users have eth
@@ -273,6 +273,7 @@ describe('e2e', () => {
 
         before(async () => {
           user3 = await tl3.user.create()
+          await tl3.user.load(user3.wallet)
           await tl3.user.deployIdentity()
           // make sure users have eth
           await tl3.user.requestEth()

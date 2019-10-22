@@ -6,7 +6,7 @@ import 'mocha'
 import { TLNetwork } from '../../src/TLNetwork'
 import { NetworkDetails } from '../../src/typings'
 import {
-  createUsers,
+  createAndLoadUsers,
   deployIdentities,
   tlNetworkConfig,
   wait
@@ -40,7 +40,7 @@ describe('e2e', () => {
         networks,
         [unwEthAddress]
       ] = await Promise.all([
-        createUsers([tl1, tl2]),
+        createAndLoadUsers([tl1, tl2]),
         tl1.exchange.getExAddresses(),
         tl1.currencyNetwork.getAll(),
         tl1.ethWrapper.getAddresses()

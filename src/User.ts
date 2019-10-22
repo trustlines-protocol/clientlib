@@ -6,7 +6,7 @@ import { TLWallet } from './wallets/TLWallet'
 
 import utils from './utils'
 
-import { Amount, Signature, UserObject } from './typings'
+import { Amount, Signature, TLWalletSchema, UserObject } from './typings'
 
 /**
  * The User class contains all user related functions, which also include wallet
@@ -53,32 +53,17 @@ export class User {
   /**
    * Creates a new user and the respective wallet using the configured signer.
    * Loads new user into the state and returns the created user object.
-   * @param progressCallback Optional progress callback to call on encryption progress.
    */
-  public async create(progressCallback?: any): Promise<UserObject> {
-    const createdAccount = await this.wallet.createAccount(
-      this.defaultPassword,
-      progressCallback
-    )
-    return createdAccount
+  public async create(): Promise<UserObject> {
+    return this.wallet.createAccount()
   }
 
   /**
    * Loads an existing user and respective wallet.
-   * Returns the loaded user object.
-   * @param serializedWallet The string serialized wallet gotten from createAccount() of a TLWallet.
-   * @param progressCallback Optional progress callback to call on encryption progress.
+   * @param tlWallet Wallet to load.
    */
-  public async load(
-    serializedWallet: string,
-    progressCallback?: any
-  ): Promise<UserObject> {
-    const loadedAccount = await this.wallet.loadAccount(
-      serializedWallet,
-      this.defaultPassword,
-      progressCallback
-    )
-    return loadedAccount
+  public async load(tlWallet: TLWalletSchema): Promise<void> {
+    return this.wallet.loadAccount(tlWallet)
   }
 
   /**
@@ -126,6 +111,25 @@ export class User {
   }
 
   /**
+   * Encrypts and serializes the given wallet.
+   * @param tlWallet Wallet to encrypt and serialize.
+   * @param password Optional password to encrypt wallet with.
+   *                 If not specified default password is used.
+   * @param progressCallback Optional encryption progress callback.
+   */
+  public async encryptWallet(
+    tlWallet: TLWalletSchema,
+    password?: string | ((progress: number) => void),
+    progressCallback?: (progress: number) => void
+  ): Promise<string> {
+    return this.wallet.encryptWallet(
+      tlWallet,
+      typeof password === 'string' ? password : this.defaultPassword,
+      typeof password === 'function' ? password : progressCallback
+    )
+  }
+
+  /**
    * Returns the 12 word seed of loaded user.
    */
   public async showSeed(): Promise<string> {
@@ -144,16 +148,34 @@ export class User {
    * @param seed 12 word seed phrase string.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
-  public async recoverFromSeed(
-    seed: string,
-    progressCallback?: any
+  public async recoverFromEncryptedWallet(
+    serializedEncryptedWallet: string,
+    password: string,
+    progressCallback?: (progress: number) => any
   ): Promise<UserObject> {
-    const recoveredUser = await this.wallet.recoverFromSeed(
-      seed,
-      this.defaultPassword,
+    return this.wallet.recoverFromEncryptedWallet(
+      serializedEncryptedWallet,
+      password,
       progressCallback
     )
-    return recoveredUser
+  }
+
+  /**
+   * Recovers user / wallet from 12 word seed.
+   * @param seed 12 word seed phrase string.
+   * @param progressCallback Optional progress callback to call on encryption progress.
+   */
+  public async recoverFromSeed(seed: string): Promise<UserObject> {
+    return this.wallet.recoverFromSeed(seed)
+  }
+
+  /**
+   * Recovers user / wallet from 12 word seed.
+   * @param seed 12 word seed phrase string.
+   * @param progressCallback Optional progress callback to call on encryption progress.
+   */
+  public async recoverFromPrivateKey(privateKey: string): Promise<UserObject> {
+    return this.wallet.recoverFromPrivateKey(privateKey)
   }
 
   /**
