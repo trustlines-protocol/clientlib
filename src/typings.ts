@@ -1,4 +1,5 @@
 import { BigNumber } from 'bignumber.js'
+import { ethers } from 'ethers'
 
 /**
  * Configuration object for a TLNetwork instance
@@ -401,10 +402,9 @@ export interface DecimalsObject {
 }
 
 // USER
-export interface UserObject {
+export interface UserObject<T = TLWalletSchema> {
   address: string
-  pubKey: string
-  serializedWallet: string
+  wallet: T
 }
 
 export interface DeployIdentityResponse {
@@ -419,17 +419,46 @@ export interface Signature {
   concatSig: string
 }
 
-export interface IdentityWalletSchema {
+// WALLET
+export type WalletTypeEthers = 'WalletTypeEthers'
+export type WalletTypeIdentity = 'WalletTypeIdentity'
+export type WalletType = WalletTypeEthers | WalletTypeIdentity
+
+export interface TLWalletSchema {
   TLWalletVersion: number
-  ethersKeystore: string
-  identityAddress: string
-  walletType: string
+  walletType: WalletType
+  meta?: any
 }
 
-export interface EthersWalletSchema {
-  TLWalletVersion: number
-  ethersKeystore: string
-  walletType: string
+interface EthersWalletMeta {
+  walletFromEthers: ethers.Wallet
+}
+
+export interface EthersWalletSchema extends TLWalletSchema {
+  walletType: WalletTypeEthers
+  meta: EthersWalletMeta
+}
+
+interface IdentityWalletMeta extends EthersWalletMeta {
+  identityAddress: string
+}
+
+export interface IdentityWalletSchema extends TLWalletSchema {
+  walletType: WalletTypeIdentity
+  meta: IdentityWalletMeta
+}
+
+export interface EncryptedTLWalletSchema extends TLWalletSchema {
+  meta: {
+    ethersKeystore: string
+  }
+}
+
+export interface EncryptedIdentityWalletSchema extends TLWalletSchema {
+  meta: {
+    ethersKeystore: string
+    identityAddress: string
+  }
 }
 
 // TRUSTLINE
