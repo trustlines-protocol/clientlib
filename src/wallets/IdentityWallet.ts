@@ -43,10 +43,6 @@ export class IdentityWallet implements TLWallet {
     return this.identityAddress
   }
 
-  public get pubKey(): string {
-    throw new Error('Method not implemented.')
-  }
-
   public async getAddress(): Promise<string> {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
@@ -134,10 +130,8 @@ export class IdentityWallet implements TLWallet {
   }
 
   /**
-   * Decrypts given serialized wallet and loads wallet.
-   * @param serializedWallet serialized wallet from `createAccount`.
-   * @param password Password to decrypt wallet.
-   * @param progressCallback Callback function for decryption progress.
+   * Loads given identity wallet.
+   * @param identityWallet `TLWallet` of type `WALLET_TYPE_IDENTITY`.
    */
   public async loadAccount(
     identityWallet: IdentityWalletSchema
@@ -181,8 +175,7 @@ export class IdentityWallet implements TLWallet {
   }
 
   /**
-   * Should recover wallet from mnemonic phrase and encrypts it with given password.
-   * Method not implemented yet
+   * Recovers wallet from mnemonic phrase.
    * @param seed Mnemonic seed phrase.
    */
   public async recoverFromSeed(
@@ -200,11 +193,9 @@ export class IdentityWallet implements TLWallet {
   }
 
   /**
-   * Recovers wallet from private key and encrypts wallet with given password.
+   * Recovers wallet from private key.
+   * Note that mnemonic is `undefined` here.
    * @param privateKey Private key to recover wallet from.
-   * @param password Password to encrypt recovered wallet.
-   * @param identityAddress the address of the corresponding identity contract
-   * @param progressCallback Callback function for encryption progress.
    */
   public async recoverFromPrivateKey(
     privateKey: string

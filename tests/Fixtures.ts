@@ -45,8 +45,7 @@ export const parametrizedTLNetworkConfig = [
 
 export const user1 = {
   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  keystore: keystore1,
-  pubKey: 'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472'
+  keystore: keystore1
 }
 
 export const user2 = {
@@ -56,8 +55,7 @@ export const user2 = {
 
 export const user3 = {
   address: '0xc7D6401b81A2F70C5906e8A6FBEbE680c69fA03D',
-  keystore: keystore3,
-  pubKey: '3a1430b32ded788f4059ba31cbe6157ac8788f7198d4aed41e1091a97bff2857'
+  keystore: keystore3
 }
 
 export const extraData = '0x12ab34ef'
@@ -131,25 +129,19 @@ export const USER_1 = {
     'deer cave charge core farm retire daughter peanut project multiply smart wash',
   password: 'ts',
   privateKey:
-    '0xf6692380c18c54bba568dcfcb825ae89dafe16cdcea65e68fdf7e85bde5d8bf0',
-  pubKey:
-    '0x045356586d5d56ef75da99a528b7f4366234cd2e73487837cd0777add536c225fd965d7881f172b7c50dcc705698594d27fdda2f60d620dfa7ff7fed127fc91aae'
+    '0xf6692380c18c54bba568dcfcb825ae89dafe16cdcea65e68fdf7e85bde5d8bf0'
 }
 
 export const USER_2 = {
   address: '0x21b07bA7Af3688270cd6Ec3f58f4b565fc8784F1',
   keystore: ETHERS_JSON_KEYSTORE_2,
-  password: 'ts',
-  pubKey:
-    '0x047e8c978213e63bf710dd60535fc627ee7fe39962241654e2b0ab89e28f7e1cb3cbb3b7d4e88976fe78cbc8fd737a869c3255fafa5df80038865bda2a96f78c1e'
+  password: 'ts'
 }
 
 export const USER_3 = {
   address: '0xbC2B254C2B6A3cB288940e1b0CC7656Bbb56AA95',
   keystore: ETHERS_JSON_KEYSTORE_3,
-  password: 'ts',
-  pubKey:
-    '0x04b4f49f045934fa3ac38df529b7761ac7fa0a0883aa672861dccafd35bcacebc216b3968c8792257c511204bd9ae60978a9340b0ec9641345c3442a7af2a1f927'
+  password: 'ts'
 }
 
 export const USER_1_ETHERS_WALLET_V1 = {
@@ -159,8 +151,6 @@ export const USER_1_ETHERS_WALLET_V1 = {
   password: 'ts',
   privateKey:
     '0xf6692380c18c54bba568dcfcb825ae89dafe16cdcea65e68fdf7e85bde5d8bf0',
-  pubKey:
-    '0x045356586d5d56ef75da99a528b7f4366234cd2e73487837cd0777add536c225fd965d7881f172b7c50dcc705698594d27fdda2f60d620dfa7ff7fed127fc91aae',
   serializedWallet: WALLET_JSON_ETHERS_V1
 }
 
@@ -171,7 +161,6 @@ export const USER_1_IDENTITY_WALLET_V1 = {
   password: 'ts',
   privateKey:
     '0xf6692380c18c54bba568dcfcb825ae89dafe16cdcea65e68fdf7e85bde5d8bf0',
-  pubKey: 'Not implemented yet',
   serializedWallet: WALLET_JSON_IDENTITY_V1
 }
 

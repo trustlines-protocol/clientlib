@@ -12,7 +12,6 @@ import { Amount, RawTxObject, Signature, TxInfos } from '../typings'
  */
 export class Web3Signer implements TLSigner {
   public address: string
-  public pubKey: string
 
   private signer: ethers.providers.JsonRpcSigner
   private web3Provider: ethers.providers.Web3Provider

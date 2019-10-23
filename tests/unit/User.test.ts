@@ -50,7 +50,6 @@ describe('unit', () => {
           wallet: fakeTLWallet
         })
         assert.isString(user.address)
-        assert.isString(user.pubKey)
       })
     })
 

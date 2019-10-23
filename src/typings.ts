@@ -420,45 +420,34 @@ export interface Signature {
 }
 
 // WALLET
-export type WalletTypeEthers = 'WalletTypeEthers'
-export type WalletTypeIdentity = 'WalletTypeIdentity'
+export type WalletTypeEthers = 'ethers'
+export type WalletTypeIdentity = 'identity'
 export type WalletType = WalletTypeEthers | WalletTypeIdentity
 
 export interface TLWalletSchema {
-  TLWalletVersion: number
-  walletType: WalletType
+  version: number
+  type: WalletType
   meta?: any
 }
 
+export interface SigningKey {
+  privateKey: string
+  mnemonic: string
+  derivationPath: string
+}
+
 interface EthersWalletMeta {
-  walletFromEthers: ethers.Wallet
+  signingKey: SigningKey
 }
 
 export interface EthersWalletSchema extends TLWalletSchema {
-  walletType: WalletTypeEthers
+  type: WalletTypeEthers
   meta: EthersWalletMeta
 }
 
-interface IdentityWalletMeta extends EthersWalletMeta {
-  identityAddress: string
-}
-
 export interface IdentityWalletSchema extends TLWalletSchema {
-  walletType: WalletTypeIdentity
-  meta: IdentityWalletMeta
-}
-
-export interface EncryptedTLWalletSchema extends TLWalletSchema {
-  meta: {
-    ethersKeystore: string
-  }
-}
-
-export interface EncryptedIdentityWalletSchema extends TLWalletSchema {
-  meta: {
-    ethersKeystore: string
-    identityAddress: string
-  }
+  type: WalletTypeIdentity
+  meta: EthersWalletMeta
 }
 
 // TRUSTLINE

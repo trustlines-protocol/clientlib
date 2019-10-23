@@ -37,13 +37,6 @@ export class User {
   }
 
   /**
-   * Public key of currently loaded user/wallet.
-   */
-  public get pubKey(): string {
-    return this.wallet.pubKey
-  }
-
-  /**
    * Async `address` getter for loaded user.
    */
   public async getAddress(): Promise<string> {
@@ -52,7 +45,6 @@ export class User {
 
   /**
    * Creates a new user and the respective wallet using the configured signer.
-   * Loads new user into the state and returns the created user object.
    */
   public async create(): Promise<UserObject> {
     return this.wallet.createAccount()
@@ -144,8 +136,9 @@ export class User {
   }
 
   /**
-   * Recovers user / wallet from 12 word seed.
-   * @param seed 12 word seed phrase string.
+   * Recovers user from a serialized encrypted TLWallet or standard JSON keystore string.
+   * @param serializedEncryptedWallet Serialized TLWallet or standard JSON keystore.
+   * @param password Password to decrypt serialized wallet with.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */
   public async recoverFromEncryptedWallet(
@@ -161,18 +154,16 @@ export class User {
   }
 
   /**
-   * Recovers user / wallet from 12 word seed.
+   * Recovers user from 12 word seed.
    * @param seed 12 word seed phrase string.
-   * @param progressCallback Optional progress callback to call on encryption progress.
    */
   public async recoverFromSeed(seed: string): Promise<UserObject> {
     return this.wallet.recoverFromSeed(seed)
   }
 
   /**
-   * Recovers user / wallet from 12 word seed.
-   * @param seed 12 word seed phrase string.
-   * @param progressCallback Optional progress callback to call on encryption progress.
+   * Recovers user from private key.
+   * @param privateKey Private key recover user from.
    */
   public async recoverFromPrivateKey(privateKey: string): Promise<UserObject> {
     return this.wallet.recoverFromPrivateKey(privateKey)

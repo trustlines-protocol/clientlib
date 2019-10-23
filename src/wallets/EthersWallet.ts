@@ -37,12 +37,6 @@ export class EthersWallet implements TLWallet {
     return this.walletFromEthers ? this.walletFromEthers.address : undefined
   }
 
-  public get pubKey(): string {
-    return this.walletFromEthers
-      ? ethers.utils.computePublicKey(this.walletFromEthers.privateKey)
-      : undefined
-  }
-
   public async getAddress(): Promise<string> {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')

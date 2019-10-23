@@ -6,7 +6,6 @@ import { TLWalletSchema, UserObject } from '../typings'
  */
 export interface TLWallet extends TLSigner {
   address: string
-  pubKey: string
   getAddress(): Promise<string>
   showSeed(): Promise<string>
   exportPrivateKey(): Promise<string>
