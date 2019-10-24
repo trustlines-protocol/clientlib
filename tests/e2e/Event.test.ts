@@ -176,6 +176,7 @@ describe('e2e', () => {
           tl2.exchange.prepTakeOrder(order, 1),
           tl1.exchange.prepCancelOrder(order, 1)
         ])
+
         const exTxIds = await Promise.all([
           tl2.exchange.confirm(fillTx.rawTx),
           tl1.exchange.confirm(cancelTx.rawTx)

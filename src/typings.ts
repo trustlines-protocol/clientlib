@@ -337,7 +337,6 @@ export interface PathObject {
   path: string[]
   feePayer: FeePayer
   maxFees: Amount
-  estimatedGas: BigNumber
   isNetwork?: boolean
 }
 
@@ -478,10 +477,6 @@ export interface ClosePathObject {
    */
   maxFees: Amount
   /**
-   * Estimated gas costs for closing
-   */
-  estimatedGas: BigNumber
-  /**
    * Estimated value to be transferred for closing
    */
   value: Amount
@@ -491,7 +486,6 @@ export interface ClosePathRaw {
   path: string[]
   feePayer: string
   fees: string
-  estimatedGas: number
   value: string
 }
 
