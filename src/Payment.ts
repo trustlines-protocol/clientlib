@@ -71,12 +71,7 @@ export class Payment {
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
-    const {
-      path,
-      maxFees,
-      estimatedGas,
-      feePayer
-    } = await this.getTransferPathInfo(
+    const { path, maxFees, feePayer } = await this.getTransferPathInfo(
       networkAddress,
       await this.user.getAddress(),
       receiverAddress,
@@ -106,9 +101,7 @@ export class Payment {
           extraData || '0x'
         ],
         {
-          gasLimit: gasLimit
-            ? new BigNumber(gasLimit)
-            : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue(),
+          gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
           gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
         }
       )
@@ -194,19 +187,15 @@ export class Payment {
       extraData
     }
     const endpoint = `networks/${networkAddress}/path-info`
-    const {
-      estimatedGas,
-      fees,
-      path,
-      feePayer
-    } = await this.provider.postToEndpoint<PathRaw>(endpoint, data)
+    const { fees, path, feePayer } = await this.provider.postToEndpoint<
+      PathRaw
+    >(endpoint, data)
 
     if (!isFeePayerValue(feePayer)) {
       throw Error(`Unexpected feePayer value: ${feePayer}`)
     }
 
     return {
-      estimatedGas: new BigNumber(estimatedGas),
       feePayer: feePayer as FeePayer,
       maxFees: utils.formatToAmount(fees, decimals.networkDecimals),
       path

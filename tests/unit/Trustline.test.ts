@@ -221,13 +221,7 @@ describe('unit', () => {
           FAKE_ACCOUNT.address,
           FAKE_ACCOUNT.address
         )
-        assert.hasAllKeys(closePath, [
-          'estimatedGas',
-          'maxFees',
-          'path',
-          'value',
-          'feePayer'
-        ])
+        assert.hasAllKeys(closePath, ['maxFees', 'path', 'value', 'feePayer'])
       })
     })
 

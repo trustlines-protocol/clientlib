@@ -323,7 +323,7 @@ export class Trustline {
     })
 
     // Get close path
-    const { path, maxFees, estimatedGas, value } = await this.getClosePath(
+    const { path, maxFees, value } = await this.getClosePath(
       networkAddress,
       await this.user.getAddress(),
       counterpartyAddress,
@@ -366,9 +366,7 @@ export class Trustline {
       closeFuncName,
       closeFuncArgs,
       {
-        gasLimit: gasLimit
-          ? new BigNumber(gasLimit)
-          : new BigNumber(estimatedGas).multipliedBy(1.5).integerValue(),
+        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
@@ -416,20 +414,15 @@ export class Trustline {
     }
 
     // Request the relay for a path to settle down the trustline.
-    const {
-      path,
-      estimatedGas,
-      fees,
-      value,
-      feePayer
-    } = await this.provider.postToEndpoint<ClosePathRaw>(endpoint, data)
+    const { path, fees, value, feePayer } = await this.provider.postToEndpoint<
+      ClosePathRaw
+    >(endpoint, data)
 
     if (!isFeePayerValue(feePayer)) {
       throw Error(`Unexpected feePayer value: ${feePayer}`)
     }
 
     return {
-      estimatedGas: new BigNumber(estimatedGas),
       feePayer: feePayer as FeePayer,
       maxFees: utils.formatToAmount(fees, decimals.networkDecimals),
       path,

@@ -36,6 +36,7 @@ import {
 const CURRENCY_NETWORK = 'CurrencyNetwork'
 const TOKEN = 'Token'
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+const DEFAULT_GAS_LIMIT_TAKE_ORDER = 600000
 
 /**
  * The Exchange class contains all methods for making/taking orders, retrieving the orderbook
@@ -352,8 +353,7 @@ export class Exchange {
       {
         gasLimit: gasLimit
           ? new BigNumber(gasLimit)
-          : takerPathObj.estimatedGas
-              .plus(makerPathObj.estimatedGas)
+          : new BigNumber(DEFAULT_GAS_LIMIT_TAKE_ORDER)
               .multipliedBy(1.5)
               .integerValue(),
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
@@ -475,7 +475,6 @@ export class Exchange {
       })
     }
     return {
-      estimatedGas: new BigNumber(40000),
       feePayer: FeePayer.Sender,
       isNetwork: false,
       maxFees: utils.formatToAmount(0, networkDecimals),
