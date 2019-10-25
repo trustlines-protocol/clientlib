@@ -4,13 +4,15 @@ import { ethers } from 'ethers'
 import { TLProvider } from '../providers/TLProvider'
 import {
   EXPECTED_VERSIONS,
+  getSigningKeyFromEthers,
+  getWalletFromEthers,
   TL_WALLET_VERSION,
   TLWallet,
   verifyWalletTypeAndVersion,
   WALLET_TYPE_ETHERS
 } from './TLWallet'
 
-import utils, { getSigningKeyFromEthers } from '../utils'
+import utils from '../utils'
 
 import {
   Amount,
@@ -54,14 +56,11 @@ export class EthersWallet implements TLWallet {
   ////////////////////////
 
   /**
-   * Creates a new account with wallet of type `WALLET_TYPE_ETHERS`.
+   * Creates a new account with wallet of type `ethers`.
    */
   public async createAccount(): Promise<UserObject<EthersWalletSchema>> {
     const walletFromEthers = ethers.Wallet.createRandom()
-    return {
-      address: await walletFromEthers.getAddress(),
-      wallet: this.getEthersWallet(walletFromEthers)
-    }
+    return this.getAccountWithEthersWallet(walletFromEthers)
   }
 
   /**
@@ -77,25 +76,8 @@ export class EthersWallet implements TLWallet {
   }
 
   /**
-   * Create a serialized wallet following the current format from an encryptedKeystore.
-   * Can be used to migrate from serialized wallet version 0 to serialized wallet version 2.
-   * @param encryptedKeystore Standard serialized encrypted JSON keystore.
-   */
-  public serializeWallet(encryptedKeystore: string): string {
-    const deserializedWallet: EncryptedTLWalletSchema = {
-      TLWalletVersion: TL_WALLET_VERSION,
-      walletType: WALLET_TYPE_ETHERS,
-      meta: {
-        ethersKeystore: encryptedKeystore
-      }
-    }
-    const serializedWallet = JSON.stringify(deserializedWallet)
-    return serializedWallet
-  }
-
-  /**
-   * Encrypts and serializes the given wallet.
-   * @param ethersWallet `TLWallet` of type `WALLET_TYPE_ETHERS`.
+   * Returns a serialized encrypted ethers JSON keystore string.
+   * @param ethersWallet `TLWallet` of type `ethers`.
    * @param password Password to encrypt wallet with.
    * @param progressCallback Optional encryption progress callback.
    */
@@ -104,12 +86,12 @@ export class EthersWallet implements TLWallet {
     password: string,
     progressCallback?: (progress: number) => any
   ): Promise<string> {
-    const walletFromEthers = ethersWallet.meta.walletFromEthers
+    const walletFromEthers = getWalletFromEthers(ethersWallet)
     const encryptedKeystore = await walletFromEthers.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
     )
-    return this.serializeWallet(encryptedKeystore)
+    return encryptedKeystore
   }
 
   /**
@@ -122,7 +104,7 @@ export class EthersWallet implements TLWallet {
       WALLET_TYPE_ETHERS,
       EXPECTED_VERSIONS
     )
-    this.walletFromEthers = utils.getWalletFromEthers(ethersWallet)
+    this.walletFromEthers = getWalletFromEthers(ethersWallet)
   }
 
   /**
@@ -141,11 +123,7 @@ export class EthersWallet implements TLWallet {
       password,
       typeof progressCallback === 'function' && progressCallback
     )
-
-    return {
-      address: await walletFromEthers.getAddress(),
-      wallet: this.getEthersWallet(walletFromEthers)
-    }
+    return this.getAccountWithEthersWallet(walletFromEthers)
   }
 
   /**
@@ -156,25 +134,19 @@ export class EthersWallet implements TLWallet {
     seed: string
   ): Promise<UserObject<EthersWalletSchema>> {
     const walletFromEthers = ethers.Wallet.fromMnemonic(seed)
-    return {
-      address: await walletFromEthers.getAddress(),
-      wallet: this.getEthersWallet(walletFromEthers)
-    }
+    return this.getAccountWithEthersWallet(walletFromEthers)
   }
 
   /**
    * Recovers wallet from private key.
-   * Note that mnemonic is `undefined` here.
+   * Note that mnemonic and derivation path is `undefined` here.
    * @param privateKey Private key to recover wallet from.
    */
   public async recoverFromPrivateKey(
     privateKey: string
   ): Promise<UserObject<EthersWalletSchema>> {
     const walletFromEthers = new ethers.Wallet(privateKey)
-    return {
-      address: await walletFromEthers.getAddress(),
-      wallet: this.getEthersWallet(walletFromEthers)
-    }
+    return this.getAccountWithEthersWallet(walletFromEthers)
   }
 
   /////////////
@@ -297,20 +269,22 @@ export class EthersWallet implements TLWallet {
     return this.provider.getTxInfos(userAddress)
   }
 
-  private correctWalletType(deserializedWallet: EthersWalletSchema): boolean {
-    // Previously, all wallets where `etherswallet` and had no type field
-    // so undefined should be considered as the right types
-    return (
-      deserializedWallet.walletType === undefined ||
-      deserializedWallet.walletType === WALLET_TYPE_ETHERS
-    )
+  private getAccountWithEthersWallet(
+    walletFromEthers: ethers.Wallet
+  ): UserObject<EthersWalletSchema> {
+    return {
+      address: walletFromEthers.address,
+      wallet: this.getEthersWallet(walletFromEthers)
+    }
   }
 
   private getEthersWallet(walletFromEthers: ethers.Wallet): EthersWalletSchema {
     return {
-      TLWalletVersion: TL_WALLET_VERSION,
-      walletType: WALLET_TYPE_ETHERS,
-      meta: { walletFromEthers }
+      version: TL_WALLET_VERSION,
+      type: WALLET_TYPE_ETHERS,
+      meta: {
+        signingKey: getSigningKeyFromEthers(walletFromEthers)
+      }
     }
   }
 }

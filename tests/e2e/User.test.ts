@@ -19,12 +19,12 @@ describe('e2e', () => {
     {
       config: tlNetworkConfig,
       user: USER_1_ETHERS_WALLET_V1,
-      walletType: 'Ethers'
+      walletType: 'ethers'
     },
     {
       config: tlNetworkConfigIdentity,
       user: USER_1_IDENTITY_WALLET_V1,
-      walletType: 'Identity'
+      walletType: 'identity'
     }
   ]
   parametrizedTest.forEach(testParameter => {
@@ -39,7 +39,7 @@ describe('e2e', () => {
       before(async () => {
         const [createdUser, recoveredUser] = await Promise.all([
           tlNew.user.create(),
-          tlExisting.user.recoverFromSeed(user1.mnemonic)
+          tlExisting.user.recoverFromSeed(user1.meta.signingKey.mnemonic)
         ])
         await Promise.all([
           tlNew.user.load(createdUser.wallet),

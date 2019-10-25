@@ -1,6 +1,5 @@
 import { BigNumber } from 'bignumber.js'
 import * as ethUtils from 'ethereumjs-util'
-import { ethers } from 'ethers'
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/mergeMap'
@@ -14,11 +13,8 @@ import {
   AmountInternal,
   AnyExchangeEvent,
   AnyExchangeEventRaw,
-  EthersWalletSchema,
   ExchangeCancelEventRaw,
-  ExchangeFillEventRaw,
-  IdentityWalletSchema,
-  SigningKey
+  ExchangeFillEventRaw
 } from './typings'
 
 if (
@@ -393,33 +389,6 @@ export const trimUrl = (url: string): string => {
     .join('/')
 }
 
-/**
- * Takes a `ethers.Wallet` instance and returns a object of internal `SigningKey`.
- * @param walletFromEthers `ethers.Wallet` instance.
- */
-export function getSigningKeyFromEthers(
-  walletFromEthers: ethers.Wallet
-): SigningKey {
-  return {
-    mnemonic: walletFromEthers.mnemonic,
-    privateKey: walletFromEthers.privateKey,
-    derivationPath: walletFromEthers.path
-  }
-}
-
-/**
- * Takes a `TLWallet` of type `ethers` or `identity` and returns an instance of `ethers.Wallet`.
- * @param wallet `TLWallet` of type `ethers` or `identity`.
- */
-export function getWalletFromEthers(
-  wallet: EthersWalletSchema | IdentityWalletSchema
-): ethers.Wallet {
-  const { signingKey } = wallet.meta
-  return signingKey.mnemonic && signingKey.derivationPath
-    ? ethers.Wallet.fromMnemonic(signingKey.mnemonic, signingKey.derivationPath)
-    : new ethers.Wallet(signingKey.privateKey)
-}
-
 export default {
   buildApiUrl,
   buildUrl,
@@ -439,7 +408,5 @@ export default {
   generateRandomNumber,
   isURL,
   trimUrl,
-  websocketStream,
-  getSigningKeyFromEthers,
-  getWalletFromEthers
+  websocketStream
 }

@@ -1,5 +1,13 @@
+import { ethers } from 'ethers'
+
 import { TLSigner } from '../signers/TLSigner'
-import { TLWalletSchema, UserObject } from '../typings'
+import {
+  EthersWalletSchema,
+  IdentityWalletSchema,
+  SigningKey,
+  TLWalletSchema,
+  UserObject
+} from '../typings'
 
 /**
  * Interface for different wallet strategies.
@@ -53,4 +61,33 @@ export function verifyWalletTypeAndVersion(
       }, expected one of: ${expectedVersions}`
     )
   }
+}
+
+/**
+ * Takes a `ethers.Wallet` instance and returns a object of internal `SigningKey`.
+ * @param walletFromEthers `ethers.Wallet` instance.
+ */
+export function getSigningKeyFromEthers(
+  walletFromEthers: ethers.Wallet
+): SigningKey {
+  return {
+    mnemonic: walletFromEthers.mnemonic,
+    privateKey: walletFromEthers.privateKey
+  }
+}
+
+/**
+ * Takes a `TLWallet` of type `ethers` or `identity` and returns an instance of `ethers.Wallet`.
+ * @param wallet `TLWallet` of type `ethers` or `identity`.
+ */
+export function getWalletFromEthers(
+  wallet: EthersWalletSchema | IdentityWalletSchema
+): ethers.Wallet {
+  const { signingKey } = wallet.meta
+  const walletFromEthers = new ethers.Wallet(signingKey.privateKey)
+  // @ts-ignore
+  walletFromEthers.mnemonic = signingKey.mnemonic
+  // @ts-ignore
+  walletFromEthers.path = `m/44'/60'/0'/0/0`
+  return walletFromEthers
 }

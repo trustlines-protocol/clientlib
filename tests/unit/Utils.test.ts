@@ -406,37 +406,5 @@ describe('unit', () => {
         assert.isAtMost(randomNumber.toNumber(), 99)
       })
     })
-
-    describe('#getSigningKeyFromEthers()', () => {
-      it('should transform ethers.Wallet to object of internal type SigningKey', () => {
-        const walletFromEthers = ethers.Wallet.createRandom()
-        const signingKey = utils.getSigningKeyFromEthers(walletFromEthers)
-        assert.equal(signingKey.privateKey, walletFromEthers.privateKey)
-        assert.equal(signingKey.mnemonic, walletFromEthers.mnemonic)
-        assert.equal(signingKey.derivationPath, walletFromEthers.path)
-      })
-    })
-
-    describe('#getWalletFromEthers()', () => {
-      it('should transform EthersWallet to instance of ethers.Wallet', () => {
-        const walletFromEthers = utils.getWalletFromEthers(
-          USER_1_ETHERS_WALLET_V1
-        )
-        const { signingKey } = USER_1_ETHERS_WALLET_V1.meta
-        assert.equal(walletFromEthers.privateKey, signingKey.privateKey)
-        assert.equal(walletFromEthers.mnemonic, signingKey.mnemonic)
-        assert.equal(walletFromEthers.path, signingKey.derivationPath)
-      })
-
-      it('should transform IdentityWallet to instance of ethers.Wallet', () => {
-        const walletFromEthers = utils.getWalletFromEthers(
-          USER_1_IDENTITY_WALLET_V1
-        )
-        const { signingKey } = USER_1_ETHERS_WALLET_V1.meta
-        assert.equal(walletFromEthers.privateKey, signingKey.privateKey)
-        assert.equal(walletFromEthers.mnemonic, signingKey.mnemonic)
-        assert.equal(walletFromEthers.path, signingKey.derivationPath)
-      })
-    })
   })
 })

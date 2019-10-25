@@ -136,8 +136,8 @@ export class User {
   }
 
   /**
-   * Recovers user from a serialized encrypted TLWallet or standard JSON keystore string.
-   * @param serializedEncryptedWallet Serialized TLWallet or standard JSON keystore.
+   * Recovers wallet from a serialized encrypted JSON keystore string (e.g. as returned by `encryptWallet`).
+   * @param serializedEncryptedWallet Serialized standard JSON keystore.
    * @param password Password to decrypt serialized wallet with.
    * @param progressCallback Optional progress callback to call on encryption progress.
    */

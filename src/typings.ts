@@ -433,7 +433,6 @@ export interface TLWalletSchema {
 export interface SigningKey {
   privateKey: string
   mnemonic: string
-  derivationPath: string
 }
 
 interface EthersWalletMeta {
@@ -445,9 +444,13 @@ export interface EthersWalletSchema extends TLWalletSchema {
   meta: EthersWalletMeta
 }
 
+interface IdentityWalletMeta extends EthersWalletMeta {
+  identityAddress: string
+}
+
 export interface IdentityWalletSchema extends TLWalletSchema {
   type: WalletTypeIdentity
-  meta: EthersWalletMeta
+  meta: IdentityWalletMeta
 }
 
 // TRUSTLINE
