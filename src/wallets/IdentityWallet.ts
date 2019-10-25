@@ -2,12 +2,17 @@ import { isValidAddress, toChecksumAddress } from 'ethereumjs-util'
 import { ethers, utils as ethersUtils } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
-import { TL_WALLET_VERSION, TLWallet, WALLET_TYPE_IDENTITY } from './TLWallet'
+import {
+  EXPECTED_VERSIONS,
+  TL_WALLET_VERSION,
+  TLWallet,
+  verifyWalletTypeAndVersion,
+  WALLET_TYPE_IDENTITY
+} from './TLWallet'
 
 import {
   Amount,
   DeployIdentityResponse,
-  EncryptedIdentityWalletSchema,
   IdentityWalletSchema,
   MetaTransaction,
   RawTxObject,
@@ -136,9 +141,18 @@ export class IdentityWallet implements TLWallet {
   public async loadAccount(
     identityWallet: IdentityWalletSchema
   ): Promise<void> {
-    const { walletFromEthers, identityAddress } = identityWallet.meta
+    verifyWalletTypeAndVersion(
+      identityWallet,
+      WALLET_TYPE_IDENTITY,
+      EXPECTED_VERSIONS
+    )
+
+    const walletFromEthers = utils.getWalletFromEthers(identityWallet)
     this.walletFromEthers = walletFromEthers
-    this.identityAddress = toChecksumAddress(identityAddress)
+    this.identityAddress = calculateIdentityAddress(
+      this.identityFactoryAddress,
+      walletFromEthers.address
+    )
   }
 
   /**

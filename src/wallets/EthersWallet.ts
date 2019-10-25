@@ -2,13 +2,18 @@ import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
-import { TL_WALLET_VERSION, TLWallet, WALLET_TYPE_ETHERS } from './TLWallet'
+import {
+  EXPECTED_VERSIONS,
+  TL_WALLET_VERSION,
+  TLWallet,
+  verifyWalletTypeAndVersion,
+  WALLET_TYPE_ETHERS
+} from './TLWallet'
 
-import utils from '../utils'
+import utils, { getSigningKeyFromEthers } from '../utils'
 
 import {
   Amount,
-  EncryptedTLWalletSchema,
   EthersWalletSchema,
   RawTxObject,
   Signature,
@@ -109,16 +114,20 @@ export class EthersWallet implements TLWallet {
 
   /**
    * Loads given ethers wallet.
-   * @param ethersWallet `TLWallet` of type `WALLET_TYPE_ETHERS`.
+   * @param ethersWallet `TLWallet` of type `ethers`.
    */
   public async loadAccount(ethersWallet: EthersWalletSchema): Promise<void> {
-    this.walletFromEthers = ethersWallet.meta.walletFromEthers
+    verifyWalletTypeAndVersion(
+      ethersWallet,
+      WALLET_TYPE_ETHERS,
+      EXPECTED_VERSIONS
+    )
+    this.walletFromEthers = utils.getWalletFromEthers(ethersWallet)
   }
 
   /**
-   * Recovers wallet from a serialized encrypted `TLWallet` or standard JSON keystore
-   * string (e.g. as returned by `ethers.Wallet.encrypt`).
-   * @param serializedEncryptedWallet Serialized `TLWallet` or standard JSON keystore.
+   * Recovers wallet from a serialized encrypted JSON keystore string (e.g. as returned by `encryptWallet`).
+   * @param serializedEncryptedWallet Serialized standard JSON keystore.
    * @param password Password to decrypt serialized wallet with.
    * @param progressCallback Callback function for decryption progress.
    */
@@ -127,35 +136,8 @@ export class EthersWallet implements TLWallet {
     password: string,
     progressCallback?: (progress: number) => any
   ): Promise<UserObject<EthersWalletSchema>> {
-    const deserializedWallet = JSON.parse(serializedEncryptedWallet)
-
-    let encryptedKeystore: string
-
-    if (!this.correctWalletType(deserializedWallet)) {
-      throw new Error(
-        `The serialized wallet given is of the wrong wallet type: ${
-          deserializedWallet.walletType
-        }`
-      )
-    }
-
-    if (!('TLWalletVersion' in deserializedWallet)) {
-      // Use the old serializing method if no TL_WALLET_VERSION key in the deserialized wallet
-      encryptedKeystore = serializedEncryptedWallet
-    } else if (deserializedWallet.TLWalletVersion === 1) {
-      encryptedKeystore = deserializedWallet.ethersKeystore
-    } else if (deserializedWallet.TLWalletVersion === 2) {
-      encryptedKeystore = deserializedWallet.meta.ethersKeystore
-    } else {
-      throw new Error(
-        `serialized wallet version is not handled: version ${
-          deserializedWallet.TLWalletVersion
-        }`
-      )
-    }
-
     const walletFromEthers = await ethers.Wallet.fromEncryptedJson(
-      encryptedKeystore,
+      serializedEncryptedWallet,
       password,
       typeof progressCallback === 'function' && progressCallback
     )

@@ -29,6 +29,28 @@ export interface TLWallet extends TLSigner {
   decrypt(encMsg: any, theirPubKey: string): Promise<any>
 }
 
-export const TL_WALLET_VERSION = 2
-export const WALLET_TYPE_ETHERS = 'WalletTypeEthers'
-export const WALLET_TYPE_IDENTITY = 'WalletTypeIdentity'
+export const TL_WALLET_VERSION = 1
+export const WALLET_TYPE_ETHERS = 'ethers'
+export const WALLET_TYPE_IDENTITY = 'identity'
+export const EXPECTED_VERSIONS = [1]
+
+export function verifyWalletTypeAndVersion(
+  tlWallet: TLWalletSchema,
+  walletType: string,
+  expectedVersions: number[]
+): void {
+  if (tlWallet.type !== walletType) {
+    throw new Error(
+      `The wallet given is of the wrong wallet type: ${
+        tlWallet.type
+      }, expected: ${walletType}`
+    )
+  }
+  if (expectedVersions.indexOf(tlWallet.version) === -1) {
+    throw new Error(
+      `The wallet version given is not handled: version ${
+        tlWallet.version
+      }, expected one of: ${expectedVersions}`
+    )
+  }
+}
