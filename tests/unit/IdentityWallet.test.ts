@@ -157,9 +157,6 @@ describe('unit', () => {
         )
         assert.equal(recoveredAccount.address, USER_1.identityAddress)
         assert.isUndefined(recoveredAccount.wallet.meta.signingKey.mnemonic)
-        assert.isUndefined(
-          recoveredAccount.wallet.meta.signingKey.derivationPath
-        )
       })
     })
 

@@ -41,6 +41,7 @@ export const TL_WALLET_VERSION = 1
 export const WALLET_TYPE_ETHERS = 'ethers'
 export const WALLET_TYPE_IDENTITY = 'identity'
 export const EXPECTED_VERSIONS = [1]
+const DEFAULT_DERIVATION_PATH = `m/44'/60'/0'/0/0`
 
 export function verifyWalletTypeAndVersion(
   tlWallet: TLWalletSchema,
@@ -84,10 +85,13 @@ export function getWalletFromEthers(
   wallet: EthersWalletSchema | IdentityWalletSchema
 ): ethers.Wallet {
   const { signingKey } = wallet.meta
-  const walletFromEthers = new ethers.Wallet(signingKey.privateKey)
+  const signingKeyFromEthers = new ethers.utils.SigningKey(
+    signingKey.privateKey
+  )
   // @ts-ignore
-  walletFromEthers.mnemonic = signingKey.mnemonic
+  signingKeyFromEthers.mnemonic = signingKey.mnemonic
   // @ts-ignore
-  walletFromEthers.path = `m/44'/60'/0'/0/0`
+  signingKeyFromEthers.path = DEFAULT_DERIVATION_PATH
+  const walletFromEthers = new ethers.Wallet(signingKeyFromEthers)
   return walletFromEthers
 }
