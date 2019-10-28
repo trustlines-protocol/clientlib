@@ -10,9 +10,9 @@ import {
 import identityConfig from './e2e-config/addresses.json'
 
 import {
-  EthersWalletSchema,
-  IdentityWalletSchema,
-  TLWalletSchema
+  EthersWalletData,
+  IdentityWalletData,
+  TLWalletData
 } from '../src/typings'
 
 export const identityFactoryAddress = identityConfig.identityProxyFactory
@@ -47,9 +47,9 @@ export const extraData = '0x12ab34ef'
 export async function createAndLoadUsers(tlInstances: TLNetwork[]) {
   return Promise.all(
     tlInstances.map(async tl => {
-      const createdUser = await tl.user.create()
-      await tl.user.load(createdUser.wallet)
-      return createdUser
+      const walletData = await tl.user.create()
+      await tl.user.loadFrom(walletData)
+      return walletData
     })
   )
 }
@@ -94,9 +94,10 @@ export const ETHERS_JSON_KEYSTORE_1 = `{"address":"f9fd1daf400404a62b8cdcb183431
 export const ETHERS_JSON_KEYSTORE_2 = `{"address":"21b07ba7af3688270cd6ec3f58f4b565fc8784f1","id":"35cca2ab-94d4-4176-a720-2d6ec2f50126","version":3,"Crypto":{"cipher":"aes-128-ctr","cipherparams":{"iv":"4b5a4b705e7b4118bca20950358ee647"},"ciphertext":"dfa85ec83411225c41229f9f125a065ac980c6824ab51053b408094ffad18a52","kdf":"scrypt","kdfparams":{"salt":"0b9d2cb7dc928a124f8dac54ce1a93773dad1a7fdf9e8956cb828e856b09ae01","n":131072,"dklen":32,"p":1,"r":8},"mac":"95bca4f6c91e2f5c70cf2e0ee0b2cc64f14367aa3d3ab4ba2956f09054e237ed"},"x-ethers":{"client":"ethers.js","gethFilename":"UTC--2019-01-29T11-19-08.0Z--21b07ba7af3688270cd6ec3f58f4b565fc8784f1","mnemonicCounter":"4ee2894cad48c1fd5169b77372fb0f11","mnemonicCiphertext":"2a4c719dca87236c01ff07c47479eec3","version":"0.1"}}`
 export const ETHERS_JSON_KEYSTORE_3 = `{"address":"bc2b254c2b6a3cb288940e1b0cc7656bbb56aa95","id":"92948846-b0c6-4515-8ec1-4917be740779","version":3,"Crypto":{"cipher":"aes-128-ctr","cipherparams":{"iv":"b9f2d9502297108dbe6ec5c5a99c1cca"},"ciphertext":"522e8a3333db4dbda7ac1c0ee34b1861c85331b764200f1649c8bee4f1f2e620","kdf":"scrypt","kdfparams":{"salt":"12bfecec25bf42db1d22817f9e2efb94b8def753b487c5a3d1b2da9208425a0e","n":131072,"dklen":32,"p":1,"r":8},"mac":"bb9e73e2e0cb7ccecade6f5655663f0b1b261e72c58b1bae289408462e4a5de1"},"x-ethers":{"client":"ethers.js","gethFilename":"UTC--2019-01-29T11-27-58.0Z--bc2b254c2b6a3cb288940e1b0cc7656bbb56aa95","mnemonicCounter":"d2e098a9ae633867463cb37022c450c9","mnemonicCiphertext":"b301d4f40302f10eec6da03c934b958a","version":"0.1"}}`
 
-export const TL_WALLET: TLWalletSchema = {
+export const TL_WALLET_DATA: TLWalletData = {
   version: 1,
   type: WALLET_TYPE_ETHERS,
+  address: '0x',
   meta: {}
 }
 
@@ -127,7 +128,8 @@ export const USER_3 = {
   password: 'ts'
 }
 
-export const USER_1_ETHERS_WALLET_V1: EthersWalletSchema = {
+export const USER_1_ETHERS_WALLET_V1: EthersWalletData = {
+  address: USER_1.address,
   version: 1,
   type: WALLET_TYPE_ETHERS,
   meta: {
@@ -138,15 +140,15 @@ export const USER_1_ETHERS_WALLET_V1: EthersWalletSchema = {
   }
 }
 
-export const USER_1_IDENTITY_WALLET_V1: IdentityWalletSchema = {
+export const USER_1_IDENTITY_WALLET_V1: IdentityWalletData = {
+  address: USER_1.identityAddress,
   version: 1,
   type: WALLET_TYPE_IDENTITY,
   meta: {
     signingKey: {
       privateKey: USER_1.privateKey,
       mnemonic: USER_1.mnemonic
-    },
-    identityAddress: USER_1.identityAddress
+    }
   }
 }
 
@@ -237,11 +239,6 @@ export const FAKE_TX_HASH =
 
 export const FAKE_SIGNED_TX =
   '0xf86b028511cfc15d00825208940975ca9f986eee35f5cbba2d672ad9bc8d2a08448766c92c5cf830008026a0d2b0d401b543872d2a6a50de92455decbb868440321bf63a13b310c069e2ba5ba03c6d51bcb2e1653be86546b87f8a12ddb45b6d4e568420299b96f64c19701040'
-
-export const FAKE_ACCOUNT = {
-  address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  wallet: TL_WALLET
-}
 
 export const FAKE_SIGNED_MSG_HASH = {
   concatSig: 'Fake concat signature',
@@ -487,12 +484,7 @@ export const FAKE_ETHERS_TX_RESPONSE = {
   wait: (confirmations?: number) => Promise.resolve(FAKE_ETHERS_TX_RECEIPT)
 }
 
-export const ACCOUNT_KEYS = ['address', 'wallet']
-export const TL_WALLET_KEYS = ['version', 'type', 'meta']
-export const ETHERS_WALLET_META_KEYS = ['signingKey']
-export const IDENTITY_WALLET_META_KEYS = [
-  ...ETHERS_WALLET_META_KEYS,
-  'identityAddress'
-]
+export const TL_WALLET_DATA_KEYS = ['version', 'type', 'meta', 'address']
+export const TL_WALLET_DATA_META_KEYS = ['signingKey']
 export const DEFAULT_PASSWORD = 'ts'
 export const AMOUNT_KEYS = ['raw', 'value', 'decimals']

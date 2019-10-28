@@ -9,11 +9,10 @@ import { FakeTLSigner } from '../helpers/FakeTLSigner'
 import { FakeTLWallet } from '../helpers/FakeTLWallet'
 
 import {
-  ACCOUNT_KEYS,
   FAKE_ENC_OBJECT,
   FAKE_SEED,
-  TL_WALLET,
-  TL_WALLET_KEYS
+  TL_WALLET_DATA,
+  TL_WALLET_DATA_KEYS
 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
@@ -57,14 +56,13 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should create a new user', async () => {
-        const createdUser = await user.create()
-        assert.isString(createdUser.address)
-        assert.hasAllKeys(createdUser, ACCOUNT_KEYS)
-        assert.hasAllKeys(createdUser.wallet, TL_WALLET_KEYS)
+        const walletData = await user.create()
+        assert.isString(walletData.address)
+        assert.hasAllKeys(walletData, TL_WALLET_DATA_KEYS)
       })
 
       it('should throw error', async () => {
-        fakeTLWallet.setError('createAccount')
+        fakeTLWallet.setError('createWalletData')
         await assert.isRejected(user.create())
       })
     })
@@ -73,13 +71,13 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should load a user from serialized wallet', async () => {
-        const loadedUser = await user.load(TL_WALLET)
+        const loadedUser = await user.loadFrom(TL_WALLET_DATA)
         assert.isUndefined(loadedUser)
       })
 
       it('should throw error', async () => {
-        fakeTLWallet.setError('loadAccount')
-        await assert.isRejected(user.load(TL_WALLET))
+        fakeTLWallet.setError('loadFrom')
+        await assert.isRejected(user.loadFrom(TL_WALLET_DATA))
       })
     })
 
@@ -180,12 +178,12 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should recover user from seed', async () => {
-        const recoveredUser = await user.recoverFromSeed(FAKE_SEED)
-        assert.hasAllKeys(recoveredUser, ACCOUNT_KEYS)
+        const recoveredWalletData = await user.recoverFromSeed(FAKE_SEED)
+        assert.hasAllKeys(recoveredWalletData, TL_WALLET_DATA_KEYS)
       })
 
       it('should throw error', async () => {
-        fakeTLWallet.setError('recoverFromSeed')
+        fakeTLWallet.setError('recoverWalletDataFromSeed')
         await assert.isRejected(user.recoverFromSeed(FAKE_SEED))
       })
     })

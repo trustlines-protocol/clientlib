@@ -9,12 +9,12 @@ import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 import { RelayProvider } from '../../src/providers/RelayProvider'
 
 import {
-  ACCOUNT_KEYS,
   AMOUNT_KEYS,
   createAndLoadUsers,
   deployIdentities,
   identityFactoryAddress,
   identityImplementationAddress,
+  TL_WALLET_DATA_KEYS,
   tlNetworkConfig,
   tlNetworkConfigIdentity,
   wait
@@ -58,13 +58,13 @@ describe('e2e', () => {
 
     describe('Deploy identity', () => {
       it('should deploy an identity contract after creating an identity account', async () => {
-        const createdAccount = await identityWallet.createAccount()
-        await identityWallet.loadAccount(createdAccount.wallet)
+        const createdWalletData = await identityWallet.create()
+        await identityWallet.loadFrom(createdWalletData)
         const address = await identityWallet.deployIdentity()
-        assert.hasAllKeys(createdAccount, ACCOUNT_KEYS)
-        expect(createdAccount.address.length).to.equal(42)
-        expect(createdAccount.address.slice(0, 2)).to.equal('0x')
-        expect(address).to.equal(createdAccount.address)
+        assert.hasAllKeys(createdWalletData, TL_WALLET_DATA_KEYS)
+        expect(createdWalletData.address.length).to.equal(42)
+        expect(createdWalletData.address.slice(0, 2)).to.equal('0x')
+        expect(address).to.equal(createdWalletData.address)
       })
 
       it('should deploy two identities in parallel', async () => {
@@ -78,8 +78,8 @@ describe('e2e', () => {
 
     describe('Identity infos', () => {
       before(async () => {
-        const { wallet } = await identityWallet.createAccount()
-        await identityWallet.loadAccount(wallet)
+        const walletData = await identityWallet.create()
+        await identityWallet.loadFrom(walletData)
         await identityWallet.deployIdentity()
       })
 
@@ -129,8 +129,8 @@ describe('e2e', () => {
 
     describe('Interaction with identity', () => {
       beforeEach(async () => {
-        const { wallet } = await identityWallet.createAccount()
-        await identityWallet.loadAccount(wallet)
+        const walletData = await identityWallet.create()
+        await identityWallet.loadFrom(walletData)
         await identityWallet.deployIdentity()
       })
 
@@ -154,8 +154,8 @@ describe('e2e', () => {
           identityFactoryAddress,
           identityImplementationAddress
         })
-        const { wallet } = await secondWallet.createAccount()
-        await secondWallet.loadAccount(wallet)
+        const walletData = await secondWallet.create()
+        await secondWallet.loadFrom(walletData)
 
         await relayProvider.postToEndpoint(`request-ether`, {
           address: identityWallet.address

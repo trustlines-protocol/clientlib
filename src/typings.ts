@@ -401,12 +401,6 @@ export interface DecimalsObject {
   interestRateDecimals: number
 }
 
-// USER
-export interface UserObject<T = TLWalletSchema> {
-  address: string
-  wallet: T
-}
-
 export interface DeployIdentityResponse {
   // The address of the deployed identity contract, as replied by the relay server
   identity: string
@@ -424,9 +418,10 @@ export type WalletTypeEthers = 'ethers'
 export type WalletTypeIdentity = 'identity'
 export type WalletType = WalletTypeEthers | WalletTypeIdentity
 
-export interface TLWalletSchema {
+export interface TLWalletData {
   version: number
   type: WalletType
+  address: string
   meta?: any
 }
 
@@ -435,22 +430,18 @@ export interface SigningKey {
   mnemonic: string
 }
 
-interface EthersWalletMeta {
+interface TLWalletDataMeta {
   signingKey: SigningKey
 }
 
-export interface EthersWalletSchema extends TLWalletSchema {
+export interface EthersWalletData extends TLWalletData {
   type: WalletTypeEthers
-  meta: EthersWalletMeta
+  meta: TLWalletDataMeta
 }
 
-interface IdentityWalletMeta extends EthersWalletMeta {
-  identityAddress: string
-}
-
-export interface IdentityWalletSchema extends TLWalletSchema {
+export interface IdentityWalletData extends TLWalletData {
   type: WalletTypeIdentity
-  meta: IdentityWalletMeta
+  meta: TLWalletDataMeta
 }
 
 // TRUSTLINE

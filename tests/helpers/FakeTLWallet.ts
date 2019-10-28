@@ -1,13 +1,13 @@
 import { TLWallet } from '../../src/wallets/TLWallet'
 
-import { UserObject } from '../../src/typings'
+import { TLWalletData } from '../../src/typings'
 
 import {
   ETHERS_JSON_KEYSTORE_1,
-  FAKE_ACCOUNT,
   FAKE_ENC_OBJECT,
   FAKE_PRIVATE_KEY,
-  FAKE_SEED
+  FAKE_SEED,
+  TL_WALLET_DATA
 } from '../Fixtures'
 import { FakeTLSigner } from './FakeTLSigner'
 
@@ -23,11 +23,18 @@ export class FakeTLWallet extends FakeTLSigner implements TLWallet {
     super()
   }
 
-  public createAccount(): Promise<UserObject> {
-    if (this.errors.createAccount) {
-      throw new Error('Mocked error in wallet.createAccount()!')
+  public getWalletData(): Promise<TLWalletData> {
+    if (this.errors.getWalletData) {
+      throw new Error('Mocked error in wallet.getWalletData()!')
     }
-    return Promise.resolve(FAKE_ACCOUNT)
+    return Promise.resolve(TL_WALLET_DATA)
+  }
+
+  public create(): Promise<TLWalletData> {
+    if (this.errors.createWalletData) {
+      throw new Error('Mocked error in wallet.create()!')
+    }
+    return Promise.resolve(TL_WALLET_DATA)
   }
 
   public deployIdentity(): Promise<string> {
@@ -44,16 +51,16 @@ export class FakeTLWallet extends FakeTLSigner implements TLWallet {
     return false
   }
 
-  public loadAccount(): Promise<void> {
-    if (this.errors.loadAccount) {
-      throw new Error('Mocked error in wallet.loadAccount()!')
+  public loadFrom(): Promise<void> {
+    if (this.errors.loadFrom) {
+      throw new Error('Mocked error in wallet.loadFrom()!')
     }
     return Promise.resolve()
   }
 
-  public async encryptWallet(): Promise<string> {
-    if (this.errors.encryptWallet) {
-      throw new Error('Mocked error in wallet.encryptWallet()!')
+  public async encryptToSerializedKeystore(): Promise<string> {
+    if (this.errors.encryptWalletDataToSerializedKeystore) {
+      throw new Error('Mocked error in wallet.encryptToSerializedKeystore()!')
     }
     return Promise.resolve(ETHERS_JSON_KEYSTORE_1)
   }
@@ -79,25 +86,25 @@ export class FakeTLWallet extends FakeTLSigner implements TLWallet {
     return Promise.resolve(FAKE_SEED)
   }
 
-  public recoverFromEncryptedWallet(): Promise<UserObject> {
-    if (this.errors.recoverFromEncryptedWallet) {
-      throw new Error('Mocked error in wallet.recoverFromEncryptedWallet()!')
+  public recoverFromEncryptedKeystore(): Promise<TLWalletData> {
+    if (this.errors.recoverWalletDataFromEncryptedKeystore) {
+      throw new Error('Mocked error in wallet.recoverFromEncryptedKeystore()!')
     }
-    return Promise.resolve(FAKE_ACCOUNT)
+    return Promise.resolve(TL_WALLET_DATA)
   }
 
-  public recoverFromSeed(): Promise<UserObject> {
-    if (this.errors.recoverFromSeed) {
+  public recoverFromSeed(): Promise<TLWalletData> {
+    if (this.errors.recoverWalletDataFromSeed) {
       throw new Error('Mocked error in wallet.recoverFromSeed()!')
     }
-    return Promise.resolve(FAKE_ACCOUNT)
+    return Promise.resolve(TL_WALLET_DATA)
   }
 
-  public recoverFromPrivateKey(): Promise<UserObject> {
-    if (this.errors.recoverFromPrivateKey) {
+  public recoverFromPrivateKey(): Promise<TLWalletData> {
+    if (this.errors.recoverWalletDataFromPrivateKey) {
       throw new Error('Mocked error in wallet.recoverFromPrivateKey()!')
     }
-    return Promise.resolve(FAKE_ACCOUNT)
+    return Promise.resolve(TL_WALLET_DATA)
   }
 
   public exportPrivateKey(): Promise<string> {
@@ -111,7 +118,7 @@ export class FakeTLWallet extends FakeTLSigner implements TLWallet {
     if (this.errors.getAddress) {
       throw new Error('Mocked error in wallet.getAddress()!')
     }
-    return Promise.resolve(FAKE_ACCOUNT.address)
+    return Promise.resolve(TL_WALLET_DATA.address)
   }
 
   public setError(functionName: string) {

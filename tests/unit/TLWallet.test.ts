@@ -4,50 +4,64 @@ import { ethers } from 'ethers'
 import 'mocha'
 
 import {
-  getSigningKeyFromEthers,
-  getWalletFromEthers,
-  verifyWalletTypeAndVersion
+  verifyWalletData,
+  WALLET_TYPE_ETHERS,
+  walletDataToWalletFromEthers,
+  walletFromEthersToWalletData
 } from '../../src/wallets/TLWallet'
-import { USER_1_ETHERS_WALLET_V1, USER_1_IDENTITY_WALLET_V1 } from '../Fixtures'
+import {
+  TL_WALLET_DATA_KEYS,
+  TL_WALLET_DATA_META_KEYS,
+  USER_1_ETHERS_WALLET_V1,
+  USER_1_IDENTITY_WALLET_V1
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
 
 describe('unit', () => {
   describe('TLWallet', () => {
-    describe('#verifyWalletTypeAndVersion()', () => {
+    describe('#verifyWalletDataTypeAndVersion()', () => {
       it('should throw for unsupported type', () => {
         assert.throws(() =>
-          verifyWalletTypeAndVersion(USER_1_ETHERS_WALLET_V1, 'otherType', [1])
+          verifyWalletData(USER_1_ETHERS_WALLET_V1, 'otherType', [1])
         )
       })
 
       it('should throw for unsupported version number', () => {
         assert.throws(() =>
-          verifyWalletTypeAndVersion(USER_1_ETHERS_WALLET_V1, 'ethers', [10])
+          verifyWalletData(USER_1_ETHERS_WALLET_V1, 'ethers', [10])
         )
       })
     })
 
-    describe('#getSigningKeyFromEthers()', () => {
-      it('should transform ethers.Wallet to object of internal type SigningKey', () => {
+    describe('#walletFromEthersToWalletData()', () => {
+      it('should transform ethers.Wallet to EthersWalletData', () => {
         const walletFromEthers = ethers.Wallet.createRandom()
-        const signingKey = getSigningKeyFromEthers(walletFromEthers)
-        assert.equal(signingKey.privateKey, walletFromEthers.privateKey)
-        assert.equal(signingKey.mnemonic, walletFromEthers.mnemonic)
+        const walletData = walletFromEthersToWalletData(
+          walletFromEthers,
+          WALLET_TYPE_ETHERS,
+          walletFromEthers.address
+        )
+        assert.hasAllKeys(walletData, TL_WALLET_DATA_KEYS)
+        assert.hasAllKeys(walletData.meta, TL_WALLET_DATA_META_KEYS)
       })
     })
 
-    describe('#getWalletFromEthers()', () => {
+    describe('#walletDataToWalletFromEthers()', () => {
       it('should transform EthersWallet to instance of ethers.Wallet', () => {
-        const walletFromEthers = getWalletFromEthers(USER_1_ETHERS_WALLET_V1)
+        const walletFromEthers = walletDataToWalletFromEthers(
+          USER_1_ETHERS_WALLET_V1
+        )
         const { signingKey } = USER_1_ETHERS_WALLET_V1.meta
         assert.equal(walletFromEthers.privateKey, signingKey.privateKey)
         assert.equal(walletFromEthers.mnemonic, signingKey.mnemonic)
       })
 
       it('should transform IdentityWallet to instance of ethers.Wallet', () => {
-        const walletFromEthers = getWalletFromEthers(USER_1_IDENTITY_WALLET_V1)
+        const walletFromEthers = walletDataToWalletFromEthers(
+          USER_1_IDENTITY_WALLET_V1
+        )
         const { signingKey } = USER_1_ETHERS_WALLET_V1.meta
         assert.equal(walletFromEthers.privateKey, signingKey.privateKey)
         assert.equal(walletFromEthers.mnemonic, signingKey.mnemonic)

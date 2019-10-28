@@ -7,7 +7,6 @@ import { TLProvider } from '../../src/providers/TLProvider'
 import { FakeTLProvider } from '../helpers/FakeTLProvider'
 
 import {
-  ACCOUNT_KEYS,
   DEFAULT_PASSWORD,
   FAKE_META_TX,
   FAKE_META_TX_PRIVATE_KEY,
@@ -16,10 +15,9 @@ import {
   IDENTITY_FACTORY_ADDRESS,
   IDENTITY_IMPLEMENTATION_ADDRESS,
   IDENTITY_OWNER_ADDRESS,
-  IDENTITY_WALLET_META_KEYS,
-  TL_WALLET_KEYS,
+  TL_WALLET_DATA_KEYS,
+  TL_WALLET_DATA_META_KEYS,
   USER_1,
-  USER_1_IDENTITY_ADDRESS,
   USER_1_IDENTITY_WALLET_V1
 } from '../Fixtures'
 
@@ -48,43 +46,58 @@ describe('unit', () => {
       })
     }
 
-    describe('#createAccount()', () => {
+    describe('#create()', () => {
       beforeEach(() => init())
 
-      it('should create account', async () => {
-        const createdAccount = await identityWallet.createAccount()
-        assert.hasAllKeys(createdAccount, ACCOUNT_KEYS)
-        assert.hasAllKeys(createdAccount.wallet, TL_WALLET_KEYS)
-        assert.hasAllKeys(createdAccount.wallet.meta, IDENTITY_WALLET_META_KEYS)
+      it('should create random wallet data', async () => {
+        const walletData = await identityWallet.create()
+        assert.hasAllKeys(walletData, TL_WALLET_DATA_KEYS)
+        assert.hasAllKeys(walletData.meta, TL_WALLET_DATA_META_KEYS)
+        assert.isString(walletData.address)
       })
     })
 
-    describe('#loadAccount()', () => {
+    describe('#loadFrom()', () => {
       beforeEach(() => init())
 
-      it('should load account from given identityWallet', async () => {
-        const createdAccount = await identityWallet.createAccount()
-        await identityWallet.loadAccount(createdAccount.wallet)
-        assert.equal(createdAccount.address, identityWallet.address)
+      it('should load wallet data', async () => {
+        const walletData = await identityWallet.create()
+        await identityWallet.loadFrom(walletData)
+        assert.equal(walletData.address, identityWallet.address)
       })
     })
 
-    describe('#encryptWallet()', () => {
+    describe('#getWalletData()', () => {
       beforeEach(() => init())
 
-      it('should encrypt wallet of type WALLET_TYPE_IDENTITY', async () => {
-        const { wallet } = await identityWallet.createAccount()
-        const serializedEncryptedWallet = await identityWallet.encryptWallet(
-          wallet,
+      it('should return wallet data', async () => {
+        const createdWalletData = await identityWallet.create()
+        await identityWallet.loadFrom(createdWalletData)
+        const walletData = await identityWallet.getWalletData()
+        assert.deepEqual(walletData, createdWalletData)
+      })
+
+      it('should throw error for not loaded wallet', async () => {
+        await assert.isRejected(identityWallet.getWalletData())
+      })
+    })
+
+    describe('#encryptToSerializedKeystore()', () => {
+      beforeEach(() => init())
+
+      it('should encrypt wallet data of type identity', async () => {
+        const walletData = await identityWallet.create()
+        const serializedEncryptedWallet = await identityWallet.encryptToSerializedKeystore(
+          walletData,
           DEFAULT_PASSWORD
         )
         assert.isString(serializedEncryptedWallet)
       })
 
-      it('should encrypt wallet of type WALLET_TYPE_IDENTITY with progress callback', async () => {
-        const { wallet } = await identityWallet.createAccount()
-        const serializedEncryptedWallet = await identityWallet.encryptWallet(
-          wallet,
+      it('should encrypt wallet data of type identity with progress callback', async () => {
+        const walletData = await identityWallet.create()
+        const serializedEncryptedWallet = await identityWallet.encryptToSerializedKeystore(
+          walletData,
           DEFAULT_PASSWORD,
           progress => {
             assert.isNumber(progress)
@@ -94,69 +107,69 @@ describe('unit', () => {
       })
     })
 
-    describe('#recoverFromEncryptedWallet()', () => {
+    describe('#recoverFromEncryptedKeystore()', () => {
       beforeEach(() => init())
 
-      it('should recover account from serialized encrypted wallet', async () => {
-        const createdAccount = await identityWallet.createAccount()
-        const serializedEncryptedWallet = await identityWallet.encryptWallet(
-          createdAccount.wallet,
+      it('should recover wallet data from serialized encrypted keystore', async () => {
+        const walletData = await identityWallet.create()
+        const serializedEncryptedWallet = await identityWallet.encryptToSerializedKeystore(
+          walletData,
           DEFAULT_PASSWORD
         )
-        const recoveredAccount = await identityWallet.recoverFromEncryptedWallet(
+        const recoveredWalletData = await identityWallet.recoverFromEncryptedKeystore(
           serializedEncryptedWallet,
           DEFAULT_PASSWORD
         )
-        assert.deepEqual(recoveredAccount, createdAccount)
+        assert.deepEqual(recoveredWalletData, walletData)
       })
 
-      it('should recover account from serialized encrypted wallet with progress callback', async () => {
-        const createdAccount = await identityWallet.createAccount()
-        const serializedEncryptedWallet = await identityWallet.encryptWallet(
-          createdAccount.wallet,
+      it('should recover wallet data from serialized encrypted wallet with progress callback', async () => {
+        const walletData = await identityWallet.create()
+        const serializedEncryptedWallet = await identityWallet.encryptToSerializedKeystore(
+          walletData,
           DEFAULT_PASSWORD
         )
-        const recoveredAccount = await identityWallet.recoverFromEncryptedWallet(
+        const recoveredWalletData = await identityWallet.recoverFromEncryptedKeystore(
           serializedEncryptedWallet,
           DEFAULT_PASSWORD,
           progress => {
             assert.isNumber(progress)
           }
         )
-        assert.deepEqual(recoveredAccount, createdAccount)
+        assert.deepEqual(recoveredWalletData, walletData)
       })
 
-      it('should recover account from serialized encrypted keystore', async () => {
-        const recoveredAccount = await identityWallet.recoverFromEncryptedWallet(
+      it('should recover wallet data from serialized encrypted keystore', async () => {
+        const recoveredWalletData = await identityWallet.recoverFromEncryptedKeystore(
           USER_1.keystore,
           USER_1.password
         )
-        assert.equal(recoveredAccount.address, USER_1.identityAddress)
-        assert.deepEqual(recoveredAccount.wallet, USER_1_IDENTITY_WALLET_V1)
+        assert.equal(recoveredWalletData.address, USER_1.identityAddress)
+        assert.deepEqual(recoveredWalletData, USER_1_IDENTITY_WALLET_V1)
       })
     })
 
     describe('#recoverFromSeed()', () => {
       beforeEach(() => init())
 
-      it('should recover account from mnemonic', async () => {
-        const recoveredAccount = await identityWallet.recoverFromSeed(
+      it('should recover wallet data from mnemonic', async () => {
+        const recoveredWalletData = await identityWallet.recoverFromSeed(
           USER_1.mnemonic
         )
-        assert.equal(recoveredAccount.address, USER_1.identityAddress)
-        assert.deepEqual(recoveredAccount.wallet, USER_1_IDENTITY_WALLET_V1)
+        assert.equal(recoveredWalletData.address, USER_1.identityAddress)
+        assert.deepEqual(recoveredWalletData, USER_1_IDENTITY_WALLET_V1)
       })
     })
 
     describe('#recoverFromPrivateKey()', () => {
       beforeEach(() => init())
 
-      it('should recover account from private key', async () => {
-        const recoveredAccount = await identityWallet.recoverFromPrivateKey(
+      it('should recover wallet data from private key', async () => {
+        const recoveredWalletData = await identityWallet.recoverFromPrivateKey(
           USER_1.privateKey
         )
-        assert.equal(recoveredAccount.address, USER_1.identityAddress)
-        assert.isUndefined(recoveredAccount.wallet.meta.signingKey.mnemonic)
+        assert.equal(recoveredWalletData.address, USER_1.identityAddress)
+        assert.isUndefined(recoveredWalletData.meta.signingKey.mnemonic)
       })
     })
 
@@ -164,10 +177,10 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should deploy an identity', async () => {
-        const recoveredAccount = await identityWallet.recoverFromSeed(
+        const recoveredWalletData = await identityWallet.recoverFromSeed(
           USER_1.mnemonic
         )
-        await identityWallet.loadAccount(recoveredAccount.wallet)
+        await identityWallet.loadFrom(recoveredWalletData)
         const address = await identityWallet.deployIdentity()
         assert.equal(address, identityWallet.address)
       })
@@ -177,10 +190,10 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should sign meta-transaction', async () => {
-        const recoveredAccount = await identityWallet.recoverFromPrivateKey(
+        const walletData = await identityWallet.recoverFromPrivateKey(
           FAKE_META_TX_PRIVATE_KEY
         )
-        await identityWallet.loadAccount(recoveredAccount.wallet)
+        await identityWallet.loadFrom(walletData)
 
         const metaTransaction: MetaTransaction = FAKE_META_TX
 

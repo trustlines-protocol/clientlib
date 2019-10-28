@@ -4,23 +4,21 @@ import { ethers } from 'ethers'
 import { TLProvider } from '../providers/TLProvider'
 import {
   EXPECTED_VERSIONS,
-  getSigningKeyFromEthers,
-  getWalletFromEthers,
-  TL_WALLET_VERSION,
   TLWallet,
-  verifyWalletTypeAndVersion,
-  WALLET_TYPE_ETHERS
+  verifyWalletData,
+  WALLET_TYPE_ETHERS,
+  walletDataToWalletFromEthers,
+  walletFromEthersToWalletData
 } from './TLWallet'
 
 import utils from '../utils'
 
 import {
   Amount,
-  EthersWalletSchema,
+  EthersWalletData,
   RawTxObject,
   Signature,
-  TxInfos,
-  UserObject
+  TxInfos
 } from '../typings'
 
 /**
@@ -51,16 +49,23 @@ export class EthersWallet implements TLWallet {
     return this.address
   }
 
+  public async getWalletData(): Promise<EthersWalletData> {
+    if (!this.walletFromEthers) {
+      throw new Error('No wallet loaded.')
+    }
+    return this.walletFromEthersToEthersWalletData(this.walletFromEthers)
+  }
+
   ////////////////////////
   // Creating Instances //
   ////////////////////////
 
   /**
-   * Creates a new account with wallet of type `ethers`.
+   * Creates wallet data of type `ethers`.
    */
-  public async createAccount(): Promise<UserObject<EthersWalletSchema>> {
+  public async create(): Promise<EthersWalletData> {
     const walletFromEthers = ethers.Wallet.createRandom()
-    return this.getAccountWithEthersWallet(walletFromEthers)
+    return this.walletFromEthersToEthersWalletData(walletFromEthers)
   }
 
   /**
@@ -76,17 +81,18 @@ export class EthersWallet implements TLWallet {
   }
 
   /**
-   * Returns a serialized encrypted ethers JSON keystore string.
-   * @param ethersWallet `TLWallet` of type `ethers`.
-   * @param password Password to encrypt wallet with.
+   * Encrypts and serializes the given wallet data.
+   * @param walletData Wallet data of type `ethers`.
+   * @param password Password to encrypt wallet data with.
    * @param progressCallback Optional encryption progress callback.
+   * @returns Serialized encrypted ethereum JSON keystore v3.
    */
-  public async encryptWallet(
-    ethersWallet: EthersWalletSchema,
+  public async encryptToSerializedKeystore(
+    walletData: EthersWalletData,
     password: string,
     progressCallback?: (progress: number) => any
   ): Promise<string> {
-    const walletFromEthers = getWalletFromEthers(ethersWallet)
+    const walletFromEthers = walletDataToWalletFromEthers(walletData)
     const encryptedKeystore = await walletFromEthers.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
@@ -95,58 +101,53 @@ export class EthersWallet implements TLWallet {
   }
 
   /**
-   * Loads given ethers wallet.
-   * @param ethersWallet `TLWallet` of type `ethers`.
+   * Loads given wallet data of type `ethers`.
+   * @param walletData Wallet data of type `ethers`.
    */
-  public async loadAccount(ethersWallet: EthersWalletSchema): Promise<void> {
-    verifyWalletTypeAndVersion(
-      ethersWallet,
-      WALLET_TYPE_ETHERS,
-      EXPECTED_VERSIONS
-    )
-    this.walletFromEthers = getWalletFromEthers(ethersWallet)
+  public async loadFrom(walletData: EthersWalletData): Promise<void> {
+    verifyWalletData(walletData, WALLET_TYPE_ETHERS, EXPECTED_VERSIONS)
+    this.walletFromEthers = walletDataToWalletFromEthers(walletData)
   }
 
   /**
-   * Recovers wallet from a serialized encrypted JSON keystore string (e.g. as returned by `encryptWallet`).
-   * @param serializedEncryptedWallet Serialized standard JSON keystore.
-   * @param password Password to decrypt serialized wallet with.
+   * Recovers wallet data from a serialized encrypted ethereum JSON keystore v3
+   * (e.g. as returned by `encryptToSerializedKeystore`).
+   * @param serializedEncryptedKeystore Serialized encrypted ethereum JSON keystore v3.
+   * @param password Password to decrypt encrypted ethereum JSON keystore v3.
    * @param progressCallback Callback function for decryption progress.
    */
-  public async recoverFromEncryptedWallet(
-    serializedEncryptedWallet: string,
+  public async recoverFromEncryptedKeystore(
+    serializedEncryptedKeystore: string,
     password: string,
     progressCallback?: (progress: number) => any
-  ): Promise<UserObject<EthersWalletSchema>> {
+  ): Promise<EthersWalletData> {
     const walletFromEthers = await ethers.Wallet.fromEncryptedJson(
-      serializedEncryptedWallet,
+      serializedEncryptedKeystore,
       password,
       typeof progressCallback === 'function' && progressCallback
     )
-    return this.getAccountWithEthersWallet(walletFromEthers)
+    return this.walletFromEthersToEthersWalletData(walletFromEthers)
   }
 
   /**
-   * Recovers wallet from mnemonic phrase.
+   * Recovers wallet data from mnemonic phrase.
    * @param seed Mnemonic seed phrase.
    */
-  public async recoverFromSeed(
-    seed: string
-  ): Promise<UserObject<EthersWalletSchema>> {
+  public async recoverFromSeed(seed: string): Promise<EthersWalletData> {
     const walletFromEthers = ethers.Wallet.fromMnemonic(seed)
-    return this.getAccountWithEthersWallet(walletFromEthers)
+    return this.walletFromEthersToEthersWalletData(walletFromEthers)
   }
 
   /**
-   * Recovers wallet from private key.
+   * Recovers wallet data from private key.
    * Note that mnemonic and derivation path is `undefined` here.
-   * @param privateKey Private key to recover wallet from.
+   * @param privateKey Private key to recover wallet data from.
    */
   public async recoverFromPrivateKey(
     privateKey: string
-  ): Promise<UserObject<EthersWalletSchema>> {
+  ): Promise<EthersWalletData> {
     const walletFromEthers = new ethers.Wallet(privateKey)
-    return this.getAccountWithEthersWallet(walletFromEthers)
+    return this.walletFromEthersToEthersWalletData(walletFromEthers)
   }
 
   /////////////
@@ -269,22 +270,14 @@ export class EthersWallet implements TLWallet {
     return this.provider.getTxInfos(userAddress)
   }
 
-  private getAccountWithEthersWallet(
+  private walletFromEthersToEthersWalletData(
     walletFromEthers: ethers.Wallet
-  ): UserObject<EthersWalletSchema> {
-    return {
-      address: walletFromEthers.address,
-      wallet: this.getEthersWallet(walletFromEthers)
-    }
-  }
-
-  private getEthersWallet(walletFromEthers: ethers.Wallet): EthersWalletSchema {
-    return {
-      version: TL_WALLET_VERSION,
-      type: WALLET_TYPE_ETHERS,
-      meta: {
-        signingKey: getSigningKeyFromEthers(walletFromEthers)
-      }
-    }
+  ): EthersWalletData {
+    const walletData = walletFromEthersToWalletData(
+      walletFromEthers,
+      WALLET_TYPE_ETHERS,
+      walletFromEthers.address
+    )
+    return walletData as EthersWalletData
   }
 }
