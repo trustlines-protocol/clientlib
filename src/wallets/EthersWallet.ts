@@ -6,10 +6,9 @@ import {
   EXPECTED_VERSIONS,
   TLWallet,
   verifyWalletData,
-  WALLET_TYPE_ETHERS,
-  walletDataToWalletFromEthers,
-  walletFromEthersToWalletData
+  WALLET_TYPE_ETHERS
 } from './TLWallet'
+import { WalletFromEthers } from './WalletFromEthers'
 
 import utils from '../utils'
 
@@ -27,8 +26,7 @@ import {
 export class EthersWallet implements TLWallet {
   public provider: TLProvider
 
-  // Wallet instance as returned by `ethers`
-  private walletFromEthers: ethers.Wallet
+  private walletFromEthers: WalletFromEthers
 
   constructor(provider: TLProvider) {
     this.provider = provider
@@ -53,7 +51,7 @@ export class EthersWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    return this.walletFromEthersToEthersWalletData(this.walletFromEthers)
+    return this.walletFromEthers.toEthersWalletData()
   }
 
   ////////////////////////
@@ -64,8 +62,8 @@ export class EthersWallet implements TLWallet {
    * Creates wallet data of type `ethers`.
    */
   public async create(): Promise<EthersWalletData> {
-    const walletFromEthers = ethers.Wallet.createRandom()
-    return this.walletFromEthersToEthersWalletData(walletFromEthers)
+    const walletFromEthers = WalletFromEthers.createRandom()
+    return walletFromEthers.toEthersWalletData()
   }
 
   /**
@@ -92,7 +90,7 @@ export class EthersWallet implements TLWallet {
     password: string,
     progressCallback?: (progress: number) => any
   ): Promise<string> {
-    const walletFromEthers = walletDataToWalletFromEthers(walletData)
+    const walletFromEthers = WalletFromEthers.fromWalletData(walletData)
     const encryptedKeystore = await walletFromEthers.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
@@ -106,7 +104,7 @@ export class EthersWallet implements TLWallet {
    */
   public async loadFrom(walletData: EthersWalletData): Promise<void> {
     verifyWalletData(walletData, WALLET_TYPE_ETHERS, EXPECTED_VERSIONS)
-    this.walletFromEthers = walletDataToWalletFromEthers(walletData)
+    this.walletFromEthers = WalletFromEthers.fromWalletData(walletData)
   }
 
   /**
@@ -121,12 +119,12 @@ export class EthersWallet implements TLWallet {
     password: string,
     progressCallback?: (progress: number) => any
   ): Promise<EthersWalletData> {
-    const walletFromEthers = await ethers.Wallet.fromEncryptedJson(
+    const walletFromEthers = await WalletFromEthers.fromEncryptedJson(
       serializedEncryptedKeystore,
       password,
       typeof progressCallback === 'function' && progressCallback
     )
-    return this.walletFromEthersToEthersWalletData(walletFromEthers)
+    return walletFromEthers.toEthersWalletData()
   }
 
   /**
@@ -134,8 +132,8 @@ export class EthersWallet implements TLWallet {
    * @param seed Mnemonic seed phrase.
    */
   public async recoverFromSeed(seed: string): Promise<EthersWalletData> {
-    const walletFromEthers = ethers.Wallet.fromMnemonic(seed)
-    return this.walletFromEthersToEthersWalletData(walletFromEthers)
+    const walletFromEthers = WalletFromEthers.fromMnemonic(seed)
+    return walletFromEthers.toEthersWalletData()
   }
 
   /**
@@ -146,8 +144,8 @@ export class EthersWallet implements TLWallet {
   public async recoverFromPrivateKey(
     privateKey: string
   ): Promise<EthersWalletData> {
-    const walletFromEthers = new ethers.Wallet(privateKey)
-    return this.walletFromEthersToEthersWalletData(walletFromEthers)
+    const walletFromEthers = new WalletFromEthers(privateKey)
+    return walletFromEthers.toEthersWalletData()
   }
 
   /////////////
@@ -268,16 +266,5 @@ export class EthersWallet implements TLWallet {
 
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
     return this.provider.getTxInfos(userAddress)
-  }
-
-  private walletFromEthersToEthersWalletData(
-    walletFromEthers: ethers.Wallet
-  ): EthersWalletData {
-    const walletData = walletFromEthersToWalletData(
-      walletFromEthers,
-      WALLET_TYPE_ETHERS,
-      walletFromEthers.address
-    )
-    return walletData as EthersWalletData
   }
 }

@@ -6,10 +6,9 @@ import {
   EXPECTED_VERSIONS,
   TLWallet,
   verifyWalletData,
-  WALLET_TYPE_IDENTITY,
-  walletDataToWalletFromEthers,
-  walletFromEthersToWalletData
+  WALLET_TYPE_IDENTITY
 } from './TLWallet'
+import { WalletFromEthers } from './WalletFromEthers'
 
 import {
   Amount,
@@ -30,7 +29,7 @@ const initcodeWithPadding =
 export class IdentityWallet implements TLWallet {
   public provider: TLProvider
 
-  private walletFromEthers: ethers.Wallet
+  private walletFromEthers: WalletFromEthers
   private identityAddress: string
   private identityFactoryAddress: string
   private identityImplementationAddress: string
@@ -59,7 +58,7 @@ export class IdentityWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    return this.walletFromEthersToIdentityWalletData(this.walletFromEthers)
+    return this.walletFromEthers.toIdentityWalletData(this.identityAddress)
   }
 
   public async getBalance(): Promise<Amount> {
@@ -76,8 +75,12 @@ export class IdentityWallet implements TLWallet {
    * Creates wallet data of type `identity`.
    */
   public async create(): Promise<IdentityWalletData> {
-    const walletFromEthers = ethers.Wallet.createRandom()
-    return this.walletFromEthersToIdentityWalletData(walletFromEthers)
+    const walletFromEthers = WalletFromEthers.createRandom()
+    const identityAddress = calculateIdentityAddress(
+      this.identityFactoryAddress,
+      walletFromEthers.address
+    )
+    return walletFromEthers.toIdentityWalletData(identityAddress)
   }
 
   /**
@@ -141,7 +144,7 @@ export class IdentityWallet implements TLWallet {
   public async loadFrom(walletData: IdentityWalletData): Promise<void> {
     verifyWalletData(walletData, WALLET_TYPE_IDENTITY, EXPECTED_VERSIONS)
 
-    const walletFromEthers = walletDataToWalletFromEthers(walletData)
+    const walletFromEthers = WalletFromEthers.fromWalletData(walletData)
     this.walletFromEthers = walletFromEthers
     this.identityAddress = walletData.address
   }
@@ -158,12 +161,16 @@ export class IdentityWallet implements TLWallet {
     password: string,
     progressCallback?: (progress: number) => any
   ): Promise<IdentityWalletData> {
-    const walletFromEthers = await ethers.Wallet.fromEncryptedJson(
+    const walletFromEthers = await WalletFromEthers.fromEncryptedJson(
       serializedEncryptedKeystore,
       password,
       typeof progressCallback === 'function' && progressCallback
     )
-    return this.walletFromEthersToIdentityWalletData(walletFromEthers)
+    const identityAddress = calculateIdentityAddress(
+      this.identityFactoryAddress,
+      walletFromEthers.address
+    )
+    return walletFromEthers.toIdentityWalletData(identityAddress)
   }
 
   /**
@@ -171,8 +178,12 @@ export class IdentityWallet implements TLWallet {
    * @param seed Mnemonic seed phrase.
    */
   public async recoverFromSeed(seed: string): Promise<IdentityWalletData> {
-    const walletFromEthers = ethers.Wallet.fromMnemonic(seed)
-    return this.walletFromEthersToIdentityWalletData(walletFromEthers)
+    const walletFromEthers = WalletFromEthers.fromMnemonic(seed)
+    const identityAddress = calculateIdentityAddress(
+      this.identityFactoryAddress,
+      walletFromEthers.address
+    )
+    return walletFromEthers.toIdentityWalletData(identityAddress)
   }
 
   /**
@@ -183,8 +194,12 @@ export class IdentityWallet implements TLWallet {
   public async recoverFromPrivateKey(
     privateKey: string
   ): Promise<IdentityWalletData> {
-    const walletFromEthers = new ethers.Wallet(privateKey)
-    return this.walletFromEthersToIdentityWalletData(walletFromEthers)
+    const walletFromEthers = new WalletFromEthers(privateKey)
+    const identityAddress = calculateIdentityAddress(
+      this.identityFactoryAddress,
+      walletFromEthers.address
+    )
+    return walletFromEthers.toIdentityWalletData(identityAddress)
   }
 
   /**
@@ -296,7 +311,7 @@ export class IdentityWallet implements TLWallet {
     password: string,
     progressCallback?: (progress: number) => any
   ): Promise<string> {
-    const walletFromEthers = walletDataToWalletFromEthers(walletData)
+    const walletFromEthers = WalletFromEthers.fromWalletData(walletData)
     const encryptedKeystore = await walletFromEthers.encrypt(
       password,
       typeof progressCallback === 'function' && progressCallback
@@ -351,21 +366,6 @@ export class IdentityWallet implements TLWallet {
     }
 
     return metaTransaction
-  }
-
-  private walletFromEthersToIdentityWalletData(
-    walletFromEthers: ethers.Wallet
-  ): IdentityWalletData {
-    const identityAddress = calculateIdentityAddress(
-      this.identityFactoryAddress,
-      walletFromEthers.address
-    )
-    const walletData = walletFromEthersToWalletData(
-      walletFromEthers,
-      WALLET_TYPE_IDENTITY,
-      identityAddress
-    )
-    return walletData as IdentityWalletData
   }
 }
 

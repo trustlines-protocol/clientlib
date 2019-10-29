@@ -1,12 +1,5 @@
-import { ethers } from 'ethers'
-
 import { TLSigner } from '../signers/TLSigner'
-import {
-  EthersWalletData,
-  IdentityWalletData,
-  TLWalletData,
-  WalletType
-} from '../typings'
+import { TLWalletData } from '../typings'
 
 /**
  * Interface for different wallet strategies.
@@ -41,7 +34,7 @@ export const TL_WALLET_VERSION = 1
 export const WALLET_TYPE_ETHERS = 'ethers'
 export const WALLET_TYPE_IDENTITY = 'identity'
 export const EXPECTED_VERSIONS = [1]
-const DEFAULT_DERIVATION_PATH = `m/44'/60'/0'/0/0`
+export const DEFAULT_DERIVATION_PATH = `m/44'/60'/0'/0/0`
 
 /**
  * Checks if type and version of given wallet data are supported.
@@ -68,47 +61,4 @@ export function verifyWalletData(
       }, expected one of: ${expectedVersions}`
     )
   }
-}
-
-/**
- * Converts an instance of `ethers.Wallet` to `TLWalletData` specified by `walletType`.
- * @param walletFromEthers Instance of `ethers.Wallet`.
- * @param walletType Wallet data type to convert to.
- * @param address Address to store in wallet data.
- */
-export function walletFromEthersToWalletData(
-  walletFromEthers: ethers.Wallet,
-  walletType: WalletType,
-  address: string
-): EthersWalletData | IdentityWalletData {
-  return {
-    address,
-    version: TL_WALLET_VERSION,
-    type: walletType,
-    meta: {
-      signingKey: {
-        mnemonic: walletFromEthers.mnemonic,
-        privateKey: walletFromEthers.privateKey
-      }
-    }
-  }
-}
-
-/**
- * Takes wallet data of type `ethers` or `identity` and returns an instance of `ethers.Wallet`.
- * @param walletData Wallet data of type `ethers` or `identity`.
- */
-export function walletDataToWalletFromEthers(
-  walletData: EthersWalletData | IdentityWalletData
-): ethers.Wallet {
-  const { signingKey } = walletData.meta
-  const signingKeyFromEthers = new ethers.utils.SigningKey(
-    signingKey.privateKey
-  )
-  // @ts-ignore
-  signingKeyFromEthers.mnemonic = signingKey.mnemonic
-  // @ts-ignore
-  signingKeyFromEthers.path = DEFAULT_DERIVATION_PATH
-  const walletFromEthers = new ethers.Wallet(signingKeyFromEthers)
-  return walletFromEthers
 }

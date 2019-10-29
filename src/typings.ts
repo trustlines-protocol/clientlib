@@ -430,7 +430,7 @@ export interface SigningKey {
   mnemonic: string
 }
 
-interface TLWalletDataMeta {
+export interface TLWalletDataMeta {
   signingKey: SigningKey
 }
 
