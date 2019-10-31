@@ -1,5 +1,5 @@
 import { isValidAddress, toChecksumAddress } from 'ethereumjs-util'
-import { ethers, utils as ethersUtils } from 'ethers'
+import { utils as ethersUtils } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
 import {
@@ -90,7 +90,7 @@ export class IdentityWallet implements TLWallet {
    * Deploys a new identity contract on the chain
    */
   public async deployIdentity(): Promise<string> {
-    const messageHash: string = ethers.utils.solidityKeccak256(
+    const messageHash: string = ethersUtils.solidityKeccak256(
       ['bytes1', 'bytes1', 'address', 'address'],
       [
         '0x19',
@@ -237,7 +237,7 @@ export class IdentityWallet implements TLWallet {
     throw new Error('Method not implemented.')
   }
 
-  public async signMessage(message: ethers.utils.Arrayish): Promise<Signature> {
+  public async signMessage(message: ethersUtils.Arrayish): Promise<Signature> {
     throw new Error('Method not implemented.')
   }
 
@@ -282,14 +282,14 @@ export class IdentityWallet implements TLWallet {
       metaTransaction.from,
       metaTransaction.to,
       metaTransaction.value,
-      ethers.utils.solidityKeccak256(['bytes'], [metaTransaction.data]),
+      ethersUtils.solidityKeccak256(['bytes'], [metaTransaction.data]),
       metaTransaction.delegationFees,
       metaTransaction.currencyNetworkOfFees,
       metaTransaction.nonce,
       metaTransaction.extraData
     ]
 
-    const metaTransactionHash: string = ethers.utils.solidityKeccak256(
+    const metaTransactionHash: string = ethersUtils.solidityKeccak256(
       types,
       values
     )
@@ -384,11 +384,11 @@ export function calculateIdentityAddress(
   }
 
   const initCode = initcodeWithPadding + ownerAddress.slice(2)
-  const initCodeHash = ethers.utils.solidityKeccak256(['bytes'], [initCode])
+  const initCodeHash = ethersUtils.solidityKeccak256(['bytes'], [initCode])
   // address = keccak256( 0xff ++ address ++ salt ++ keccak256(init_code))[12:]
   const address =
     '0x' +
-    ethers.utils
+    ethersUtils
       .solidityKeccak256(
         ['bytes1', 'address', 'uint', 'bytes32'],
         ['0xff', factoryAddress, 0, initCodeHash]

@@ -1,5 +1,5 @@
 import { BigNumber } from 'bignumber.js'
-import { ethers } from 'ethers'
+import { utils as ethersUtils } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
 import {
@@ -163,10 +163,10 @@ export class EthersWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    if (!ethers.utils.isHexString(msgHash)) {
+    if (!ethersUtils.isHexString(msgHash)) {
       throw new Error('Message hash is not a valid hex string.')
     }
-    const msgHashBytes = ethers.utils.arrayify(msgHash)
+    const msgHashBytes = ethersUtils.arrayify(msgHash)
     return this.signMessage(msgHashBytes)
   }
 
@@ -174,12 +174,12 @@ export class EthersWallet implements TLWallet {
    * Signs given message with loaded wallet.
    * @param message Message to sign.
    */
-  public async signMessage(message: ethers.utils.Arrayish): Promise<Signature> {
+  public async signMessage(message: ethersUtils.Arrayish): Promise<Signature> {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
     const flatFormatSignature = await this.walletFromEthers.signMessage(message)
-    const { r, s, v } = ethers.utils.splitSignature(flatFormatSignature)
+    const { r, s, v } = ethersUtils.splitSignature(flatFormatSignature)
     return {
       concatSig: flatFormatSignature,
       ecSignature: { r, s, v }
@@ -197,19 +197,19 @@ export class EthersWallet implements TLWallet {
     }
     const signedTransaction = await this.walletFromEthers.sign({
       data: rawTx.data,
-      gasLimit: ethers.utils.bigNumberify(
+      gasLimit: ethersUtils.bigNumberify(
         rawTx.gasLimit instanceof BigNumber
           ? rawTx.gasLimit.toString()
           : rawTx.gasLimit
       ),
-      gasPrice: ethers.utils.bigNumberify(
+      gasPrice: ethersUtils.bigNumberify(
         rawTx.gasPrice instanceof BigNumber
           ? rawTx.gasPrice.toString()
           : rawTx.gasPrice
       ),
       nonce: rawTx.nonce,
       to: rawTx.to,
-      value: ethers.utils.bigNumberify(
+      value: ethersUtils.bigNumberify(
         rawTx.value instanceof BigNumber ? rawTx.value.toString() : rawTx.value
       )
     })
