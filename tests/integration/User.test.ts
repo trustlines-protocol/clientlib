@@ -3,7 +3,7 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { tlNetworkConfig, USER_1 } from '../Fixtures'
+import { TL_WALLET_DATA_KEYS, tlNetworkConfig, USER_1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -12,30 +12,30 @@ describe('integration', () => {
     const { expect } = chai
     const tlNew = new TLNetwork(tlNetworkConfig)
     const tlExisting = new TLNetwork(tlNetworkConfig)
-    let newUser
-    let existingUser
+    let newWalletData
+    let existingWalletData
 
     before(async () => {
-      ;[newUser, existingUser] = await Promise.all([
+      ;[newWalletData, existingWalletData] = await Promise.all([
         tlNew.user.create(),
-        tlExisting.user.load(USER_1.keystore)
+        tlExisting.user.recoverFromSeed(USER_1.mnemonic)
+      ])
+      await Promise.all([
+        tlNew.user.loadFrom(newWalletData),
+        tlExisting.user.loadFrom(existingWalletData)
       ])
     })
 
     describe('#create()', () => {
-      it('should create new user', () => {
-        expect(newUser).to.have.keys('address', 'serializedWallet', 'pubKey')
+      it('should create new user walletData', () => {
+        expect(newWalletData).to.have.keys(TL_WALLET_DATA_KEYS)
       })
     })
 
-    describe('#load()', () => {
-      it('should load existing user/wallet', () => {
-        expect(existingUser).to.have.keys(
-          'address',
-          'serializedWallet',
-          'pubKey'
-        )
-        expect(existingUser.address).to.eq(USER_1.address)
+    describe('#loadFrom()', () => {
+      it('should load existing user walletData', () => {
+        expect(existingWalletData).to.have.keys(TL_WALLET_DATA_KEYS)
+        expect(existingWalletData.address).to.eq(USER_1.address)
       })
     })
 
@@ -53,12 +53,11 @@ describe('integration', () => {
 
     describe('#recoverFromSeed()', () => {
       it('should recover from seed words', async () => {
-        const recoveredUser = await tlExisting.user.recoverFromSeed(
+        const recoveredWalletData = await tlExisting.user.recoverFromSeed(
           USER_1.mnemonic
         )
-        expect(recoveredUser.address).to.equal(USER_1.address)
-        expect(recoveredUser.pubKey).to.equal(USER_1.pubKey)
-        expect(recoveredUser.serializedWallet).to.be.a('string')
+        expect(recoveredWalletData.address).to.equal(USER_1.address)
+        expect(recoveredWalletData).to.have.keys(TL_WALLET_DATA_KEYS)
       })
     })
   })

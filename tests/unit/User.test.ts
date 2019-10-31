@@ -8,7 +8,12 @@ import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTLSigner } from '../helpers/FakeTLSigner'
 import { FakeTLWallet } from '../helpers/FakeTLWallet'
 
-import { FAKE_ENC_OBJECT, FAKE_SEED, keystore1 } from '../Fixtures'
+import {
+  FAKE_ENC_OBJECT,
+  FAKE_SEED,
+  TL_WALLET_DATA,
+  TL_WALLET_DATA_KEYS
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -44,7 +49,6 @@ describe('unit', () => {
           wallet: fakeTLWallet
         })
         assert.isString(user.address)
-        assert.isString(user.pubKey)
       })
     })
 
@@ -52,37 +56,29 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should create a new user', async () => {
-        const createdUser = await user.create()
-        assert.hasAllKeys(createdUser, [
-          'address',
-          'serializedWallet',
-          'pubKey'
-        ])
-        assert.isString(createdUser.address)
-        assert.isString(createdUser.serializedWallet)
-        assert.isString(createdUser.pubKey)
+        const walletData = await user.create()
+        assert.isString(walletData.address)
+        assert.hasAllKeys(walletData, TL_WALLET_DATA_KEYS)
       })
 
       it('should throw error', async () => {
-        fakeTLWallet.setError('createAccount')
+        fakeTLWallet.setError('createWalletData')
         await assert.isRejected(user.create())
       })
     })
 
-    describe('#load()', () => {
+    describe('#loadFrom()', () => {
       beforeEach(() => init())
 
-      it('should load a user from serialized wallet', async () => {
-        const loadedUser = await user.load(keystore1)
-        assert.hasAllKeys(loadedUser, ['address', 'serializedWallet', 'pubKey'])
-        assert.isString(loadedUser.address)
-        assert.isString(loadedUser.serializedWallet)
-        assert.isString(loadedUser.pubKey)
+      it('should load from existing wallet data', async () => {
+        await user.loadFrom(TL_WALLET_DATA)
+        const loadedWalletData = await user.getWalletData()
+        assert.deepEqual(loadedWalletData, TL_WALLET_DATA)
       })
 
       it('should throw error', async () => {
-        fakeTLWallet.setError('loadAccount')
-        await assert.isRejected(user.load(keystore1))
+        fakeTLWallet.setError('loadFrom')
+        await assert.isRejected(user.loadFrom(TL_WALLET_DATA))
       })
     })
 
@@ -183,16 +179,12 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('should recover user from seed', async () => {
-        const recoveredUser = await user.recoverFromSeed(FAKE_SEED)
-        assert.hasAllKeys(recoveredUser, [
-          'address',
-          'serializedWallet',
-          'pubKey'
-        ])
+        const recoveredWalletData = await user.recoverFromSeed(FAKE_SEED)
+        assert.hasAllKeys(recoveredWalletData, TL_WALLET_DATA_KEYS)
       })
 
       it('should throw error', async () => {
-        fakeTLWallet.setError('recoverFromSeed')
+        fakeTLWallet.setError('recoverWalletDataFromSeed')
         await assert.isRejected(user.recoverFromSeed(FAKE_SEED))
       })
     })

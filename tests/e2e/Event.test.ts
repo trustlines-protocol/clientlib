@@ -14,7 +14,7 @@ import {
 } from '../../src/typings'
 
 import {
-  createUsers,
+  createAndLoadUsers,
   deployIdentities,
   extraData,
   requestEth,
@@ -59,7 +59,7 @@ describe('e2e', () => {
     describe('#get()', () => {
       before(async () => {
         // create new users
-        ;[user1, user2] = await createUsers([tl1, tl2])
+        ;[user1, user2] = await createAndLoadUsers([tl1, tl2])
         await deployIdentities([tl1, tl2])
         // request ETH
         await requestEth([tl1, tl2])
@@ -110,7 +110,7 @@ describe('e2e', () => {
 
       before(async () => {
         // create new users
-        ;[user1, user2] = await createUsers([tl1, tl2])
+        ;[user1, user2] = await createAndLoadUsers([tl1, tl2])
         await deployIdentities([tl1, tl2])
         // request ETH
         await requestEth([tl1, tl2])
@@ -445,7 +445,7 @@ describe('e2e', () => {
 
       before(async () => {
         // create new users
-        ;[user1, user2] = await createUsers([tl1, tl2])
+        ;[user1, user2] = await createAndLoadUsers([tl1, tl2])
         await deployIdentities([tl1, tl2])
         // request ETH
         await requestEth([tl1, tl2])
@@ -549,7 +549,7 @@ describe('e2e', () => {
 
       before(async () => {
         // create new users
-        ;[user1, user2] = await createUsers([tl1, tl2])
+        ;[user1, user2] = await createAndLoadUsers([tl1, tl2])
         await deployIdentities([tl1, tl2])
         // request ETH
         await requestEth([tl1, tl2])

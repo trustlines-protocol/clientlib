@@ -14,8 +14,6 @@ import {
  */
 export class FakeTLSigner implements TLSigner {
   public address: string = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
-  public pubKey: string =
-    'a5da0d9516c483883256949c3cac6ed73e4eb50ca85f7bdc2f360bbbf9e2d472'
 
   public errors
 

@@ -19,12 +19,12 @@ describe('e2e', () => {
     {
       config: tlNetworkConfig,
       user: USER_1_ETHERS_WALLET_V1,
-      walletType: 'Ethers'
+      walletType: 'ethers'
     },
     {
       config: tlNetworkConfigIdentity,
       user: USER_1_IDENTITY_WALLET_V1,
-      walletType: 'Identity'
+      walletType: 'identity'
     }
   ]
   parametrizedTest.forEach(testParameter => {
@@ -37,10 +37,13 @@ describe('e2e', () => {
       const tlExisting = new TLNetwork(config)
 
       before(async () => {
-        // load users
-        await Promise.all([
+        const [walletData, recoveredWalletData] = await Promise.all([
           tlNew.user.create(),
-          tlExisting.user.load(user1.serializedWallet)
+          tlExisting.user.recoverFromSeed(user1.meta.signingKey.mnemonic)
+        ])
+        await Promise.all([
+          tlNew.user.loadFrom(walletData),
+          tlExisting.user.loadFrom(recoveredWalletData)
         ])
         await tlNew.user.deployIdentity()
         // make sure existing user has eth
@@ -84,7 +87,8 @@ describe('e2e', () => {
 
     describe('#isIdentityDeployed()', () => {
       before(async () => {
-        await tl.user.create()
+        const walletData = await tl.user.create()
+        await tl.user.loadFrom(walletData)
       })
 
       it('should return false for not deployed identity', async () => {

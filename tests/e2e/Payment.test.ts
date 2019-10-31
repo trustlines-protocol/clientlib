@@ -4,9 +4,9 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { FeePayer, PathRaw } from '../../src/typings'
+import { FeePayer, PathRaw, TLWalletData } from '../../src/typings'
 import {
-  createUsers,
+  createAndLoadUsers,
   deployIdentities,
   extraData,
   parametrizedTLNetworkConfig,
@@ -32,7 +32,7 @@ describe('e2e', () => {
         // set network and load users
         ;[[network], [user1, user2]] = await Promise.all([
           tl1.currencyNetwork.getAll(),
-          createUsers([tl1, tl2])
+          createAndLoadUsers([tl1, tl2])
         ])
         await deployIdentities([tl1, tl2])
         // make sure users have eth
@@ -269,10 +269,11 @@ describe('e2e', () => {
 
       describe('Maximum spendable amount', () => {
         const tl3 = new TLNetwork(config)
-        let user3
+        let user3WalletData: TLWalletData
 
         before(async () => {
-          user3 = await tl3.user.create()
+          user3WalletData = await tl3.user.create()
+          await tl3.user.loadFrom(user3WalletData)
           await tl3.user.deployIdentity()
           // make sure users have eth
           await tl3.user.requestEth()
@@ -280,7 +281,7 @@ describe('e2e', () => {
           const [tx1, tx2] = await Promise.all([
             tl2.trustline.prepareUpdate(
               network.address,
-              user3.address,
+              user3WalletData.address,
               300,
               200
             ),
@@ -313,7 +314,7 @@ describe('e2e', () => {
           it('should return the path and the amount for non-adjacent users', async () => {
             const result = await tl1.payment.getMaxAmountAndPathInNetwork(
               network.address,
-              user3.address
+              user3WalletData.address
             )
             expect(result.path.length).to.eq(3)
             expect(result.amount).to.have.keys('decimals', 'raw', 'value')

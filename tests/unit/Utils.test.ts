@@ -1,12 +1,14 @@
 import BigNumber from 'bignumber.js'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import { ethers } from 'ethers'
 import fetchMock = require('fetch-mock')
 import 'mocha'
 
 import utils from '../../src/utils'
 
 import { ExchangeCancelEvent, ExchangeFillEvent } from '../../src/typings'
+import { USER_1_ETHERS_WALLET_V1, USER_1_IDENTITY_WALLET_V1 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai

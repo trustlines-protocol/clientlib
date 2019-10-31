@@ -3,7 +3,11 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import { parametrizedTLNetworkConfig, wait } from '../Fixtures'
+import {
+  createAndLoadUsers,
+  parametrizedTLNetworkConfig,
+  wait
+} from '../Fixtures'
 
 chai.use(chaiAsPromised)
 
@@ -20,10 +24,9 @@ describe('e2e', () => {
       let network
 
       before(async () => {
-        ;[[network], user1, user2] = await Promise.all([
+        ;[[network], [user1, user2]] = await Promise.all([
           tl1.currencyNetwork.getAll(),
-          tl1.user.create(),
-          tl2.user.create()
+          createAndLoadUsers([tl1, tl2])
         ])
       })
 

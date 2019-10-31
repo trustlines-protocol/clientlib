@@ -4,7 +4,7 @@ import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import {
-  createUsers,
+  createAndLoadUsers,
   deployIdentities,
   parametrizedTLNetworkConfig,
   wait
@@ -34,7 +34,7 @@ describe('e2e', () => {
         // set network and load users
         ;[networks, [user1, user2, user3]] = await Promise.all([
           tl1.currencyNetwork.getAll(),
-          createUsers([tl1, tl2, tl3])
+          createAndLoadUsers([tl1, tl2, tl3])
         ])
         await deployIdentities([tl1, tl2, tl3])
         // get network details

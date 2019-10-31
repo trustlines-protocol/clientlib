@@ -12,7 +12,7 @@ import { FakeTLWallet } from '../helpers/FakeTLWallet'
 import { FakeTransaction } from '../helpers/FakeTransaction'
 import { FakeUser } from '../helpers/FakeUser'
 
-import { FAKE_ACCOUNT, FAKE_NETWORK } from '../Fixtures'
+import { FAKE_NETWORK, TL_WALLET_DATA } from '../Fixtures'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -180,7 +180,7 @@ describe('unit', () => {
       it('should return mocked formatted trustlines', async () => {
         const tl = await trustline.get(
           FAKE_NETWORK.address,
-          FAKE_ACCOUNT.address
+          TL_WALLET_DATA.address
         )
         assert.hasAllKeys(tl.given, ['decimals', 'value', 'raw'])
         assert.hasAllKeys(tl.received, ['decimals', 'value', 'raw'])
@@ -218,8 +218,8 @@ describe('unit', () => {
       it('should return mocked close path', async () => {
         const closePath = await trustline.getClosePath(
           FAKE_NETWORK.address,
-          FAKE_ACCOUNT.address,
-          FAKE_ACCOUNT.address
+          TL_WALLET_DATA.address,
+          TL_WALLET_DATA.address
         )
         assert.hasAllKeys(closePath, ['maxFees', 'path', 'value', 'feePayer'])
       })
@@ -231,7 +231,7 @@ describe('unit', () => {
       it('should return mocked close path', async () => {
         const closeTx = await trustline.prepareClose(
           FAKE_NETWORK.address,
-          FAKE_ACCOUNT.address
+          TL_WALLET_DATA.address
         )
         assert.hasAllKeys(closeTx, ['ethFees', 'maxFees', 'path', 'rawTx'])
       })

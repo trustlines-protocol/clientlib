@@ -1,4 +1,5 @@
 import { BigNumber } from 'bignumber.js'
+import { ethers } from 'ethers'
 
 /**
  * Configuration object for a TLNetwork instance
@@ -400,13 +401,6 @@ export interface DecimalsObject {
   interestRateDecimals: number
 }
 
-// USER
-export interface UserObject {
-  address: string
-  pubKey: string
-  serializedWallet: string
-}
-
 export interface DeployIdentityResponse {
   // The address of the deployed identity contract, as replied by the relay server
   identity: string
@@ -419,17 +413,35 @@ export interface Signature {
   concatSig: string
 }
 
-export interface IdentityWalletSchema {
-  TLWalletVersion: number
-  ethersKeystore: string
-  identityAddress: string
-  walletType: string
+// WALLET
+export type WalletTypeEthers = 'ethers'
+export type WalletTypeIdentity = 'identity'
+export type WalletType = WalletTypeEthers | WalletTypeIdentity
+
+export interface TLWalletData {
+  version: number
+  type: WalletType
+  address: string
+  meta?: any
 }
 
-export interface EthersWalletSchema {
-  TLWalletVersion: number
-  ethersKeystore: string
-  walletType: string
+export interface SigningKey {
+  privateKey: string
+  mnemonic: string
+}
+
+export interface TLWalletDataMeta {
+  signingKey: SigningKey
+}
+
+export interface EthersWalletData extends TLWalletData {
+  type: WalletTypeEthers
+  meta: TLWalletDataMeta
+}
+
+export interface IdentityWalletData extends TLWalletData {
+  type: WalletTypeIdentity
+  meta: TLWalletDataMeta
 }
 
 // TRUSTLINE
