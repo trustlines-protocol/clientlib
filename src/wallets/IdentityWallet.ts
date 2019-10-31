@@ -44,6 +44,9 @@ export class IdentityWallet implements TLWallet {
   }
 
   public get address(): string {
+    if (!this.walletFromEthers) {
+      throw new Error('No wallet loaded.')
+    }
     return this.identityAddress
   }
 

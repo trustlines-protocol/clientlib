@@ -37,7 +37,10 @@ export class EthersWallet implements TLWallet {
   ///////////////
 
   public get address(): string {
-    return this.walletFromEthers ? this.walletFromEthers.address : undefined
+    if (!this.walletFromEthers) {
+      throw new Error('No wallet loaded.')
+    }
+    return this.walletFromEthers.address
   }
 
   public async getAddress(): Promise<string> {
