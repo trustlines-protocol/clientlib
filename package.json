@@ -13,7 +13,7 @@
     "prettier:big-tabs": "prettier --write --print-width 120 --no-semi --single-quote --tab-width 4  './{src,tests}/**/*.ts'",
     "test": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/**/**.test.ts",
     "test:e2e": "nyc mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
-    "test:integration": "nyc mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
+    "test:integration": "nyc mocha --timeout 5000 --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
     "test:unit": "nyc mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "watch:esm": "tsc -w -m es6 --outDir lib-esm",

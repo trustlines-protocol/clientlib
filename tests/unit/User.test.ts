@@ -67,12 +67,13 @@ describe('unit', () => {
       })
     })
 
-    describe('#load()', () => {
+    describe('#loadFrom()', () => {
       beforeEach(() => init())
 
-      it('should load a user from serialized wallet', async () => {
-        const loadedUser = await user.loadFrom(TL_WALLET_DATA)
-        assert.isUndefined(loadedUser)
+      it('should load from existing wallet data', async () => {
+        await user.loadFrom(TL_WALLET_DATA)
+        const loadedWalletData = await user.getWalletData()
+        assert.deepEqual(loadedWalletData, TL_WALLET_DATA)
       })
 
       it('should throw error', async () => {
