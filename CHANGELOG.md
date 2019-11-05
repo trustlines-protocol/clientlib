@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.10.0] - 2019-11-05
+
+### Changed
+
+- Changed how internal payload of messages is formated. (BREAKING)
+- Changed user api of how to load and create the wallets (BREAKING)
+
+### Removed
+
+- Removed estimateGas field of pathfinding functions (BREAKING)
+
 ## [0.9.0] - 2019-10-05
 
 ### Added
