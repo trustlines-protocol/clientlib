@@ -154,6 +154,13 @@ export class FakeTLProvider implements TLProvider {
     })
   }
 
+  public async getRelayVersion(): Promise<string> {
+    if (this.errors.getRelayVersion) {
+      throw new Error('Mocked error in provider.getRelayVersion()')
+    }
+    return Promise.resolve('relay/v0.1.0')
+  }
+
   public async sendSignedTransaction(
     signedTransaction: string
   ): Promise<string> {

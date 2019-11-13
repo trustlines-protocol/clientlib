@@ -17,6 +17,7 @@ export interface TLProvider {
   getTxInfos(userAddress: string): Promise<TxInfos>
   getMetaTxInfos(userAddress: string): Promise<TxInfos>
   getBalance(userAddress: string): Promise<Amount>
+  getRelayVersion(): Promise<string>
   sendSignedTransaction(signedTransaction: string): Promise<string>
   sendSignedMetaTransaction(metaTransaction: MetaTransaction): Promise<string>
 }

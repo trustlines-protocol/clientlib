@@ -31,6 +31,7 @@ describe('unit', () => {
       fetchMock.mock('end:/balance', '1000000000')
       fetchMock.mock('end:/blocknumber', JSON.stringify(12345))
       fetchMock.mock('end:/relay', JSON.stringify(FAKE_TX_HASH))
+      fetchMock.mock('end:/version', JSON.stringify('relay/v0.10.0'))
     }
 
     describe('#getBalance()', () => {
@@ -62,6 +63,16 @@ describe('unit', () => {
           FAKE_SIGNED_TX
         )
         assert.isString(txResponse)
+      })
+    })
+
+    describe('#getRelayVersion()', () => {
+      beforeEach(() => init())
+
+      it('return version of relay', async () => {
+        const relayVersion = await relayProvider.getRelayVersion()
+        assert.isString(relayVersion)
+        assert.isTrue(new RegExp(/relay\/v\d/).test(relayVersion))
       })
     })
   })

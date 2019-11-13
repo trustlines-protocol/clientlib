@@ -102,6 +102,14 @@ export class RelayProvider implements TLProvider {
   }
 
   /**
+   * Returns the version of the currently configured relay server.
+   * @returns Version of relay in the format `relay/vX.X.X`.
+   */
+  public async getRelayVersion(): Promise<string> {
+    return this.fetchEndpoint<string>(`version`)
+  }
+
+  /**
    * Send the given _signedTransaction_ to a relay server to execute it on the
    * blockchain and returns a `Promise` with the transaction hash.
    * @param signedTransaction
