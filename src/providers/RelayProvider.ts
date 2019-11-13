@@ -103,7 +103,7 @@ export class RelayProvider implements TLProvider {
 
   /**
    * Returns the version of the currently configured relay server.
-   * @returns Version of relay in the format `relay/vX.X.X`.
+   * @returns Version of relay in the format `<name>/vX.X.X`.
    */
   public async getRelayVersion(): Promise<string> {
     return this.fetchEndpoint<string>(`version`)
