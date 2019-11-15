@@ -28,7 +28,8 @@ describe('e2e', () => {
         'defaultInterestRate',
         'interestRateDecimals',
         'customInterests',
-        'preventMediatorInterests'
+        'preventMediatorInterests',
+        'isFrozen'
       ]
 
       before(async () => {
@@ -58,6 +59,7 @@ describe('e2e', () => {
           expect(networks[0].customInterests).to.be.a('boolean')
           expect(networks[0].preventMediatorInterests).to.be.a('boolean')
           expect(networks[0].interestRateDecimals).to.be.a('number')
+          expect(networks[0].isFrozen).to.be.a('boolean')
         })
       })
 
@@ -80,6 +82,7 @@ describe('e2e', () => {
           expect(networkInfo.customInterests).to.be.a('boolean')
           expect(networkInfo.preventMediatorInterests).to.be.a('boolean')
           expect(networkInfo.interestRateDecimals).to.be.a('number')
+          expect(networkInfo.isFrozen).to.be.a('boolean')
         })
       })
 
