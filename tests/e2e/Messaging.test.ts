@@ -56,6 +56,21 @@ describe('e2e', () => {
         })
       })
 
+      describe('#sendUsernameToCounterParty()', () => {
+        it('should return sent username message', async () => {
+          const sentUsernameMessage = await tl1.messaging.sendUsernameToCounterparty(
+            'User 1',
+            tl2.user.address
+          )
+          expect(sentUsernameMessage).to.include({
+            type: 'Username',
+            from: tl1.user.address,
+            to: tl2.user.address,
+            username: 'User 1'
+          })
+        })
+      })
+
       describe('#messageStream()', () => {
         const messages = []
         let stream
@@ -72,10 +87,18 @@ describe('e2e', () => {
             'Hello'
           )
           await wait()
+          await tl2.messaging.sendUsernameToCounterparty(
+            'John Doe',
+            user1.address
+          )
+          await wait()
+        })
+
+        it('should receive all messages', () => {
+          expect(messages).to.have.lengthOf(3)
         })
 
         it('should receive payment requests', async () => {
-          expect(messages).to.have.lengthOf(2)
           expect(messages[1]).to.have.property('type', 'PaymentRequest')
           expect(messages[1].amount).to.have.keys('raw', 'value', 'decimals')
           expect(messages[1]).to.have.nested.property('amount.value', '250')
@@ -86,6 +109,15 @@ describe('e2e', () => {
           expect(messages[1]).to.have.property('user', user1.address)
           expect(messages[1]).to.have.property('direction', 'received')
           expect(messages[1]).to.have.property('subject', 'Hello')
+        })
+
+        it('should receive username', async () => {
+          expect(messages[2]).to.include({
+            type: 'Username',
+            from: user2.address,
+            to: user1.address,
+            username: 'John Doe'
+          })
         })
 
         after(async () => {
