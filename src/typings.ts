@@ -165,17 +165,24 @@ export interface TokenAmountEvent extends TokenEvent {
 export type AnyTokenEvent = TokenAmountEvent
 export type AnyTokenEventRaw = TokenAmountEventRaw
 
-export interface PaymentRequestEvent {
+interface Message {
   type: string
-  networkAddress: string
   from: string
   to: string
+  direction: Direction
+}
+
+export interface PaymentRequestMessage extends Message {
+  networkAddress: string
   subject?: string
   nonce: number
   amount: Amount
   counterParty: string
-  direction: Direction
   user: string
+}
+
+export interface UsernameMessage extends Message {
+  username: string
 }
 
 export type Direction = 'sent' | 'received'

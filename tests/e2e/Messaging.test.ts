@@ -56,7 +56,7 @@ describe('e2e', () => {
         })
       })
 
-      describe('#sendUsernameToCounterParty()', () => {
+      describe('#sendUsernameToCounterparty()', () => {
         it('should return sent username message', async () => {
           const sentUsernameMessage = await tl1.messaging.sendUsernameToCounterparty(
             'User 1',
@@ -66,7 +66,8 @@ describe('e2e', () => {
             type: 'Username',
             from: tl1.user.address,
             to: tl2.user.address,
-            username: 'User 1'
+            username: 'User 1',
+            direction: 'sent'
           })
         })
       })
@@ -116,8 +117,10 @@ describe('e2e', () => {
             type: 'Username',
             from: user2.address,
             to: user1.address,
-            username: 'John Doe'
+            username: 'John Doe',
+            direction: 'received'
           })
+          expect(messages[2].timestamp).to.be.a('number')
         })
 
         after(async () => {
