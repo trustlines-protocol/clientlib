@@ -362,6 +362,7 @@ export interface NetworkDetails extends Network {
   interestRateDecimals: number
   customInterests: boolean
   preventMediatorInterests: boolean
+  isFrozen: boolean
 }
 
 export interface NetworkDetailsRaw extends Network {
@@ -371,6 +372,7 @@ export interface NetworkDetailsRaw extends Network {
   interestRateDecimals: number
   customInterests: boolean
   preventMediatorInterests: boolean
+  isFrozen: boolean
 }
 
 export interface UserOverview {

@@ -31,7 +31,8 @@ describe('unit', () => {
       'numUsers',
       'defaultInterestRate',
       'interestRateDecimals',
-      'customInterests'
+      'customInterests',
+      'isFrozen'
     ]
     const AMOUNT_KEYS = ['decimals', 'raw', 'value']
     const USER_OVERVIEW_KEYS = [

@@ -172,7 +172,8 @@ export const FAKE_NETWORK = {
   },
   interestRateDecimals: 3,
   name: 'Cash',
-  numUsers: 100
+  numUsers: 100,
+  isFrozen: false
 }
 
 export const FAKE_USER_ADDRESSES = [
