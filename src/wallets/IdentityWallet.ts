@@ -15,6 +15,7 @@ import {
   DeployIdentityResponse,
   IdentityWalletData,
   MetaTransaction,
+  MetaTransactionFees,
   RawTxObject,
   Signature,
   TxInfos
@@ -301,6 +302,13 @@ export class IdentityWallet implements TLWallet {
 
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
     return this.provider.getMetaTxInfos(userAddress)
+  }
+
+  public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {
+    this.verifyFromField(rawTx)
+
+    const metaTx = this.buildMetaTransaction(rawTx)
+    return this.provider.getMetaTxFees(metaTx)
   }
 
   /**

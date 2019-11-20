@@ -6,7 +6,13 @@ import utils from '../utils'
 
 import { TLProvider } from './TLProvider'
 
-import { Amount, MetaTransaction, TxInfos, TxInfosRaw } from '../typings'
+import {
+  Amount,
+  MetaTransaction,
+  MetaTransactionFees,
+  TxInfos,
+  TxInfosRaw
+} from '../typings'
 
 export class RelayProvider implements TLProvider {
   public relayApiUrl: string
@@ -89,6 +95,23 @@ export class RelayProvider implements TLProvider {
       balance: new BigNumber(balance),
       gasPrice: new BigNumber(0),
       nonce: nextNonce
+    }
+  }
+
+  /**
+   * Returns the fees the provider would be willing to pay for the transaction
+   * @param metaTransaction Meta transaction to be relayed
+   * @returns The fees value and currency network of fees for given meta transaction
+   */
+  public async getMetaTxFees(
+    metaTransaction: MetaTransaction
+  ): Promise<MetaTransactionFees> {
+    const { delegationFees, currencyNetworkOfFees } = await this.postToEndpoint<
+      any
+    >(`/meta-transaction-fees`, { metaTransaction })
+    return {
+      delegationFees,
+      currencyNetworkOfFees
     }
   }
 
