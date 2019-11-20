@@ -259,6 +259,11 @@ export interface MetaTransaction {
   signature?: string
 }
 
+export interface MetaTransactionFees {
+  delegationFees: string
+  currencyNetworkOfFees: string
+}
+
 export interface Web3TxReceipt {
   status: boolean
   blockHash: string

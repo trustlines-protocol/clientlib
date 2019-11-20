@@ -5,7 +5,13 @@ import { TLSigner } from './TLSigner'
 
 import * as utils from '../utils'
 
-import { Amount, RawTxObject, Signature, TxInfos } from '../typings'
+import {
+  Amount,
+  MetaTransactionFees,
+  RawTxObject,
+  Signature,
+  TxInfos
+} from '../typings'
 
 /**
  * The Web3Signer class contains functions for signing transactions with a web3 provider.
@@ -123,5 +129,12 @@ export class Web3Signer implements TLSigner {
     const balance = new BigNumber(balanceString)
 
     return { balance, gasPrice, nonce }
+  }
+
+  public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {
+    return {
+      delegationFees: '0',
+      currencyNetworkOfFees: ''
+    }
   }
 }

@@ -15,6 +15,7 @@ import utils from '../utils'
 import {
   Amount,
   EthersWalletData,
+  MetaTransactionFees,
   RawTxObject,
   Signature,
   TxInfos
@@ -269,5 +270,12 @@ export class EthersWallet implements TLWallet {
 
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
     return this.provider.getTxInfos(userAddress)
+  }
+
+  public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {
+    return {
+      delegationFees: '0',
+      currencyNetworkOfFees: ''
+    }
   }
 }

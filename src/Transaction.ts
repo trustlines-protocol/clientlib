@@ -7,7 +7,13 @@ import { TLSigner } from './signers/TLSigner'
 
 import utils from './utils'
 
-import { RawTxObject, TxObjectInternal, TxOptionsInternal } from './typings'
+import {
+  MetaTransactionFees,
+  RawTxObject,
+  TxObjectInternal,
+  TxOptionsInternal
+} from './typings'
+import { IdentityWallet } from './wallets/IdentityWallet'
 
 const ETH_DECIMALS = 18
 
@@ -47,7 +53,7 @@ export class Transaction {
     const abi = new ethers.utils.Interface(
       TrustlinesContractsAbi[contractName].abi
     )
-    const rawTx = {
+    const rawTx: RawTxObject = {
       data: abi.functions[functionName].encode(args),
       from: userAddress,
       gasLimit: options.gasLimit || new BigNumber(600000),
@@ -56,7 +62,13 @@ export class Transaction {
       to: contractAddress,
       value: options.value || new BigNumber(0)
     }
-    const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
+    const metaTransactionFees: MetaTransactionFees = await this.signer.getMetaTxFees(
+      rawTx
+    )
+    rawTx.delegationFees = metaTransactionFees.delegationFees
+    rawTx.currencyNetworkOfFees = metaTransactionFees.currencyNetworkOfFees
+
+    const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
     return {
       ethFees: utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
       rawTx
