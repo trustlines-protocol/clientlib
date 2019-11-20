@@ -224,5 +224,30 @@ describe('e2e', () => {
         expect(pathObj.feePayer).to.equal(FeePayer.Sender)
       })
     })
+
+    describe('Delegation fees', () => {
+      before(async () => {
+        const walletData = await identityWallet.create()
+        await identityWallet.loadFrom(walletData)
+        await identityWallet.deployIdentity()
+      })
+
+      it('should prepare a transaction and get delegation fees', async () => {
+        const rawTx: RawTxObject = {
+          data: '0x',
+          from: identityWallet.address,
+          nonce: 1,
+          to: identityWallet.address,
+          value: 0
+        }
+
+        const metaTransactionFees = await identityWallet.getMetaTxFees(rawTx)
+        expect(metaTransactionFees).to.have.all.keys(
+          'delegationFees',
+          'currencyNetworkOfFees'
+        )
+        expect(metaTransactionFees.delegationFees).to.equal('0')
+      })
+    })
   })
 })
