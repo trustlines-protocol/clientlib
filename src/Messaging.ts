@@ -7,7 +7,11 @@ import { User } from './User'
 
 import utils from './utils'
 
-import { DecimalsOptions, PaymentRequestEvent } from './typings'
+import {
+  DecimalsOptions,
+  PaymentRequestMessage,
+  UsernameMessage
+} from './typings'
 
 export class Messaging {
   private user: User
@@ -39,7 +43,7 @@ export class Messaging {
     options: {
       decimalsOptions?: DecimalsOptions
     } = {}
-  ): Promise<PaymentRequestEvent> {
+  ): Promise<PaymentRequestMessage> {
     const decimals = await this.currencyNetwork.getDecimals(
       networkAddress,
       options.decimalsOptions || {}
@@ -94,5 +98,34 @@ export class Messaging {
           })
         })
     )
+  }
+
+  /**
+   * Sends the given username to the specified counter party via messaging.
+   * @param username Username to send.
+   * @param counterPartyAddress Address of counter party.
+   */
+  public async sendUsernameToCounterparty(
+    username: string,
+    counterpartyAddress: string
+  ): Promise<UsernameMessage> {
+    const type = 'Username'
+    const usernameMessage = {
+      type,
+      from: await this.user.getAddress(),
+      to: counterpartyAddress,
+      username
+    }
+    await this.provider.postToEndpoint(`messages/${counterpartyAddress}`, {
+      type,
+      message: JSON.stringify({
+        ...usernameMessage,
+        direction: 'received'
+      })
+    })
+    return {
+      ...usernameMessage,
+      direction: 'sent'
+    }
   }
 }
