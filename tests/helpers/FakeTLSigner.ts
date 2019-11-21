@@ -1,6 +1,12 @@
 import { TLSigner } from '../../src/signers/TLSigner'
 
-import { Amount, RawTxObject, Signature, TxInfos } from '../../src/typings'
+import {
+  Amount,
+  MetaTransactionFees,
+  RawTxObject,
+  Signature,
+  TxInfos
+} from '../../src/typings'
 
 import {
   FAKE_AMOUNT,
@@ -64,5 +70,12 @@ export class FakeTLSigner implements TLSigner {
 
   public getTxInfos(userAddress: string): Promise<TxInfos> {
     return Promise.resolve(FAKE_TX_INFOS)
+  }
+
+  public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {
+    return {
+      delegationFees: '0',
+      currencyNetworkOfFees: ''
+    }
   }
 }
