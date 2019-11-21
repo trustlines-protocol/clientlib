@@ -60,7 +60,9 @@ describe('unit', () => {
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce'
+          'nonce',
+          'delegationFees',
+          'currencyNetworkOfFees'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, CONTRACT_ADDRESS)
@@ -74,6 +76,8 @@ describe('unit', () => {
         assert.equal(rawTxObject.ethFees.decimals, 18)
         assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
         assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
+        assert.isString(rawTxObject.rawTx.delegationFees)
+        assert.isString(rawTxObject.rawTx.currencyNetworkOfFees)
       })
 
       it('should prepare a transaction object for calling a function with options', async () => {
@@ -106,7 +110,9 @@ describe('unit', () => {
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce'
+          'nonce',
+          'delegationFees',
+          'currencyNetworkOfFees'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, CONTRACT_ADDRESS)
@@ -131,6 +137,8 @@ describe('unit', () => {
         assert.equal(rawTxObject.ethFees.decimals, 18)
         assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
         assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
+        assert.isString(rawTxObject.rawTx.delegationFees)
+        assert.isString(rawTxObject.rawTx.currencyNetworkOfFees)
       })
     })
 

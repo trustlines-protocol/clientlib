@@ -15,7 +15,13 @@ import {
   FAKE_USER_ADDRESSES
 } from '../Fixtures'
 
-import { Amount, MetaTransaction, TxInfos } from '../../src/typings'
+import {
+  Amount,
+  MetaTransaction,
+  MetaTransactionFees,
+  RawTxObject,
+  TxInfos
+} from '../../src/typings'
 
 export class FakeTLProvider implements TLProvider {
   public relayApiUrl = FAKE_RELAY_API
@@ -141,6 +147,15 @@ export class FakeTLProvider implements TLProvider {
       gasPrice: new BigNumber('0'),
       nonce: 1
     })
+  }
+
+  public async getMetaTxFees(
+    metaTransaction: MetaTransaction
+  ): Promise<MetaTransactionFees> {
+    return {
+      delegationFees: '0',
+      currencyNetworkOfFees: metaTransaction.currencyNetworkOfFees
+    }
   }
 
   public async getBalance(userAddress: string): Promise<Amount> {
