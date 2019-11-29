@@ -99,7 +99,9 @@ describe('unit', () => {
           {
             gasLimit: new BigNumber(CUSTOM_GAS_LIMIT),
             gasPrice: new BigNumber(CUSTOM_GAS_PRICE),
-            value: new BigNumber(CUSTOM_VALUE)
+            value: new BigNumber(CUSTOM_VALUE),
+            delegationFees: '1',
+            currencyNetworkOfFees: CONTRACT_ADDRESS
           }
         )
         assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
@@ -137,8 +139,8 @@ describe('unit', () => {
         assert.equal(rawTxObject.ethFees.decimals, 18)
         assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
         assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
-        assert.isString(rawTxObject.rawTx.delegationFees)
-        assert.isString(rawTxObject.rawTx.currencyNetworkOfFees)
+        assert.equal(rawTxObject.rawTx.delegationFees, '1')
+        assert.equal(rawTxObject.rawTx.currencyNetworkOfFees, CONTRACT_ADDRESS)
       })
     })
 

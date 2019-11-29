@@ -36,8 +36,11 @@ export class Transaction {
    * @param contractName name of deployed contract
    * @param functionName name of contract function
    * @param args arguments of function in same order as in contract
-   * @param gasPrice (optional)
-   * @param gasLimit (optional)
+   * @param options.gasPrice (optional)
+   * @param options.gasLimit (optional)
+   * @param options.value (optional)
+   * @param options.delegationFees (optional) delegation fees for a meta transaction.
+   * @param options.currencyNetworkOfFees (optional) currency network of fees for a meta transaction.
    * @returns An ethereum transaction object and the estimated transaction fees in ETH.
    */
   public async prepareContractTransaction(
@@ -62,11 +65,16 @@ export class Transaction {
       to: contractAddress,
       value: options.value || new BigNumber(0)
     }
-    const metaTransactionFees: MetaTransactionFees = await this.signer.getMetaTxFees(
-      rawTx
-    )
-    rawTx.delegationFees = metaTransactionFees.delegationFees
-    rawTx.currencyNetworkOfFees = metaTransactionFees.currencyNetworkOfFees
+    if (options.delegationFees && options.currencyNetworkOfFees) {
+      rawTx.delegationFees = options.delegationFees
+      rawTx.currencyNetworkOfFees = options.currencyNetworkOfFees
+    } else {
+      const metaTransactionFees: MetaTransactionFees = await this.signer.getMetaTxFees(
+        rawTx
+      )
+      rawTx.delegationFees = metaTransactionFees.delegationFees
+      rawTx.currencyNetworkOfFees = metaTransactionFees.currencyNetworkOfFees
+    }
 
     const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
     return {

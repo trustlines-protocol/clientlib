@@ -58,6 +58,8 @@ export interface TxOptionsInternal {
   value?: BigNumber
   gasPrice?: BigNumber
   gasLimit?: BigNumber
+  delegationFees?: string
+  currencyNetworkOfFees?: string
 }
 
 export interface TxOptions {
