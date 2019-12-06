@@ -870,6 +870,7 @@ describe('e2e', () => {
           expect(closeTx).to.have.all.keys([
             'rawTx',
             'ethFees',
+            'delegationFees',
             'maxFees',
             'path'
           ])
@@ -962,6 +963,7 @@ describe('e2e', () => {
           expect(closeTx).to.have.all.keys([
             'rawTx',
             'ethFees',
+            'delegationFees',
             'maxFees',
             'path'
           ])

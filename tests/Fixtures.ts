@@ -225,6 +225,12 @@ export const FAKE_FUNC_TX_OBJECT_INTERNAL = {
     raw: new BigNumber(1000000000000000000),
     value: new BigNumber(1)
   },
+  delegationFees: {
+    decimals: 18,
+    raw: new BigNumber(1000000000000000000),
+    value: new BigNumber(1),
+    currencyNetworkOfFees: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18'
+  },
   rawTx: {
     from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
     gasLimit: new BigNumber(6000000),

@@ -10,6 +10,7 @@ import {
   Amount,
   MetaTransaction,
   MetaTransactionFees,
+  NetworkDetailsRaw,
   TxInfos,
   TxInfosRaw
 } from '../typings'

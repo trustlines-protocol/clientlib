@@ -13,6 +13,8 @@ import {
   AmountInternal,
   AnyExchangeEvent,
   AnyExchangeEventRaw,
+  DelegationFeesInternal,
+  DelegationFeesObject,
   ExchangeCancelEventRaw,
   ExchangeFillEventRaw
 } from './typings'
@@ -212,6 +214,39 @@ export const formatToAmount = (
 }
 
 /**
+ * Formats number into an AmountInternal object which is intended for internal use.
+ * @param raw Representation of number in smallest unit.
+ * @param decimals Number of decimals.
+ * @param currencyNetworkOfFees the currency network corresponding to the delegation fees
+ */
+export const formatToDelegationFeesInternal = (
+  raw: number | string | BigNumber,
+  decimals: number,
+  currencyNetworkOfFees: string
+): DelegationFeesInternal => {
+  return {
+    decimals,
+    raw: new BigNumber(raw),
+    value: calcValue(raw, decimals),
+    currencyNetworkOfFees
+  }
+}
+
+/**
+ * Formats number into an AmountInternal object which is intended for internal use.
+ * @param delegationFees DelegationFeesInternal object.
+ */
+export const convertToDelegationFees = (
+  delegationFees: DelegationFeesInternal
+): DelegationFeesObject => {
+  return {
+    ...delegationFees,
+    raw: delegationFees.raw.toString(),
+    value: delegationFees.value.toString()
+  }
+}
+
+/**
  * Formats the number values of a raw event returned by the relay.
  * @param event raw event
  * @param networkDecimals decimals of currency network
@@ -398,6 +433,7 @@ export default {
   convertEthToWei,
   convertToAmount,
   convertToHexString,
+  convertToDelegationFees,
   createLink,
   fetchUrl,
   formatEndpoint,
@@ -405,6 +441,7 @@ export default {
   formatExchangeEvent,
   formatToAmount,
   formatToAmountInternal,
+  formatToDelegationFeesInternal,
   generateRandomNumber,
   isURL,
   trimUrl,

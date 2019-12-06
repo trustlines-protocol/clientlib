@@ -230,11 +230,13 @@ export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
 export interface TxObject {
   rawTx: RawTxObject
   ethFees: Amount
+  delegationFees?: DelegationFeesObject
 }
 
 export interface TxObjectInternal {
   rawTx: RawTxObject
   ethFees: AmountInternal
+  delegationFees?: DelegationFeesInternal
 }
 
 export interface RawTxObject {
@@ -323,6 +325,20 @@ export interface TxInfos {
    * Transaction count of given user address
    */
   nonce: number
+}
+
+export interface DelegationFeesObject {
+  raw: string
+  value: string
+  decimals: number
+  currencyNetworkOfFees: string
+}
+
+export interface DelegationFeesInternal {
+  raw: BigNumber
+  value: BigNumber
+  decimals: number
+  currencyNetworkOfFees: string
 }
 
 // PAYMENT

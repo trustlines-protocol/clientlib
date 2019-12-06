@@ -8,6 +8,7 @@ import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTLSigner } from '../helpers/FakeTLSigner'
 
 import { extraData } from '../Fixtures'
+import { FakeCurrencyNetwork } from '../helpers/FakeCurrencyNetwork'
 
 describe('unit', () => {
   describe('Transaction', () => {
@@ -31,9 +32,11 @@ describe('unit', () => {
     }
 
     before(() => {
+      const provider = new FakeTLProvider()
       transaction = new Transaction({
-        provider: new FakeTLProvider(),
-        signer: new FakeTLSigner()
+        provider,
+        signer: new FakeTLSigner(),
+        currencyNetwork: new FakeCurrencyNetwork(provider)
       })
     })
 
@@ -52,7 +55,7 @@ describe('unit', () => {
             EXTRA_DATA
           ]
         )
-        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees', 'delegationFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
           'data',
           'from',
@@ -104,7 +107,7 @@ describe('unit', () => {
             currencyNetworkOfFees: CONTRACT_ADDRESS
           }
         )
-        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees', 'delegationFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
           'data',
           'from',

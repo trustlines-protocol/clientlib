@@ -38,7 +38,8 @@ describe('unit', () => {
       fakeCurrencyNetwork = new FakeCurrencyNetwork(fakeTLProvider)
       fakeTransaction = new FakeTransaction({
         provider: fakeTLProvider,
-        signer: fakeTLWallet
+        signer: fakeTLWallet,
+        currencyNetwork: fakeCurrencyNetwork
       })
       fakeUser = new FakeUser({
         provider: fakeTLProvider,
@@ -69,7 +70,7 @@ describe('unit', () => {
           100,
           200
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
       })
 
       it('should return a transaction object with specified interests', async () => {
@@ -84,7 +85,7 @@ describe('unit', () => {
             isFrozen: false
           }
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
       })
 
       it('should return a transaction object with specified interests, with default isFrozen value', async () => {
@@ -98,7 +99,7 @@ describe('unit', () => {
             interestRateReceived: 0.02
           }
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
       })
     })
 
@@ -112,7 +113,7 @@ describe('unit', () => {
           100,
           200
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
       })
 
       it('should return a transaction object with specified interests', async () => {
@@ -127,7 +128,7 @@ describe('unit', () => {
             isFrozen: false
           }
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
       })
     })
 
@@ -233,7 +234,13 @@ describe('unit', () => {
           FAKE_NETWORK.address,
           TL_WALLET_DATA.address
         )
-        assert.hasAllKeys(closeTx, ['ethFees', 'maxFees', 'path', 'rawTx'])
+        assert.hasAllKeys(closeTx, [
+          'ethFees',
+          'maxFees',
+          'path',
+          'rawTx',
+          'delegationFees'
+        ])
       })
     })
   })

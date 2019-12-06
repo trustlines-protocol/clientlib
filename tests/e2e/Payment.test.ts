@@ -127,6 +127,7 @@ describe('e2e', () => {
             'rawTx',
             'feePayer',
             'ethFees',
+            'delegationFees',
             'maxFees',
             'path'
           )
@@ -143,6 +144,7 @@ describe('e2e', () => {
             'rawTx',
             'feePayer',
             'ethFees',
+            'delegationFees',
             'maxFees',
             'path'
           )
@@ -162,6 +164,7 @@ describe('e2e', () => {
             'rawTx',
             'feePayer',
             'ethFees',
+            'delegationFees',
             'maxFees',
             'path'
           )

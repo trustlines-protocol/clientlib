@@ -13,7 +13,8 @@ import {
   TxObjectInternal,
   TxOptionsInternal
 } from './typings'
-import { IdentityWallet } from './wallets/IdentityWallet'
+
+import { CurrencyNetwork } from './CurrencyNetwork'
 
 const ETH_DECIMALS = 18
 
@@ -23,10 +24,16 @@ const ETH_DECIMALS = 18
 export class Transaction {
   private signer: TLSigner
   private provider: TLProvider
+  private currencyNetwork: CurrencyNetwork
 
-  constructor(params: { signer: TLSigner; provider: TLProvider }) {
+  constructor(params: {
+    signer: TLSigner
+    provider: TLProvider
+    currencyNetwork: CurrencyNetwork
+  }) {
     this.signer = params.signer
     this.provider = params.provider
+    this.currencyNetwork = params.currencyNetwork
   }
 
   /**
@@ -77,8 +84,21 @@ export class Transaction {
     }
 
     const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
+    let decimals = 0
+    if (rawTx.delegationFees !== '0' && rawTx.currencyNetworkOfFees !== '') {
+      decimals = (await this.currencyNetwork.getDecimals(
+        rawTx.currencyNetworkOfFees
+      )).networkDecimals
+    }
+    const delegationFees = utils.formatToDelegationFeesInternal(
+      rawTx.delegationFees,
+      decimals,
+      rawTx.currencyNetworkOfFees
+    )
+
     return {
       ethFees: utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
+      delegationFees,
       rawTx
     }
   }

@@ -152,7 +152,8 @@ export class Trustline {
 
     const {
       rawTx,
-      ethFees
+      ethFees,
+      delegationFees
     } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       networkAddress,
@@ -166,6 +167,7 @@ export class Trustline {
     )
     return {
       ethFees: utils.convertToAmount(ethFees),
+      delegationFees: utils.convertToDelegationFees(delegationFees),
       rawTx
     }
   }
@@ -358,7 +360,8 @@ export class Trustline {
     // Prepare the interaction with the contract.
     const {
       rawTx,
-      ethFees
+      ethFees,
+      delegationFees
     } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       networkAddress,
@@ -373,6 +376,7 @@ export class Trustline {
 
     return {
       ethFees: utils.convertToAmount(ethFees),
+      delegationFees: utils.convertToDelegationFees(delegationFees),
       maxFees,
       path,
       rawTx
