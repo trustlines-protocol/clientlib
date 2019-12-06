@@ -236,7 +236,7 @@ export interface TxObject {
 export interface TxObjectInternal {
   rawTx: RawTxObject
   ethFees: AmountInternal
-  delegationFees?: DelegationFeesInternal
+  delegationFees: DelegationFeesInternal
 }
 
 export interface RawTxObject {

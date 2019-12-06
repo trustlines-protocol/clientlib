@@ -133,7 +133,11 @@ export class Payment {
     options: PaymentOptions = {}
   ): Promise<TxObject> {
     const { gasLimit, gasPrice } = options
-    const { ethFees, rawTx } = await this.transaction.prepareValueTransaction(
+    const {
+      ethFees,
+      rawTx,
+      delegationFees
+    } = await this.transaction.prepareValueTransaction(
       await this.user.getAddress(),
       receiverAddress,
       utils.calcRaw(value, 18),
@@ -144,6 +148,7 @@ export class Payment {
     )
     return {
       ethFees: utils.convertToAmount(ethFees),
+      delegationFees: utils.convertToDelegationFees(delegationFees),
       rawTx
     }
   }
