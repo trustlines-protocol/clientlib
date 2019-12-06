@@ -35,7 +35,7 @@ describe('e2e', () => {
     const { expect } = chai
 
     let relayProvider: TLProvider
-    let identityWallet: IdentityWallet
+    let identityWallet
     let trustlinesNetwork: TLNetwork
     let trustlinesNetwork2: TLNetwork
 
@@ -50,10 +50,7 @@ describe('e2e', () => {
       trustlinesNetwork = new TLNetwork(tlNetworkConfigIdentity)
       trustlinesNetwork2 = new TLNetwork(tlNetworkConfigIdentity)
 
-      identityWallet = new IdentityWallet(relayProvider, {
-        identityFactoryAddress,
-        identityImplementationAddress
-      })
+      identityWallet = trustlinesNetwork.wallet
     })
 
     describe('Deploy identity', () => {
