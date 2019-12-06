@@ -84,7 +84,8 @@ export class Payment {
     if (path.length > 0) {
       const {
         rawTx,
-        ethFees
+        ethFees,
+        delegationFees
       } = await this.transaction.prepareContractTransaction(
         await this.user.getAddress(),
         networkAddress,
@@ -107,6 +108,7 @@ export class Payment {
       )
       return {
         ethFees: utils.convertToAmount(ethFees),
+        delegationFees: utils.convertToDelegationFees(delegationFees),
         feePayer,
         maxFees,
         path,

@@ -19,6 +19,7 @@ import {
   Amount,
   MetaTransaction,
   MetaTransactionFees,
+  NetworkDetailsRaw,
   RawTxObject,
   TxInfos
 } from '../../src/typings'

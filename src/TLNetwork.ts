@@ -129,7 +129,8 @@ export class TLNetwork {
     this.currencyNetwork = new CurrencyNetwork(this.provider)
     this.transaction = new Transaction({
       provider: this.provider,
-      signer: this.signer
+      signer: this.signer,
+      currencyNetwork: this.currencyNetwork
     })
     this.user = new User({
       provider: this.provider,
