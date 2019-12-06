@@ -154,14 +154,16 @@ describe('unit', () => {
           COUNTER_PARTY_ADDRESS,
           new BigNumber('1')
         )
-        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees', 'delegationFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
           'from',
           'to',
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce'
+          'nonce',
+          'delegationFees',
+          'currencyNetworkOfFees'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, COUNTER_PARTY_ADDRESS)
@@ -189,14 +191,16 @@ describe('unit', () => {
             gasPrice: new BigNumber(CUSTOM_GAS_PRICE)
           }
         )
-        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees'])
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees', 'delegationFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
           'from',
           'to',
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce'
+          'nonce',
+          'delegationFees',
+          'currencyNetworkOfFees'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, COUNTER_PARTY_ADDRESS)

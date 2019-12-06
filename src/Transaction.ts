@@ -8,6 +8,7 @@ import { TLSigner } from './signers/TLSigner'
 import utils from './utils'
 
 import {
+  DelegationFeesInternal,
   MetaTransactionFees,
   RawTxObject,
   TxObjectInternal,
@@ -72,33 +73,18 @@ export class Transaction {
       to: contractAddress,
       value: options.value || new BigNumber(0)
     }
-    if (options.delegationFees && options.currencyNetworkOfFees) {
-      rawTx.delegationFees = options.delegationFees
-      rawTx.currencyNetworkOfFees = options.currencyNetworkOfFees
-    } else {
-      const metaTransactionFees: MetaTransactionFees = await this.signer.getMetaTxFees(
-        rawTx
-      )
-      rawTx.delegationFees = metaTransactionFees.delegationFees
-      rawTx.currencyNetworkOfFees = metaTransactionFees.currencyNetworkOfFees
-    }
+    const delegationFeesInternal = await this.getDelegationFees(rawTx, options)
+    const delegationFeesObject = utils.convertToDelegationFees(
+      delegationFeesInternal
+    )
+    rawTx.delegationFees = delegationFeesObject.raw
+    rawTx.currencyNetworkOfFees = delegationFeesObject.currencyNetworkOfFees
 
     const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
-    let decimals = 0
-    if (rawTx.delegationFees !== '0' && rawTx.currencyNetworkOfFees !== '') {
-      decimals = (await this.currencyNetwork.getDecimals(
-        rawTx.currencyNetworkOfFees
-      )).networkDecimals
-    }
-    const delegationFees = utils.formatToDelegationFeesInternal(
-      rawTx.delegationFees,
-      decimals,
-      rawTx.currencyNetworkOfFees
-    )
 
     return {
       ethFees: utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
-      delegationFees,
+      delegationFees: delegationFeesInternal,
       rawTx
     }
   }
@@ -120,7 +106,7 @@ export class Transaction {
   ): Promise<TxObjectInternal> {
     const txInfos = await this.signer.getTxInfos(senderAddress)
 
-    const rawTx = {
+    const rawTx: RawTxObject = {
       from: senderAddress,
       gasLimit: options.gasLimit || new BigNumber(21000),
       gasPrice: options.gasPrice || txInfos.gasPrice,
@@ -128,9 +114,18 @@ export class Transaction {
       to: receiverAddress,
       value: rawValue
     }
-    const ethFees = rawTx.gasLimit.multipliedBy(rawTx.gasPrice)
+    const delegationFeesInternal = await this.getDelegationFees(rawTx, options)
+    const delegationFeesObject = utils.convertToDelegationFees(
+      delegationFeesInternal
+    )
+    rawTx.delegationFees = delegationFeesObject.raw
+    rawTx.currencyNetworkOfFees = delegationFeesObject.currencyNetworkOfFees
+
+    const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
+
     return {
       ethFees: utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
+      delegationFees: delegationFeesInternal,
       rawTx
     }
   }
@@ -141,5 +136,42 @@ export class Transaction {
    */
   public async confirm(rawTx: RawTxObject): Promise<string> {
     return this.signer.confirm(rawTx)
+  }
+
+  /**
+   * Returns delegation fees for given rawTx
+   * @param rawTx the rawTx to get the delegation fees for
+   * @param options.delegationFees (optional) delegation fees for a meta transaction.
+   * @param options.currencyNetworkOfFees (optional) currency network of fees for a meta transaction.
+   * @returns An ethereum transaction object containing and the estimated transaction fees in ETH.
+   */
+  private async getDelegationFees(
+    rawTx: RawTxObject,
+    options: TxOptionsInternal = {}
+  ): Promise<DelegationFeesInternal> {
+    let delegationFees
+    let currencyNetworkOfFees
+    if (options.delegationFees && options.currencyNetworkOfFees) {
+      delegationFees = options.delegationFees
+      currencyNetworkOfFees = options.currencyNetworkOfFees
+    } else {
+      const metaTransactionFees: MetaTransactionFees = await this.signer.getMetaTxFees(
+        rawTx
+      )
+      delegationFees = metaTransactionFees.delegationFees
+      currencyNetworkOfFees = metaTransactionFees.currencyNetworkOfFees
+    }
+
+    let decimals = 0
+    if (delegationFees !== '0' && currencyNetworkOfFees !== '') {
+      decimals = (await this.currencyNetwork.getDecimals(currencyNetworkOfFees))
+        .networkDecimals
+    }
+
+    return utils.formatToDelegationFeesInternal(
+      delegationFees,
+      decimals,
+      currencyNetworkOfFees
+    )
   }
 }
