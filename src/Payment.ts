@@ -93,12 +93,11 @@ export class Payment {
         // if no options are set for feePayer, the sender pays the fees.
         feePayer === FeePayer.Receiver ? 'transferReceiverPays' : 'transfer',
         [
-          receiverAddress,
           utils.convertToHexString(
             utils.calcRaw(value, decimals.networkDecimals)
           ),
           utils.convertToHexString(new BigNumber(maxFees.raw)),
-          path.slice(1),
+          path,
           extraData || '0x'
         ],
         {

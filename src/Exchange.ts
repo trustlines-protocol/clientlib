@@ -340,12 +340,8 @@ export class Exchange {
         utils.convertToHexString(
           utils.calcRaw(fillTakerTokenValue, takerDecimals)
         ),
-        makerPathObj.path.length === 1
-          ? makerPathObj.path
-          : makerPathObj.path.slice(1),
-        takerPathObj.path.length === 1
-          ? takerPathObj.path
-          : takerPathObj.path.slice(1),
+        makerPathObj.path,
+        takerPathObj.path,
         ecSignature.v,
         ecSignature.r,
         ecSignature.s
