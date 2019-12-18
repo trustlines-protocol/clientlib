@@ -353,7 +353,7 @@ export class Trustline {
       closeFuncArgs = [
         counterpartyAddress,
         utils.convertToHexString(new BigNumber(maxFees.raw)),
-        path.slice(1)
+        path
       ]
     }
 

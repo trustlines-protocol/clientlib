@@ -47,13 +47,7 @@ describe('unit', () => {
           CONTRACT_ADDRESS,
           'CurrencyNetwork',
           'transfer',
-          [
-            COUNTER_PARTY_ADDRESS,
-            '10000',
-            '0',
-            [COUNTER_PARTY_ADDRESS],
-            EXTRA_DATA
-          ]
+          ['10000', '0', [USER_ADDRESS, COUNTER_PARTY_ADDRESS], EXTRA_DATA]
         )
         assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees', 'delegationFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
@@ -92,13 +86,7 @@ describe('unit', () => {
           CONTRACT_ADDRESS,
           'CurrencyNetwork',
           'transfer',
-          [
-            COUNTER_PARTY_ADDRESS,
-            '10000',
-            '0',
-            [COUNTER_PARTY_ADDRESS],
-            EXTRA_DATA
-          ],
+          ['10000', '0', [USER_ADDRESS, COUNTER_PARTY_ADDRESS], EXTRA_DATA],
           {
             gasLimit: new BigNumber(CUSTOM_GAS_LIMIT),
             gasPrice: new BigNumber(CUSTOM_GAS_PRICE),
