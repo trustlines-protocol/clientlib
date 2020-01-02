@@ -85,15 +85,11 @@ describe('e2e', () => {
           identityWallet.address
         )).nonce
 
-        const rawTx: RawTxObject = {
-          data: '0x',
-          from: identityWallet.address,
-          nonce: 1,
-          to: identityWallet.address,
-          value: 0
-        }
-
-        await identityWallet.confirm(rawTx)
+        const { rawTx } = await trustlinesNetwork.payment.prepareEth(
+          identityWallet.address,
+          0
+        )
+        await trustlinesNetwork.payment.confirm(rawTx)
 
         const secondNonce = (await identityWallet.getTxInfos(
           identityWallet.address
@@ -139,6 +135,10 @@ describe('e2e', () => {
           to: identityWallet.address,
           value: 0
         }
+
+        const txFees = await identityWallet.getMetaTxFees(rawTx)
+        rawTx.currencyNetworkOfFees = txFees.currencyNetworkOfFees
+        rawTx.delegationFees = txFees.delegationFees
 
         const transactionHash = await identityWallet.confirm(rawTx)
         assert.isString(transactionHash)
@@ -243,7 +243,7 @@ describe('e2e', () => {
           'delegationFees',
           'currencyNetworkOfFees'
         )
-        expect(metaTransactionFees.delegationFees).to.equal('0')
+        expect(metaTransactionFees.delegationFees).to.equal('1')
       })
     })
   })
