@@ -73,7 +73,18 @@ export class Transaction {
       to: contractAddress,
       value: options.value || new BigNumber(0)
     }
-    const delegationFeesInternal = await this.getDelegationFees(rawTx, options)
+
+    const metaTransactionFees =
+      options.delegationFees && options.currencyNetworkOfFees
+        ? {
+            delegationFees: options.delegationFees,
+            currencyNetworkOfFees: options.currencyNetworkOfFees
+          }
+        : await this.signer.getMetaTxFees(rawTx)
+    const delegationFeesInternal = await this.formatMetaTransactionFees(
+      metaTransactionFees
+    )
+
     const delegationFeesObject = utils.convertToDelegationFees(
       delegationFeesInternal
     )
@@ -114,7 +125,18 @@ export class Transaction {
       to: receiverAddress,
       value: rawValue
     }
-    const delegationFeesInternal = await this.getDelegationFees(rawTx, options)
+
+    const metaTransactionFees =
+      options.delegationFees && options.currencyNetworkOfFees
+        ? {
+            delegationFees: options.delegationFees,
+            currencyNetworkOfFees: options.currencyNetworkOfFees
+          }
+        : await this.signer.getMetaTxFees(rawTx)
+    const delegationFeesInternal = await this.formatMetaTransactionFees(
+      metaTransactionFees
+    )
+
     const delegationFeesObject = utils.convertToDelegationFees(
       delegationFeesInternal
     )
@@ -138,40 +160,23 @@ export class Transaction {
     return this.signer.confirm(rawTx)
   }
 
-  /**
-   * Returns delegation fees for given rawTx
-   * @param rawTx the rawTx to get the delegation fees for
-   * @param options.delegationFees (optional) delegation fees for a meta transaction.
-   * @param options.currencyNetworkOfFees (optional) currency network of fees for a meta transaction.
-   * @returns An ethereum transaction object containing and the estimated transaction fees in ETH.
-   */
-  private async getDelegationFees(
-    rawTx: RawTxObject,
-    options: TxOptionsInternal = {}
+  private async formatMetaTransactionFees(
+    metaTransactionFees: MetaTransactionFees
   ): Promise<DelegationFeesInternal> {
-    let delegationFees
-    let currencyNetworkOfFees
-    if (options.delegationFees && options.currencyNetworkOfFees) {
-      delegationFees = options.delegationFees
-      currencyNetworkOfFees = options.currencyNetworkOfFees
-    } else {
-      const metaTransactionFees: MetaTransactionFees = await this.signer.getMetaTxFees(
-        rawTx
-      )
-      delegationFees = metaTransactionFees.delegationFees
-      currencyNetworkOfFees = metaTransactionFees.currencyNetworkOfFees
-    }
-
     let decimals = 0
-    if (delegationFees !== '0' && currencyNetworkOfFees !== '') {
-      decimals = (await this.currencyNetwork.getDecimals(currencyNetworkOfFees))
-        .networkDecimals
+    if (
+      metaTransactionFees.delegationFees !== '0' &&
+      metaTransactionFees.currencyNetworkOfFees !== ''
+    ) {
+      decimals = (await this.currencyNetwork.getDecimals(
+        metaTransactionFees.currencyNetworkOfFees
+      )).networkDecimals
     }
 
     return utils.formatToDelegationFeesInternal(
-      delegationFees,
+      metaTransactionFees.delegationFees,
       decimals,
-      currencyNetworkOfFees
+      metaTransactionFees.currencyNetworkOfFees
     )
   }
 }
