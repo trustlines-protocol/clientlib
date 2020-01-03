@@ -363,9 +363,13 @@ export const convertToHexString = (
  * @param decimals Decimals which determine size of generated number.
  */
 export const generateRandomNumber = (decimals: number): BigNumber => {
-  return BigNumber.random(decimals + 1)
-    .multipliedBy(new BigNumber(10).pow(decimals))
-    .integerValue()
+  let random = BigNumber.random(decimals + 1)
+  const one = new BigNumber(1)
+
+  while (random === one) {
+    random = BigNumber.random(decimals + 1)
+  }
+  return random.multipliedBy(new BigNumber(10).pow(decimals)).integerValue()
 }
 
 /**
