@@ -85,11 +85,7 @@ export class Transaction {
       metaTransactionFees
     )
 
-    const delegationFeesObject = utils.convertToDelegationFees(
-      delegationFeesInternal
-    )
-    rawTx.delegationFees = delegationFeesObject.raw
-    rawTx.currencyNetworkOfFees = delegationFeesObject.currencyNetworkOfFees
+    this.fillDelegationFeesInRawTx(rawTx, delegationFeesInternal)
 
     const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
 
@@ -137,11 +133,7 @@ export class Transaction {
       metaTransactionFees
     )
 
-    const delegationFeesObject = utils.convertToDelegationFees(
-      delegationFeesInternal
-    )
-    rawTx.delegationFees = delegationFeesObject.raw
-    rawTx.currencyNetworkOfFees = delegationFeesObject.currencyNetworkOfFees
+    this.fillDelegationFeesInRawTx(rawTx, delegationFeesInternal)
 
     const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
 
@@ -178,5 +170,14 @@ export class Transaction {
       decimals,
       metaTransactionFees.currencyNetworkOfFees
     )
+  }
+
+  private fillDelegationFeesInRawTx(
+    rawTx: RawTxObject,
+    delegationFees: DelegationFeesInternal
+  ) {
+    const delegationFeesObject = utils.convertToDelegationFees(delegationFees)
+    rawTx.delegationFees = delegationFeesObject.raw
+    rawTx.currencyNetworkOfFees = delegationFeesObject.currencyNetworkOfFees
   }
 }
