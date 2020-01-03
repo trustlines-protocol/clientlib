@@ -4,7 +4,6 @@
 #   docker build . -t e2e
 
 FROM node:10-jessie as builder
-RUN npm install -g yarn
 
 COPY . /clientlib
 WORKDIR /clientlib
