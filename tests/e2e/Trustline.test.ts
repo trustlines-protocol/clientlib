@@ -75,7 +75,7 @@ describe('e2e', () => {
               2000,
               1000
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
         })
 
         it('should prepare raw trustline update request tx in network with DEFAULT interest rates', async () => {
@@ -86,7 +86,7 @@ describe('e2e', () => {
               2000,
               1000
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
         })
 
         it('should prepare raw trustline update request tx in network with CUSTOM interest rates', async () => {
@@ -102,7 +102,7 @@ describe('e2e', () => {
                 isFrozen: false
               }
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
         })
 
         it('should prepare raw trustline update request tx with freezing', async () => {
@@ -118,7 +118,7 @@ describe('e2e', () => {
                 isFrozen: true
               }
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
         })
       })
 
@@ -430,7 +430,7 @@ describe('e2e', () => {
               1250,
               1000
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
         })
 
         it('should prepare accept tx for network with DEFAULT interest rates', async () => {
@@ -441,7 +441,7 @@ describe('e2e', () => {
               1250,
               1000
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
         })
 
         it('should prepare accept tx for network with CUSTOM interest rates', () => {
@@ -457,7 +457,7 @@ describe('e2e', () => {
                 isFrozen: false
               }
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
         })
 
         it('should prepare accept tx for trustline update with freezing', async () => {
@@ -473,7 +473,7 @@ describe('e2e', () => {
                 isFrozen: true
               }
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
         })
       })
 

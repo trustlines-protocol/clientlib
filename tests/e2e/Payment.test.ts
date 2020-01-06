@@ -249,7 +249,7 @@ describe('e2e', () => {
         it('should prepare tx for eth transfer', async () => {
           await expect(
             tl1.payment.prepareEth(user2.address, 0.05)
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
         })
       })
 
