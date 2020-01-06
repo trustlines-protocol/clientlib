@@ -64,9 +64,9 @@ describe('e2e', () => {
         })
       })
 
-      describe('#requestEth()', () => {
-        it('should not send eth to existing user', () => {
-          expect(tlExisting.user.requestEth()).to.eventually.equal(null)
+      describe('#requestEth()', async () => {
+        it('should not send eth to existing user', async () => {
+          await expect(tlExisting.user.requestEth()).to.eventually.equal(null)
         })
 
         it('should send eth to new user', async () => {

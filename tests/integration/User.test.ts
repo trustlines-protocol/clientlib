@@ -40,14 +40,18 @@ describe('integration', () => {
     })
 
     describe('#exportPrivateKey()', () => {
-      it('should show private key of user', () => {
-        expect(tlExisting.user.exportPrivateKey()).to.eventually.be.a('string')
+      it('should show private key of user', async () => {
+        await expect(tlExisting.user.exportPrivateKey()).to.eventually.be.a(
+          'string'
+        )
       })
     })
 
     describe('#showSeed()', () => {
-      it('should show seed of loaded user', () => {
-        expect(tlExisting.user.showSeed()).to.eventually.eq(USER_1.mnemonic)
+      it('should show seed of loaded user', async () => {
+        await expect(tlExisting.user.showSeed()).to.eventually.eq(
+          USER_1.mnemonic
+        )
       })
     })
 

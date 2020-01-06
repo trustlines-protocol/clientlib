@@ -87,8 +87,8 @@ describe('e2e', () => {
       })
 
       describe('#getUsers()', () => {
-        it('should return all user addresses of specific currency network', () => {
-          expect(
+        it('should return all user addresses of specific currency network', async () => {
+          await expect(
             currencyNetwork.getUsers(networks[0].address)
           ).to.eventually.be.an('array')
         })

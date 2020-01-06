@@ -82,14 +82,14 @@ describe('e2e', () => {
     })
 
     describe('#getExAddresses()', () => {
-      it('should return array', () => {
-        expect(tl1.exchange.getExAddresses()).to.eventually.be.an('array')
+      it('should return array', async () => {
+        await expect(tl1.exchange.getExAddresses()).to.eventually.be.an('array')
       })
     })
 
     describe('#getOrderbook()', () => {
-      it('should return orderbook', () => {
-        expect(
+      it('should return orderbook', async () => {
+        await expect(
           tl1.exchange.getOrderbook(makerTokenAddress, takerTokenAddress)
         ).to.eventually.have.keys('asks', 'bids')
       })
@@ -217,8 +217,10 @@ describe('e2e', () => {
         )
       })
 
-      it('should prepare a fill order tx for latest order', () => {
-        expect(tl2.exchange.prepTakeOrder(order, 1)).to.eventually.have.keys(
+      it('should prepare a fill order tx for latest order', async () => {
+        await expect(
+          tl2.exchange.prepTakeOrder(order, 1)
+        ).to.eventually.have.keys(
           'rawTx',
           'ethFees',
           'makerMaxFees',

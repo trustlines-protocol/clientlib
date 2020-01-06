@@ -41,14 +41,16 @@ describe('e2e', () => {
       })
 
       describe('#getAddresses()', () => {
-        it('should return array of wrapper addresses', () => {
-          expect(tl1.ethWrapper.getAddresses()).to.eventually.be.an('array')
+        it('should return array of wrapper addresses', async () => {
+          await expect(tl1.ethWrapper.getAddresses()).to.eventually.be.an(
+            'array'
+          )
         })
       })
 
       describe('#prepDeposit()', () => {
-        it('should prepare a deposit tx', () => {
-          expect(
+        it('should prepare a deposit tx', async () => {
+          await expect(
             tl1.ethWrapper.prepDeposit(ethWrapperAddress, depositAmount)
           ).to.eventually.have.keys('rawTx', 'ethFees')
         })
@@ -71,7 +73,9 @@ describe('e2e', () => {
         })
 
         it('should confirm deposit tx', async () => {
-          expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a('string')
+          await expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a(
+            'string'
+          )
           await wait()
           const [ethBalanceAfter, wethBalanceAfter] = await Promise.all([
             tl1.user.getBalance(),
@@ -93,8 +97,8 @@ describe('e2e', () => {
       })
 
       describe('#prepTransfer()', () => {
-        it('should prepare transfer tx', () => {
-          expect(
+        it('should prepare transfer tx', async () => {
+          await expect(
             tl1.ethWrapper.prepTransfer(
               ethWrapperAddress,
               tl2.user.address,
@@ -135,7 +139,9 @@ describe('e2e', () => {
         })
 
         it('should confirm transfer tx', async () => {
-          expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a('string')
+          await expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a(
+            'string'
+          )
           await wait()
           const [wethBalanceAfter1, ethBalanceAfter2] = await Promise.all([
             tl1.ethWrapper.getBalance(ethWrapperAddress),
@@ -157,8 +163,8 @@ describe('e2e', () => {
       })
 
       describe('#prepWithdraw()', () => {
-        it('should prepare withdraw tx', () => {
-          expect(
+        it('should prepare withdraw tx', async () => {
+          await expect(
             tl1.ethWrapper.prepWithdraw(ethWrapperAddress, withdrawAmount)
           ).to.eventually.have.keys('rawTx', 'ethFees')
         })
@@ -190,7 +196,9 @@ describe('e2e', () => {
         })
 
         it('should confirm withdraw tx', async () => {
-          expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a('string')
+          await expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a(
+            'string'
+          )
           await wait()
           const [ethBalanceAfter, wethBalanceAfter] = await Promise.all([
             tl1.user.getBalance(),

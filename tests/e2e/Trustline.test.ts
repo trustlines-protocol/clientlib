@@ -66,9 +66,9 @@ describe('e2e', () => {
         await wait()
       })
 
-      describe('#prepareUpdate()', () => {
-        it('should prepare raw trustline update request tx in network WITHOUT interest rates', () => {
-          expect(
+      describe('#prepareUpdate()', async () => {
+        it('should prepare raw trustline update request tx in network WITHOUT interest rates', async () => {
+          await expect(
             tl1.trustline.prepareUpdate(
               networkWithoutInterestRates.address,
               user2.address,
@@ -78,8 +78,8 @@ describe('e2e', () => {
           ).to.eventually.have.keys('rawTx', 'ethFees')
         })
 
-        it('should prepare raw trustline update request tx in network with DEFAULT interest rates', () => {
-          expect(
+        it('should prepare raw trustline update request tx in network with DEFAULT interest rates', async () => {
+          await expect(
             tl1.trustline.prepareUpdate(
               networkDefaultInterestRates.address,
               user2.address,
@@ -89,8 +89,8 @@ describe('e2e', () => {
           ).to.eventually.have.keys('rawTx', 'ethFees')
         })
 
-        it('should prepare raw trustline update request tx in network with CUSTOM interest rates', () => {
-          expect(
+        it('should prepare raw trustline update request tx in network with CUSTOM interest rates', async () => {
+          await expect(
             tl1.trustline.prepareUpdate(
               networkCustomInterestRates.address,
               user2.address,
@@ -105,8 +105,8 @@ describe('e2e', () => {
           ).to.eventually.have.keys('rawTx', 'ethFees')
         })
 
-        it('should prepare raw trustline update request tx with freezing', () => {
-          expect(
+        it('should prepare raw trustline update request tx with freezing', async () => {
+          await expect(
             tl1.trustline.prepareUpdate(
               networkCustomInterestRates.address,
               user2.address,
@@ -135,7 +135,7 @@ describe('e2e', () => {
             2000,
             1000
           )
-          expect(
+          await expect(
             tl1.trustline.confirm(txWithoutInterestRates.rawTx)
           ).to.eventually.be.a('string')
         })
@@ -147,7 +147,7 @@ describe('e2e', () => {
             2000,
             1000
           )
-          expect(
+          await expect(
             tl1.trustline.confirm(txDefaultInterestRates.rawTx)
           ).to.eventually.be.a('string')
         })
@@ -164,7 +164,7 @@ describe('e2e', () => {
               isFrozen: false
             }
           )
-          expect(
+          await expect(
             tl1.trustline.confirm(txCustomInterestRates.rawTx)
           ).to.eventually.be.a('string')
         })
@@ -181,9 +181,9 @@ describe('e2e', () => {
               isFrozen: true
             }
           )
-          expect(tl1.trustline.confirm(txFreezing.rawTx)).to.eventually.be.a(
-            'string'
-          )
+          await expect(
+            tl1.trustline.confirm(txFreezing.rawTx)
+          ).to.eventually.be.a('string')
         })
       })
 
@@ -422,8 +422,8 @@ describe('e2e', () => {
       })
 
       describe('#prepareAccept()', () => {
-        it('should prepare accept tx for network WITHOUT interest rates', () => {
-          expect(
+        it('should prepare accept tx for network WITHOUT interest rates', async () => {
+          await expect(
             tl2.trustline.prepareAccept(
               networkWithoutInterestRates.address,
               user1.address,
@@ -433,8 +433,8 @@ describe('e2e', () => {
           ).to.eventually.have.keys('rawTx', 'ethFees')
         })
 
-        it('should prepare accept tx for network with DEFAULT interest rates', () => {
-          expect(
+        it('should prepare accept tx for network with DEFAULT interest rates', async () => {
+          await expect(
             tl2.trustline.prepareAccept(
               networkDefaultInterestRates.address,
               user1.address,
@@ -461,7 +461,7 @@ describe('e2e', () => {
         })
 
         it('should prepare accept tx for trustline update with freezing', async () => {
-          expect(
+          await expect(
             tl2.trustline.prepareAccept(
               networkCustomInterestRates.address,
               user1.address,
@@ -826,8 +826,8 @@ describe('e2e', () => {
       })
 
       describe('#getAll()', () => {
-        it('should return array of trustlines', () => {
-          expect(
+        it('should return array of trustlines', async () => {
+          await expect(
             tl1.trustline.getAll(networkWithoutInterestRates.address)
           ).to.eventually.be.an('array')
         })

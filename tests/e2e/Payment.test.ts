@@ -221,8 +221,10 @@ describe('e2e', () => {
           await wait()
         })
 
-        it('should return transfers array', () => {
-          expect(tl1.payment.get(network.address)).to.eventually.be.an('array')
+        it('should return transfers array', async () => {
+          await expect(tl1.payment.get(network.address)).to.eventually.be.an(
+            'array'
+          )
         })
 
         it('should return latest transfer', async () => {
@@ -244,8 +246,8 @@ describe('e2e', () => {
       })
 
       describe('#prepareEth()', () => {
-        it('should prepare tx for eth transfer', () => {
-          expect(
+        it('should prepare tx for eth transfer', async () => {
+          await expect(
             tl1.payment.prepareEth(user2.address, 0.05)
           ).to.eventually.have.keys('rawTx', 'ethFees')
         })
