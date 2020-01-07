@@ -1,0 +1,4 @@
+node_modules
+.nyc_output
+.git
+tests/e2e-config/addresses.json
