@@ -187,6 +187,50 @@ describe('e2e', () => {
         })
       })
 
+      describe('#prepareCancelTrustlineUpdate()', async () => {
+        it('should prepare cancel trustline update', async () => {
+          const { rawTx } = await tl1.trustline.prepareUpdate(
+            networkWithoutInterestRates.address,
+            user2.address,
+            100,
+            100
+          )
+          await tl1.trustline.confirm(rawTx)
+
+          await expect(
+            tl1.trustline.prepareCancelTrustlineUpdate(
+              networkWithoutInterestRates.address,
+              user2.address
+            )
+          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+        })
+      })
+
+      describe('#confirm() - trustline update cancel tx', () => {
+        afterEach(async () => {
+          // make sure tx is mined
+          await wait()
+        })
+
+        it('should return txId for trustline update cancel tx', async () => {
+          const { rawTx } = await tl1.trustline.prepareUpdate(
+            networkWithoutInterestRates.address,
+            user2.address,
+            100,
+            100
+          )
+          await tl1.trustline.confirm(rawTx)
+
+          const cancelUpdateTx = await tl1.trustline.prepareCancelTrustlineUpdate(
+            networkWithoutInterestRates.address,
+            user2.address
+          )
+          await expect(
+            tl1.trustline.confirm(cancelUpdateTx.rawTx)
+          ).to.eventually.be.a('string')
+        })
+      })
+
       describe('#getRequests()', () => {
         const given = 1500
         const received = 1000
@@ -418,6 +462,44 @@ describe('e2e', () => {
           )
           expect(latestRequest.isFrozen).to.eq(true)
           expect(latestRequest.type).to.equal('TrustlineUpdateRequest')
+        })
+      })
+
+      describe('#getTrustlineUpdateCancels()', () => {
+        it('should return latest trustline update cancel', async () => {
+          const { rawTx } = await tl1.trustline.prepareUpdate(
+            networkWithoutInterestRates.address,
+            user2.address,
+            100,
+            100
+          )
+
+          const cancelUpdateTx = await tl1.trustline.prepareCancelTrustlineUpdate(
+            networkWithoutInterestRates.address,
+            user2.address
+          )
+          const txId = await tl1.trustline.confirm(cancelUpdateTx.rawTx)
+
+          // make sure tx is mined
+          await wait()
+
+          const requests = await tl1.trustline.getTrustlineUpdateCancels(
+            networkWithoutInterestRates.address
+          )
+          const latestRequest = requests[requests.length - 1]
+          expect(latestRequest.direction).to.equal('sent')
+          expect(latestRequest.from).to.equal(user1.address)
+          expect(latestRequest.transactionId).to.equal(txId)
+          expect(latestRequest.to).to.equal(user2.address)
+          expect(latestRequest.blockNumber).to.be.a('number')
+          expect(latestRequest.timestamp).to.be.a('number')
+          expect(latestRequest.counterParty).to.equal(user2.address)
+          expect(latestRequest.user).to.equal(user1.address)
+          expect(latestRequest.networkAddress).to.equal(
+            networkWithoutInterestRates.address
+          )
+          expect(latestRequest.status).to.be.a('string')
+          expect(latestRequest.type).to.equal('TrustlineUpdateCancel')
         })
       })
 

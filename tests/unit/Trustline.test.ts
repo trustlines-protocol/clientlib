@@ -132,6 +132,18 @@ describe('unit', () => {
       })
     })
 
+    describe('#prepareCancelTrustlineUpdate()', () => {
+      beforeEach(() => init())
+
+      it('should return a transaction object', async () => {
+        const tx = await trustline.prepareCancelTrustlineUpdate(
+          FAKE_NETWORK.address,
+          '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18'
+        )
+        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
+      })
+    })
+
     describe('#confirm()', () => {
       beforeEach(() => init())
 
@@ -204,11 +216,11 @@ describe('unit', () => {
       })
     })
 
-    describe('#getCancels()', () => {
+    describe('#getTrustlineUpdateCancels()', () => {
       beforeEach(() => init())
 
       it('should return mocked TrustlineUpdateCancel events', async () => {
-        const [updateRequestEvent] = await trustline.getCancels(
+        const [updateRequestEvent] = await trustline.getTrustlineUpdateCancels(
           FAKE_NETWORK.address
         )
         assert.equal(updateRequestEvent.type, 'TrustlineUpdateCancel')

@@ -100,6 +100,7 @@ describe('e2e', () => {
     describe('#getAll()', async () => {
       let updateTxId
       let acceptTxId
+      let cancelUpdateTxId
       let tlTransferTxId
       let depositTxId
       let withdrawTxId
@@ -125,6 +126,20 @@ describe('e2e', () => {
           500
         )
         updateTxId = await tl1.trustline.confirm(updateTx.rawTx)
+        await wait()
+        const cancelUpdateTx = await tl1.trustline.prepareCancelTrustlineUpdate(
+          network2.address,
+          user2.address
+        )
+        cancelUpdateTxId = await tl1.trustline.confirm(cancelUpdateTx.rawTx)
+        await wait()
+        const secondUpdateTx = await tl1.trustline.prepareUpdate(
+          network2.address,
+          user2.address,
+          1000,
+          500
+        )
+        await tl1.trustline.confirm(secondUpdateTx.rawTx)
         await wait()
         const acceptTx = await tl2.trustline.prepareUpdate(
           network2.address,
@@ -221,6 +236,29 @@ describe('e2e', () => {
           (updateRequestEvents[0] as NetworkTrustlineEvent).received
         ).to.have.keys('raw', 'decimals', 'value')
 
+        // events thrown on trustline update cancel
+        const cancelUpdateEvents = allEvents.filter(
+          ({ transactionId }) => transactionId === cancelUpdateTxId
+        )
+        // check event TrustlineUpdateCancel
+        expect(
+          cancelUpdateEvents,
+          'Trustline Update Cancel should exist'
+        ).to.have.length(1)
+        expect(cancelUpdateEvents[0].type).to.equal('TrustlineUpdateCancel')
+        expect(cancelUpdateEvents[0].timestamp).to.be.a('number')
+        expect(cancelUpdateEvents[0].blockNumber).to.be.a('number')
+        expect(cancelUpdateEvents[0].status).to.be.a('string')
+        expect(cancelUpdateEvents[0].transactionId).to.equal(cancelUpdateTxId)
+        expect(cancelUpdateEvents[0].direction).to.equal('sent')
+        expect(cancelUpdateEvents[0].from).to.equal(tl1.user.address)
+        expect(cancelUpdateEvents[0].to).to.equal(tl2.user.address)
+        expect(cancelUpdateEvents[0].user).to.equal(tl1.user.address)
+        expect(cancelUpdateEvents[0].counterParty).to.equal(tl2.user.address)
+        expect(
+          (cancelUpdateEvents[0] as NetworkTrustlineEvent).networkAddress
+        ).to.equal(network2.address)
+
         // events thrown on trustline update
         const updateEvents = allEvents.filter(
           ({ transactionId }) => transactionId === acceptTxId
@@ -240,9 +278,9 @@ describe('e2e', () => {
         expect(
           (updateEvents[0] as NetworkTrustlineEvent).networkAddress
         ).to.equal(network2.address)
-        expect(
-          (updateRequestEvents[0] as NetworkTrustlineEvent).isFrozen
-        ).to.be.a('boolean')
+        expect((updateEvents[0] as NetworkTrustlineEvent).isFrozen).to.be.a(
+          'boolean'
+        )
         expect((updateEvents[0] as NetworkTrustlineEvent).given).to.have.keys(
           'raw',
           'decimals',
@@ -606,6 +644,69 @@ describe('e2e', () => {
           'received.value',
           '4002'
         )
+      })
+
+      after(async () => {
+        stream.unsubscribe()
+        // make sure stream unsubscribed
+        await wait()
+      })
+    })
+
+    describe('#updateStreamCancelTrustlineUpdate()', () => {
+      const events = []
+      let stream
+
+      before(async () => {
+        // create new users
+        ;[user1, user2] = await createAndLoadUsers([tl1, tl2])
+        await deployIdentities([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
+        // request an update
+        const updateTx = await tl2.trustline.prepareUpdate(
+          network1.address,
+          user1.address,
+          4001,
+          4002
+        )
+        await tl2.trustline.confirm(updateTx.rawTx)
+        await wait()
+
+        stream = await tl2.event
+          .updateStream()
+          .subscribe(event => events.push(event))
+
+        // cancel the update request
+        const { rawTx } = await tl2.trustline.prepareCancelTrustlineUpdate(
+          network1.address,
+          user1.address
+        )
+        await tl2.trustline.confirm(rawTx)
+        await wait()
+      })
+
+      it('should receive trustline update cancel', () => {
+        expect(events).to.have.lengthOf(2)
+
+        expect(
+          events.filter(event => event.type === 'WebsocketOpen')
+        ).to.have.lengthOf(1)
+        expect(
+          events.filter(event => event.type === 'TrustlineUpdateCancel')
+        ).to.have.lengthOf(1)
+
+        const trustlineUpdateCancelEvent = events.filter(
+          event => event.type === 'TrustlineUpdateCancel'
+        )[0]
+        expect(trustlineUpdateCancelEvent.timestamp).to.be.a('number')
+        expect(trustlineUpdateCancelEvent.from).to.equal(user2.address)
+        expect(trustlineUpdateCancelEvent.to).to.equal(user1.address)
+        expect(trustlineUpdateCancelEvent.counterParty).to.equal(user1.address)
+        expect(trustlineUpdateCancelEvent.user).to.equal(user2.address)
+        expect(trustlineUpdateCancelEvent.direction).to.equal('sent')
       })
 
       after(async () => {
