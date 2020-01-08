@@ -147,10 +147,17 @@ export interface NetworkTrustlineEvent extends NetworkEvent {
   isFrozen: boolean
 }
 
-export type AnyNetworkEvent = NetworkTransferEvent | NetworkTrustlineEvent
+export type NetworkTrustlineCancelEventRaw = NetworkEvent
+export type NetworkTrustlineCancelEvent = NetworkEvent
+
+export type AnyNetworkEvent =
+  | NetworkTransferEvent
+  | NetworkTrustlineEvent
+  | NetworkTrustlineCancelEvent
 export type AnyNetworkEventRaw =
   | NetworkTransferEventRaw
   | NetworkTrustlineEventRaw
+  | NetworkTrustlineCancelEventRaw
 
 export interface TokenEvent extends TLEvent {
   tokenAddress: string

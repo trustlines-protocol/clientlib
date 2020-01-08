@@ -1,6 +1,7 @@
 import { Event } from '../../src/Event'
 
 import {
+  FAKE_TRUSTLINE_CANCEL_EVENT,
   FAKE_TRUSTLINE_UPDATE_EVENT,
   FAKE_TRUSTLINE_UPDATE_REQUEST_EVENT
 } from '../Fixtures'
@@ -20,6 +21,8 @@ export class FakeEvent extends Event {
         return [FAKE_TRUSTLINE_UPDATE_REQUEST_EVENT]
       case 'TrustlineUpdate':
         return [FAKE_TRUSTLINE_UPDATE_EVENT]
+      case 'TrustlineUpdateCancel':
+        return [FAKE_TRUSTLINE_CANCEL_EVENT]
       default:
         return []
     }

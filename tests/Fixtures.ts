@@ -357,6 +357,21 @@ export const FAKE_TRUSTLINE_UPDATE_EVENT = {
   user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
 }
 
+export const FAKE_TRUSTLINE_CANCEL_EVENT = {
+  blockNumber: 123,
+  counterParty: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  direction: 'sent',
+  from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  networkAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  status: 'pending',
+  timestamp: 123456789,
+  to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
+  transactionId:
+    '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
+  type: 'TrustlineUpdateCancel',
+  user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
+}
+
 export const FAKE_TOKEN_EVENT = {
   amount: '150',
   blockNumber: 123,

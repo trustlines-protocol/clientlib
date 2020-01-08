@@ -16,6 +16,7 @@ import {
   EventFilterOptions,
   FeePayer,
   isFeePayerValue,
+  NetworkEvent,
   NetworkTrustlineEvent,
   PaymentOptions,
   RawTxObject,
@@ -284,6 +285,21 @@ export class Trustline {
     return this.event.get<NetworkTrustlineEvent>(networkAddress, {
       ...filter,
       type: 'TrustlineUpdateRequest'
+    })
+  }
+
+  /**
+   * Returns trustline update cancels of loaded user in a currency network.
+   * @param networkAddress Address of a currency network.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
+   */
+  public getCancels(
+    networkAddress: string,
+    filter: EventFilterOptions = {}
+  ): Promise<NetworkEvent[]> {
+    return this.event.get<NetworkEvent>(networkAddress, {
+      ...filter,
+      type: 'TrustlineUpdateCancel'
     })
   }
 
