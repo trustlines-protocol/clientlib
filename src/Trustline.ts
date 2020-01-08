@@ -23,7 +23,8 @@ import {
   TrustlineObject,
   TrustlineRaw,
   TrustlineUpdateOptions,
-  TxObject
+  TxObject,
+  TxOptions
 } from './typings'
 
 /**
@@ -208,6 +209,48 @@ export class Trustline {
   }
 
   /**
+   * Prepares an ethereum transaction object for canceling / rejecting a trustline update request.
+   * Called by initiator of cancel.
+   * @param networkAddress Address of a currency network.
+   * @param counterpartyAddress Address of counterpartyto cancel / reject the trustline update with.
+   * @param options Options for creating the ethereum transaction.
+   *                See type `TxOptions` for more information.
+   * @param options.gasLimit Custom gas limit.
+   * @param options.gasPrice Custom gas price.
+   */
+  public async prepareCancelTrustlineUpdate(
+    networkAddress: string,
+    counterpartyAddress: string,
+    options: TxOptions = {}
+  ): Promise<TxObject> {
+    const { gasLimit, gasPrice } = options
+
+    const cancelFuncName = 'cancelTrustlineUpdate'
+    const cancelFuncArgs: any[] = [counterpartyAddress]
+
+    const {
+      rawTx,
+      ethFees,
+      delegationFees
+    } = await this.transaction.prepareContractTransaction(
+      await this.user.getAddress(),
+      networkAddress,
+      'CurrencyNetwork',
+      cancelFuncName,
+      cancelFuncArgs,
+      {
+        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
+        gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
+      }
+    )
+    return {
+      ethFees: utils.convertToAmount(ethFees),
+      delegationFees: utils.convertToDelegationFees(delegationFees),
+      rawTx
+    }
+  }
+
+  /**
    * Signs a raw transaction object as returned by `prepareAccept` or `prepareUpdate`
    * and sends the signed transaction.
    * @param rawTx Raw transaction object.
@@ -293,7 +336,7 @@ export class Trustline {
    * @param networkAddress Address of a currency network.
    * @param filter Event filter object. See `EventFilterOptions` for more information.
    */
-  public getCancels(
+  public getTrustlineUpdateCancels(
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<NetworkEvent[]> {
