@@ -204,6 +204,17 @@ describe('unit', () => {
       })
     })
 
+    describe('#getCancels()', () => {
+      beforeEach(() => init())
+
+      it('should return mocked TrustlineUpdateCancel events', async () => {
+        const [updateRequestEvent] = await trustline.getCancels(
+          FAKE_NETWORK.address
+        )
+        assert.equal(updateRequestEvent.type, 'TrustlineUpdateCancel')
+      })
+    })
+
     describe('#getUpdates()', () => {
       beforeEach(() => init())
 
