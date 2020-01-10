@@ -195,7 +195,7 @@ describe('unit', () => {
       const username = 'testname'
 
       it('should create trustlines:// link', async () => {
-        const contactLink = await user.createLink(username)
+        const contactLink = user.createLink(username)
         assert.equal(
           contactLink,
           `trustlines://contact/${user.address}/${username}`
@@ -203,10 +203,7 @@ describe('unit', () => {
       })
 
       it('should create custom link', async () => {
-        const contactLink = await user.createLink(
-          username,
-          'http://custom.network'
-        )
+        const contactLink = user.createLink(username, 'http://custom.network')
         assert.equal(
           contactLink,
           `http://custom.network/contact/${user.address}/${username}`
