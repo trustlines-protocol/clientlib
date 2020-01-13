@@ -23,11 +23,11 @@ export class Contact {
    * @param username Name of contact to share.
    * @param customBase Optional custom base for link. Default `trustlines://`.
    */
-  public async createLink(
+  public createLink(
     address: string,
     username: string,
     customBase?: string
-  ): Promise<string> {
+  ): string {
     const params = ['contact', address, username]
     return utils.createLink(params, customBase)
   }

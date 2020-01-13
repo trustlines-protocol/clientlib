@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Make `User.createLink()` synchronous (BREAKING)
+- Make `Contract.createLink()` synchronous (BREAKING)
 - `Transaction` now takes a `CurrencyNetwork` as argument to be able to get the decimals for delegationFees (BREAKING)
 
 ### Added
