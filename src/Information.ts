@@ -63,6 +63,35 @@ export class Information {
     )
   }
 
+  public async getTrustlineAccruedInterests(
+    networkAddress: string,
+    counterpartyAddress: string,
+    options: {
+      timeWindowOption?: { startTime: number; endTime: number }
+      decimalsOptions?: DecimalsOptions
+    } = {}
+  ): Promise<TrustlineAccruedInterestsObject> {
+    const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/interests/${counterpartyAddress}`
+    const parameterUrl = utils.buildUrl(baseUrl, options.timeWindowOption || {})
+
+    const [
+      trustlineAccruedInterestsRaw,
+      { networkDecimals, interestRateDecimals }
+    ] = await Promise.all([
+      this.provider.fetchEndpoint<TrustlineAccruedInterestsRaw>(parameterUrl),
+      this.currencyNetwork.getDecimals(
+        networkAddress,
+        options.decimalsOptions || {}
+      )
+    ])
+
+    return this.formatTrustlineAccruedInterestsRaw(
+      trustlineAccruedInterestsRaw,
+      networkDecimals,
+      interestRateDecimals
+    )
+  }
+
   private formatTrustlineAccruedInterestsRaw(
     trustlineAccruedInterestsRaw: TrustlineAccruedInterestsRaw,
     networkDecimals: number,
