@@ -3,16 +3,6 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
-import {
-  AnyNetworkEvent,
-  ExchangeCancelEvent,
-  ExchangeFillEvent,
-  NetworkDetails,
-  NetworkTransferEvent,
-  NetworkTrustlineEvent,
-  TokenAmountEvent,
-  UserAccruedInterestsObject
-} from '../../src/typings'
 
 import {
   createAndLoadUsers,
@@ -106,6 +96,27 @@ describe('e2e', () => {
         expect(userAccruedInterests.length).to.equal(1)
 
         const trustlineAccruedInterests = userAccruedInterests[0]
+        expect(trustlineAccruedInterests.accruedInterests).to.be.an('Array')
+        expect(trustlineAccruedInterests.accruedInterests.length).to.equal(1)
+        expect(trustlineAccruedInterests.user).to.equal(user1.address)
+        expect(trustlineAccruedInterests.counterparty).to.equal(user2.address)
+
+        const accruedInterest = trustlineAccruedInterests.accruedInterests[0]
+        expect(accruedInterest.value).to.have.keys('raw', 'value', 'decimals')
+        expect(accruedInterest.interestRate).to.have.keys(
+          'raw',
+          'value',
+          'decimals'
+        )
+        expect(accruedInterest.timestamp).to.be.a('number')
+      })
+
+      it('should return list of accrued interests for trustline', async () => {
+        const trustlineAccruedInterests = await information.getTrustlineAccruedInterests(
+          network.address,
+          user2.address
+        )
+
         expect(trustlineAccruedInterests.accruedInterests).to.be.an('Array')
         expect(trustlineAccruedInterests.accruedInterests.length).to.equal(1)
         expect(trustlineAccruedInterests.user).to.equal(user1.address)
