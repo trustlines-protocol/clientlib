@@ -545,6 +545,35 @@ export interface CloseTxObject extends TxObject {
   maxFees: Amount
 }
 
+// INFORMATIONS
+
+export interface AccruedInterestsRaw {
+  value: string
+  interestRate: string
+  timestamp: number
+}
+
+export interface AccruedInterestsObject {
+  value: Amount
+  interestRate: Amount
+  timestamp: number
+}
+
+export interface TrustlineAccruedInterestsRaw {
+  accruedInterests: AccruedInterestsRaw[]
+  user: string
+  counterparty: string
+}
+
+export interface TrustlineAccruedInterestsObject {
+  accruedInterests: AccruedInterestsObject[]
+  user: string
+  counterparty: string
+}
+
+export type UserAccruedInterestsRaw = TrustlineAccruedInterestsRaw[]
+export type UserAccruedInterestsObject = TrustlineAccruedInterestsObject[]
+
 // EXCHANGE
 export interface Order {
   maker: string // this.user.address
