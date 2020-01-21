@@ -892,6 +892,7 @@ describe('e2e', () => {
           )
           expect(trustline).to.have.keys([
             'counterParty',
+            'currencyNetwork',
             'user',
             'address',
             'balance',
