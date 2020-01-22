@@ -10,7 +10,7 @@ import {
   Amount,
   MetaTransaction,
   MetaTransactionFees,
-  NetworkDetailsRaw,
+  ReconnectingWSOptions,
   TxInfos,
   TxInfosRaw
 } from '../typings'
@@ -51,17 +51,20 @@ export class RelayProvider implements TLProvider {
    * @param endpoint Websocket stream endpoint to connect to.
    * @param functionName Function to call on connection.
    * @param args Function arguments.
+   * @param reconnectOnError Optional flag whether to try reconnecting web socket.
    */
   public createWebsocketStream(
     endpoint: string,
     functionName: string,
-    args: object
+    args: object,
+    reconnectingOptions?: ReconnectingWSOptions
   ): Observable<any> {
     const trimmedEndpoint = utils.trimUrl(endpoint)
     return utils.websocketStream(
       `${this.relayWsApiUrl}/${trimmedEndpoint}`,
       functionName,
-      args
+      args,
+      reconnectingOptions
     )
   }
 

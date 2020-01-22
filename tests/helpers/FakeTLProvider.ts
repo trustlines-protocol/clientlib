@@ -19,8 +19,7 @@ import {
   Amount,
   MetaTransaction,
   MetaTransactionFees,
-  NetworkDetailsRaw,
-  RawTxObject,
+  ReconnectingWSOptions,
   TxInfos
 } from '../../src/typings'
 
@@ -126,7 +125,8 @@ export class FakeTLProvider implements TLProvider {
   public createWebsocketStream(
     endpoint: string,
     functionName: string,
-    args: object
+    args: object,
+    reconnectingOptions?: ReconnectingWSOptions
   ) {
     throw new Error('Method not implemented.')
   }

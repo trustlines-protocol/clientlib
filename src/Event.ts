@@ -14,7 +14,8 @@ import {
   AnyNetworkEventRaw,
   AnyTokenEventRaw,
   DecimalsOptions,
-  EventFilterOptions
+  EventFilterOptions,
+  ReconnectingWSOptions
 } from './typings'
 
 const CURRENCY_NETWORK = 'CurrencyNetwork'
@@ -91,13 +92,20 @@ export class Event {
   /**
    * @hidden
    */
-  public updateStream(): Observable<any> {
+  public updateStream(
+    reconnectingOptions?: ReconnectingWSOptions
+  ): Observable<any> {
     return fromPromise(this.user.getAddress()).flatMap(userAddress =>
       this.provider
-        .createWebsocketStream('streams/events', 'subscribe', {
-          event: 'all',
-          user: userAddress
-        })
+        .createWebsocketStream(
+          'streams/events',
+          'subscribe',
+          {
+            event: 'all',
+            user: userAddress
+          },
+          reconnectingOptions
+        )
         .mergeMap(event => {
           if (event.hasOwnProperty('networkAddress')) {
             return this.currencyNetwork

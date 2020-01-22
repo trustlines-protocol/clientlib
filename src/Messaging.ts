@@ -10,6 +10,7 @@ import utils from './utils'
 import {
   DecimalsOptions,
   PaymentRequestMessage,
+  ReconnectingWSOptions,
   UsernameMessage
 } from './typings'
 
@@ -81,13 +82,20 @@ export class Messaging {
   /**
    * Returns a websocket observable that can be subscribed to.
    */
-  public messageStream(): Observable<any> {
+  public messageStream(
+    reconnectingOptions?: ReconnectingWSOptions
+  ): Observable<any> {
     return fromPromise(this.user.getAddress()).flatMap(userAddress =>
       this.provider
-        .createWebsocketStream(`/streams/messages`, 'listen', {
-          type: 'all',
-          user: userAddress
-        })
+        .createWebsocketStream(
+          `/streams/messages`,
+          'listen',
+          {
+            type: 'all',
+            user: userAddress
+          },
+          reconnectingOptions
+        )
         .mergeMap(data => {
           if (data.type) {
             return [data]

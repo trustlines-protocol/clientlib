@@ -2,6 +2,7 @@ import {
   Amount,
   MetaTransaction,
   MetaTransactionFees,
+  ReconnectingWSOptions,
   TxInfos
 } from '../typings'
 
@@ -17,7 +18,8 @@ export interface TLProvider {
   createWebsocketStream(
     endpoint: string,
     functionName: string,
-    args: object
+    args: object,
+    reconnectingOptions?: ReconnectingWSOptions
   ): any
   getTxInfos(userAddress: string): Promise<TxInfos>
   getMetaTxInfos(userAddress: string): Promise<TxInfos>

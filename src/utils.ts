@@ -16,7 +16,8 @@ import {
   DelegationFeesInternal,
   DelegationFeesObject,
   ExchangeCancelEventRaw,
-  ExchangeFillEventRaw
+  ExchangeFillEventRaw,
+  ReconnectingWSOptions
 } from './typings'
 
 if (
@@ -55,16 +56,20 @@ export const fetchUrl = async <T>(
  * @param url URL to open websocket stream to.
  * @param functionName Name of function to call on opened websocket.
  * @param args Arguments for above function.
+ * @param reconnectionOptions Options to specify [reconnecting-websocket](https://github.com/pladaria/reconnecting-websocket#available-options)
  */
 export const websocketStream = (
   url: string,
   functionName: string,
-  args: object
+  args: object,
+  reconnectingOptions: ReconnectingWSOptions = {}
 ): Observable<any> => {
   return Observable.create((observer: Observer<any>) => {
     const options = {
       WebSocket: (global as any).WebSocket ? undefined : NodeWebSocket,
-      minReconnectionDelay: 1
+      minReconnectionDelay: 1,
+      reconnectOnError: true,
+      ...reconnectingOptions
     }
     const ws = new ReconnectingWebSocket(url, undefined, options)
     const jrpc = new JsonRPC()
@@ -78,7 +83,17 @@ export const websocketStream = (
     }
 
     ws.onerror = (e: ErrorEvent) => {
-      console.log('An web socket error occured: ' + e.message)
+      const error = new Error(e.message)
+      if (options.reconnectOnError) {
+        // Allows observer to act on web socket errors while trying to reconnect
+        observer.next({
+          type: 'WebSocketError',
+          error,
+          retryCount: ws.retryCount
+        })
+      } else {
+        observer.error(error)
+      }
     }
 
     ws.onopen = () => {
