@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
+import { Options as ReconnectingOptions } from 'reconnecting-websocket'
 
 /**
  * Configuration object for a TLNetwork instance
@@ -699,4 +700,8 @@ export interface OrdersQuery {
   maker?: string
   taker?: string
   feeRecipient?: string
+}
+
+export type ReconnectingWSOptions = ReconnectingOptions & {
+  reconnectOnError?: boolean
 }
