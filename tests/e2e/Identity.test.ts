@@ -137,8 +137,11 @@ describe('e2e', () => {
         }
 
         const txFees = await identityWallet.getMetaTxFees(rawTx)
-        rawTx.currencyNetworkOfFees = txFees.currencyNetworkOfFees
-        rawTx.delegationFees = txFees.delegationFees
+        rawTx.delegationFees = {
+          baseFee: txFees.baseFee,
+          gasPrice: txFees.gasPrice,
+          currencyNetworkOfFees: txFees.currencyNetworkOfFees
+        }
 
         const transactionHash = await identityWallet.confirm(rawTx)
         assert.isString(transactionHash)
@@ -167,6 +170,7 @@ describe('e2e', () => {
         )
 
         await identityWallet.confirm(transaction.rawTx)
+        await wait()
 
         const postBalance = await identityWallet.getBalance()
         const postSecondBalance = await secondWallet.getBalance()
@@ -240,10 +244,11 @@ describe('e2e', () => {
 
         const metaTransactionFees = await identityWallet.getMetaTxFees(rawTx)
         expect(metaTransactionFees).to.have.all.keys(
-          'delegationFees',
+          'baseFee',
+          'gasPrice',
           'currencyNetworkOfFees'
         )
-        expect(metaTransactionFees.delegationFees).to.equal('1')
+        expect(metaTransactionFees.baseFee).to.equal('1')
       })
     })
   })

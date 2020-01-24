@@ -272,10 +272,14 @@ export class IdentityWallet implements TLWallet {
       'address',
       'uint256',
       'bytes32',
-      'uint64',
+      'uint256',
+      'uint256',
+      'uint256',
+      'address',
       'address',
       'uint256',
-      'bytes'
+      'uint256',
+      'uint8'
     ]
     const values = [
       '0x19',
@@ -284,10 +288,14 @@ export class IdentityWallet implements TLWallet {
       metaTransaction.to,
       metaTransaction.value,
       ethersUtils.solidityKeccak256(['bytes'], [metaTransaction.data]),
-      metaTransaction.delegationFees,
+      metaTransaction.baseFee,
+      metaTransaction.gasPrice,
+      metaTransaction.gasLimit,
+      metaTransaction.feeRecipient,
       metaTransaction.currencyNetworkOfFees,
       metaTransaction.nonce,
-      metaTransaction.extraData
+      metaTransaction.timeLimit,
+      metaTransaction.operationType
     ]
 
     const metaTransactionHash: string = ethersUtils.solidityKeccak256(
@@ -365,18 +373,26 @@ export class IdentityWallet implements TLWallet {
   }
 
   private buildMetaTransaction(rawTx: RawTxObject): MetaTransaction {
-    const metaTransaction: MetaTransaction = {
+    return {
       data: rawTx.data || '0x',
-      extraData: '0x',
       from: rawTx.from,
       nonce: rawTx.nonce.toString(),
       to: rawTx.to,
       value: rawTx.value.toString(),
-      delegationFees: (rawTx.delegationFees || 0).toString(),
-      currencyNetworkOfFees: rawTx.currencyNetworkOfFees || rawTx.to
+      baseFee: rawTx.delegationFees
+        ? rawTx.delegationFees.baseFee.toString()
+        : '0',
+      gasPrice: rawTx.delegationFees
+        ? rawTx.delegationFees.gasPrice.toString()
+        : '0',
+      gasLimit: '0',
+      feeRecipient: '0x' + '0'.repeat(40),
+      currencyNetworkOfFees: rawTx.delegationFees
+        ? rawTx.delegationFees.currencyNetworkOfFees
+        : rawTx.to,
+      timeLimit: '0',
+      operationType: '0'
     }
-
-    return metaTransaction
   }
 }
 

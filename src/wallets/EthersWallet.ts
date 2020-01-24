@@ -274,7 +274,8 @@ export class EthersWallet implements TLWallet {
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {
     return {
-      delegationFees: '0',
+      baseFee: '0',
+      gasPrice: '0',
       currencyNetworkOfFees: ''
     }
   }

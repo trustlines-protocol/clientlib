@@ -154,7 +154,8 @@ export class FakeTLProvider implements TLProvider {
     metaTransaction: MetaTransaction
   ): Promise<MetaTransactionFees> {
     return {
-      delegationFees: '0',
+      baseFee: '0',
+      gasPrice: '0',
       currencyNetworkOfFees: metaTransaction.currencyNetworkOfFees
     }
   }

@@ -5,7 +5,7 @@ import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
 import { TLProvider } from './providers/TLProvider'
 import { TLSigner } from './signers/TLSigner'
 
-import utils from './utils'
+import utils, { convertToDelegationFees } from './utils'
 
 import {
   DelegationFeesInternal,
@@ -73,12 +73,22 @@ export class Transaction {
       to: contractAddress,
       value: options.value || new BigNumber(0)
     }
-    const delegationFeesInternal = await this.getDelegationFees(rawTx, options)
-    const delegationFeesObject = utils.convertToDelegationFees(
-      delegationFeesInternal
-    )
-    rawTx.delegationFees = delegationFeesObject.raw
-    rawTx.currencyNetworkOfFees = delegationFeesObject.currencyNetworkOfFees
+    const delegationFeesInternal = options.delegationFees
+      ? utils.formatToDelegationFeesInternal(
+          options.delegationFees.baseFee,
+          (await this.currencyNetwork.getDecimals(
+            options.delegationFees.currencyNetworkOfFees
+          )).networkDecimals,
+          options.delegationFees.gasPrice,
+          options.delegationFees.currencyNetworkOfFees
+        )
+      : await this.getDelegationFees(rawTx)
+
+    rawTx.delegationFees = {
+      baseFee: delegationFeesInternal.baseFee.raw,
+      gasPrice: delegationFeesInternal.gasPrice.raw,
+      currencyNetworkOfFees: delegationFeesInternal.currencyNetworkOfFees
+    }
 
     const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
 
@@ -114,12 +124,22 @@ export class Transaction {
       to: receiverAddress,
       value: rawValue
     }
-    const delegationFeesInternal = await this.getDelegationFees(rawTx, options)
-    const delegationFeesObject = utils.convertToDelegationFees(
-      delegationFeesInternal
-    )
-    rawTx.delegationFees = delegationFeesObject.raw
-    rawTx.currencyNetworkOfFees = delegationFeesObject.currencyNetworkOfFees
+    const delegationFeesInternal = options.delegationFees
+      ? utils.formatToDelegationFeesInternal(
+          options.delegationFees.baseFee,
+          (await this.currencyNetwork.getDecimals(
+            options.delegationFees.currencyNetworkOfFees
+          )).networkDecimals,
+          options.delegationFees.gasPrice,
+          options.delegationFees.currencyNetworkOfFees
+        )
+      : await this.getDelegationFees(rawTx)
+
+    rawTx.delegationFees = {
+      baseFee: delegationFeesInternal.baseFee.raw,
+      gasPrice: delegationFeesInternal.gasPrice.raw,
+      currencyNetworkOfFees: delegationFeesInternal.currencyNetworkOfFees
+    }
 
     const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
 
@@ -141,37 +161,30 @@ export class Transaction {
   /**
    * Returns delegation fees for given rawTx
    * @param rawTx the rawTx to get the delegation fees for
-   * @param options.delegationFees (optional) delegation fees for a meta transaction.
-   * @param options.currencyNetworkOfFees (optional) currency network of fees for a meta transaction.
-   * @returns An ethereum transaction object containing and the estimated transaction fees in ETH.
+   * @returns the delegation fees to be paid for given rawTx
    */
   private async getDelegationFees(
-    rawTx: RawTxObject,
-    options: TxOptionsInternal = {}
+    rawTx: RawTxObject
   ): Promise<DelegationFeesInternal> {
-    let delegationFees
-    let currencyNetworkOfFees
-    if (options.delegationFees && options.currencyNetworkOfFees) {
-      delegationFees = options.delegationFees
-      currencyNetworkOfFees = options.currencyNetworkOfFees
-    } else {
-      const metaTransactionFees: MetaTransactionFees = await this.signer.getMetaTxFees(
-        rawTx
-      )
-      delegationFees = metaTransactionFees.delegationFees
-      currencyNetworkOfFees = metaTransactionFees.currencyNetworkOfFees
-    }
+    const metaTransactionFees: MetaTransactionFees = await this.signer.getMetaTxFees(
+      rawTx
+    )
 
-    let decimals = 0
-    if (delegationFees !== '0' && currencyNetworkOfFees !== '') {
-      decimals = (await this.currencyNetwork.getDecimals(currencyNetworkOfFees))
-        .networkDecimals
+    let currencyDecimals = 0
+    if (
+      metaTransactionFees.baseFee !== '0' &&
+      metaTransactionFees.currencyNetworkOfFees !== ''
+    ) {
+      currencyDecimals = (await this.currencyNetwork.getDecimals(
+        metaTransactionFees.currencyNetworkOfFees
+      )).networkDecimals
     }
 
     return utils.formatToDelegationFeesInternal(
-      delegationFees,
-      decimals,
-      currencyNetworkOfFees
+      metaTransactionFees.baseFee,
+      currencyDecimals,
+      metaTransactionFees.gasPrice,
+      metaTransactionFees.currencyNetworkOfFees
     )
   }
 }
