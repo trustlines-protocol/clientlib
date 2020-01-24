@@ -220,14 +220,22 @@ export const formatToAmount = (
  * @param currencyNetworkOfFees the currency network corresponding to the delegation fees
  */
 export const formatToDelegationFeesInternal = (
-  raw: number | string | BigNumber,
+  baseFee: number | string | BigNumber,
   decimals: number,
+  gasPrice: number | string | BigNumber,
   currencyNetworkOfFees: string
 ): DelegationFeesInternal => {
   return {
-    decimals,
-    raw: new BigNumber(raw),
-    value: calcValue(raw, decimals),
+    baseFee: {
+      decimals,
+      raw: new BigNumber(baseFee),
+      value: calcValue(baseFee, decimals)
+    },
+    gasPrice: {
+      decimals,
+      raw: new BigNumber(gasPrice),
+      value: calcValue(gasPrice, 6)
+    },
     currencyNetworkOfFees
   }
 }
@@ -240,9 +248,9 @@ export const convertToDelegationFees = (
   delegationFees: DelegationFeesInternal
 ): DelegationFeesObject => {
   return {
-    ...delegationFees,
-    raw: delegationFees.raw.toString(),
-    value: delegationFees.value.toString()
+    baseFee: convertToAmount(delegationFees.baseFee),
+    gasPrice: convertToAmount(delegationFees.gasPrice),
+    currencyNetworkOfFees: delegationFees.currencyNetworkOfFees
   }
 }
 

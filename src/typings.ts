@@ -58,8 +58,7 @@ export interface TxOptionsInternal {
   value?: BigNumber
   gasPrice?: BigNumber
   gasLimit?: BigNumber
-  delegationFees?: string
-  currencyNetworkOfFees?: string
+  delegationFees?: DelegationFeesRaw
 }
 
 export interface TxOptions {
@@ -254,24 +253,28 @@ export interface RawTxObject {
   gasPrice?: number | string | BigNumber
   data?: string
   nonce?: number
-  delegationFees?: number | string | BigNumber
-  currencyNetworkOfFees?: string
+  delegationFees?: DelegationFeesRaw
 }
 
 export interface MetaTransaction {
-  extraData: string
   from: string
   to: string
   value: string
   data: string
-  delegationFees: string
+  baseFee: string
+  gasPrice: string
+  gasLimit: string
+  feeRecipient: string
   currencyNetworkOfFees: string
   nonce: string
+  timeLimit: string
+  operationType: string
   signature?: string
 }
 
 export interface MetaTransactionFees {
-  delegationFees: string
+  baseFee: string
+  gasPrice: string
   currencyNetworkOfFees: string
 }
 
@@ -335,17 +338,21 @@ export interface TxInfos {
 }
 
 export interface DelegationFeesObject {
-  raw: string
-  value: string
-  decimals: number
+  baseFee: Amount
+  gasPrice: Amount
   currencyNetworkOfFees: string
 }
 
 export interface DelegationFeesInternal {
-  raw: BigNumber
-  value: BigNumber
-  decimals: number
+  baseFee: AmountInternal
+  gasPrice: AmountInternal
   currencyNetworkOfFees: string
+}
+
+export interface DelegationFeesRaw {
+  baseFee?: number | string | BigNumber
+  gasPrice?: number | string | BigNumber
+  currencyNetworkOfFees?: string
 }
 
 // PAYMENT

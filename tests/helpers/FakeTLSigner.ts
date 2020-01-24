@@ -74,7 +74,8 @@ export class FakeTLSigner implements TLSigner {
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {
     return {
-      delegationFees: '0',
+      baseFee: '0',
+      gasPrice: '0',
       currencyNetworkOfFees: ''
     }
   }

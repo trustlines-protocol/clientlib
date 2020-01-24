@@ -113,16 +113,19 @@ export class RelayProvider implements TLProvider {
         metaTransaction
       }
     )
-    let delegationFees = '0'
+    let baseFee = '0'
+    let gasPrice = '0'
     let currencyNetworkOfFees = ''
     if (potentialDelegationFees.length) {
       // For now just get the first possible fee given by the relay server
       // Could be changed later to show the possible fees to the user and let it decide
-      delegationFees = potentialDelegationFees[0].delegationFees
+      baseFee = potentialDelegationFees[0].baseFee
+      gasPrice = potentialDelegationFees[0].gasPrice
       currencyNetworkOfFees = potentialDelegationFees[0].currencyNetworkOfFees
     }
     return {
-      delegationFees,
+      baseFee,
+      gasPrice,
       currencyNetworkOfFees
     }
   }

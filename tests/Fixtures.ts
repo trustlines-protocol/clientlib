@@ -12,6 +12,7 @@ import identityConfig from './e2e-config/addresses.json'
 import {
   EthersWalletData,
   IdentityWalletData,
+  MetaTransaction,
   TLWalletData
 } from '../src/typings'
 
@@ -210,9 +211,16 @@ export const FAKE_VALUE_TX_OBJECT_INTERNAL = {
     value: new BigNumber(1)
   },
   delegationFees: {
-    decimals: 18,
-    raw: new BigNumber(1000000000000000000),
-    value: new BigNumber(1),
+    baseFee: {
+      decimals: 18,
+      raw: new BigNumber(1000000000000000000),
+      value: new BigNumber(1)
+    },
+    gasPrice: {
+      decimals: 6,
+      raw: new BigNumber(0),
+      value: new BigNumber(0)
+    },
     currencyNetworkOfFees: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18'
   },
   rawTx: {
@@ -232,9 +240,16 @@ export const FAKE_FUNC_TX_OBJECT_INTERNAL = {
     value: new BigNumber(1)
   },
   delegationFees: {
-    decimals: 18,
-    raw: new BigNumber(1000000000000000000),
-    value: new BigNumber(1),
+    baseFee: {
+      decimals: 18,
+      raw: new BigNumber(1000000000000000000),
+      value: new BigNumber(1)
+    },
+    gasPrice: {
+      decimals: 6,
+      raw: new BigNumber(0),
+      value: new BigNumber(0)
+    },
     currencyNetworkOfFees: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18'
   },
   rawTx: {
@@ -438,15 +453,19 @@ export const FAKE_WEB3_TX_INFOS = {
   nonce: 12
 }
 
-export const FAKE_META_TX = {
+export const FAKE_META_TX: MetaTransaction = {
   data:
     '0x46432830000000000000000000000000000000000000000000000000000000000000000a',
-  extraData: '0x',
   from: '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
   nonce: '1',
+  timeLimit: '123456',
+  operationType: '0',
   to: '0x51a240271AB8AB9f9a21C82d9a85396b704E164d',
   value: '0',
-  delegationFees: '1',
+  baseFee: '1',
+  gasPrice: '123',
+  gasLimit: '456',
+  feeRecipient: '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
   currencyNetworkOfFees: '0x51a240271AB8AB9f9a21C82d9a85396b704E164d'
 }
 
@@ -456,7 +475,7 @@ export const FAKE_META_TX_PRIVATE_KEY =
 // The signature on the FAKE_META_TX obtained in the tests of the trustlines-network/contracts repository
 // Obtained by signing with key "0x0000...001"
 export const FAKE_META_TX_SIGNATURE =
-  '0x02a3c9abd0de925653c188b7f2e6e79ca032037371ef12a560116595508a51b65c1e4692878a87b491ef28e9ee560f7de0f2cb3f0981215134522750d42edce501'
+  '0xa558db2e5282de87128d061dc4fc307d3458791eb0284a318e17609f74928cbd03f0793660a42090e9eb12eb74426c98885ce09ddcbea4375f8e48baa273c0e800'
 
 export const FAKE_TRUSTLINE = {
   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
