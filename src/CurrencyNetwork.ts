@@ -5,6 +5,7 @@ import { TLProvider } from './providers/TLProvider'
 import utils from './utils'
 
 import {
+  DecimalsMap,
   DecimalsObject,
   DecimalsOptions,
   NetworkDetails,
@@ -18,10 +19,21 @@ import {
  * currency network related information.
  */
 export class CurrencyNetwork {
+  /**
+   * Returns general and interest rate decimals for given currency network.
+   * @param networkAddress Currency network to get decimals for.
+   * @param decimalsOptions Optional provided decimals if known.
+   */
+  public getDecimals: (
+    networkAddress: string,
+    decimalsOptions?: DecimalsOptions
+  ) => Promise<DecimalsObject>
+
   private provider: TLProvider
 
   constructor(provider: TLProvider) {
     this.provider = provider
+    this.getDecimals = this._getDecimalsCached()
   }
 
   /**
@@ -106,38 +118,23 @@ export class CurrencyNetwork {
   }
 
   /**
-   * Returns the network decimals and interest decimals specified in a currency network.
-   * @param networkAddress Address of currency network.
-   * @param decimals If decimals are known they can be provided manually.
+   * Returns a mapping from network address to respective decimals.
+   * @param networkAddresses List of currency networks.
    */
-  public async getDecimals(
-    networkAddress: string,
-    decimalsOptions: DecimalsOptions = {}
-  ): Promise<DecimalsObject> {
-    const { networkDecimals, interestRateDecimals } = decimalsOptions
-    const decimalsObject = { networkDecimals, interestRateDecimals }
-    try {
-      await this._checkAddresses([networkAddress])
-      if (
-        typeof networkDecimals === 'undefined' ||
-        typeof networkDecimals !== 'number' ||
-        typeof interestRateDecimals === 'undefined' ||
-        typeof interestRateDecimals !== 'number'
-      ) {
-        // TODO replace with local list of known currency networks
-        const network = await this.getInfo(networkAddress)
-        decimalsObject.networkDecimals = network.decimals
-        decimalsObject.interestRateDecimals = network.interestRateDecimals
-      }
-      return decimalsObject
-    } catch (error) {
-      if (error.message.includes('Status 404')) {
-        throw new Error(
-          `${networkAddress} seems not to be a network address. Decimals have to be explicit.`
-        )
-      }
-      throw error
-    }
+  public async getDecimalsMap(
+    networkAddresses: string[]
+  ): Promise<DecimalsMap> {
+    const promises = networkAddresses.map(networkAddress =>
+      this.getDecimals(networkAddress)
+    )
+    const decimalsObjects = await Promise.all(promises)
+    return networkAddresses.reduce(
+      (decimalsMap: DecimalsMap, networkAddress, i) => ({
+        ...decimalsMap,
+        [networkAddress]: decimalsObjects[i]
+      }),
+      {}
+    )
   }
 
   /**
@@ -168,5 +165,71 @@ export class CurrencyNetwork {
       }
     }
     return true
+  }
+
+  /**
+   * Returns cached decimals of given currency network if existent and fetches if not.
+   * Always overwrites cache with manually provided decimals.
+   */
+  private _getDecimalsCached() {
+    const decimalsCache: DecimalsMap = {}
+    return async (
+      networkAddress: string,
+      decimalsOptions: DecimalsOptions = {}
+    ) => {
+      try {
+        await this._checkAddresses([networkAddress])
+
+        if (!decimalsCache[networkAddress]) {
+          decimalsCache[networkAddress] = {
+            networkDecimals: undefined,
+            interestRateDecimals: undefined
+          }
+        }
+
+        if (typeof decimalsOptions.networkDecimals === 'number') {
+          decimalsCache[networkAddress].networkDecimals =
+            decimalsOptions.networkDecimals
+        }
+        if (typeof decimalsOptions.interestRateDecimals === 'number') {
+          decimalsCache[networkAddress].interestRateDecimals =
+            decimalsOptions.interestRateDecimals
+        }
+
+        if (
+          typeof decimalsCache[networkAddress].networkDecimals !== 'number' ||
+          typeof decimalsCache[networkAddress].interestRateDecimals !== 'number'
+        ) {
+          console.log('FETCHED decimals...')
+          const fetchedDecimals = await this.getInfo(networkAddress)
+
+          if (
+            typeof decimalsCache[networkAddress].networkDecimals !== 'number'
+          ) {
+            decimalsCache[networkAddress].networkDecimals =
+              fetchedDecimals.decimals
+          }
+
+          if (
+            typeof decimalsCache[networkAddress].interestRateDecimals !==
+            'number'
+          ) {
+            decimalsCache[networkAddress].interestRateDecimals =
+              fetchedDecimals.interestRateDecimals
+          }
+        } else {
+          console.log('CACHED decimals...')
+        }
+
+        return decimalsCache[networkAddress]
+      } catch (error) {
+        if (error.message.includes('Status 404')) {
+          throw new Error(
+            `${networkAddress} seems not to be a network address. Decimals have to be explicit.`
+          )
+        }
+        throw error
+      }
+    }
   }
 }

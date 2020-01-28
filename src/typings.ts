@@ -441,6 +441,10 @@ export interface DecimalsObject {
   interestRateDecimals: number
 }
 
+export interface DecimalsMap {
+  [networkAddress: string]: DecimalsObject
+}
+
 export interface DeployIdentityResponse {
   // The address of the deployed identity contract, as replied by the relay server
   identity: string
@@ -496,6 +500,7 @@ export interface TrustlineObject {
   interestRateGiven: Amount
   interestRateReceived: Amount
   isFrozen: boolean
+  currencyNetwork: string
 }
 
 export interface TrustlineRaw {
@@ -509,6 +514,7 @@ export interface TrustlineRaw {
   interestRateGiven: string
   interestRateReceived: string
   isFrozen: boolean
+  currencyNetwork: string
 }
 
 /**

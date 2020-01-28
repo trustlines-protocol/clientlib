@@ -1,5 +1,6 @@
 import { CurrencyNetwork } from '../../src/CurrencyNetwork'
 
+import { TLProvider } from '../../src/providers/TLProvider'
 import { DecimalsObject, NetworkDetails } from '../../src/typings'
 
 import { FAKE_DECIMALS, FAKE_NETWORK } from '../Fixtures'
@@ -10,7 +11,12 @@ import { FAKE_DECIMALS, FAKE_NETWORK } from '../Fixtures'
 export class FakeCurrencyNetwork extends CurrencyNetwork {
   public errors: any = {}
 
-  public async getDecimals(): Promise<DecimalsObject> {
+  constructor(provider: TLProvider) {
+    super(provider)
+    this.getDecimals = this.fakeGetDecimals
+  }
+
+  public async fakeGetDecimals(): Promise<DecimalsObject> {
     if (this.errors.getDecimals) {
       throw new Error('Mocked error in currencyNetwork.getDecimals()!')
     }
