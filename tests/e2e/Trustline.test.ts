@@ -7,6 +7,7 @@ import {
   createAndLoadUsers,
   deployIdentities,
   parametrizedTLNetworkConfig,
+  setTrustlines,
   wait
 } from '../Fixtures'
 
@@ -913,6 +914,37 @@ describe('e2e', () => {
           await expect(
             tl1.trustline.getAll(networkWithoutInterestRates.address)
           ).to.eventually.be.an('array')
+        })
+      })
+
+      describe('#getAllOfUser()', () => {
+        before(async () => {
+          await setTrustlines(
+            networkCustomInterestRates.address,
+            tl3,
+            tl1,
+            1,
+            2
+          )
+          await setTrustlines(
+            networkDefaultInterestRates.address,
+            tl3,
+            tl1,
+            10,
+            20
+          )
+          await setTrustlines(
+            networkWithoutInterestRates.address,
+            tl3,
+            tl1,
+            100,
+            200
+          )
+        })
+
+        it('should return all trustlines across different networks', async () => {
+          const allTrustlines = await tl3.trustline.getAllOfUser()
+          expect(allTrustlines.length).to.equal(3)
         })
       })
 

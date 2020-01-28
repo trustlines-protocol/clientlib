@@ -260,6 +260,29 @@ export class Trustline {
   }
 
   /**
+   * Returns all trustlines of a loaded user in all currency networks.
+   */
+  public async getAllOfUser(): Promise<TrustlineObject[]> {
+    const endpoint = `users/${await this.user.getAddress()}/trustlines`
+    const trustlines = await this.provider.fetchEndpoint<TrustlineRaw[]>(
+      endpoint
+    )
+    const networkAddressesOfTrustlines = new Set(
+      trustlines.map(trustline => trustline.currencyNetwork)
+    )
+    const decimalsMap = await this.currencyNetwork.getDecimalsMap(
+      Array.from(networkAddressesOfTrustlines)
+    )
+    return trustlines.map(trustline =>
+      this._formatTrustline(
+        trustline,
+        decimalsMap[trustline.currencyNetwork].networkDecimals,
+        decimalsMap[trustline.currencyNetwork].interestRateDecimals
+      )
+    )
+  }
+
+  /**
    * Returns all trustlines of a loaded user in a currency network.
    * @param networkAddress Address of a currency network.
    * @param options Extra options for user, network or trustline.

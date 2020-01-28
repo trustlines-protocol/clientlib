@@ -200,7 +200,6 @@ export class CurrencyNetwork {
           typeof decimalsCache[networkAddress].networkDecimals !== 'number' ||
           typeof decimalsCache[networkAddress].interestRateDecimals !== 'number'
         ) {
-          console.log('FETCHED decimals...')
           const fetchedDecimals = await this.getInfo(networkAddress)
 
           if (
@@ -217,8 +216,6 @@ export class CurrencyNetwork {
             decimalsCache[networkAddress].interestRateDecimals =
               fetchedDecimals.interestRateDecimals
           }
-        } else {
-          console.log('CACHED decimals...')
         }
 
         return decimalsCache[networkAddress]
