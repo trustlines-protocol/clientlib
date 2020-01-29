@@ -1,56 +1,92 @@
-# trustlines-network clientlib
+# Trustlines Clientlib
 
 [![npm](https://img.shields.io/npm/v/trustlines-clientlib.svg)](https://www.npmjs.com/package/trustlines-clientlib)
 [![CircleCI branch](https://img.shields.io/circleci/project/github/trustlines-protocol/clientlib/master.svg)](https://circleci.com/gh/trustlines-protocol/clientlib)
 [![Codecov branch](https://img.shields.io/codecov/c/github/trustlines-protocol/clientlib/master.svg)](https://codecov.io/gh/trustlines-protocol/clientlib)
 
-A TypeScript/Javascript library for interacting with the [trustlines-network protocol](https://trustlines.network/).
-
-## Read the [Documentation](https://docs.trustlines.network/)
+A TypeScript/JavaScript library for interacting with the [Trustlines Network Protocol](https://trustlines.network/).
 
 ## Installation
 
-Install the library using `npm` or `yarn`
+### Install via package manager
+
+We publish the trustlines-clientlib to npm as a ES6 module.
+
+#### Using npm
 
 ```bash
-$ npm install trustlines-clientlib
-// OR
+$ npm i trustlines-clientlib
+```
+
+#### Using yarn
+
+```bash
 $ yarn add trustlines-clientlib
 ```
 
-#### Import ES6 module
+### Build from source
 
-```javascript
-import { TLNetwork } from 'trustlines-clientlib'
+If you want to build the library from source run
+
+```bash
+git clone git@github.com:trustlines-protocol/clientlib.git
+cd clientlib
+yarn && yarn build
 ```
 
-Use the following configuration to connect to the currently deployed test setup.
+This will create three different builds:
 
-**NOTE: The [trustlines-network contracts](https://github.com/trustlines-network/contracts) are deployed on the Laika Testnet ([Laika Blockexplorer](https://explore.laika.trustlines.foundation/)), the test network of Trustlines. Some Laika test `TLC` is therefore required to interact with the contracts in this setup.**
+- ES6 module in `./lib-esm`
+- CommonJS module in `./lib`
+- Bundled JS injectable into browser in `./_bundles`
+
+## Get started
+
+We assume the usage of the `trustlines-clientlib` ES6 module in the following.
+
+### Configuration
+
+To start using the trustlines-clientlib you first have to configure the [relay server](https://github.com/trustlines-protocol/relay) you want to connect to.
+You can either connect to a local develop relay server or use publicly available ones.
 
 ```javascript
-import { TLNetwork } from 'trustlines-clientlib'
+import { TLNetwork } from "trustlines-clientlib";
 
-const tlNetworkConfig = {
-  protocol: 'https',
-  host: 'relay0.testnet.trustlines.network',
-  path: 'api/v1/'
-}
+// Instance using a relay connected the Laika Testnet
+const laika = new TLNetwork({
+  protocol: "https",
+  wsProtocol: "wss"
+  host: "relay0.testnet.trustlines.network",
+  path: "/api/v1",
+  // ...
+});
 
-const tlNetwork = new TLNetwork(tlNetworkConfig)
+// Instance using a relay connected the TLBC
+const tlbc = new TLNetwork({
+  protocol: "https",
+  wsProtocol: "wss"
+  host: "TODO",
+  path: "/api/v1"
+  // ...
+});
 ```
 
-## Example
+### Example usage
 
-This library is a promise-based library. So every asynchronous call will return a native Javascript promise. If an error occurs the library will throw it. The caller has to handle it appropriately.
+This library is a promise-based library.
+So every asynchronous call will return a native JavaScript promise.
+If an error occurs the library will throw it.
+The caller has to handle it appropriately.
 
 ```javascript
 try {
-  const networks = await tlNetwork.currencyNetwokr.getAll()
+  const networks = await laika.currencyNetwork.getAll()
 } catch (error) {
   console.log('Caught error:', error)
 }
 ```
+
+### Read our [documentation]() for more
 
 ## Running injected web3 example
 
@@ -61,3 +97,7 @@ yarn serve
 ```
 
 This serves the injected web3 example app on `http://127.0.0.1:8080`. You can find the app under `./examples/injected-web3`.
+
+## Change log
+
+See [CHANGELOG](./CHANGELOG.md)
