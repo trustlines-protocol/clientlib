@@ -88,6 +88,27 @@ try {
 
 ### Read our [documentation]() for more
 
+## Run Tests
+
+```bash
+# All tests
+yarn test
+
+# Unit tests
+yarn test:unit
+
+# Integration tests
+yarn test:integration
+
+# end2end tests
+yarn test:e2e
+```
+
+### Note on end2end tests
+
+You have to have all components of the trustlines protocol running.
+A convenient way to achieve this is by using our [end2end](https://github.com/trustlines-protocol/end2end) setup.
+
 ## Running injected web3 example
 
 To run the example make sure to have [MetaMask](https://metamask.io/) installed and connected to a JSON RPC.
