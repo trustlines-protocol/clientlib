@@ -2,10 +2,46 @@
 
 Here you can find useful guides on how to use the core features of the trustlines-clientlib.
 
+- [Note on numbers and fees](#note-on-numbers-and-fees)
 - [Create user / wallet](#create-user-/-wallet)
 - [Discover currency networks](#discover-currency-networks)
 - [Set up trustline](#set-up-trustline)
 - [Send transfer](#transfer)
+
+## Note on numbers and fees
+
+### Number format
+
+The trustlines-clientlib returns numbers in the following format
+
+```ts
+type Amount = {
+  raw: string // = value * decimals^10
+  value: string // = raw / decimals^10
+  decimals: number
+}
+```
+
+The representation `raw` is the number in its smallest unit, whereas `value` is the representation in its biggest unit.
+
+### Fees
+
+There are currently three different types of fees returned by the trustlines-clientlib, when preparing transactions.
+
+#### Transaction fees - `ethFees`
+
+This kind of fees only occur, when the `walletType` in the initial configuration is set to `ethers`.
+They are denominated in the native cryptocurrency or coins, e.g. `TLC`, `Test TLC`, `ETH`, etc.
+
+#### Delegation fees - `delegationFees`
+
+If the `walletType` is set to `identity`, the library uses meta-transactions that are relayed, i.e delegated, by the relay server.
+The relay server operator pays for the occurring transaction fees and might want to be compensated for this service.
+These fees are denominated in a Trustlines Currency.
+
+#### Network fees - `maxFees`
+
+When transfers are mediated through other users within the network, network fees might occur, which are also denominated in a Trustlines Currency.
 
 ## Create user / wallet
 
@@ -35,8 +71,8 @@ await laika.user.loadFrom(newEthersUser);
 
 ### Create instance of type `identity`
 
-A user of type `identity` is able makes use of meta-transactions.
-Therefore the addresses of the deployed [identity factory]() and [implementation]() contracts have be set.
+A user of type `identity` is makes use of meta-transactions.
+Therefore the addresses of the deployed [identity factory]() and [implementation]() contracts have to be set.
 An additional step of deploying the identity contract of the newly created user is also necessary.
 
 ```javascript
@@ -45,6 +81,7 @@ const laika = new TLNetwork({
   wsProtocol: "wss"
   host: "relay0.testnet.trustlines.network",
   path: "/api/v1",
+  walletType: "identity",
   identityFactoryAddress: "0x8D2720877Fa796E3C3B91BB91ad6CfcC07Ea249E",
   identityImplementationAddress: "0x8BEe92893D3ec62e5B3EBBe4e536A60Fd9AFc9D7",
 });
@@ -177,7 +214,7 @@ const { rawTx, maxFees, path, feePayer } = await tlNetwork.payment.prepare(
   1
 )
 console.log('Transfer path:', path)
-console.log('Max fees:', maxFees)
+console.log('Network fees:', maxFees)
 console.log('Fee payer:', feePayer)
 
 const txHash = await tlNetwork.payment.confirm(raw)

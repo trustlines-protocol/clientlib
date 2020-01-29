@@ -52,7 +52,7 @@ You can either connect to a local develop relay server or use publicly available
 ```javascript
 import { TLNetwork } from "trustlines-clientlib";
 
-// Instance using a relay connected the Laika Testnet
+// Instance using a relay connected to the Laika Testnet
 const laika = new TLNetwork({
   protocol: "https",
   wsProtocol: "wss"
@@ -61,7 +61,7 @@ const laika = new TLNetwork({
   // ...
 });
 
-// Instance using a relay connected the TLBC
+// Instance using a relay connected to the TLBC
 const tlbc = new TLNetwork({
   protocol: "https",
   wsProtocol: "wss"
