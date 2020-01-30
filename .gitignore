@@ -4,7 +4,7 @@ lib-esm
 _bundles
 .idea
 npm-debug.log
-docs
+doc.json
 *~
 package-lock.json
 addresses.json
