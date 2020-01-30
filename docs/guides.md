@@ -58,39 +58,39 @@ The user therefore needs some coins ([TLC](https://explore.tlbc.trustlines.found
 
 ```javascript
 const laika = new TLNetwork({
-  protocol: "https",
-  wsProtocol: "wss"
-  host: "relay0.testnet.trustlines.network",
-  path: "/api/v1",
-  walletType: "ethers"
-});
+  protocol: 'https',
+  wsProtocol: 'wss',
+  host: 'relay0.testnet.trustlines.network',
+  path: '/api/v1',
+  walletType: 'ethers'
+})
 
-const newEthersUser = await laika.user.create();
-await laika.user.loadFrom(newEthersUser);
+const newEthersUser = await laika.user.create()
+await laika.user.loadFrom(newEthersUser)
 ```
 
 ### Create instance of type `identity`
 
-A user of type `identity` is makes use of meta-transactions.
+A user of type `identity` makes use of meta-transactions.
 Therefore the addresses of the deployed [identity factory]() and [implementation]() contracts have to be set.
 An additional step of deploying the identity contract of the newly created user is also necessary.
 
 ```javascript
 const laika = new TLNetwork({
-  protocol: "https",
-  wsProtocol: "wss"
-  host: "relay0.testnet.trustlines.network",
-  path: "/api/v1",
-  walletType: "identity",
-  identityFactoryAddress: "0x8D2720877Fa796E3C3B91BB91ad6CfcC07Ea249E",
-  identityImplementationAddress: "0x8BEe92893D3ec62e5B3EBBe4e536A60Fd9AFc9D7",
-});
+  protocol: 'https',
+  wsProtocol: 'wss',
+  host: 'relay0.testnet.trustlines.network',
+  path: '/api/v1',
+  walletType: 'identity',
+  identityFactoryAddress: '0x8D2720877Fa796E3C3B91BB91ad6CfcC07Ea249E',
+  identityImplementationAddress: '0x8BEe92893D3ec62e5B3EBBe4e536A60Fd9AFc9D7'
+})
 
-const newIdentityUser = await laika.user.create();
-await laika.user.loadFrom(newUser);
+const newIdentityUser = await laika.user.create()
+await laika.user.loadFrom(newIdentityUser)
 
 // Additional step to deploy the identity contract of newly created user
-const txHash = await laika.user.deployIdentity();
+const txHash = await laika.user.deployIdentity()
 ```
 
 ## Discover currency networks

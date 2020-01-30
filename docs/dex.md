@@ -32,7 +32,7 @@ const options = {
 // NOTE: This is NOT an on-chain transaction. The order is signed
 //       by the initiated user and stored on the relay server.
 const order = await tlNetwork.exchange.makeOrder(
-  exchangeAdress,
+  exchangeAddress,
   makerTokenAddress,
   takerTokenAddress,
   5,

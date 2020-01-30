@@ -50,25 +50,25 @@ To start using the trustlines-clientlib you first have to configure the [relay s
 You can either connect to a local develop relay server or use publicly available ones.
 
 ```javascript
-import { TLNetwork } from "trustlines-clientlib";
+import { TLNetwork } from 'trustlines-clientlib'
 
 // Instance using a relay connected to the Laika Testnet
 const laika = new TLNetwork({
-  protocol: "https",
-  wsProtocol: "wss"
-  host: "relay0.testnet.trustlines.network",
-  path: "/api/v1",
+  protocol: 'https',
+  wsProtocol: 'wss',
+  host: 'relay0.testnet.trustlines.network',
+  path: '/api/v1'
   // ...
-});
+})
 
 // Instance using a relay connected to the TLBC
 const tlbc = new TLNetwork({
-  protocol: "https",
-  wsProtocol: "wss"
-  host: "TODO",
-  path: "/api/v1"
+  protocol: 'https',
+  wsProtocol: 'wss',
+  host: '<url>', // TODO There is no public TLBC relay yet
+  path: '/api/v1'
   // ...
-});
+})
 ```
 
 ### Example usage
