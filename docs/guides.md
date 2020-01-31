@@ -72,7 +72,7 @@ await laika.user.loadFrom(newEthersUser)
 ### Create instance of type `identity`
 
 A user of type `identity` makes use of meta-transactions.
-Therefore the addresses of the deployed [identity factory]() and [implementation]() contracts have to be set.
+Therefore the addresses of the deployed [identity factory](https://github.com/trustlines-protocol/contracts/blob/master/contracts/identity/IdentityProxyFactory.sol) and [implementation](https://github.com/trustlines-protocol/contracts/blob/master/contracts/identity/Identity.sol) contracts have to be set.
 An additional step of deploying the identity contract of the newly created user is also necessary.
 
 ```javascript
@@ -179,8 +179,8 @@ const networkAddress = '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
 const requests = await tlNetwork2.trustline.getRequests(networkAddress)
 const latestRequest = requests[requests.length - 1]
 const initiatorAddress = latestRequest.from
-const creditlineGivenToInitiator = latestRequest.received
-const creditlineReceivedFromInitiator = latestRequest.given
+const creditlineGivenToInitiator = latestRequest.received.value
+const creditlineReceivedFromInitiator = latestRequest.given.value
 
 const { rawTx } = await tlNetwork2.trustline.prepareAccept(
   networkAddress,
