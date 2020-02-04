@@ -150,10 +150,14 @@ describe('e2e', () => {
       })
 
       it('should transfer eth via a meta-transaction', async () => {
-        const secondWallet = new IdentityWallet(relayProvider, {
-          identityFactoryAddress,
-          identityImplementationAddress
-        })
+        const secondWallet = new IdentityWallet(
+          relayProvider,
+          tlNetworkConfigIdentity.chainId,
+          {
+            identityFactoryAddress,
+            identityImplementationAddress
+          }
+        )
         const walletData = await secondWallet.create()
         await secondWallet.loadFrom(walletData)
 

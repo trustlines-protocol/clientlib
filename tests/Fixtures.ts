@@ -16,6 +16,8 @@ import {
   TLWalletData
 } from '../src/typings'
 
+export const end2endChainId = 17
+
 export const identityFactoryAddress = identityConfig.identityProxyFactory
 
 export const identityImplementationAddress =
@@ -25,7 +27,8 @@ export const tlNetworkConfig = {
   host: process.env.RELAY_HOSTNAME || 'localhost',
   path: 'api/v1/',
   port: 5000,
-  protocol: 'http'
+  protocol: 'http',
+  chainId: end2endChainId
 }
 
 export const tlNetworkConfigIdentity = {
@@ -35,7 +38,8 @@ export const tlNetworkConfigIdentity = {
   protocol: 'http',
   walletType: WALLET_TYPE_IDENTITY,
   identityFactoryAddress: identityConfig.identityProxyFactory,
-  identityImplementationAddress: identityConfig.identityImplementation
+  identityImplementationAddress: identityConfig.identityImplementation,
+  chainId: end2endChainId
 }
 
 export const parametrizedTLNetworkConfig = [
@@ -453,10 +457,15 @@ export const FAKE_WEB3_TX_INFOS = {
   nonce: 12
 }
 
+export const FAKE_CHAIN_ID = 17
+
+// This meta_tx corresponds to a meta-tx signed in the contracts test and is used to verify that the signatures match
 export const FAKE_META_TX: MetaTransaction = {
   data:
     '0x46432830000000000000000000000000000000000000000000000000000000000000000a',
   from: '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+  chainId: 0,
+  version: 1,
   nonce: '1',
   timeLimit: '123456',
   operationType: '0',
@@ -475,7 +484,7 @@ export const FAKE_META_TX_PRIVATE_KEY =
 // The signature on the FAKE_META_TX obtained in the tests of the trustlines-network/contracts repository
 // Obtained by signing with key "0x0000...001"
 export const FAKE_META_TX_SIGNATURE =
-  '0xa558db2e5282de87128d061dc4fc307d3458791eb0284a318e17609f74928cbd03f0793660a42090e9eb12eb74426c98885ce09ddcbea4375f8e48baa273c0e800'
+  '0x639db755a4e0642c2ec76485cf623c58b635c54f9ce375088fad40a128779d7a060ceb63129eb9681216a844a0577184b1d3266fc6ac00fbbe23e72b592c33c200'
 
 export const FAKE_TRUSTLINE = {
   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
