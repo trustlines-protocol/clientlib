@@ -8,6 +8,7 @@ import { FakeTLProvider } from '../helpers/FakeTLProvider'
 
 import {
   DEFAULT_PASSWORD,
+  FAKE_CHAIN_ID,
   FAKE_META_TX,
   FAKE_META_TX_PRIVATE_KEY,
   FAKE_META_TX_SIGNATURE,
@@ -40,7 +41,7 @@ describe('unit', () => {
 
     const init = () => {
       fakeTLProvider = new FakeTLProvider()
-      identityWallet = new IdentityWallet(fakeTLProvider, {
+      identityWallet = new IdentityWallet(fakeTLProvider, FAKE_CHAIN_ID, {
         identityFactoryAddress: IDENTITY_FACTORY_ADDRESS,
         identityImplementationAddress: IDENTITY_IMPLEMENTATION_ADDRESS
       })

@@ -34,14 +34,18 @@ export class IdentityWallet implements TLWallet {
   private identityAddress: string
   private identityFactoryAddress: string
   private identityImplementationAddress: string
+  private chainId: number
+  private identityVersion = 1
 
   constructor(
     provider: TLProvider,
+    chainId: number,
     { identityFactoryAddress, identityImplementationAddress }
   ) {
     this.identityFactoryAddress = identityFactoryAddress
     this.identityImplementationAddress = identityImplementationAddress
     this.provider = provider
+    this.chainId = chainId
   }
 
   public get address(): string {
@@ -269,6 +273,8 @@ export class IdentityWallet implements TLWallet {
       'bytes1',
       'bytes1',
       'address',
+      'uint256',
+      'uint256',
       'address',
       'uint256',
       'bytes32',
@@ -285,6 +291,8 @@ export class IdentityWallet implements TLWallet {
       '0x19',
       '0x00',
       metaTransaction.from,
+      metaTransaction.chainId,
+      metaTransaction.version,
       metaTransaction.to,
       metaTransaction.value,
       ethersUtils.solidityKeccak256(['bytes'], [metaTransaction.data]),
@@ -376,6 +384,8 @@ export class IdentityWallet implements TLWallet {
     return {
       data: rawTx.data || '0x',
       from: rawTx.from,
+      chainId: this.chainId,
+      version: this.identityVersion,
       nonce: rawTx.nonce.toString(),
       to: rawTx.to,
       value: rawTx.value.toString(),
@@ -391,7 +401,7 @@ export class IdentityWallet implements TLWallet {
         ? rawTx.delegationFees.currencyNetworkOfFees
         : rawTx.to,
       timeLimit: '0',
-      operationType: '0'
+      operationType: 0
     }
   }
 }

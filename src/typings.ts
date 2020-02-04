@@ -49,6 +49,10 @@ export interface TLNetworkConfig {
    * Address of the implementation of the identity contract
    */
   identityImplementationAddress?: string
+  /**
+   * Chain id used in the signature of meta-tx
+   */
+  chainId?: number
 }
 
 /**
@@ -258,6 +262,8 @@ export interface RawTxObject {
 
 export interface MetaTransaction {
   from: string
+  chainId: number
+  version: number
   to: string
   value: string
   data: string
@@ -268,7 +274,7 @@ export interface MetaTransaction {
   currencyNetworkOfFees: string
   nonce: string
   timeLimit: string
-  operationType: string
+  operationType: number
   signature?: string
 }
 

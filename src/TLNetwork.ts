@@ -110,7 +110,8 @@ export class TLNetwork {
       web3Provider,
       identityFactoryAddress,
       identityImplementationAddress,
-      walletType = WALLET_TYPE_ETHERS
+      walletType = WALLET_TYPE_ETHERS,
+      chainId
     } = config
 
     this.setProvider(
@@ -120,7 +121,7 @@ export class TLNetwork {
       )
     )
 
-    this.setWallet(walletType, this.provider, {
+    this.setWallet(walletType, this.provider, chainId, {
       identityFactoryAddress,
       identityImplementationAddress
     })
@@ -207,12 +208,13 @@ export class TLNetwork {
   public setWallet(
     walletType: string,
     provider: TLProvider,
+    chainId: number,
     { identityFactoryAddress, identityImplementationAddress }
   ): void {
     let wallet: TLWallet
 
     if (walletType === WALLET_TYPE_IDENTITY) {
-      wallet = new IdentityWallet(provider, {
+      wallet = new IdentityWallet(provider, chainId, {
         identityFactoryAddress,
         identityImplementationAddress
       })
