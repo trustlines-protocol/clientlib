@@ -468,7 +468,7 @@ export const FAKE_META_TX: MetaTransaction = {
   version: 1,
   nonce: '1',
   timeLimit: '123456',
-  operationType: '0',
+  operationType: 0,
   to: '0x51a240271AB8AB9f9a21C82d9a85396b704E164d',
   value: '0',
   baseFee: '1',
