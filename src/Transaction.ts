@@ -172,7 +172,8 @@ export class Transaction {
 
     let currencyDecimals = 0
     if (
-      metaTransactionFees.baseFee !== '0' &&
+      (metaTransactionFees.baseFee !== '0' ||
+        metaTransactionFees.gasPrice !== '0') &&
       metaTransactionFees.currencyNetworkOfFees !== ''
     ) {
       currencyDecimals = (await this.currencyNetwork.getDecimals(
