@@ -22,8 +22,20 @@ import {
 } from './typings'
 
 /**
- * The Payment class contains all payment related functions. This includes
- * trustline transfers and normal ETH transfers.
+ * The Payment class contains all payment related functions. This includes trustline transfers and TLC transfers.
+ * It is meant to be called via a [[TLNetwork]] instance like:
+ * ```typescript
+ * const tlNetwork = new TLNetwork(
+ *  //...
+ * )
+ *
+ * // Get transfer logs
+ * tlNetwork.payment.get(
+ *  // ...
+ * ).then(
+ *  payments => console.log("Payments of loaded user:", payments)
+ * )
+ * ```
  */
 export class Payment {
   private currencyNetwork: CurrencyNetwork
@@ -32,6 +44,7 @@ export class Payment {
   private transaction: Transaction
   private user: User
 
+  /** @hidden */
   constructor(params: {
     event: Event
     user: User
@@ -52,7 +65,7 @@ export class Payment {
    * @param receiverAddress Address of receiver of transfer.
    * @param value Amount to transfer in biggest unit,
    *              i.e. 1.5 if currency network has 2 decimals.
-   * @param options Optional payment options. See `PaymentOptions` for more information.
+   * @param options Optional payment options. See [[PaymentOptions]] for more information.
    * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user is willing to pay.
@@ -122,7 +135,7 @@ export class Payment {
    * Prepares a ethereum transaction object for a ETH transfer, where loaded user is the sender.
    * @param receiverAddress Address of receiver of transfer.
    * @param value Amount of ETH to transfer.
-   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options Payment options. See [[PaymentOptions]] for more information.
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    */
@@ -159,7 +172,7 @@ export class Payment {
    * @param receiverAddress Address of receiver of transfer.
    * @param value Amount to transfer in biggest unit,
    *              i.e. 1.23 if currency network has 2 decimals.
-   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options Payment options. See [[PaymentOptions]] for more information.
    * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
    * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
@@ -211,7 +224,7 @@ export class Payment {
   /**
    * Returns transfer event logs of loaded user in a specified currency network.
    * @param networkAddress Address of currency network.
-   * @param filter Event filter object. See `EventFilterOptions` for more information.
+   * @param filter Event filter object. See [[EventFilterOptions]] for more information.
    */
   public get(
     networkAddress: string,

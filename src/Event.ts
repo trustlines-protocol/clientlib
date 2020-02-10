@@ -23,12 +23,26 @@ const TOKEN = 'Token'
 
 /**
  * The Event class contains all methods related to retrieving event logs.
+ * It is meant to be called via a [[TLNetwork]] instance like:
+ * ```typescript
+ * const tlNetwork = new TLNetwork(
+ *  //...
+ * )
+ *
+ * // Get transfer logs
+ * tlNetwork.event.get(
+ *  // ...
+ * ).then(
+ *  events => console.log("Events of loaded user:", events)
+ * )
+ * ```
  */
 export class Event {
   private currencyNetwork: CurrencyNetwork
   private provider: TLProvider
   private user: User
 
+  /** @hidden */
   constructor(params: {
     currencyNetwork: CurrencyNetwork
     provider: TLProvider
@@ -43,7 +57,7 @@ export class Event {
    * @hidden
    * Returns event logs of loaded user in a specified currency network.
    * @param networkAddress Address of a currency network.
-   * @param filter Event filter object. See `EventFilterOptions` for more information.
+   * @param filter Event filter object. See [[EventFilterOptions]] for more information.
    * @param filter.type Available event types are `Transfer`, `TrustlineUpdateRequest` and `TrustlineUpdate`.
    * @param filter.fromBlock Start of block range for event logs.
    */
@@ -73,7 +87,7 @@ export class Event {
 
   /**
    * Returns event logs of loaded user in all currency networks.
-   * @param filter Event filter object. See `EventFilterOptions` for more information.
+   * @param filter Event filter object. See [[EventFilterOptions]] for more information.
    * @param filter.type Available event types are:
    *                    CurrencyNetwork -> `Transfer`, `TrustlineUpdateRequest` and `TrustlineUpdate`
    *                    EthWrapper -> `Transfer`, `Deposit` and `Withdrawal`
@@ -121,6 +135,7 @@ export class Event {
   }
 
   /**
+   * @hidden
    * Fetches decimals for given event logs and formats them so that all numerical
    * values are `Amount` objects.
    * @param rawEvents trustlines network events
@@ -162,6 +177,7 @@ export class Event {
   }
 
   /**
+   * @hidden
    * Returns a mapping from address to decimals
    * @param addressesMap mapping from address to whether given address is a CurrencyNetwork
    *                     or Token contract.
