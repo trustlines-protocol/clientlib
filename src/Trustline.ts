@@ -28,8 +28,20 @@ import {
 } from './typings'
 
 /**
- * The Trustline class contains all relevant methods for retrieving, creating and
- * editing trustlines.
+ * The [[Trustline]] class contains all relevant methods for retrieving, creating and editing trustlines.
+ * It is meant to be called via a [[TLNetwork]] instance like:
+ * ```typescript
+ * const tlNetwork = new TLNetwork(
+ *  //...
+ * )
+ *
+ * // Get trustlines
+ * tlNetwork.trustline.getAll(
+ *  // ...
+ * ).then(
+ *  trustlines => console.log("Trustlines of loaded user:", trustlines)
+ * )
+ * ```
  */
 export class Trustline {
   private currencyNetwork: CurrencyNetwork
@@ -38,6 +50,7 @@ export class Trustline {
   private transaction: Transaction
   private user: User
 
+  /** @hidden */
   constructor(params: {
     currencyNetwork: CurrencyNetwork
     event: Event
@@ -53,7 +66,7 @@ export class Trustline {
   }
 
   /**
-   * Prepares an ethereum transaction object for creating a trustline update request.
+   * Prepares a transaction object for creating a trustline update request.
    * Called by initiator of update request.
    * @param networkAddress Address of a currency network.
    * @param counterpartyAddress Address of counterparty who receives trustline update request.
@@ -62,7 +75,7 @@ export class Trustline {
    * @param creditlineReceived Proposed creditline limit received by initiator from counterparty,
    *                           i.e. 1.23 if network has to 2 decimals.
    * @param options Options for creating an `updateTrustline` ethereum transaction.
-   *                See type `TrustlineUpdateOptions` for more information.
+   *                See type [[TrustlineUpdateOptions]] for more information.
    * @param options.interestRateGiven Proposed interest rate given by initiator to counterparty in % per year.
    * @param options.interestRateReceived Proposed interest rate received by initiator from counterparty in % per year.
    * @param options.isFrozen Whether we propose to freeze the trustline.
@@ -175,7 +188,7 @@ export class Trustline {
   }
 
   /**
-   * Prepares an ethereum transaction object for accepting a trustline update request. Called
+   * Prepares a transaction object for accepting a trustline update request. Called
    * by receiver of initial update request.
    * @param networkAddress Address of a currency network.
    * @param initiatorAddress Address of user who initiated the trustline update request.
@@ -183,7 +196,7 @@ export class Trustline {
    *                        i.e. 1.23 if network has to 2 decimals.
    * @param creditlineReceived Proposed creditline limit received by initiator from receiver,
    *                           i.e. 1.23 if network has to 2 decimals.
-   * @param options Options for creating a ethereum transaction. See type `TLOptions` for more information.
+   * @param options Options for creating a ethereum transaction. See type [[TrustlineUpdateOptions]] for more information.
    * @param options.interestRateGiven Proposed interest rate given by receiver to initiator in % per year.
    * @param options.interestRateReceived Proposed interest rate received by initiator from receiver in % per year.
    * @param options.isFrozen Whether we propose to freeze the trustline.
@@ -209,12 +222,12 @@ export class Trustline {
   }
 
   /**
-   * Prepares an ethereum transaction object for canceling / rejecting a trustline update request.
+   * Prepares a transaction object for canceling / rejecting a trustline update request.
    * Called by initiator of cancel.
    * @param networkAddress Address of a currency network.
-   * @param counterpartyAddress Address of counterpartyto cancel / reject the trustline update with.
+   * @param counterpartyAddress Address of counterparty to cancel / reject the trustline update with.
    * @param options Options for creating the ethereum transaction.
-   *                See type `TxOptions` for more information.
+   *                See [[TxOptions]] for more information.
    * @param options.gasLimit Custom gas limit.
    * @param options.gasPrice Custom gas price.
    */
@@ -389,7 +402,7 @@ export class Trustline {
    * Prepares an ethereum transaction object for closing a trustline.
    * @param networkAddress Address of a currency network.
    * @param counterpartyAddress Address of counterparty to who the trustline should be settled.
-   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options Payment options. See [[PaymentOptions]] for more information.
    * @param options.decimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.
@@ -470,7 +483,7 @@ export class Trustline {
    * @param networkAddress Address of a currency network.
    * @param senderAddress Address of sender.
    * @param counterpartyAddress Address of counterparty of trustline.
-   * @param options Payment options. See `PaymentOptions` for more information.
+   * @param options Payment options. See [[PaymentOptions]] for more information.
    * @param options.networkDecimals Decimals of currency network can be provided manually.
    * @param options.maximumHops Max. number of hops for transfer.
    * @param options.maximumFees Max. transfer fees user if willing to pay.

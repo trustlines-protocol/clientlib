@@ -109,6 +109,12 @@ yarn test:e2e
 You have to have all components of the trustlines protocol running.
 A convenient way to achieve this is by using our [end2end](https://github.com/trustlines-protocol/end2end) setup.
 
+## Documentation
+
+The API reference can be found [here](./docs/api-reference-index.md) and is generated using [typedoc](https://typedoc.org/) by running `yarn doc` in this repository.
+We currently generate documentation for all types in the trustlines-clientlib in `./docs/api` whereas the most important ones are whitelisted in [here](./docs/api-reference-index.md).
+Guides on how to use the core features are documented [here](./docs/guides.md).
+
 ## Running injected web3 example
 
 To run the example make sure to have [MetaMask](https://metamask.io/) installed and connected to a JSON RPC.
