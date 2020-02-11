@@ -8,4 +8,4 @@
   - [`Trustline`](./api/classes/_trustline_.trustline.md)
   - [`Payment`](./api/classes/_payment_.payment.md)
   - [`Events`](./api/classes/_events_.events.md)
-- [`Utils`](<(./api/modules/_utils_.md)>)
+- [`Utils`](<(./api/modules/_utils_.md)>>)
