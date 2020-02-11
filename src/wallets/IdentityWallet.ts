@@ -127,22 +127,9 @@ export class IdentityWallet implements TLWallet {
   }
 
   public async isIdentityDeployed(): Promise<boolean> {
-    // If the identity contract is not deployed, the endpoint to get info will fail
-    try {
-      const response = await this.provider.fetchEndpoint<any>(
-        `/identities/${this.address}`
-      )
-      return true
-    } catch (error) {
-      if (
-        error.message.includes('Status 404') &&
-        error.message.includes('Contract not found')
-      ) {
-        return false
-      } else {
-        throw error
-      }
-    }
+    return this.provider.fetchEndpoint<any>(
+      `/identities/${this.address}/deployment`
+    )
   }
 
   /**
