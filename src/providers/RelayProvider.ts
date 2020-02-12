@@ -139,7 +139,7 @@ export class RelayProvider implements TLProvider {
    */
   public async getBalance(address: string): Promise<Amount> {
     const balance = await this.fetchEndpoint<string>(`users/${address}/balance`)
-    return utils.formatToAmount(utils.calcRaw(balance, 18), 18)
+    return utils.formatToAmount(balance, 18)
   }
 
   /**
