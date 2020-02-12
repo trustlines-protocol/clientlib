@@ -228,10 +228,7 @@ export class EthersWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    const balance = await this.provider.fetchEndpoint<string>(
-      `users/${this.address}/balance`
-    )
-    return utils.formatToAmount(utils.calcRaw(balance, 18), 18)
+    return this.provider.getBalance(this.address)
   }
 
   /**
