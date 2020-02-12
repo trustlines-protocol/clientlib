@@ -255,5 +255,30 @@ describe('e2e', () => {
         expect(metaTransactionFees.baseFee).to.equal('1')
       })
     })
+
+    describe('Error messages', () => {
+      before(async () => {
+        const walletData = await identityWallet.create()
+        await identityWallet.loadFrom(walletData)
+        await identityWallet.deployIdentity()
+      })
+
+      it('should get a detailed error message for invalid nonce', async () => {
+        const rawTx: RawTxObject = {
+          data: '0x',
+          from: identityWallet.address,
+          nonce: 123456,
+          to: identityWallet.address,
+          value: 0
+        }
+        try {
+          await identityWallet.getMetaTxFees(rawTx)
+        } catch (error) {
+          expect(error.message).to.contain(
+            'Invalid (nonce, hash) pair for meta-tx'
+          )
+        }
+      })
+    })
   })
 })
