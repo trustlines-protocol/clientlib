@@ -8,6 +8,7 @@ import { Observer } from 'rxjs/Observer'
 import JsonRPC from 'simple-jsonrpc-js'
 import NodeWebSocket from 'ws'
 
+import { Provider } from 'ethers/providers'
 import {
   Amount,
   AmountInternal,
@@ -17,6 +18,7 @@ import {
   DelegationFeesObject,
   ExchangeCancelEventRaw,
   ExchangeFillEventRaw,
+  ProviderUrl,
   ReconnectingWSOptions
 } from './typings'
 
@@ -413,20 +415,27 @@ export const isURL = str => {
 }
 
 /**
- * Returns URL by concatenating protocol, host, port and path.
- * @param protocol relay api endpoint protocol
- * @param host relay api host address
- * @param port relay api port
- * @param path relay api base endpoint
+ * Returns URL by concatenating protocol, host, port and path from ProviderUrl object.
+ * @param UrlObject.protocol relay api endpoint protocol
+ * @param UrlObject.host relay api host address
+ * @param UrlObject.port relay api port
+ * @param UrlObject.path relay api base endpoint
  */
-export const buildApiUrl = (
-  protocol: string,
-  host: string,
-  port: number | string,
-  path: string
-): string => {
-  return `${protocol}://${host}${port && `:${port}`}${path &&
-    `/${trimUrl(path)}`}`
+export const buildApiUrl = (UrlObject: ProviderUrl): string => {
+  return `${UrlObject.protocol}://${UrlObject.host}${UrlObject.port &&
+    `:${UrlObject.port}`}${UrlObject.path && `/${trimUrl(UrlObject.path)}`}`
+}
+
+/**
+ * Returns URL by concatenating protocol, host, port and path.
+ * @param UrlObject.wsProtocol relay ws api endpoint protocol
+ * @param UrlObject.host relay api host address
+ * @param UrlObject.port relay api port
+ * @param UrlObject.path relay api base endpoint
+ */
+export const buildWsApiUrl = (UrlObject: ProviderUrl): string => {
+  return `${UrlObject.wsProtocol}://${UrlObject.host}${UrlObject.port &&
+    `:${UrlObject.port}`}${UrlObject.path && `/${trimUrl(UrlObject.path)}`}`
 }
 
 /**
@@ -453,6 +462,7 @@ export const trimUrl = (url: string): string => {
 
 export default {
   buildApiUrl,
+  buildWsApiUrl,
   buildUrl,
   calcRaw,
   calcValue,

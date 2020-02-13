@@ -24,8 +24,8 @@ import {
 } from '../../src/typings'
 
 export class FakeTLProvider implements TLProvider {
-  public relayApiUrl = FAKE_RELAY_API
-  public relayWsApiUrl = FAKE_RELAY_API
+  public ApiUrl = FAKE_RELAY_API
+  public WsApiUrl = FAKE_RELAY_API
   public errors: any = {}
 
   /**

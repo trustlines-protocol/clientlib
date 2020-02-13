@@ -8,18 +8,20 @@ describe('unit', () => {
     describe('#constructor()', () => {
       it('should load default configuration', () => {
         const tlNetwork = new TLNetwork()
-        expect(tlNetwork.provider.relayApiUrl).to.equal('http://localhost')
+        expect(tlNetwork.relayProvider.ApiUrl).to.equal('http://localhost')
       })
 
       it('should load custom configuration', () => {
         const tlNetwork = new TLNetwork({
-          host: '192.168.0.59',
-          path: 'api/v1',
-          port: 5000,
-          protocol: 'https'
+          relayProviderUrlObject: {
+            host: '192.168.0.59',
+            path: 'api/v1',
+            port: 5000,
+            protocol: 'https'
+          }
         })
         expect(tlNetwork).to.be.an('object')
-        expect(tlNetwork.provider.relayApiUrl).to.equal(
+        expect(tlNetwork.relayProvider.ApiUrl).to.equal(
           'https://192.168.0.59:5000/api/v1'
         )
       })

@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable'
 import { fromPromise } from 'rxjs/observable/fromPromise'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
-import { TLProvider } from './providers/TLProvider'
+import { Provider } from './providers/Provider'
 import { User } from './User'
 
 import utils from './utils'
@@ -17,11 +17,11 @@ import {
 export class Messaging {
   private user: User
   private currencyNetwork: CurrencyNetwork
-  private provider: TLProvider
+  private provider: Provider
 
   constructor(params: {
     currencyNetwork: CurrencyNetwork
-    provider: TLProvider
+    provider: Provider
     user: User
   }) {
     this.user = params.user

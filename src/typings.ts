@@ -7,37 +7,33 @@ import { Options as ReconnectingOptions } from 'reconnecting-websocket'
  */
 export interface TLNetworkConfig {
   /**
-   * Protocol for communicating with a relay server
+   * Url object for the trustline provider
    */
-  protocol?: string
+  relayProviderUrlObject?: ProviderUrl
   /**
-   * Host of a relay server
+   * Url object for the messaging provider
    */
-  host?: string
-  /**
-   * Port for communication
-   */
-  port?: number
-  /**
-   * Base path for the relay api
-   */
-  path?: string
-  /**
-   * Protocol for WebSockets
-   */
-  wsProtocol?: string
+  messagingProviderUrlObject?: ProviderUrl
   /**
    * Web3 provider
    */
   web3Provider?: any
   /**
-   * Full URL for relay rest api
+   * Full URL for trustline rest api
    */
   relayApiUrl?: string
   /**
-   * Full URL for relay WebSocket api
+   * Full URL for trustline WebSocket api
    */
   relayWsApiUrl?: string
+  /**
+   * Full URL for messaging rest api
+   */
+  messagingApiUrl?: string
+  /**
+   * Full URL for messaging WebSocket api
+   */
+  messagingWsApiUrl?: string
   /**
    * Wallet type to use, either "WalletTypeEthers" or "WalletTypeIdentity".
    */
@@ -54,6 +50,29 @@ export interface TLNetworkConfig {
    * Chain id used in the signature of meta-tx
    */
   chainId?: number
+}
+
+export interface ProviderUrl {
+  /**
+   * Protocol for communicating with a relay server
+   */
+  protocol?: string
+  /**
+   * Host of a relay server
+   */
+  host?: string
+  /**
+   * Port for communication
+   */
+  port?: number | string
+  /**
+   * Base path for the relay api
+   */
+  path?: string
+  /**
+   * Protocol for WebSockets
+   */
+  wsProtocol?: string
 }
 
 /**

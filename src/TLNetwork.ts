@@ -14,6 +14,7 @@ import { User } from './User'
 import { RelayProvider } from './providers/RelayProvider'
 import { TLProvider } from './providers/TLProvider'
 
+import { Provider } from './providers/Provider'
 import { TLSigner } from './signers/TLSigner'
 import { Web3Signer } from './signers/Web3Signer'
 
@@ -26,7 +27,7 @@ import {
 
 import utils from './utils'
 
-import { TLNetworkConfig } from './typings'
+import { ProviderUrl, TLNetworkConfig } from './typings'
 import { IdentityWallet } from './wallets/IdentityWallet'
 
 /**
@@ -34,6 +35,24 @@ import { IdentityWallet } from './wallets/IdentityWallet'
  * It contains all of the library's functionality and all calls to the library should be made through a `TLNetwork` instance.
  */
 export class TLNetwork {
+  private static validateConfig(config: TLNetworkConfig): void {
+    if (
+      config.relayProviderUrlObject &&
+      (config.relayApiUrl || config.relayWsApiUrl)
+    ) {
+      throw new Error(
+        `Invalid input config; cannot input both relay provider url object and full urls`
+      )
+    }
+    if (
+      config.messagingProviderUrlObject &&
+      (config.messagingApiUrl || config.messagingWsApiUrl)
+    ) {
+      throw new Error(
+        `Invalid input config; cannot input both messaging provider url object and full urls`
+      )
+    }
+  }
   /**
    * User instance containing all user/keystore related methods.
    */
@@ -94,21 +113,34 @@ export class TLNetwork {
   /**
    * @hidden
    */
-  public provider: TLProvider
+  public relayProvider: TLProvider
+  /**
+   * @hidden
+   */
+  public messagingProvider: Provider
 
   /**
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-clientlib.
    * @param config Configuration object. See [[TLNetworkConfig]] for more information.
    */
   constructor(config: TLNetworkConfig = {}) {
+    TLNetwork.validateConfig(config)
+    const defaultProviderUrl: ProviderUrl = {
+      protocol: 'http',
+      host: 'localhost',
+      port: '',
+      path: '',
+      wsProtocol: 'ws'
+    }
     const {
-      protocol = 'http',
-      host = 'localhost',
-      port = '',
-      path = '',
-      wsProtocol = 'ws',
+      relayProviderUrlObject = config.relayProviderUrlObject ||
+        defaultProviderUrl,
+      messagingProviderUrlObject = config.messagingProviderUrlObject ||
+        defaultProviderUrl,
       relayApiUrl,
       relayWsApiUrl,
+      messagingApiUrl,
+      messagingWsApiUrl,
       web3Provider,
       identityFactoryAddress,
       identityImplementationAddress,
@@ -116,55 +148,59 @@ export class TLNetwork {
       chainId
     } = config
 
-    this.setProvider(
+    this.setProviders(
       new RelayProvider(
-        relayApiUrl || utils.buildApiUrl(protocol, host, port, path),
-        relayWsApiUrl || utils.buildApiUrl(wsProtocol, host, port, path)
+        relayApiUrl || utils.buildApiUrl(relayProviderUrlObject),
+        relayWsApiUrl || utils.buildWsApiUrl(relayProviderUrlObject)
+      ),
+      new Provider(
+        messagingApiUrl || utils.buildApiUrl(messagingProviderUrlObject),
+        messagingWsApiUrl || utils.buildWsApiUrl(messagingProviderUrlObject)
       )
     )
 
-    this.setWallet(walletType, this.provider, chainId, {
+    this.setWallet(walletType, this.relayProvider, chainId, {
       identityFactoryAddress,
       identityImplementationAddress
     })
     this.setSigner(web3Provider, this.wallet)
 
-    this.currencyNetwork = new CurrencyNetwork(this.provider)
+    this.currencyNetwork = new CurrencyNetwork(this.relayProvider)
     this.transaction = new Transaction({
-      provider: this.provider,
+      provider: this.relayProvider,
       signer: this.signer,
       currencyNetwork: this.currencyNetwork
     })
     this.user = new User({
-      provider: this.provider,
+      provider: this.relayProvider,
       signer: this.signer,
       wallet: this.wallet
     })
     this.contact = new Contact({
-      provider: this.provider,
+      provider: this.relayProvider,
       user: this.user
     })
     this.event = new Event({
       currencyNetwork: this.currencyNetwork,
-      provider: this.provider,
+      provider: this.relayProvider,
       user: this.user
     })
     this.messaging = new Messaging({
       currencyNetwork: this.currencyNetwork,
-      provider: this.provider,
+      provider: this.messagingProvider,
       user: this.user
     })
     this.trustline = new Trustline({
       currencyNetwork: this.currencyNetwork,
       event: this.event,
-      provider: this.provider,
+      provider: this.relayProvider,
       transaction: this.transaction,
       user: this.user
     })
     this.payment = new Payment({
       currencyNetwork: this.currencyNetwork,
       event: this.event,
-      provider: this.provider,
+      provider: this.relayProvider,
       transaction: this.transaction,
       user: this.user
     })
@@ -172,12 +208,12 @@ export class TLNetwork {
       currencyNetwork: this.currencyNetwork,
       event: this.event,
       payment: this.payment,
-      provider: this.provider,
+      provider: this.relayProvider,
       transaction: this.transaction,
       user: this.user
     })
     this.ethWrapper = new EthWrapper({
-      provider: this.provider,
+      provider: this.relayProvider,
       transaction: this.transaction,
       user: this.user
     })
@@ -186,11 +222,15 @@ export class TLNetwork {
   /**
    * @hidden
    */
-  public setProvider(provider: TLProvider): void {
-    if (!(provider instanceof RelayProvider)) {
+  public setProviders(
+    relayProvider: TLProvider,
+    messagingProvider: Provider
+  ): void {
+    if (!(relayProvider instanceof RelayProvider)) {
       throw new Error('Provider not supported.')
     }
-    this.provider = provider
+    this.relayProvider = relayProvider
+    this.messagingProvider = messagingProvider
   }
 
   /**
