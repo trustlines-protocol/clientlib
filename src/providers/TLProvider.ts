@@ -11,8 +11,8 @@ import {
  * abstract class of `ethers.js`.
  */
 export interface TLProvider {
-  relayApiUrl: string
-  relayWsApiUrl: string
+  ApiUrl: string
+  WsApiUrl: string
   fetchEndpoint<T>(endpoint: string, options?: object): Promise<T>
   postToEndpoint<T>(endpoint: string, data: any): Promise<T>
   createWebsocketStream(
@@ -25,7 +25,6 @@ export interface TLProvider {
   getMetaTxInfos(userAddress: string): Promise<TxInfos>
   getMetaTxFees(metaTransaction: MetaTransaction): Promise<MetaTransactionFees>
   getBalance(userAddress: string): Promise<Amount>
-  getRelayVersion(): Promise<string>
   sendSignedTransaction(signedTransaction: string): Promise<string>
   sendSignedMetaTransaction(metaTransaction: MetaTransaction): Promise<string>
 }

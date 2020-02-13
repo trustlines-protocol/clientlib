@@ -13,6 +13,8 @@ import {
   EthersWalletData,
   IdentityWalletData,
   MetaTransaction,
+  ProviderUrl,
+  TLNetworkConfig,
   TLWalletData
 } from '../src/typings'
 
@@ -23,19 +25,23 @@ export const identityFactoryAddress = identityConfig.identityProxyFactory
 export const identityImplementationAddress =
   identityConfig.identityImplementation
 
-export const tlNetworkConfig = {
+export const providerUrl: ProviderUrl = {
   host: process.env.RELAY_HOSTNAME || 'localhost',
   path: 'api/v1/',
   port: 5000,
   protocol: 'http',
+  wsProtocol: 'ws'
+}
+
+export const tlNetworkConfig: TLNetworkConfig = {
+  relayProviderUrlObject: providerUrl,
+  messagingProviderUrlObject: providerUrl,
   chainId: end2endChainId
 }
 
-export const tlNetworkConfigIdentity = {
-  host: process.env.RELAY_HOSTNAME || 'localhost',
-  path: 'api/v1/',
-  port: 5000,
-  protocol: 'http',
+export const tlNetworkConfigIdentity: TLNetworkConfig = {
+  relayProviderUrlObject: providerUrl,
+  messagingProviderUrlObject: providerUrl,
   walletType: WALLET_TYPE_IDENTITY,
   identityFactoryAddress: identityConfig.identityProxyFactory,
   identityImplementationAddress: identityConfig.identityImplementation,

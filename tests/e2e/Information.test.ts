@@ -37,7 +37,7 @@ describe('e2e', () => {
         information = new Information({
           user: tl1.user,
           currencyNetwork: tl1.currencyNetwork,
-          provider: tl1.provider
+          provider: tl1.relayProvider
         })
         await deployIdentities([tl1, tl2])
         // request ETH

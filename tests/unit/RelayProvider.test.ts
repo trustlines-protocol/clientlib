@@ -70,7 +70,7 @@ describe('unit', () => {
       beforeEach(() => init())
 
       it('return version of relay', async () => {
-        const relayVersion = await relayProvider.getRelayVersion()
+        const relayVersion = await relayProvider.getVersion()
         assert.isString(relayVersion)
         assert.isTrue(new RegExp(/relay\/v\d/).test(relayVersion))
       })
