@@ -111,9 +111,9 @@ A convenient way to achieve this is by using our [end2end](https://github.com/tr
 
 ## Documentation
 
-We currently generate documentation for all types in the trustlines-clientlib in `./docs/api` whereas the most important ones are whitelisted in [here](./docs/api-reference-index.md).
-Guides on how to use the core features are documented [here](./docs/guides.md).
-The API reference is generated using [typedoc](https://typedoc.org/) by running `yarn doc` in this repository.
+You can find the documentation for the trustlines-clientlib [here](https://dev.trustlines.network/docs/clientlib/clientlib.html).
+The underlying markdown files of the documentation can be found in this repository under the `./docs` directory.
+To generate the [typedoc](https://typedoc.org/) API reference documentation for this library run `yarn doc`.
 
 ## Running injected web3 example
 

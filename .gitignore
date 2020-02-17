@@ -8,6 +8,7 @@ doc.json
 *~
 package-lock.json
 addresses.json
+docs/api
 
 # code coverage
 .nyc_output
