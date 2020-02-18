@@ -35,23 +35,33 @@ import { IdentityWallet } from './wallets/IdentityWallet'
  * It contains all of the library's functionality and all calls to the library should be made through a `TLNetwork` instance.
  */
 export class TLNetwork {
-  private static validateConfig(config: TLNetworkConfig): void {
-    if (
-      config.relayProviderUrlObject &&
-      (config.relayApiUrl || config.relayWsApiUrl)
-    ) {
-      throw new Error(
-        `Invalid input config; cannot input both relay provider url object and full urls`
-      )
-    }
-    if (
-      config.messagingProviderUrlObject &&
-      (config.messagingApiUrl || config.messagingWsApiUrl)
-    ) {
-      throw new Error(
-        `Invalid input config; cannot input both messaging provider url object and full urls`
-      )
-    }
+  private static getApiUrl(
+    apiUrl: string | ProviderUrl,
+    defaultUrlParameters: ProviderUrl
+  ) {
+    return this.buildUrl(apiUrl, defaultUrlParameters, utils.buildApiUrl)
+  }
+
+  private static getWsUrl(
+    wsUrl: string | ProviderUrl,
+    defaultUrlParameters: ProviderUrl
+  ) {
+    return this.buildUrl(wsUrl, defaultUrlParameters, utils.buildWsApiUrl)
+  }
+
+  private static buildUrl(
+    url: string | ProviderUrl,
+    defaultUrlParameters: ProviderUrl,
+    buildUrlFunction
+  ) {
+    return typeof url === 'string'
+      ? url
+      : buildUrlFunction({
+          protocol: url.protocol || defaultUrlParameters.protocol,
+          host: url.host || defaultUrlParameters.host,
+          port: url.port || defaultUrlParameters.port,
+          path: url.path || defaultUrlParameters.path
+        })
   }
   /**
    * User instance containing all user/keystore related methods.
@@ -124,23 +134,9 @@ export class TLNetwork {
    * @param config Configuration object. See [[TLNetworkConfig]] for more information.
    */
   constructor(config: TLNetworkConfig = {}) {
-    TLNetwork.validateConfig(config)
-    const defaultProviderUrl: ProviderUrl = {
-      protocol: 'http',
-      host: 'localhost',
-      port: '',
-      path: '',
-      wsProtocol: 'ws'
-    }
     const {
-      relayProviderUrlObject = config.relayProviderUrlObject ||
-        defaultProviderUrl,
-      messagingProviderUrlObject = config.messagingProviderUrlObject ||
-        defaultProviderUrl,
-      relayApiUrl,
-      relayWsApiUrl,
-      messagingApiUrl,
-      messagingWsApiUrl,
+      relayUrl = {},
+      messagingUrl = {},
       web3Provider,
       identityFactoryAddress,
       identityImplementationAddress,
@@ -148,14 +144,21 @@ export class TLNetwork {
       chainId
     } = config
 
+    const defaultUrlParameters: ProviderUrl = {
+      protocol: 'http',
+      port: '',
+      path: '',
+      host: 'localhost'
+    }
+
     this.setProviders(
       new RelayProvider(
-        relayApiUrl || utils.buildApiUrl(relayProviderUrlObject),
-        relayWsApiUrl || utils.buildWsApiUrl(relayProviderUrlObject)
+        TLNetwork.getApiUrl(relayUrl, defaultUrlParameters),
+        TLNetwork.getWsUrl(relayUrl, defaultUrlParameters)
       ),
       new Provider(
-        messagingApiUrl || utils.buildApiUrl(messagingProviderUrlObject),
-        messagingWsApiUrl || utils.buildWsApiUrl(messagingProviderUrlObject)
+        TLNetwork.getApiUrl(messagingUrl, defaultUrlParameters),
+        TLNetwork.getWsUrl(messagingUrl, defaultUrlParameters)
       )
     )
 
