@@ -2,6 +2,7 @@ import {
   Amount,
   MetaTransaction,
   MetaTransactionFees,
+  MetaTransactionStatus,
   ReconnectingWSOptions,
   TxInfos
 } from '../typings'
@@ -24,6 +25,10 @@ export interface TLProvider {
   getTxInfos(userAddress: string): Promise<TxInfos>
   getMetaTxInfos(userAddress: string): Promise<TxInfos>
   getMetaTxFees(metaTransaction: MetaTransaction): Promise<MetaTransactionFees>
+  getMetaTxStatus(
+    identityAddress: string,
+    metaTransactionHash: string
+  ): Promise<MetaTransactionStatus>
   getBalance(userAddress: string): Promise<Amount>
   sendSignedTransaction(signedTransaction: string): Promise<string>
   sendSignedMetaTransaction(metaTransaction: MetaTransaction): Promise<string>
