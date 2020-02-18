@@ -30,8 +30,8 @@ import { TLNetworkConfig } from './typings'
 import { IdentityWallet } from './wallets/IdentityWallet'
 
 /**
- * The TLNetwork class is the single entry-point into the trustline-network.js library.
- * It contains all of the library's functionality and all calls to the library should be made through a TLNetwork instance.
+ * The TLNetwork class is the single entry-point into the trustlines-clientlib.
+ * It contains all of the library's functionality and all calls to the library should be made through a `TLNetwork` instance.
  */
 export class TLNetwork {
   /**
@@ -39,13 +39,8 @@ export class TLNetwork {
    */
   public user: User
   /**
-   * @hidden
-   * Transaction instance containing all transaction related methods.
-   */
-  public transaction: Transaction
-  /**
    * Payment instance containing all methods for creating trustline transfers
-   * and ETH transfers.
+   * and TLC transfers.
    */
   public payment: Payment
   /**
@@ -58,15 +53,21 @@ export class TLNetwork {
    */
   public currencyNetwork: CurrencyNetwork
   /**
-   * @hidden
-   */
-  public contact: Contact
-  /**
    * Event instance for retrieving and formatting event logs.
    */
   public event: Event
   /**
+   * @hidden
+   * Transaction instance containing all transaction related methods.
+   */
+  public transaction: Transaction
+  /**
+   * @hidden
+   */
+  public contact: Contact
+  /**
    * Exchange instance containing all methods for making and taking orders.
+   * @hidden
    */
   public exchange: Exchange
   /**
@@ -74,6 +75,7 @@ export class TLNetwork {
    */
   public messaging: Messaging
   /**
+   * @hidden
    * EthWrapper instance for wrapping and unwrapping ETH.
    */
   public ethWrapper: EthWrapper
@@ -95,8 +97,8 @@ export class TLNetwork {
   public provider: TLProvider
 
   /**
-   * Initiates a new TLNetwork instance that provides the public interface to trustlines-network library.
-   * @param config Configuration object. See type `tlNetworkConfig` for more information.
+   * Initiates a new TLNetwork instance that provides the public interface to trustlines-clientlib.
+   * @param config Configuration object. See [[TLNetworkConfig]] for more information.
    */
   constructor(config: TLNetworkConfig = {}) {
     const {
@@ -181,6 +183,9 @@ export class TLNetwork {
     })
   }
 
+  /**
+   * @hidden
+   */
   public setProvider(provider: TLProvider): void {
     if (!(provider instanceof RelayProvider)) {
       throw new Error('Provider not supported.')
@@ -188,6 +193,9 @@ export class TLNetwork {
     this.provider = provider
   }
 
+  /**
+   * @hidden
+   */
   public setSigner(web3Provider, wallet: TLWallet): void {
     const signer: TLSigner = web3Provider
       ? new Web3Signer(new ethers.providers.Web3Provider(web3Provider))
@@ -205,6 +213,9 @@ export class TLNetwork {
     this.signer = signer
   }
 
+  /**
+   * @hidden
+   */
   public setWallet(
     walletType: string,
     provider: TLProvider,

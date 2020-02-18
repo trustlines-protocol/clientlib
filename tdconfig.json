@@ -1,7 +1,12 @@
 {
   "mode": "modules",
-  "json": "./docs/doc.json",
+  "out": "./docs/api",
+  "exclude": "./node_modules/**",
   "excludePrivate": true,
+  "excludeNotExported": true,
   "module": "commonjs",
-  "target": "ES5"
+  "target": "ES6",
+  "hideSources": true,
+  "hideBreadcrumbs": true,
+  "readme": "none"
 }

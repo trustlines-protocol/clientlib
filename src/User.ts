@@ -9,8 +9,16 @@ import utils from './utils'
 import { Amount, Signature, TLWalletData } from './typings'
 
 /**
- * The User class contains all user related functions, which also include wallet
- * related methods.
+ * The [[User]] class contains all user related functions, which also include wallet related methods.
+ * It is meant to be called via a [[TLNetwork]] instance like:
+ * ```typescript
+ * const tlNetwork = new TLNetwork(...)
+ *
+ * // Create user
+ * tlNetwork.user.create().then(
+ *  newUser => console.log("New user:", newUser)
+ * )
+ * ```
  */
 export class User {
   private provider: TLProvider
@@ -19,6 +27,7 @@ export class User {
 
   private defaultPassword = 'ts'
 
+  /** @hidden */
   constructor(params: {
     provider: TLProvider
     signer: TLSigner
@@ -44,7 +53,7 @@ export class User {
   }
 
   /**
-   * Creates a new random wallet
+   * Creates a new random wallet based on the configured [[WalletType]].
    * @returns the wallet data that can be used with `loadFrom`
    */
   public async create(): Promise<TLWalletData> {
@@ -67,12 +76,15 @@ export class User {
   }
 
   /**
-   * Deploys a new identity on the chain if it has to
+   * Deploys a new identity on the chain if the configured [[WalletType]] is [[WalletTypeIdentity]] and returns the transaction hash.
    */
   public async deployIdentity(): Promise<string> {
     return this.wallet.deployIdentity()
   }
 
+  /**
+   * Returns a boolean if a new identity already has been deployed for the loaded user.
+   */
   public async isIdentityDeployed(): Promise<boolean> {
     return this.wallet.isIdentityDeployed()
   }
@@ -93,6 +105,7 @@ export class User {
   }
 
   /**
+   * @hidden
    * Encrypts a message with the public key of another user.
    * @param msg Plain text message that should get encrypted.
    * @param theirPubKey Public key of receiver of message.
@@ -102,6 +115,7 @@ export class User {
   }
 
   /**
+   * @hidden
    * Decrypts an encrypted message with the private key of loaded user.
    * @param encMsg Encrypted message.
    * @param theirPubKey Public key of sender of message.

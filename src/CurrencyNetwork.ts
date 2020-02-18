@@ -15,11 +15,20 @@ import {
 } from './typings'
 
 /**
- * The CurrencyNetwork class contains all functions relevant for retrieving
- * currency network related information.
+ * The [[CurrencyNetwork]] class contains all functions relevant for retrieving currency network related information.
+ * It is meant to be called via a [[TLNetwork]] instance like:
+ * ```typescript
+ * const tlNetwork = new TLNetwork(...)
+ *
+ * // Get all networks
+ * tlNetwork.currencyNetwork.getAll().then(
+ *  networks => console.log("All networks:", networks)
+ * )
+ * ```
  */
 export class CurrencyNetwork {
   /**
+   * @hidden
    * Returns general and interest rate decimals for given currency network.
    * @param networkAddress Currency network to get decimals for.
    * @param decimalsOptions Optional provided decimals if known.
@@ -31,6 +40,7 @@ export class CurrencyNetwork {
 
   private provider: TLProvider
 
+  /** @hidden */
   constructor(provider: TLProvider) {
     this.provider = provider
     this.getDecimals = this._getDecimalsCached()
@@ -118,6 +128,7 @@ export class CurrencyNetwork {
   }
 
   /**
+   * @hidden
    * Returns a mapping from network address to respective decimals.
    * @param networkAddresses List of currency networks.
    */
@@ -138,6 +149,7 @@ export class CurrencyNetwork {
   }
 
   /**
+   * @hidden
    * Returns true or false whether given address is a registered currency network.
    * @param contractAddress Address which should be checked.
    */
