@@ -29,19 +29,18 @@ export const providerUrl: ProviderUrl = {
   host: process.env.RELAY_HOSTNAME || 'localhost',
   path: 'api/v1/',
   port: 5000,
-  protocol: 'http',
-  wsProtocol: 'ws'
+  protocol: 'http'
 }
 
 export const tlNetworkConfig: TLNetworkConfig = {
-  relayProviderUrlObject: providerUrl,
-  messagingProviderUrlObject: providerUrl,
+  relayUrl: providerUrl,
+  messagingUrl: providerUrl,
   chainId: end2endChainId
 }
 
 export const tlNetworkConfigIdentity: TLNetworkConfig = {
-  relayProviderUrlObject: providerUrl,
-  messagingProviderUrlObject: providerUrl,
+  relayUrl: providerUrl,
+  messagingUrl: providerUrl,
   walletType: WALLET_TYPE_IDENTITY,
   identityFactoryAddress: identityConfig.identityProxyFactory,
   identityImplementationAddress: identityConfig.identityImplementation,

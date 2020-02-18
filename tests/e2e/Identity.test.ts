@@ -40,16 +40,9 @@ describe('e2e', () => {
     let trustlinesNetwork2: TLNetwork
 
     before(async () => {
-      const relayApiUrl = utils.buildApiUrl(
-        tlNetworkConfig.relayProviderUrlObject
-      )
-      const relayWsUrl = utils.buildWsApiUrl(
-        tlNetworkConfig.relayProviderUrlObject
-      )
-      relayProvider = new RelayProvider(relayApiUrl, relayWsUrl)
-
       trustlinesNetwork = new TLNetwork(tlNetworkConfigIdentity)
       trustlinesNetwork2 = new TLNetwork(tlNetworkConfigIdentity)
+      relayProvider = trustlinesNetwork.relayProvider
 
       identityWallet = trustlinesNetwork.wallet
     })

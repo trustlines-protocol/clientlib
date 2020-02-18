@@ -434,8 +434,10 @@ export const buildApiUrl = (UrlObject: ProviderUrl): string => {
  * @param UrlObject.path relay api base endpoint
  */
 export const buildWsApiUrl = (UrlObject: ProviderUrl): string => {
-  return `${UrlObject.wsProtocol}://${UrlObject.host}${UrlObject.port &&
-    `:${UrlObject.port}`}${UrlObject.path && `/${trimUrl(UrlObject.path)}`}`
+  return `${UrlObject.protocol === 'https' ? 'wss' : 'ws'}://${
+    UrlObject.host
+  }${UrlObject.port && `:${UrlObject.port}`}${UrlObject.path &&
+    `/${trimUrl(UrlObject.path)}`}`
 }
 
 /**

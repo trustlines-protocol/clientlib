@@ -58,18 +58,8 @@ The user therefore needs some coins ([TLC](https://explore.tlbc.trustlines.found
 
 ```javascript
 const laika = new TLNetwork({
-  relayProviderUrlObject: {
-    protocol: 'https',
-    wsProtocol: 'wss',
-    host: 'relay0.testnet.trustlines.network',
-    path: '/api/v1'
-  },
-  messagingProviderUrlObject: {
-    protocol: 'https',
-    wsProtocol: 'wss',
-    host: 'relay0.testnet.trustlines.network',
-    path: '/api/v1'
-  },
+  relayUrl: 'https://relay0.testnet.trustlines.network/api/v1',
+  messagingUrl: 'https://relay0.testnet.trustlines.network/api/v1',
   walletType: 'ethers'
 })
 
@@ -85,18 +75,8 @@ An additional step of deploying the identity contract of the newly created user 
 
 ```javascript
 const laika = new TLNetwork({
-  relayProviderUrlObject: {
-    protocol: 'https',
-    wsProtocol: 'wss',
-    host: 'relay0.testnet.trustlines.network',
-    path: '/api/v1'
-  },
-  messagingProviderUrlObject: {
-    protocol: 'https',
-    wsProtocol: 'wss',
-    host: 'relay0.testnet.trustlines.network',
-    path: '/api/v1'
-  },
+  relayUrl: 'https://relay0.testnet.trustlines.network/api/v1',
+  messagingUrl: 'https://relay0.testnet.trustlines.network/api/v1',
   walletType: 'identity',
   identityFactoryAddress: '0x8D2720877Fa796E3C3B91BB91ad6CfcC07Ea249E',
   identityImplementationAddress: '0x8BEe92893D3ec62e5B3EBBe4e536A60Fd9AFc9D7'
