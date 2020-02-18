@@ -19,7 +19,9 @@ import {
   Amount,
   MetaTransaction,
   MetaTransactionFees,
+  MetaTransactionStatus,
   ReconnectingWSOptions,
+  TransactionStatus,
   TxInfos
 } from '../../src/typings'
 
@@ -154,6 +156,13 @@ export class FakeTLProvider implements TLProvider {
       gasPrice: '0',
       currencyNetworkOfFees: metaTransaction.currencyNetworkOfFees
     }
+  }
+
+  public async getMetaTxStatus(
+    identityAddress: string,
+    metaTransactionHash: string
+  ): Promise<MetaTransactionStatus> {
+    return { status: TransactionStatus.Success }
   }
 
   public async getBalance(userAddress: string): Promise<Amount> {

@@ -20,11 +20,12 @@ import {
   wait
 } from '../Fixtures'
 
-import { FeePayer, RawTxObject } from '../../src/typings'
+import { FeePayer, RawTxObject, TransactionStatus } from '../../src/typings'
 import utils from '../../src/utils'
 
 import { TLNetwork } from '../../src/TLNetwork'
 
+import { id } from 'ethers/utils'
 import { TLProvider } from '../../src/providers/TLProvider'
 
 chai.use(chaiAsPromised)
@@ -171,6 +172,50 @@ describe('e2e', () => {
         expect(preBalance.value).to.equal('1')
         expect(postBalance.value).to.equal('0')
         expect(postSecondBalance.value).to.equal('1')
+      })
+
+      it('should get successful transaction status', async () => {
+        const rawTx: RawTxObject = {
+          data: '0x',
+          from: identityWallet.address,
+          nonce: 1,
+          to: identityWallet.address,
+          value: 0
+        }
+
+        const txFees = await identityWallet.getMetaTxFees(rawTx)
+        rawTx.delegationFees = {
+          baseFee: txFees.baseFee,
+          gasPrice: txFees.gasPrice,
+          currencyNetworkOfFees: txFees.currencyNetworkOfFees
+        }
+
+        await identityWallet.confirm(rawTx)
+        await wait()
+        const txStatus = await identityWallet.getTxStatus(rawTx)
+        expect(txStatus.status).to.equal(TransactionStatus.Success)
+      })
+
+      it('should get failed transaction status', async () => {
+        const rawTx: RawTxObject = {
+          data: '0x',
+          from: identityWallet.address,
+          nonce: 1,
+          to: identityWallet.address,
+          value: 1
+        }
+
+        const txFees = await identityWallet.getMetaTxFees(rawTx)
+        rawTx.delegationFees = {
+          baseFee: txFees.baseFee,
+          gasPrice: txFees.gasPrice,
+          currencyNetworkOfFees: txFees.currencyNetworkOfFees
+        }
+
+        await identityWallet.confirm(rawTx)
+        await wait()
+        const txStatus = await identityWallet.getTxStatus(rawTx)
+        expect(txStatus.status).to.equal(TransactionStatus.Failure)
       })
 
       it('should get a path in a currency network', async () => {

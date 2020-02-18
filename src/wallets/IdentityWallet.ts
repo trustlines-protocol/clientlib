@@ -260,7 +260,7 @@ export class IdentityWallet implements TLWallet {
     return this.provider.sendSignedMetaTransaction(metaTransaction)
   }
 
-  public async signMetaTransaction(
+  public async hashMetaTransaction(
     metaTransaction: MetaTransaction
   ): Promise<string> {
     if (!this.walletFromEthers) {
@@ -304,11 +304,13 @@ export class IdentityWallet implements TLWallet {
       metaTransaction.operationType
     ]
 
-    const metaTransactionHash: string = ethersUtils.solidityKeccak256(
-      types,
-      values
-    )
+    return ethersUtils.solidityKeccak256(types, values)
+  }
 
+  public async signMetaTransaction(
+    metaTransaction: MetaTransaction
+  ): Promise<string> {
+    const metaTransactionHash = await this.hashMetaTransaction(metaTransaction)
     metaTransaction.signature = await this.rawSignHash(metaTransactionHash)
 
     return metaTransactionHash
@@ -339,6 +341,13 @@ export class IdentityWallet implements TLWallet {
     return this.provider.getMetaTxFees(metaTx)
   }
 
+  public async getTxStatus(rawTx: RawTxObject) {
+    const metaTransactionHash = await this.hashMetaTransaction(
+      this.buildMetaTransaction(rawTx)
+    )
+    return this.provider.getMetaTxStatus(this.address, metaTransactionHash)
+  }
+
   /**
    * Returns a serialized encrypted ethereum JSON keystore v3.
    * @param walletData Wallet data of type `identity`.
@@ -356,6 +365,26 @@ export class IdentityWallet implements TLWallet {
       typeof progressCallback === 'function' && progressCallback
     )
     return encryptedKeystore
+  }
+
+  public buildMetaTransaction(rawTx: RawTxObject): MetaTransaction {
+    const zeroAddress = '0x' + '0'.repeat(40)
+    return {
+      data: rawTx.data || '0x',
+      from: rawTx.from,
+      chainId: this.chainId,
+      version: this.identityVersion,
+      nonce: rawTx.nonce.toString(),
+      to: rawTx.to,
+      value: rawTx.value.toString(),
+      baseFee: rawTx.baseFee ? rawTx.baseFee.toString() : '0',
+      gasPrice: rawTx.gasPrice ? rawTx.gasPrice.toString() : '0',
+      gasLimit: rawTx.gasLimit ? rawTx.gasLimit.toString() : '0',
+      feeRecipient: zeroAddress,
+      currencyNetworkOfFees: rawTx.currencyNetworkOfFees || zeroAddress,
+      timeLimit: '0',
+      operationType: 0
+    }
   }
 
   /**
@@ -389,26 +418,6 @@ export class IdentityWallet implements TLWallet {
           rawTx.from
         }`
       )
-    }
-  }
-
-  private buildMetaTransaction(rawTx: RawTxObject): MetaTransaction {
-    const zeroAddress = '0x' + '0'.repeat(40)
-    return {
-      data: rawTx.data || '0x',
-      from: rawTx.from,
-      chainId: this.chainId,
-      version: this.identityVersion,
-      nonce: rawTx.nonce.toString(),
-      to: rawTx.to,
-      value: rawTx.value.toString(),
-      baseFee: rawTx.baseFee ? rawTx.baseFee.toString() : '0',
-      gasPrice: rawTx.gasPrice ? rawTx.gasPrice.toString() : '0',
-      gasLimit: rawTx.gasLimit ? rawTx.gasLimit.toString() : '0',
-      feeRecipient: zeroAddress,
-      currencyNetworkOfFees: rawTx.currencyNetworkOfFees || zeroAddress,
-      timeLimit: '0',
-      operationType: 0
     }
   }
 }
