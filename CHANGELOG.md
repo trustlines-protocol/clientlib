@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.12.0] - 2020-02-19
+
+### Changed
+
+- `TLNetwork` now uses two distinct urls for messaging and relay in its config (BREAKING)
+- Updated initcode of identity proxy to match new contracts version, this changes the address of deployed identities (BREAKING)
+- Updated meta-transaction fields to match new contracts feature (BREAKING) New fields: chainId, version, baseFee, gasPrice, gasLimit, feeRecipient, timeLimit, operationType. Fields removed: delegationFees, extraData
+
+### Added
+
+- Added method `getAllOfUser()` in `Trustline` to get all trustlines of loaded user
+- Added caching for getting the decimals of a currency network
+- Enabled websocket stream subscribers to handle websocket errors
+- Added function `getUserAccruedInterests` in `Information` to get all accrued interests of user
+- Added function `getTrustlineAccruedInterests` in `Information` to get all accrued interests of trustline
+
 ## [0.11.0] - 2020-01-13
 
 ### Changed
