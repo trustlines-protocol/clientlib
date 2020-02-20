@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.12.1] - 2020-02-20
+
+### Changed
+
+- Updated default values for meta transaction fees to use valid zero address in case the relay does not return any
+
 ## [0.12.0] - 2020-02-19
 
 ### Changed
