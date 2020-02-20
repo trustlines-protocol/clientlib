@@ -70,7 +70,7 @@ export class RelayProvider extends Provider implements TLProvider {
     )
     let baseFee = '0'
     let gasPrice = '0'
-    let currencyNetworkOfFees = ''
+    let currencyNetworkOfFees = '0x' + '0'.repeat(40)
     if (potentialDelegationFees.length) {
       // For now just get the first possible fee given by the relay server
       // Could be changed later to show the possible fees to the user and let it decide
