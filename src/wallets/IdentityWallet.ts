@@ -378,6 +378,7 @@ export class IdentityWallet implements TLWallet {
   }
 
   private buildMetaTransaction(rawTx: RawTxObject): MetaTransaction {
+    const zeroAddress = '0x' + '0'.repeat(40)
     return {
       data: rawTx.data || '0x',
       from: rawTx.from,
@@ -396,7 +397,7 @@ export class IdentityWallet implements TLWallet {
       feeRecipient: '0x' + '0'.repeat(40),
       currencyNetworkOfFees: rawTx.delegationFees
         ? rawTx.delegationFees.currencyNetworkOfFees
-        : rawTx.to,
+        : zeroAddress,
       timeLimit: '0',
       operationType: 0
     }
