@@ -105,6 +105,7 @@ export interface EventFilterOptions {
 }
 
 export interface BlockchainEvent {
+  id: string
   type: string
   timestamp: number
   blockNumber: number
