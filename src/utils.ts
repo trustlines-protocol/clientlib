@@ -389,9 +389,8 @@ export const convertToHexString = (
  */
 export const generateRandomNumber = (decimals: number): BigNumber => {
   let random = BigNumber.random(decimals + 1)
-  const one = new BigNumber(1)
 
-  while (random === one) {
+  while (random.isEqualTo(1)) {
     random = BigNumber.random(decimals + 1)
   }
   return random.multipliedBy(new BigNumber(10).pow(decimals)).integerValue()
