@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
 import { TLProvider } from './providers/TLProvider'
-import { Transaction } from './Transaction'
+import { GAS_LIMIT_MULTIPLIER, Transaction } from './Transaction'
 import { User } from './User'
 
 import utils from './utils'
@@ -182,7 +182,7 @@ export class Trustline {
     )
     // Value taken from contracts repository gas tests
     // TODO: the gas limit for updating a TL could actually be lower than this depending on the situation
-    const MaxTrustlineUpdateGasLimit = 315_000 * 1.2
+    const MaxTrustlineUpdateGasLimit = 315_000 * GAS_LIMIT_MULTIPLIER
     return {
       ethFees: utils.convertToAmount(ethFees),
       delegationFees: utils.calculateDelegationFeesAmount(
@@ -263,7 +263,7 @@ export class Trustline {
       }
     )
     // Value taken from contracts gas tests
-    const gasLimitCancelTrustlineUpdate = 19000 * 1.2
+    const gasLimitCancelTrustlineUpdate = 19000 * GAS_LIMIT_MULTIPLIER
     return {
       ethFees: utils.convertToAmount(ethFees),
       delegationFees: utils.calculateDelegationFeesAmount(
@@ -481,7 +481,7 @@ export class Trustline {
     )
 
     // Value taken from contracts gas tests
-    const gasLimitCloseTrustline = 55000 * 1.2
+    const gasLimitCloseTrustline = 55000 * GAS_LIMIT_MULTIPLIER
     return {
       ethFees: utils.convertToAmount(ethFees),
       delegationFees: utils.calculateDelegationFeesAmount(

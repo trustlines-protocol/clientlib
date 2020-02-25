@@ -3,13 +3,12 @@ import { BigNumber } from 'bignumber.js'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
 import { TLProvider } from './providers/TLProvider'
-import { Transaction } from './Transaction'
+import { GAS_LIMIT_MULTIPLIER, Transaction } from './Transaction'
 import { User } from './User'
 
 import utils from './utils'
 
 import {
-  DelegationFeesInternal,
   EventFilterOptions,
   FeePayer,
   isFeePayerValue,
@@ -308,9 +307,9 @@ export class Payment {
 
   private calculatePaymentGasLimit(pathLength: number) {
     // Values taken from the contracts repository gas tests
+    const mediators = pathLength - 2
     const transferBaseGas = 48000
-    const gasPerHops = 18000
-    const bufferMultiplier = 1.2
-    return (transferBaseGas + gasPerHops * pathLength) * bufferMultiplier
+    const gasPerMediator = 18000
+    return (transferBaseGas + gasPerMediator * mediators) * GAS_LIMIT_MULTIPLIER
   }
 }

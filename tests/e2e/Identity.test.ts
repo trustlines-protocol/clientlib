@@ -247,6 +247,7 @@ describe('e2e', () => {
           'currencyNetworkOfFees'
         )
         expect(metaTransactionFees.baseFee).to.equal('1')
+        expect(metaTransactionFees.gasPrice).to.equal('1000')
       })
     })
 
