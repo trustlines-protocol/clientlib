@@ -271,6 +271,20 @@ export const convertToDelegationFees = (
   }
 }
 
+export const calculateDelegationFeesAmount = (
+  delegationFees: DelegationFeesInternal,
+  gasLimit: number
+): Amount => {
+  const totalFeesValue = delegationFees.baseFee.value.plus(
+    delegationFees.gasPrice.value.multipliedBy(gasLimit)
+  )
+  return {
+    raw: calcRaw(totalFeesValue, delegationFees.baseFee.decimals).toString(),
+    value: totalFeesValue.toString(),
+    decimals: delegationFees.baseFee.decimals
+  }
+}
+
 /**
  * Formats the number values of a raw event returned by the relay.
  * @param event raw event
@@ -467,6 +481,7 @@ export default {
   buildUrl,
   calcRaw,
   calcValue,
+  calculateDelegationFeesAmount,
   checkAddress,
   convertEthToWei,
   convertToAmount,

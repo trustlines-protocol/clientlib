@@ -9,6 +9,7 @@ import { User } from './User'
 import utils from './utils'
 
 import {
+  DelegationFeesInternal,
   EventFilterOptions,
   FeePayer,
   isFeePayerValue,
@@ -120,7 +121,10 @@ export class Payment {
       )
       return {
         ethFees: utils.convertToAmount(ethFees),
-        delegationFees: utils.convertToDelegationFees(delegationFees),
+        delegationFees: utils.calculateDelegationFeesAmount(
+          delegationFees,
+          this.calculatePaymentGasLimit(path.length)
+        ),
         feePayer,
         maxFees,
         path,
@@ -160,7 +164,10 @@ export class Payment {
     )
     return {
       ethFees: utils.convertToAmount(ethFees),
-      delegationFees: utils.convertToDelegationFees(delegationFees),
+      delegationFees: utils.calculateDelegationFeesAmount(
+        delegationFees,
+        21000
+      ),
       rawTx
     }
   }
@@ -297,5 +304,13 @@ export class Payment {
       amount: utils.formatToAmount(result.capacity, networkDecimals),
       path: result.path
     }
+  }
+
+  private calculatePaymentGasLimit(pathLength: number) {
+    // Values taken from the contracts repository gas tests
+    const transferBaseGas = 48000
+    const gasPerHops = 18000
+    const bufferMultiplier = 1.2
+    return (transferBaseGas + gasPerHops * pathLength) * bufferMultiplier
   }
 }

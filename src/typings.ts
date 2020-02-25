@@ -241,7 +241,7 @@ export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
 export interface TxObject {
   rawTx: RawTxObject
   ethFees: Amount
-  delegationFees?: DelegationFeesObject
+  delegationFees?: Amount
 }
 
 export interface TxObjectInternal {
