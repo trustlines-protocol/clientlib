@@ -180,9 +180,15 @@ export class Trustline {
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
+    // Value taken from contracts repository gas tests
+    // TODO: the gas limit for updating a TL could actually be lower than this depending on the situation
+    const MaxTrustlineUpdateGasLimit = 315_000 * 1.2
     return {
       ethFees: utils.convertToAmount(ethFees),
-      delegationFees: utils.convertToDelegationFees(delegationFees),
+      delegationFees: utils.calculateDelegationFeesAmount(
+        delegationFees,
+        MaxTrustlineUpdateGasLimit
+      ),
       rawTx
     }
   }
@@ -256,9 +262,14 @@ export class Trustline {
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
+    // Value taken from contracts gas tests
+    const gasLimitCancelTrustlineUpdate = 19000 * 1.2
     return {
       ethFees: utils.convertToAmount(ethFees),
-      delegationFees: utils.convertToDelegationFees(delegationFees),
+      delegationFees: utils.calculateDelegationFeesAmount(
+        delegationFees,
+        gasLimitCancelTrustlineUpdate
+      ),
       rawTx
     }
   }
@@ -469,9 +480,14 @@ export class Trustline {
       }
     )
 
+    // Value taken from contracts gas tests
+    const gasLimitCloseTrustline = 55000 * 1.2
     return {
       ethFees: utils.convertToAmount(ethFees),
-      delegationFees: utils.convertToDelegationFees(delegationFees),
+      delegationFees: utils.calculateDelegationFeesAmount(
+        delegationFees,
+        gasLimitCloseTrustline
+      ),
       maxFees,
       path,
       rawTx
