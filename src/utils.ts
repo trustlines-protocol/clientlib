@@ -258,7 +258,7 @@ export const formatToDelegationFeesInternal = (
 }
 
 /**
- * Formats number into an AmountInternal object which is intended for internal use.
+ * Formats DelegationFeesInternal into a DelegationFeesObject.
  * @param delegationFees DelegationFeesInternal object.
  */
 export const convertToDelegationFees = (
