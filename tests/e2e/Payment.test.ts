@@ -176,6 +176,34 @@ describe('e2e', () => {
             tl1.payment.prepare(network.address, user2.address, 2000)
           ).to.be.rejectedWith('Could not find a path with enough capacity')
         })
+
+        if (testParameter.walletType === 'Identity') {
+          it('should have correct delegation fees for trustline transfer', async () => {
+            const preparedPayment = await tl1.payment.prepare(
+              network.address,
+              user2.address,
+              2.25
+            )
+
+            // gasLimitForTransfer * buffer * gasPrice / gasDivisorFromContracts + baseFee
+            const delegationFeeRaw = Math.floor(
+              (48000 * 1.2 * 1000) / 1_000_000 + 1
+            )
+
+            expect(preparedPayment.delegationFees.raw).to.equal(
+              delegationFeeRaw.toString(),
+              'Incorrect delegationFees raw'
+            )
+            expect(preparedPayment.delegationFees.value).to.equal(
+              (delegationFeeRaw / 10_000).toString(),
+              'Incorrect delegationFees value'
+            )
+            expect(preparedPayment.delegationFees.decimals).to.equal(
+              4,
+              'Incorrect delegationFees decimals'
+            )
+          })
+        }
       })
 
       describe('#confirm()', () => {

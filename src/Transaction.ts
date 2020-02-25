@@ -18,6 +18,7 @@ import {
 import { CurrencyNetwork } from './CurrencyNetwork'
 
 const ETH_DECIMALS = 18
+export const GAS_LIMIT_MULTIPLIER = 1.2
 
 /**
  * The Transaction class contains functions that are needed for Ethereum transactions.

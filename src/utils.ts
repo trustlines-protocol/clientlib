@@ -275,12 +275,14 @@ export const calculateDelegationFeesAmount = (
   delegationFees: DelegationFeesInternal,
   gasLimit: number
 ): Amount => {
-  const totalFeesValue = delegationFees.baseFee.value.plus(
-    delegationFees.gasPrice.value.multipliedBy(gasLimit)
+  const totalFeesRaw = delegationFees.baseFee.raw.plus(
+    delegationFees.gasPrice.raw
+      .multipliedBy(gasLimit)
+      .dividedToIntegerBy(1_000_000)
   )
   return {
-    raw: calcRaw(totalFeesValue, delegationFees.baseFee.decimals).toString(),
-    value: totalFeesValue.toString(),
+    raw: totalFeesRaw.toString(),
+    value: calcValue(totalFeesRaw, delegationFees.baseFee.decimals).toString(),
     decimals: delegationFees.baseFee.decimals
   }
 }
