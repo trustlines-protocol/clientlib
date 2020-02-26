@@ -126,8 +126,7 @@ describe('e2e', () => {
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
             'feePayer',
-            'ethFees',
-            'delegationFees',
+            'txFees',
             'maxFees',
             'path'
           )
@@ -143,8 +142,7 @@ describe('e2e', () => {
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
             'feePayer',
-            'ethFees',
-            'delegationFees',
+            'txFees',
             'maxFees',
             'path'
           )
@@ -163,8 +161,7 @@ describe('e2e', () => {
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
             'feePayer',
-            'ethFees',
-            'delegationFees',
+            'txFees',
             'maxFees',
             'path'
           )
@@ -190,15 +187,15 @@ describe('e2e', () => {
               (48000 * 1.2 * 1000) / 1_000_000 + 1
             )
 
-            expect(preparedPayment.delegationFees.raw).to.equal(
+            expect(preparedPayment.txFees.totalFee.raw).to.equal(
               delegationFeeRaw.toString(),
               'Incorrect delegationFees raw'
             )
-            expect(preparedPayment.delegationFees.value).to.equal(
+            expect(preparedPayment.txFees.totalFee.value).to.equal(
               (delegationFeeRaw / 10_000).toString(),
               'Incorrect delegationFees value'
             )
-            expect(preparedPayment.delegationFees.decimals).to.equal(
+            expect(preparedPayment.txFees.totalFee.decimals).to.equal(
               4,
               'Incorrect delegationFees decimals'
             )
@@ -277,7 +274,7 @@ describe('e2e', () => {
         it('should prepare tx for eth transfer', async () => {
           await expect(
             tl1.payment.prepareEth(user2.address, 0.05)
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
       })
 

@@ -52,7 +52,7 @@ describe('e2e', () => {
         it('should prepare a deposit tx', async () => {
           await expect(
             tl1.ethWrapper.prepDeposit(ethWrapperAddress, depositAmount)
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
       })
 
@@ -104,7 +104,7 @@ describe('e2e', () => {
               tl2.user.address,
               transferAmount
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
       })
 
@@ -166,7 +166,7 @@ describe('e2e', () => {
         it('should prepare withdraw tx', async () => {
           await expect(
             tl1.ethWrapper.prepWithdraw(ethWrapperAddress, withdrawAmount)
-          ).to.eventually.have.keys('rawTx', 'ethFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
       })
 

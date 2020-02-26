@@ -38,20 +38,15 @@ export class RelayProvider extends Provider implements TLProvider {
   }
 
   /**
-   * Returns needed information for creating a meta transaction.
-   * @param address Address of user creating the transaction
-   * @returns Information for creating an ethereum transaction for the given identity address.
-   *          See type `TxInfos` for more details.
+   * Returns next nonce for identity with given address
+   * @param address Address of identity
+   * @returns the next nonce that should be used for making a meta-transaction
    */
-  public async getMetaTxInfos(address: string): Promise<TxInfos> {
+  public async getIdentityNonce(address: string): Promise<number> {
     const { identity, nextNonce, balance } = await this.fetchEndpoint<any>(
       `/identities/${address}`
     )
-    return {
-      balance: new BigNumber(balance),
-      gasPrice: new BigNumber(0),
-      nonce: nextNonce
-    }
+    return nextNonce
   }
 
   /**

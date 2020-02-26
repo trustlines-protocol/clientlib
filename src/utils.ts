@@ -286,6 +286,22 @@ export const calculateDelegationFeesAmount = (
   }
 }
 
+export const calculateDelegationFees = (
+  baseFee: number | string | BigNumber,
+  gasPrice: number | string | BigNumber,
+  gasLimit: number | string | BigNumber
+): BigNumber => {
+  const delegationFeesGasPriceDivisor = new BigNumber(1_000_000)
+  baseFee = new BigNumber(baseFee)
+  gasPrice = new BigNumber(gasPrice)
+  gasLimit = new BigNumber(gasLimit)
+  return baseFee.plus(
+    gasPrice
+      .multipliedBy(gasLimit)
+      .dividedToIntegerBy(delegationFeesGasPriceDivisor)
+  )
+}
+
 // This constant is taken from the identity contracts where the gas price is divided before used in fee calculation
 export const DELEGATION_GAS_PRICE_DIVISOR = 1_000_000
 
@@ -485,6 +501,7 @@ export default {
   buildUrl,
   calcRaw,
   calcValue,
+  calculateDelegationFees,
   calculateDelegationFeesAmount,
   checkAddress,
   convertEthToWei,

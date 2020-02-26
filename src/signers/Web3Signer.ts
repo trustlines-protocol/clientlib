@@ -131,6 +131,15 @@ export class Web3Signer implements TLSigner {
     return { balance, gasPrice, nonce }
   }
 
+  public async fillFeesAndNonce(rawTx: RawTxObject): Promise<RawTxObject> {
+    const { gasPrice, nonce } = await this.getTxInfos(this.address)
+    rawTx.gasPrice = gasPrice
+    rawTx.nonce = nonce
+    rawTx.baseFee = new BigNumber(0)
+    rawTx.totalFee = new BigNumber(rawTx.gasPrice).multipliedBy(rawTx.gasLimit)
+    return rawTx
+  }
+
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {
     return {
       baseFee: '0',

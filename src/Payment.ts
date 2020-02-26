@@ -97,8 +97,7 @@ export class Payment {
     if (path.length > 0) {
       const {
         rawTx,
-        ethFees,
-        delegationFees
+        txFees
       } = await this.transaction.prepareContractTransaction(
         await this.user.getAddress(),
         networkAddress,
@@ -119,11 +118,7 @@ export class Payment {
         }
       )
       return {
-        ethFees: utils.convertToAmount(ethFees),
-        delegationFees: utils.calculateDelegationFeesAmount(
-          delegationFees,
-          this.calculatePaymentGasLimit(path.length)
-        ),
+        txFees,
         feePayer,
         maxFees,
         path,
@@ -148,11 +143,7 @@ export class Payment {
     options: PaymentOptions = {}
   ): Promise<TxObject> {
     const { gasLimit, gasPrice } = options
-    const {
-      ethFees,
-      rawTx,
-      delegationFees
-    } = await this.transaction.prepareValueTransaction(
+    const { txFees, rawTx } = await this.transaction.prepareValueTransaction(
       await this.user.getAddress(),
       receiverAddress,
       utils.calcRaw(value, 18),
@@ -162,11 +153,7 @@ export class Payment {
       }
     )
     return {
-      ethFees: utils.convertToAmount(ethFees),
-      delegationFees: utils.calculateDelegationFeesAmount(
-        delegationFees,
-        21000
-      ),
+      txFees,
       rawTx
     }
   }

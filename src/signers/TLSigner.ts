@@ -3,6 +3,7 @@ import {
   MetaTransactionFees,
   RawTxObject,
   Signature,
+  TxInfo,
   TxInfos
 } from '../typings'
 
@@ -15,6 +16,6 @@ export interface TLSigner {
   signMsgHash(msgHash: string): Promise<Signature>
   signMessage(message: string | ArrayLike<number>): Promise<Signature>
   confirm(rawTx: RawTxObject): Promise<string>
-  getTxInfos(userAddress: string): Promise<TxInfos>
+  fillFeesAndNonce(rawTx: RawTxObject): Promise<RawTxObject>
   getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees>
 }

@@ -326,10 +326,7 @@ export class Exchange {
     ) {
       throw new Error('Could not find a path with enough capacity')
     }
-    const {
-      rawTx,
-      ethFees
-    } = await this.transaction.prepareContractTransaction(
+    const { rawTx, txFees } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       exchangeContractAddress,
       'Exchange',
@@ -356,7 +353,7 @@ export class Exchange {
       }
     )
     return {
-      ethFees: utils.convertToAmount(ethFees),
+      txFees,
       makerMaxFees: makerPathObj.maxFees,
       makerPath: makerPathObj.path,
       rawTx,
@@ -391,10 +388,7 @@ export class Exchange {
     })
     const orderAddresses = this._getOrderAddresses(signedOrder)
     const orderValues = this._getOrderValues(signedOrder)
-    const {
-      rawTx,
-      ethFees
-    } = await this.transaction.prepareContractTransaction(
+    const { rawTx, txFees } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       exchangeContractAddress,
       'Exchange',
@@ -412,7 +406,7 @@ export class Exchange {
       }
     )
     return {
-      ethFees: utils.convertToAmount(ethFees),
+      txFees,
       rawTx
     }
   }

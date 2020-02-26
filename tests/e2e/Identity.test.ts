@@ -75,9 +75,9 @@ describe('e2e', () => {
       })
 
       it('should give a different nonce after transaction was sent', async () => {
-        const firstNonce = (await identityWallet.getTxInfos(
+        const firstNonce = await relayProvider.getIdentityNonce(
           identityWallet.address
-        )).nonce
+        )
 
         const { rawTx } = await trustlinesNetwork.payment.prepareEth(
           identityWallet.address,
@@ -85,9 +85,9 @@ describe('e2e', () => {
         )
         await trustlinesNetwork.payment.confirm(rawTx)
 
-        const secondNonce = (await identityWallet.getTxInfos(
+        const secondNonce = await relayProvider.getIdentityNonce(
           identityWallet.address
-        )).nonce
+        )
 
         expect(firstNonce).to.equal(1)
         expect(secondNonce).to.equal(2)
@@ -122,7 +122,7 @@ describe('e2e', () => {
       })
 
       it('should relay meta transaction and return a transaction hash', async () => {
-        const rawTx: RawTxObject = {
+        let rawTx: RawTxObject = {
           data: '0x',
           from: identityWallet.address,
           nonce: 1,
@@ -130,12 +130,7 @@ describe('e2e', () => {
           value: 0
         }
 
-        const txFees = await identityWallet.getMetaTxFees(rawTx)
-        rawTx.delegationFees = {
-          baseFee: txFees.baseFee,
-          gasPrice: txFees.gasPrice,
-          currencyNetworkOfFees: txFees.currencyNetworkOfFees
-        }
+        rawTx = await identityWallet.fillFeesAndNonce(rawTx)
 
         const transactionHash = await identityWallet.confirm(rawTx)
         assert.isString(transactionHash)

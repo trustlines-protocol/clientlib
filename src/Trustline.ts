@@ -165,11 +165,7 @@ export class Trustline {
       )
     }
 
-    const {
-      rawTx,
-      ethFees,
-      delegationFees
-    } = await this.transaction.prepareContractTransaction(
+    const { rawTx, txFees } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       networkAddress,
       'CurrencyNetwork',
@@ -186,11 +182,7 @@ export class Trustline {
       315_000 * GAS_LIMIT_MULTIPLIER
     )
     return {
-      ethFees: utils.convertToAmount(ethFees),
-      delegationFees: utils.calculateDelegationFeesAmount(
-        delegationFees,
-        MaxTrustlineUpdateGasLimit
-      ),
+      txFees,
       rawTx
     }
   }
@@ -249,11 +241,7 @@ export class Trustline {
     const cancelFuncName = 'cancelTrustlineUpdate'
     const cancelFuncArgs: any[] = [counterpartyAddress]
 
-    const {
-      rawTx,
-      ethFees,
-      delegationFees
-    } = await this.transaction.prepareContractTransaction(
+    const { rawTx, txFees } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       networkAddress,
       'CurrencyNetwork',
@@ -269,11 +257,7 @@ export class Trustline {
       19000 * GAS_LIMIT_MULTIPLIER
     )
     return {
-      ethFees: utils.convertToAmount(ethFees),
-      delegationFees: utils.calculateDelegationFeesAmount(
-        delegationFees,
-        gasLimitCancelTrustlineUpdate
-      ),
+      txFees,
       rawTx
     }
   }
@@ -468,11 +452,7 @@ export class Trustline {
     }
 
     // Prepare the interaction with the contract.
-    const {
-      rawTx,
-      ethFees,
-      delegationFees
-    } = await this.transaction.prepareContractTransaction(
+    const { rawTx, txFees } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       networkAddress,
       'CurrencyNetwork',
@@ -487,11 +467,7 @@ export class Trustline {
     // Value taken from contracts gas tests
     const gasLimitCloseTrustline = Math.floor(55000 * GAS_LIMIT_MULTIPLIER)
     return {
-      ethFees: utils.convertToAmount(ethFees),
-      delegationFees: utils.calculateDelegationFeesAmount(
-        delegationFees,
-        gasLimitCloseTrustline
-      ),
+      txFees,
       maxFees,
       path,
       rawTx
