@@ -4,9 +4,14 @@ import chaiAsPromised from 'chai-as-promised'
 import fetchMock = require('fetch-mock')
 import 'mocha'
 
-import utils from '../../src/utils'
+import utils, { DELEGATION_GAS_PRICE_DIVISOR } from '../../src/utils'
 
-import { ExchangeCancelEvent, ExchangeFillEvent } from '../../src/typings'
+import {
+  Amount,
+  DelegationFeesInternal,
+  ExchangeCancelEvent,
+  ExchangeFillEvent
+} from '../../src/typings'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
@@ -180,6 +185,35 @@ describe('unit', () => {
         const value = utils.calcValue(RAW_BN_INPUT, DECIMALS)
         assert.instanceOf(value, BigNumber)
         assert.equal(value.toString(), VALUE_OUTPUT)
+      })
+    })
+
+    describe('#calculateDelegationFeesAmount()', () => {
+      it('should return non float raw value', () => {
+        const baseFee = 123
+        const gasPrice = 1
+        const delegationFees: DelegationFeesInternal = {
+          baseFee: utils.formatToAmountInternal(baseFee, DECIMALS),
+          gasPrice: utils.formatToAmountInternal(gasPrice, DECIMALS),
+          currencyNetworkOfFees: ''
+        }
+        const gasLimit = 123456
+        const caclulatedFees = utils.calculateDelegationFeesAmount(
+          delegationFees,
+          gasLimit
+        )
+
+        const rawFees =
+          baseFee + (gasPrice * gasLimit) / DELEGATION_GAS_PRICE_DIVISOR
+        const flooredRawFees = Math.floor(rawFees)
+        // We check that the rounding actually did something
+        assert.notEqual(rawFees, flooredRawFees)
+        const valueFees = utils.formatToAmount(flooredRawFees, DECIMALS).value
+
+        assert.hasAllKeys(caclulatedFees, ['decimals', 'raw', 'value'])
+        assert.equal(caclulatedFees.raw, flooredRawFees.toString())
+        assert.equal(caclulatedFees.value, valueFees)
+        assert.equal(caclulatedFees.decimals, DECIMALS)
       })
     })
 

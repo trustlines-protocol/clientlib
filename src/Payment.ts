@@ -310,6 +310,8 @@ export class Payment {
     const mediators = pathLength - 2
     const transferBaseGas = 48000
     const gasPerMediator = 18000
-    return (transferBaseGas + gasPerMediator * mediators) * GAS_LIMIT_MULTIPLIER
+    return Math.floor(
+      (transferBaseGas + gasPerMediator * mediators) * GAS_LIMIT_MULTIPLIER
+    )
   }
 }

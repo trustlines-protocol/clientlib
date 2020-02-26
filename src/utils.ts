@@ -8,7 +8,6 @@ import { Observer } from 'rxjs/Observer'
 import JsonRPC from 'simple-jsonrpc-js'
 import NodeWebSocket from 'ws'
 
-import { Provider } from 'ethers/providers'
 import {
   Amount,
   AmountInternal,
@@ -278,7 +277,7 @@ export const calculateDelegationFeesAmount = (
   const totalFeesRaw = delegationFees.baseFee.raw.plus(
     delegationFees.gasPrice.raw
       .multipliedBy(gasLimit)
-      .dividedToIntegerBy(1_000_000)
+      .dividedToIntegerBy(DELEGATION_GAS_PRICE_DIVISOR)
   )
   return {
     raw: totalFeesRaw.toString(),
@@ -286,6 +285,9 @@ export const calculateDelegationFeesAmount = (
     decimals: delegationFees.baseFee.decimals
   }
 }
+
+// This constant is taken from the identity contracts where the gas price is divided before used in fee calculation
+export const DELEGATION_GAS_PRICE_DIVISOR = 1_000_000
 
 /**
  * Formats the number values of a raw event returned by the relay.

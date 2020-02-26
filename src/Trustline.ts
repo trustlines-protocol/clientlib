@@ -182,7 +182,9 @@ export class Trustline {
     )
     // Value taken from contracts repository gas tests
     // TODO: the gas limit for updating a TL could actually be lower than this depending on the situation
-    const MaxTrustlineUpdateGasLimit = 315_000 * GAS_LIMIT_MULTIPLIER
+    const MaxTrustlineUpdateGasLimit = Math.floor(
+      315_000 * GAS_LIMIT_MULTIPLIER
+    )
     return {
       ethFees: utils.convertToAmount(ethFees),
       delegationFees: utils.calculateDelegationFeesAmount(
@@ -263,7 +265,9 @@ export class Trustline {
       }
     )
     // Value taken from contracts gas tests
-    const gasLimitCancelTrustlineUpdate = 19000 * GAS_LIMIT_MULTIPLIER
+    const gasLimitCancelTrustlineUpdate = Math.floor(
+      19000 * GAS_LIMIT_MULTIPLIER
+    )
     return {
       ethFees: utils.convertToAmount(ethFees),
       delegationFees: utils.calculateDelegationFeesAmount(
@@ -481,7 +485,7 @@ export class Trustline {
     )
 
     // Value taken from contracts gas tests
-    const gasLimitCloseTrustline = 55000 * GAS_LIMIT_MULTIPLIER
+    const gasLimitCloseTrustline = Math.floor(55000 * GAS_LIMIT_MULTIPLIER)
     return {
       ethFees: utils.convertToAmount(ethFees),
       delegationFees: utils.calculateDelegationFeesAmount(
