@@ -70,7 +70,7 @@ describe('unit', () => {
           100,
           200
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'txFees'])
       })
 
       it('should return a transaction object with specified interests', async () => {
@@ -85,7 +85,7 @@ describe('unit', () => {
             isFrozen: false
           }
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'txFees'])
       })
 
       it('should return a transaction object with specified interests, with default isFrozen value', async () => {
@@ -99,7 +99,7 @@ describe('unit', () => {
             interestRateReceived: 0.02
           }
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'txFees'])
       })
     })
 
@@ -113,7 +113,7 @@ describe('unit', () => {
           100,
           200
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'txFees'])
       })
 
       it('should return a transaction object with specified interests', async () => {
@@ -128,7 +128,7 @@ describe('unit', () => {
             isFrozen: false
           }
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'txFees'])
       })
     })
 
@@ -140,7 +140,7 @@ describe('unit', () => {
           FAKE_NETWORK.address,
           '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18'
         )
-        assert.hasAllKeys(tx, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(tx, ['rawTx', 'txFees'])
       })
     })
 
@@ -257,13 +257,7 @@ describe('unit', () => {
           FAKE_NETWORK.address,
           TL_WALLET_DATA.address
         )
-        assert.hasAllKeys(closeTx, [
-          'ethFees',
-          'maxFees',
-          'path',
-          'rawTx',
-          'delegationFees'
-        ])
+        assert.hasAllKeys(closeTx, ['txFees', 'maxFees', 'path', 'rawTx'])
       })
     })
   })

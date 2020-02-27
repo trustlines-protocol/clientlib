@@ -8,6 +8,7 @@ import {
   TxInfos
 } from '../../src/typings'
 
+import { BigNumber } from 'bignumber.js'
 import {
   FAKE_AMOUNT,
   FAKE_SIGNED_MSG_HASH,
@@ -78,5 +79,14 @@ export class FakeTLSigner implements TLSigner {
       gasPrice: '0',
       currencyNetworkOfFees: ''
     }
+  }
+
+  public async fillFeesAndNonce(rawTx: RawTxObject): Promise<RawTxObject> {
+    rawTx.nonce = rawTx.nonce || 1
+    rawTx.gasPrice = rawTx.gasPrice || new BigNumber(1)
+    rawTx.baseFee = rawTx.baseFee || new BigNumber(1)
+    rawTx.currencyNetworkOfFees = rawTx.currencyNetworkOfFees || undefined
+    rawTx.totalFee = new BigNumber(1)
+    return rawTx
   }
 }

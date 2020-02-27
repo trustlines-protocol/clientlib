@@ -51,7 +51,7 @@ describe('unit', () => {
           'transfer',
           ['10000', '0', [USER_ADDRESS, COUNTER_PARTY_ADDRESS], EXTRA_DATA]
         )
-        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'txFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
           'data',
           'from',
@@ -59,8 +59,10 @@ describe('unit', () => {
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce',
-          'delegationFees'
+          'baseFee',
+          'currencyNetworkOfFees',
+          'totalFee',
+          'nonce'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, CONTRACT_ADDRESS)
@@ -70,29 +72,26 @@ describe('unit', () => {
         assert.instanceOf(rawTxObject.rawTx.gasPrice, BigNumber)
         assert.isNumber(rawTxObject.rawTx.nonce)
         assert.isString(rawTxObject.rawTx.data)
-        assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
-        assert.equal(rawTxObject.ethFees.decimals, 18)
-        assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
-        assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
-        assert.hasAllKeys(rawTxObject.rawTx.delegationFees, [
+        assert.hasAllKeys(rawTxObject.txFees, [
+          'totalFee',
           'baseFee',
-          'gasPrice',
-          'currencyNetworkOfFees'
+          'currencyNetworkOfFees',
+          'gasLimit',
+          'gasPrice'
         ])
-        assert.isString(rawTxObject.rawTx.delegationFees.currencyNetworkOfFees)
-        assert.instanceOf(rawTxObject.rawTx.delegationFees.baseFee, BigNumber)
-        assert.instanceOf(rawTxObject.rawTx.delegationFees.gasPrice, BigNumber)
+        assert.equal(rawTxObject.txFees.totalFee.decimals, 18)
+        assert.isString(rawTxObject.txFees.totalFee.raw)
+        assert.isString(rawTxObject.txFees.totalFee.value)
+        assert.isString(rawTxObject.txFees.baseFee.raw)
+        assert.isString(rawTxObject.txFees.baseFee.value)
+        assert.isString(rawTxObject.txFees.gasPrice.raw)
+        assert.isString(rawTxObject.txFees.gasPrice.value)
       })
 
       it('should prepare a transaction object for calling a function with options', async () => {
         const CUSTOM_GAS_LIMIT = 10000000
         const CUSTOM_GAS_PRICE = 1
         const CUSTOM_VALUE = 123
-        const CUSTOM_DELEGATION_FEES = {
-          baseFee: new BigNumber(CUSTOM_VALUE),
-          gasPrice: new BigNumber(CUSTOM_GAS_PRICE),
-          currencyNetworkOfFees: CONTRACT_ADDRESS
-        }
         const rawTxObject = await transaction.prepareContractTransaction(
           USER_ADDRESS,
           CONTRACT_ADDRESS,
@@ -103,10 +102,11 @@ describe('unit', () => {
             gasLimit: new BigNumber(CUSTOM_GAS_LIMIT),
             gasPrice: new BigNumber(CUSTOM_GAS_PRICE),
             value: new BigNumber(CUSTOM_VALUE),
-            delegationFees: CUSTOM_DELEGATION_FEES
+            baseFee: new BigNumber(CUSTOM_VALUE),
+            currencyNetworkOfFees: CONTRACT_ADDRESS
           }
         )
-        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'txFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
           'data',
           'from',
@@ -114,8 +114,10 @@ describe('unit', () => {
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce',
-          'delegationFees'
+          'baseFee',
+          'currencyNetworkOfFees',
+          'totalFee',
+          'nonce'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, CONTRACT_ADDRESS)
@@ -136,28 +138,34 @@ describe('unit', () => {
         )
         assert.isNumber(rawTxObject.rawTx.nonce)
         assert.isString(rawTxObject.rawTx.data)
-        assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
-        assert.equal(rawTxObject.ethFees.decimals, 18)
-        assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
-        assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
-        assert.hasAllKeys(rawTxObject.rawTx.delegationFees, [
+        assert.hasAllKeys(rawTxObject.txFees.totalFee, [
+          'decimals',
+          'raw',
+          'value'
+        ])
+        assert.equal(
+          rawTxObject.txFees.totalFee.decimals,
+          2,
+          'Should use the decimals of the currency network'
+        )
+        assert.isString(rawTxObject.txFees.totalFee.raw)
+        assert.isString(rawTxObject.txFees.totalFee.value)
+        assert.hasAllKeys(rawTxObject.txFees, [
           'baseFee',
           'gasPrice',
+          'gasLimit',
+          'totalFee',
           'currencyNetworkOfFees'
         ])
-        assert.isString(rawTxObject.rawTx.delegationFees.currencyNetworkOfFees)
+        assert.isString(rawTxObject.txFees.currencyNetworkOfFees)
+        assert.equal(rawTxObject.txFees.currencyNetworkOfFees, CONTRACT_ADDRESS)
+        assert.isString(rawTxObject.txFees.baseFee.raw)
+        assert.isString(rawTxObject.txFees.baseFee.value)
+        assert.equal(rawTxObject.txFees.baseFee.raw, CUSTOM_VALUE.toString())
+        assert.isString(rawTxObject.txFees.gasPrice.raw)
+        assert.isString(rawTxObject.txFees.gasPrice.value)
         assert.equal(
-          rawTxObject.rawTx.delegationFees.currencyNetworkOfFees,
-          CONTRACT_ADDRESS
-        )
-        assert.instanceOf(rawTxObject.rawTx.delegationFees.baseFee, BigNumber)
-        assert.equal(
-          rawTxObject.rawTx.delegationFees.baseFee.toString(),
-          CUSTOM_VALUE.toString()
-        )
-        assert.instanceOf(rawTxObject.rawTx.delegationFees.gasPrice, BigNumber)
-        assert.equal(
-          rawTxObject.rawTx.delegationFees.gasPrice.toString(),
+          rawTxObject.txFees.gasPrice.raw,
           CUSTOM_GAS_PRICE.toString()
         )
       })
@@ -170,15 +178,17 @@ describe('unit', () => {
           COUNTER_PARTY_ADDRESS,
           new BigNumber('1')
         )
-        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'txFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
           'from',
           'to',
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce',
-          'delegationFees'
+          'baseFee',
+          'currencyNetworkOfFees',
+          'totalFee',
+          'nonce'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, COUNTER_PARTY_ADDRESS)
@@ -187,18 +197,20 @@ describe('unit', () => {
         assert.instanceOf(rawTxObject.rawTx.gasLimit, BigNumber)
         assert.instanceOf(rawTxObject.rawTx.gasPrice, BigNumber)
         assert.isNumber(rawTxObject.rawTx.nonce)
-        assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
-        assert.equal(rawTxObject.ethFees.decimals, 18)
-        assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
-        assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
-        assert.hasAllKeys(rawTxObject.rawTx.delegationFees, [
+        assert.hasAllKeys(rawTxObject.txFees, [
+          'totalFee',
           'baseFee',
-          'gasPrice',
-          'currencyNetworkOfFees'
+          'currencyNetworkOfFees',
+          'gasLimit',
+          'gasPrice'
         ])
-        assert.isString(rawTxObject.rawTx.delegationFees.currencyNetworkOfFees)
-        assert.instanceOf(rawTxObject.rawTx.delegationFees.baseFee, BigNumber)
-        assert.instanceOf(rawTxObject.rawTx.delegationFees.gasPrice, BigNumber)
+        assert.equal(rawTxObject.txFees.totalFee.decimals, 18)
+        assert.isString(rawTxObject.txFees.totalFee.raw)
+        assert.isString(rawTxObject.txFees.totalFee.value)
+        assert.isString(rawTxObject.txFees.baseFee.raw)
+        assert.isString(rawTxObject.txFees.baseFee.value)
+        assert.isString(rawTxObject.txFees.gasPrice.raw)
+        assert.isString(rawTxObject.txFees.gasPrice.value)
       })
 
       it('should prepare a transaction object for transferring eth with options', async () => {
@@ -217,18 +229,21 @@ describe('unit', () => {
           {
             gasLimit: new BigNumber(CUSTOM_GAS_LIMIT),
             gasPrice: new BigNumber(CUSTOM_GAS_PRICE),
-            delegationFees: CUSTOM_DELEGATION_FEES
+            baseFee: new BigNumber(CUSTOM_VALUE),
+            currencyNetworkOfFees: CONTRACT_ADDRESS
           }
         )
-        assert.hasAllKeys(rawTxObject, ['rawTx', 'ethFees', 'delegationFees'])
+        assert.hasAllKeys(rawTxObject, ['rawTx', 'txFees'])
         assert.hasAllKeys(rawTxObject.rawTx, [
           'from',
           'to',
           'value',
           'gasLimit',
           'gasPrice',
-          'nonce',
-          'delegationFees'
+          'baseFee',
+          'currencyNetworkOfFees',
+          'totalFee',
+          'nonce'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
         assert.equal(rawTxObject.rawTx.to, COUNTER_PARTY_ADDRESS)
@@ -248,28 +263,34 @@ describe('unit', () => {
           CUSTOM_GAS_PRICE.toString()
         )
         assert.isNumber(rawTxObject.rawTx.nonce)
-        assert.hasAllKeys(rawTxObject.ethFees, ['decimals', 'raw', 'value'])
-        assert.equal(rawTxObject.ethFees.decimals, 18)
-        assert.instanceOf(rawTxObject.ethFees.raw, BigNumber)
-        assert.instanceOf(rawTxObject.ethFees.value, BigNumber)
-        assert.hasAllKeys(rawTxObject.rawTx.delegationFees, [
+        assert.hasAllKeys(rawTxObject.txFees.totalFee, [
+          'decimals',
+          'raw',
+          'value'
+        ])
+        assert.equal(
+          rawTxObject.txFees.totalFee.decimals,
+          2,
+          'Should use the decimals of the currency network'
+        )
+        assert.isString(rawTxObject.txFees.totalFee.raw)
+        assert.isString(rawTxObject.txFees.totalFee.value)
+        assert.hasAllKeys(rawTxObject.txFees, [
           'baseFee',
           'gasPrice',
+          'gasLimit',
+          'totalFee',
           'currencyNetworkOfFees'
         ])
-        assert.isString(rawTxObject.rawTx.delegationFees.currencyNetworkOfFees)
+        assert.isString(rawTxObject.txFees.currencyNetworkOfFees)
+        assert.equal(rawTxObject.txFees.currencyNetworkOfFees, CONTRACT_ADDRESS)
+        assert.isString(rawTxObject.txFees.baseFee.raw)
+        assert.isString(rawTxObject.txFees.baseFee.value)
+        assert.equal(rawTxObject.txFees.baseFee.raw, CUSTOM_VALUE.toString())
+        assert.isString(rawTxObject.txFees.gasPrice.raw)
+        assert.isString(rawTxObject.txFees.gasPrice.value)
         assert.equal(
-          rawTxObject.rawTx.delegationFees.currencyNetworkOfFees,
-          CONTRACT_ADDRESS
-        )
-        assert.instanceOf(rawTxObject.rawTx.delegationFees.baseFee, BigNumber)
-        assert.equal(
-          rawTxObject.rawTx.delegationFees.baseFee.toString(),
-          CUSTOM_VALUE.toString()
-        )
-        assert.instanceOf(rawTxObject.rawTx.delegationFees.gasPrice, BigNumber)
-        assert.equal(
-          rawTxObject.rawTx.delegationFees.gasPrice.toString(),
+          rawTxObject.txFees.gasPrice.raw,
           CUSTOM_GAS_PRICE.toString()
         )
       })
