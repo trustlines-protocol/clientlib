@@ -329,8 +329,7 @@ describe('e2e', () => {
         'transactionId',
         'from',
         'to',
-        'direction',
-        'id'
+        'direction'
       ]
       const fillEventKeys = exEventKeys.concat([
         'filledMakerAmount',
