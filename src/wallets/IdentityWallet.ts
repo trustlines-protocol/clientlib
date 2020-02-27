@@ -17,9 +17,7 @@ import {
   MetaTransaction,
   MetaTransactionFees,
   RawTxObject,
-  Signature,
-  TxInfo,
-  TxInfos
+  Signature
 } from '../typings'
 
 import utils from '../utils'
@@ -323,13 +321,11 @@ export class IdentityWallet implements TLWallet {
 
     rawTx.gasPrice = rawTx.gasPrice || new BigNumber(metaTxFees.gasPrice)
     rawTx.baseFee = rawTx.baseFee || new BigNumber(metaTxFees.baseFee)
-    rawTx.totalFee =
-      rawTx.totalFee ||
-      utils.calculateDelegationFees(
-        rawTx.baseFee,
-        rawTx.gasPrice,
-        rawTx.gasLimit
-      )
+    rawTx.totalFee = utils.calculateDelegationFees(
+      rawTx.baseFee,
+      rawTx.gasPrice,
+      rawTx.gasLimit
+    )
     rawTx.currencyNetworkOfFees =
       rawTx.currencyNetworkOfFees || metaTxFees.currencyNetworkOfFees
 

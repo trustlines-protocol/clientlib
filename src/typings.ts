@@ -344,21 +344,6 @@ export interface TxInfos {
   nonce: number
 }
 
-export interface TxInfo {
-  /**
-   * Amount of ETH in gwei for every unit of gas user is willing to pay
-   */
-  gasPrice: BigNumber
-  gasLimit?: BigNumber
-  baseFee: BigNumber
-  totalFee: BigNumber
-  currencyNetworkOfFees?: string
-  /**
-   * Transaction count of given user address
-   */
-  nonce: number
-}
-
 export interface TxFeesAmounts {
   gasPrice: Amount
   gasLimit: Amount

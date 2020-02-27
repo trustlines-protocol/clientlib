@@ -1,11 +1,4 @@
-import {
-  Amount,
-  MetaTransactionFees,
-  RawTxObject,
-  Signature,
-  TxInfo,
-  TxInfos
-} from '../typings'
+import { Amount, MetaTransactionFees, RawTxObject, Signature } from '../typings'
 
 /**
  * Interface for different signer strategies.

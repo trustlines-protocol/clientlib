@@ -17,9 +17,7 @@ import {
   EthersWalletData,
   MetaTransactionFees,
   RawTxObject,
-  Signature,
-  TxInfo,
-  TxInfos
+  Signature
 } from '../typings'
 
 /**

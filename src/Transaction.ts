@@ -20,7 +20,13 @@ import {
 import { CurrencyNetwork } from './CurrencyNetwork'
 
 const ETH_DECIMALS = 18
-export const GAS_LIMIT_MULTIPLIER = 1.2
+export const GAS_LIMIT_MULTIPLIER = 1.3
+// Value taken from the contracts gas tests
+export const GAS_COST_IDENTITY_OVERHEAD = new BigNumber(27_000)
+export const GAS_COST_VALUE_TRANSACTION = new BigNumber(21_000)
+  .plus(GAS_COST_IDENTITY_OVERHEAD.multipliedBy(GAS_LIMIT_MULTIPLIER))
+  .integerValue(BigNumber.ROUND_DOWN)
+export const GAS_COST_DEFAULT_CONTRACT_TRANSACTION = new BigNumber(600_000)
 
 /**
  * The Transaction class contains functions that are needed for Ethereum transactions.
@@ -50,11 +56,10 @@ export class Transaction {
    * @param options.gasPrice (optional)
    * @param options.gasLimit (optional)
    * @param options.value (optional)
-   * @param options.delegationFees (optional) delegation fees for a meta transaction.
+   * @param options.baseFee (optional) base fees to be used notably for meta-transactions.
    * @param options.currencyNetworkOfFees (optional) currency network of fees for a meta transaction.
    * @returns An ethereum transaction object and the estimated transaction fees in ETH.
    */
-  // TODO: change docs
   public async prepareContractTransaction(
     userAddress: string,
     contractAddress: string,
@@ -63,8 +68,6 @@ export class Transaction {
     args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    // TODO: get the gas limit in
-
     const abi = new ethers.utils.Interface(
       TrustlinesContractsAbi[contractName].abi
     )
@@ -72,7 +75,7 @@ export class Transaction {
       data: abi.functions[functionName].encode(args),
       from: userAddress,
       to: contractAddress,
-      gasLimit: options.gasLimit || new BigNumber(600_000),
+      gasLimit: options.gasLimit || GAS_COST_DEFAULT_CONTRACT_TRANSACTION,
       gasPrice: options.gasPrice || undefined,
       baseFee: options.baseFee || undefined,
       currencyNetworkOfFees: options.currencyNetworkOfFees || undefined,
@@ -92,8 +95,10 @@ export class Transaction {
    * @param senderAddress address of user sending the transfer
    * @param receiverAddress address of user receiving the transfer
    * @param rawValue transfer amount in wei
-   * @param gasPrice (optional)
-   * @param gasLimit (optional)
+   * @param options.gasPrice (optional)
+   * @param options.gasLimit (optional)
+   * @param options.baseFee (optional) base fees to be used notably for meta-transactions.
+   * @param options.currencyNetworkOfFees (optional) currency network of fees for a meta transaction.
    * @returns An ethereum transaction object containing and the estimated transaction fees in ETH.
    */
   public async prepareValueTransaction(
@@ -106,7 +111,7 @@ export class Transaction {
     let rawTx: RawTxObject = {
       from: senderAddress,
       to: receiverAddress,
-      gasLimit: options.gasLimit || new BigNumber(50_000),
+      gasLimit: options.gasLimit || GAS_COST_VALUE_TRANSACTION,
       gasPrice: options.gasPrice || undefined,
       baseFee: options.baseFee || undefined,
       currencyNetworkOfFees: options.currencyNetworkOfFees || undefined,

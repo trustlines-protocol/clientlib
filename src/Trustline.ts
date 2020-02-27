@@ -3,7 +3,11 @@ import BigNumber from 'bignumber.js'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
 import { TLProvider } from './providers/TLProvider'
-import { GAS_LIMIT_MULTIPLIER, Transaction } from './Transaction'
+import {
+  GAS_COST_IDENTITY_OVERHEAD,
+  GAS_LIMIT_MULTIPLIER,
+  Transaction
+} from './Transaction'
 import { User } from './User'
 
 import utils from './utils'
@@ -26,6 +30,23 @@ import {
   TxObject,
   TxOptions
 } from './typings'
+
+// Values taken from contracts repository gas tests
+// TODO: the gas limit for updating a TL could actually be lower than this depending on the situation.
+// TODO: Move the responsibility of filling the default gas limit to wallet since it should know whether to use the
+// TODO: identity overhead or not?
+const UPDATE_TRUSTLINE_GAS_COST = new BigNumber(315_000)
+  .plus(GAS_COST_IDENTITY_OVERHEAD)
+  .multipliedBy(GAS_LIMIT_MULTIPLIER)
+  .integerValue(BigNumber.ROUND_DOWN)
+const CANCEL_TRUSTLINE_GAS_COST = new BigNumber(19_000)
+  .plus(GAS_COST_IDENTITY_OVERHEAD)
+  .multipliedBy(GAS_LIMIT_MULTIPLIER)
+  .integerValue(BigNumber.ROUND_DOWN)
+const CLOSE_TRUSTLINE_GAS_COST = new BigNumber(55_000)
+  .plus(GAS_COST_IDENTITY_OVERHEAD)
+  .multipliedBy(GAS_LIMIT_MULTIPLIER)
+  .integerValue(BigNumber.ROUND_DOWN)
 
 /**
  * The [[Trustline]] class contains all relevant methods for retrieving, creating and editing trustlines.
@@ -172,14 +193,11 @@ export class Trustline {
       updateFuncName,
       updateFuncArgs,
       {
-        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
+        gasLimit: gasLimit
+          ? new BigNumber(gasLimit)
+          : UPDATE_TRUSTLINE_GAS_COST,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
-    )
-    // Value taken from contracts repository gas tests
-    // TODO: the gas limit for updating a TL could actually be lower than this depending on the situation
-    const MaxTrustlineUpdateGasLimit = Math.floor(
-      315_000 * GAS_LIMIT_MULTIPLIER
     )
     return {
       txFees,
@@ -248,13 +266,11 @@ export class Trustline {
       cancelFuncName,
       cancelFuncArgs,
       {
-        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
+        gasLimit: gasLimit
+          ? new BigNumber(gasLimit)
+          : CANCEL_TRUSTLINE_GAS_COST,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
-    )
-    // Value taken from contracts gas tests
-    const gasLimitCancelTrustlineUpdate = Math.floor(
-      19000 * GAS_LIMIT_MULTIPLIER
     )
     return {
       txFees,
@@ -432,12 +448,14 @@ export class Trustline {
     // Determine which close function to call with which arguments.
     let closeFuncName
     let closeFuncArgs
+    let estimatedGasCost
 
     // If estimated value to be transferred for closing the trustline is
     // ZERO, a triangulated transfer is NOT needed.
     if (value.raw === '0') {
       closeFuncName = 'closeTrustline'
       closeFuncArgs = [counterpartyAddress]
+      estimatedGasCost = CLOSE_TRUSTLINE_GAS_COST
     } else {
       // If there is no path with enough capacity for triangulation throw.
       if (path.length === 0) {
@@ -449,6 +467,9 @@ export class Trustline {
         utils.convertToHexString(new BigNumber(maxFees.raw)),
         path
       ]
+      estimatedGasCost = CLOSE_TRUSTLINE_GAS_COST.plus(
+        utils.calculateTransferGasLimit(path.length)
+      )
     }
 
     // Prepare the interaction with the contract.
@@ -459,13 +480,12 @@ export class Trustline {
       closeFuncName,
       closeFuncArgs,
       {
-        gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
+        gasLimit: gasLimit ? new BigNumber(gasLimit) : estimatedGasCost,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
 
     // Value taken from contracts gas tests
-    const gasLimitCloseTrustline = Math.floor(55000 * GAS_LIMIT_MULTIPLIER)
     return {
       txFees,
       maxFees,

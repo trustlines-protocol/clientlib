@@ -3,7 +3,7 @@ import { BigNumber } from 'bignumber.js'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
 import { TLProvider } from './providers/TLProvider'
-import { GAS_LIMIT_MULTIPLIER, Transaction } from './Transaction'
+import { Transaction } from './Transaction'
 import { User } from './User'
 
 import utils from './utils'
@@ -113,7 +113,9 @@ export class Payment {
           extraData || '0x'
         ],
         {
-          gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
+          gasLimit: gasLimit
+            ? new BigNumber(gasLimit)
+            : utils.calculateTransferGasLimit(path.length),
           gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
         }
       )
@@ -290,15 +292,5 @@ export class Payment {
       amount: utils.formatToAmount(result.capacity, networkDecimals),
       path: result.path
     }
-  }
-
-  private calculatePaymentGasLimit(pathLength: number) {
-    // Values taken from the contracts repository gas tests
-    const mediators = pathLength - 2
-    const transferBaseGas = 48000
-    const gasPerMediator = 18000
-    return Math.floor(
-      (transferBaseGas + gasPerMediator * mediators) * GAS_LIMIT_MULTIPLIER
-    )
   }
 }
