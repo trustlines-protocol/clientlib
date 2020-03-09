@@ -222,7 +222,7 @@ describe('e2e', () => {
           tl2.exchange.prepTakeOrder(order, 1)
         ).to.eventually.have.keys(
           'rawTx',
-          'ethFees',
+          'txFees',
           'makerMaxFees',
           'makerPath',
           'takerMaxFees',

@@ -3,7 +3,7 @@ import { BigNumber } from 'bignumber.js'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
 import { TLProvider } from './providers/TLProvider'
-import { GAS_LIMIT_MULTIPLIER, Transaction } from './Transaction'
+import { Transaction } from './Transaction'
 import { User } from './User'
 
 import utils from './utils'
@@ -97,8 +97,7 @@ export class Payment {
     if (path.length > 0) {
       const {
         rawTx,
-        ethFees,
-        delegationFees
+        txFees
       } = await this.transaction.prepareContractTransaction(
         await this.user.getAddress(),
         networkAddress,
@@ -114,16 +113,14 @@ export class Payment {
           extraData || '0x'
         ],
         {
-          gasLimit: gasLimit ? new BigNumber(gasLimit) : undefined,
+          gasLimit: gasLimit
+            ? new BigNumber(gasLimit)
+            : utils.calculateTransferGasLimit(path.length),
           gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
         }
       )
       return {
-        ethFees: utils.convertToAmount(ethFees),
-        delegationFees: utils.calculateDelegationFeesAmount(
-          delegationFees,
-          this.calculatePaymentGasLimit(path.length)
-        ),
+        txFees,
         feePayer,
         maxFees,
         path,
@@ -148,11 +145,7 @@ export class Payment {
     options: PaymentOptions = {}
   ): Promise<TxObject> {
     const { gasLimit, gasPrice } = options
-    const {
-      ethFees,
-      rawTx,
-      delegationFees
-    } = await this.transaction.prepareValueTransaction(
+    const { txFees, rawTx } = await this.transaction.prepareValueTransaction(
       await this.user.getAddress(),
       receiverAddress,
       utils.calcRaw(value, 18),
@@ -162,11 +155,7 @@ export class Payment {
       }
     )
     return {
-      ethFees: utils.convertToAmount(ethFees),
-      delegationFees: utils.calculateDelegationFeesAmount(
-        delegationFees,
-        21000
-      ),
+      txFees,
       rawTx
     }
   }
@@ -303,15 +292,5 @@ export class Payment {
       amount: utils.formatToAmount(result.capacity, networkDecimals),
       path: result.path
     }
-  }
-
-  private calculatePaymentGasLimit(pathLength: number) {
-    // Values taken from the contracts repository gas tests
-    const mediators = pathLength - 2
-    const transferBaseGas = 48000
-    const gasPerMediator = 18000
-    return Math.floor(
-      (transferBaseGas + gasPerMediator * mediators) * GAS_LIMIT_MULTIPLIER
-    )
   }
 }

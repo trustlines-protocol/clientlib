@@ -22,7 +22,7 @@ export interface TLProvider {
     reconnectingOptions?: ReconnectingWSOptions
   ): any
   getTxInfos(userAddress: string): Promise<TxInfos>
-  getMetaTxInfos(userAddress: string): Promise<TxInfos>
+  getIdentityNonce(userAddress: string): Promise<number>
   getMetaTxFees(metaTransaction: MetaTransaction): Promise<MetaTransactionFees>
   getBalance(userAddress: string): Promise<Amount>
   sendSignedTransaction(signedTransaction: string): Promise<string>

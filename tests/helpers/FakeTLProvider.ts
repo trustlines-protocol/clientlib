@@ -142,12 +142,8 @@ export class FakeTLProvider implements TLProvider {
     })
   }
 
-  public async getMetaTxInfos(userAddress: string): Promise<TxInfos> {
-    return Promise.resolve({
-      balance: new BigNumber('0'),
-      gasPrice: new BigNumber('0'),
-      nonce: 1
-    })
+  public async getIdentityNonce(userAddress: string): Promise<number> {
+    return Promise.resolve(123)
   }
 
   public async getMetaTxFees(

@@ -8,9 +8,11 @@ import { TLSigner } from './signers/TLSigner'
 import utils, { convertToDelegationFees } from './utils'
 
 import {
+  Amount,
   DelegationFeesInternal,
   MetaTransactionFees,
   RawTxObject,
+  TxFeesAmounts,
   TxObjectInternal,
   TxOptionsInternal
 } from './typings'
@@ -18,7 +20,13 @@ import {
 import { CurrencyNetwork } from './CurrencyNetwork'
 
 const ETH_DECIMALS = 18
-export const GAS_LIMIT_MULTIPLIER = 1.2
+export const GAS_LIMIT_MULTIPLIER = 1.3
+// Value taken from the contracts gas tests
+export const GAS_COST_IDENTITY_OVERHEAD = new BigNumber(27_000)
+export const GAS_COST_VALUE_TRANSACTION = new BigNumber(21_000)
+  .plus(GAS_COST_IDENTITY_OVERHEAD.multipliedBy(GAS_LIMIT_MULTIPLIER))
+  .integerValue(BigNumber.ROUND_DOWN)
+export const GAS_COST_DEFAULT_CONTRACT_TRANSACTION = new BigNumber(600_000)
 
 /**
  * The Transaction class contains functions that are needed for Ethereum transactions.
@@ -48,7 +56,7 @@ export class Transaction {
    * @param options.gasPrice (optional)
    * @param options.gasLimit (optional)
    * @param options.value (optional)
-   * @param options.delegationFees (optional) delegation fees for a meta transaction.
+   * @param options.baseFee (optional) base fees to be used notably for meta-transactions.
    * @param options.currencyNetworkOfFees (optional) currency network of fees for a meta transaction.
    * @returns An ethereum transaction object and the estimated transaction fees in ETH.
    */
@@ -60,42 +68,24 @@ export class Transaction {
     args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this.signer.getTxInfos(userAddress)
-
     const abi = new ethers.utils.Interface(
       TrustlinesContractsAbi[contractName].abi
     )
-    const rawTx: RawTxObject = {
+    let rawTx: RawTxObject = {
       data: abi.functions[functionName].encode(args),
       from: userAddress,
-      gasLimit: options.gasLimit || new BigNumber(600000),
-      gasPrice: options.gasPrice || txInfos.gasPrice,
-      nonce: txInfos.nonce,
       to: contractAddress,
+      gasLimit: options.gasLimit || GAS_COST_DEFAULT_CONTRACT_TRANSACTION,
+      gasPrice: options.gasPrice || undefined,
+      baseFee: options.baseFee || undefined,
+      currencyNetworkOfFees: options.currencyNetworkOfFees || undefined,
       value: options.value || new BigNumber(0)
     }
-    const delegationFeesInternal = options.delegationFees
-      ? utils.formatToDelegationFeesInternal(
-          options.delegationFees.baseFee,
-          (await this.currencyNetwork.getDecimals(
-            options.delegationFees.currencyNetworkOfFees
-          )).networkDecimals,
-          options.delegationFees.gasPrice,
-          options.delegationFees.currencyNetworkOfFees
-        )
-      : await this.getDelegationFees(rawTx)
 
-    rawTx.delegationFees = {
-      baseFee: delegationFeesInternal.baseFee.raw,
-      gasPrice: delegationFeesInternal.gasPrice.raw,
-      currencyNetworkOfFees: delegationFeesInternal.currencyNetworkOfFees
-    }
-
-    const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
+    rawTx = await this.signer.fillFeesAndNonce(rawTx)
 
     return {
-      ethFees: utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
-      delegationFees: delegationFeesInternal,
+      txFees: await this.formatTxFeesToAmount(rawTx),
       rawTx
     }
   }
@@ -105,8 +95,10 @@ export class Transaction {
    * @param senderAddress address of user sending the transfer
    * @param receiverAddress address of user receiving the transfer
    * @param rawValue transfer amount in wei
-   * @param gasPrice (optional)
-   * @param gasLimit (optional)
+   * @param options.gasPrice (optional)
+   * @param options.gasLimit (optional)
+   * @param options.baseFee (optional) base fees to be used notably for meta-transactions.
+   * @param options.currencyNetworkOfFees (optional) currency network of fees for a meta transaction.
    * @returns An ethereum transaction object containing and the estimated transaction fees in ETH.
    */
   public async prepareValueTransaction(
@@ -115,38 +107,21 @@ export class Transaction {
     rawValue: BigNumber,
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const txInfos = await this.signer.getTxInfos(senderAddress)
-
-    const rawTx: RawTxObject = {
+    // The gas limit for the value transaction has to be higher than 21_000 because of identity contract overhead
+    let rawTx: RawTxObject = {
       from: senderAddress,
-      gasLimit: options.gasLimit || new BigNumber(21000),
-      gasPrice: options.gasPrice || txInfos.gasPrice,
-      nonce: txInfos.nonce,
       to: receiverAddress,
+      gasLimit: options.gasLimit || GAS_COST_VALUE_TRANSACTION,
+      gasPrice: options.gasPrice || undefined,
+      baseFee: options.baseFee || undefined,
+      currencyNetworkOfFees: options.currencyNetworkOfFees || undefined,
       value: rawValue
     }
-    const delegationFeesInternal = options.delegationFees
-      ? utils.formatToDelegationFeesInternal(
-          options.delegationFees.baseFee,
-          (await this.currencyNetwork.getDecimals(
-            options.delegationFees.currencyNetworkOfFees
-          )).networkDecimals,
-          options.delegationFees.gasPrice,
-          options.delegationFees.currencyNetworkOfFees
-        )
-      : await this.getDelegationFees(rawTx)
 
-    rawTx.delegationFees = {
-      baseFee: delegationFeesInternal.baseFee.raw,
-      gasPrice: delegationFeesInternal.gasPrice.raw,
-      currencyNetworkOfFees: delegationFeesInternal.currencyNetworkOfFees
-    }
-
-    const ethFees = new BigNumber(rawTx.gasLimit).multipliedBy(rawTx.gasPrice)
+    rawTx = await this.signer.fillFeesAndNonce(rawTx)
 
     return {
-      ethFees: utils.formatToAmountInternal(ethFees, ETH_DECIMALS),
-      delegationFees: delegationFeesInternal,
+      txFees: await this.formatTxFeesToAmount(rawTx),
       rawTx
     }
   }
@@ -160,33 +135,26 @@ export class Transaction {
   }
 
   /**
-   * Returns delegation fees for given rawTx
-   * @param rawTx the rawTx to get the delegation fees for
-   * @returns the delegation fees to be paid for given rawTx
+   * Formats the tx fees in raw tx and finds the currency network decimals to use in case of meta-tx fees
+   * @param rawTx
    */
-  private async getDelegationFees(
+  private async formatTxFeesToAmount(
     rawTx: RawTxObject
-  ): Promise<DelegationFeesInternal> {
-    const metaTransactionFees: MetaTransactionFees = await this.signer.getMetaTxFees(
-      rawTx
-    )
-
-    let currencyDecimals = 0
-    if (
-      (metaTransactionFees.baseFee !== '0' ||
-        metaTransactionFees.gasPrice !== '0') &&
-      metaTransactionFees.currencyNetworkOfFees !== ''
-    ) {
-      currencyDecimals = (await this.currencyNetwork.getDecimals(
-        metaTransactionFees.currencyNetworkOfFees
+  ): Promise<TxFeesAmounts> {
+    // 18 decimals for regular tx fees in ether
+    let feeDecimals = 18
+    if (rawTx.currencyNetworkOfFees) {
+      feeDecimals = (await this.currencyNetwork.getDecimals(
+        rawTx.currencyNetworkOfFees
       )).networkDecimals
     }
 
-    return utils.formatToDelegationFeesInternal(
-      metaTransactionFees.baseFee,
-      currencyDecimals,
-      metaTransactionFees.gasPrice,
-      metaTransactionFees.currencyNetworkOfFees
-    )
+    return {
+      gasPrice: utils.formatToAmount(rawTx.gasPrice, feeDecimals),
+      gasLimit: utils.formatToAmount(rawTx.gasLimit, 0),
+      baseFee: utils.formatToAmount(rawTx.baseFee, feeDecimals),
+      totalFee: utils.formatToAmount(rawTx.totalFee, feeDecimals),
+      currencyNetworkOfFees: rawTx.currencyNetworkOfFees || undefined
+    }
   }
 }

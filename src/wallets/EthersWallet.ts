@@ -17,8 +17,7 @@ import {
   EthersWalletData,
   MetaTransactionFees,
   RawTxObject,
-  Signature,
-  TxInfos
+  Signature
 } from '../typings'
 
 /**
@@ -265,8 +264,14 @@ export class EthersWallet implements TLWallet {
     throw new Error('Method not implemented.')
   }
 
-  public async getTxInfos(userAddress: string): Promise<TxInfos> {
-    return this.provider.getTxInfos(userAddress)
+  public async fillFeesAndNonce(rawTx: RawTxObject): Promise<RawTxObject> {
+    const { gasPrice, nonce } = await this.provider.getTxInfos(this.address)
+    rawTx.gasPrice = rawTx.gasPrice || gasPrice
+    rawTx.baseFee = new BigNumber(0)
+    rawTx.totalFee = new BigNumber(rawTx.gasPrice).multipliedBy(rawTx.gasLimit)
+    rawTx.nonce = nonce
+
+    return rawTx
   }
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {

@@ -10,12 +10,15 @@ import {
 import identityConfig from './e2e-config/addresses.json'
 
 import {
+  Amount,
   EthersWalletData,
   IdentityWalletData,
   MetaTransaction,
   ProviderUrl,
+  RawTxObject,
   TLNetworkConfig,
-  TLWalletData
+  TLWalletData,
+  TxObjectInternal
 } from '../src/typings'
 
 export const end2endChainId = 17
@@ -213,24 +216,16 @@ export const FAKE_IDENTITY = {
   nextNonce: 10
 }
 
-export const FAKE_VALUE_TX_OBJECT_INTERNAL = {
-  ethFees: {
-    decimals: 18,
-    raw: new BigNumber(1000000000000000000),
-    value: new BigNumber(1)
-  },
-  delegationFees: {
-    baseFee: {
+export const FAKE_VALUE_TX_OBJECT_INTERNAL: TxObjectInternal = {
+  txFees: {
+    gasPrice: FAKE_AMOUNT,
+    gasLimit: FAKE_AMOUNT,
+    baseFee: FAKE_AMOUNT,
+    totalFee: {
       decimals: 18,
-      raw: new BigNumber(1000000000000000000),
-      value: new BigNumber(1)
-    },
-    gasPrice: {
-      decimals: 6,
-      raw: new BigNumber(0),
-      value: new BigNumber(0)
-    },
-    currencyNetworkOfFees: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18'
+      raw: '1000000000000000000',
+      value: '1'
+    }
   },
   rawTx: {
     from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
@@ -242,24 +237,16 @@ export const FAKE_VALUE_TX_OBJECT_INTERNAL = {
   }
 }
 
-export const FAKE_FUNC_TX_OBJECT_INTERNAL = {
-  ethFees: {
-    decimals: 18,
-    raw: new BigNumber(1000000000000000000),
-    value: new BigNumber(1)
-  },
-  delegationFees: {
-    baseFee: {
+export const FAKE_FUNC_TX_OBJECT_INTERNAL: TxObjectInternal = {
+  txFees: {
+    gasPrice: FAKE_AMOUNT,
+    gasLimit: FAKE_AMOUNT,
+    baseFee: FAKE_AMOUNT,
+    totalFee: {
       decimals: 18,
-      raw: new BigNumber(1000000000000000000),
-      value: new BigNumber(1)
-    },
-    gasPrice: {
-      decimals: 6,
-      raw: new BigNumber(0),
-      value: new BigNumber(0)
-    },
-    currencyNetworkOfFees: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18'
+      raw: '1000000000000000000',
+      value: '1'
+    }
   },
   rawTx: {
     from: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',

@@ -1,10 +1,4 @@
-import {
-  Amount,
-  MetaTransactionFees,
-  RawTxObject,
-  Signature,
-  TxInfos
-} from '../typings'
+import { Amount, MetaTransactionFees, RawTxObject, Signature } from '../typings'
 
 /**
  * Interface for different signer strategies.
@@ -15,6 +9,6 @@ export interface TLSigner {
   signMsgHash(msgHash: string): Promise<Signature>
   signMessage(message: string | ArrayLike<number>): Promise<Signature>
   confirm(rawTx: RawTxObject): Promise<string>
-  getTxInfos(userAddress: string): Promise<TxInfos>
+  fillFeesAndNonce(rawTx: RawTxObject): Promise<RawTxObject>
   getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees>
 }

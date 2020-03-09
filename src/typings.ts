@@ -60,9 +60,10 @@ export interface ProviderUrl {
  */
 export interface TxOptionsInternal {
   value?: BigNumber
-  gasPrice?: BigNumber
+  baseFee?: number | string | BigNumber
+  gasPrice?: number | string | BigNumber
   gasLimit?: BigNumber
-  delegationFees?: DelegationFeesRaw
+  currencyNetworkOfFees?: string
 }
 
 export interface TxOptions {
@@ -239,25 +240,25 @@ export type AmountEventRaw = NetworkTransferEventRaw | TokenAmountEventRaw
 // TRANSACTION
 export interface TxObject {
   rawTx: RawTxObject
-  ethFees: Amount
-  delegationFees?: Amount
+  txFees: TxFeesAmounts
 }
 
 export interface TxObjectInternal {
   rawTx: RawTxObject
-  ethFees: AmountInternal
-  delegationFees: DelegationFeesInternal
+  txFees: TxFeesAmounts
 }
 
 export interface RawTxObject {
   from: string
   to?: string
   value?: number | string | BigNumber
-  gasLimit?: number | string | BigNumber
-  gasPrice?: number | string | BigNumber
   data?: string
   nonce?: number
-  delegationFees?: DelegationFeesRaw
+  baseFee?: number | string | BigNumber
+  gasLimit?: number | string | BigNumber
+  gasPrice?: number | string | BigNumber
+  totalFee?: number | string | BigNumber
+  currencyNetworkOfFees?: string
 }
 
 export interface MetaTransaction {
@@ -341,6 +342,14 @@ export interface TxInfos {
    * Transaction count of given user address
    */
   nonce: number
+}
+
+export interface TxFeesAmounts {
+  gasPrice: Amount
+  gasLimit: Amount
+  baseFee: Amount
+  totalFee: Amount
+  currencyNetworkOfFees?: string
 }
 
 export interface DelegationFeesObject {

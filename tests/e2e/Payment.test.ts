@@ -5,6 +5,7 @@ import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
 import { FeePayer, PathRaw, TLWalletData } from '../../src/typings'
+import utils from '../../src/utils'
 import {
   createAndLoadUsers,
   deployIdentities,
@@ -126,8 +127,7 @@ describe('e2e', () => {
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
             'feePayer',
-            'ethFees',
-            'delegationFees',
+            'txFees',
             'maxFees',
             'path'
           )
@@ -143,8 +143,7 @@ describe('e2e', () => {
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
             'feePayer',
-            'ethFees',
-            'delegationFees',
+            'txFees',
             'maxFees',
             'path'
           )
@@ -163,8 +162,7 @@ describe('e2e', () => {
           expect(preparedPayment).to.have.all.keys(
             'rawTx',
             'feePayer',
-            'ethFees',
-            'delegationFees',
+            'txFees',
             'maxFees',
             'path'
           )
@@ -185,22 +183,51 @@ describe('e2e', () => {
               2.25
             )
 
-            // gasLimitForTransfer * buffer * gasPrice / gasDivisorFromContracts + baseFee
-            const delegationFeeRaw = Math.floor(
-              (48000 * 1.2 * 1000) / 1_000_000 + 1
+            const expectedGasLimit = utils.calculateTransferGasLimit(2)
+            const delegationFeeRaw = utils.calculateDelegationFees(
+              1,
+              1_000,
+              expectedGasLimit
             )
 
-            expect(preparedPayment.delegationFees.raw).to.equal(
+            expect(preparedPayment.txFees.totalFee.raw).to.equal(
               delegationFeeRaw.toString(),
               'Incorrect delegationFees raw'
             )
-            expect(preparedPayment.delegationFees.value).to.equal(
-              (delegationFeeRaw / 10_000).toString(),
+            expect(preparedPayment.txFees.totalFee.value).to.equal(
+              delegationFeeRaw.dividedBy(10_000).toString(),
               'Incorrect delegationFees value'
             )
-            expect(preparedPayment.delegationFees.decimals).to.equal(
+            expect(preparedPayment.txFees.totalFee.decimals).to.equal(
               4,
               'Incorrect delegationFees decimals'
+            )
+            expect(preparedPayment.txFees.baseFee.raw).to.equal('1')
+            expect(preparedPayment.txFees.currencyNetworkOfFees).to.not.equal(
+              '0x' + '0'.repeat(40)
+            )
+            expect(preparedPayment.txFees.gasPrice.raw).to.equal('1000')
+            expect(preparedPayment.txFees.gasLimit.raw).to.equal(
+              expectedGasLimit.toString()
+            )
+          })
+        } else {
+          it('should have correct txFees for trustline transfer', async () => {
+            const preparedPayment = await tl1.payment.prepare(
+              network.address,
+              user2.address,
+              2.25
+            )
+
+            const expectedGasLimit = utils.calculateTransferGasLimit(2)
+
+            expect(preparedPayment.txFees.gasPrice.raw).to.equal('0')
+            expect(preparedPayment.txFees.totalFee.raw).to.equal('0')
+            expect(preparedPayment.txFees.totalFee.value).to.equal('0')
+            expect(preparedPayment.txFees.totalFee.decimals).to.equal(18)
+            expect(preparedPayment.txFees.baseFee.raw).to.equal('0')
+            expect(preparedPayment.txFees.gasLimit.raw).to.equal(
+              expectedGasLimit.toString()
             )
           })
         }
@@ -277,7 +304,7 @@ describe('e2e', () => {
         it('should prepare tx for eth transfer', async () => {
           await expect(
             tl1.payment.prepareEth(user2.address, 0.05)
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
       })
 

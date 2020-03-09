@@ -76,7 +76,7 @@ describe('e2e', () => {
               2000,
               1000
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
 
         it('should prepare raw trustline update request tx in network with DEFAULT interest rates', async () => {
@@ -87,7 +87,7 @@ describe('e2e', () => {
               2000,
               1000
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
 
         it('should prepare raw trustline update request tx in network with CUSTOM interest rates', async () => {
@@ -103,7 +103,7 @@ describe('e2e', () => {
                 isFrozen: false
               }
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
 
         it('should prepare raw trustline update request tx with freezing', async () => {
@@ -119,7 +119,7 @@ describe('e2e', () => {
                 isFrozen: true
               }
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
       })
 
@@ -203,7 +203,7 @@ describe('e2e', () => {
               networkWithoutInterestRates.address,
               user2.address
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
       })
 
@@ -513,7 +513,7 @@ describe('e2e', () => {
               1250,
               1000
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
 
         it('should prepare accept tx for network with DEFAULT interest rates', async () => {
@@ -524,7 +524,7 @@ describe('e2e', () => {
               1250,
               1000
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
 
         it('should prepare accept tx for network with CUSTOM interest rates', () => {
@@ -540,7 +540,7 @@ describe('e2e', () => {
                 isFrozen: false
               }
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
 
         it('should prepare accept tx for trustline update with freezing', async () => {
@@ -556,7 +556,7 @@ describe('e2e', () => {
                 isFrozen: true
               }
             )
-          ).to.eventually.have.keys('rawTx', 'ethFees', 'delegationFees')
+          ).to.eventually.have.keys('rawTx', 'txFees')
         })
       })
 
@@ -984,13 +984,18 @@ describe('e2e', () => {
           )
           expect(closeTx).to.have.all.keys([
             'rawTx',
-            'ethFees',
-            'delegationFees',
+            'txFees',
             'maxFees',
             'path'
           ])
           expect(closeTx.path.length).to.equal(0)
-          expect(closeTx.ethFees).to.have.all.keys(['raw', 'value', 'decimals'])
+          expect(closeTx.txFees).to.have.all.keys([
+            'baseFee',
+            'currencyNetworkOfFees',
+            'gasPrice',
+            'gasLimit',
+            'totalFee'
+          ])
           expect(closeTx.maxFees).to.have.all.keys(['raw', 'value', 'decimals'])
         })
 
@@ -1069,7 +1074,7 @@ describe('e2e', () => {
           await wait()
         })
 
-        it('should be possible to prepare a close in the correct direction.', async () => {
+        it('should be possible to prepare a close in the correct direction', async () => {
           // Send the prepare settle to the relay, expecting a valid path exists.
           const closeTx = await tl1.trustline.prepareClose(
             networkWithoutInterestRates.address,
@@ -1077,13 +1082,18 @@ describe('e2e', () => {
           )
           expect(closeTx).to.have.all.keys([
             'rawTx',
-            'ethFees',
-            'delegationFees',
+            'txFees',
             'maxFees',
             'path'
           ])
           expect(closeTx.path).to.include(tl3.user.address)
-          expect(closeTx.ethFees).to.have.all.keys(['raw', 'value', 'decimals'])
+          expect(closeTx.txFees).to.have.all.keys([
+            'baseFee',
+            'currencyNetworkOfFees',
+            'gasPrice',
+            'gasLimit',
+            'totalFee'
+          ])
           expect(closeTx.maxFees).to.have.all.keys(['raw', 'value', 'decimals'])
         })
 

@@ -17,11 +17,12 @@ import {
   MetaTransaction,
   MetaTransactionFees,
   RawTxObject,
-  Signature,
-  TxInfos
+  Signature
 } from '../typings'
 
 import utils from '../utils'
+
+import BigNumber from 'bignumber.js'
 
 // This is the proxy initcode without the address of the owner but with added 0s so that we only need to append the address to it
 const initcodeWithPadding =
@@ -313,8 +314,22 @@ export class IdentityWallet implements TLWallet {
     return metaTransactionHash
   }
 
-  public async getTxInfos(userAddress: string): Promise<TxInfos> {
-    return this.provider.getMetaTxInfos(userAddress)
+  public async fillFeesAndNonce(rawTx: RawTxObject): Promise<RawTxObject> {
+    rawTx.nonce = await this.provider.getIdentityNonce(this.address)
+
+    const metaTxFees = await this.getMetaTxFees(rawTx)
+
+    rawTx.gasPrice = rawTx.gasPrice || new BigNumber(metaTxFees.gasPrice)
+    rawTx.baseFee = rawTx.baseFee || new BigNumber(metaTxFees.baseFee)
+    rawTx.totalFee = utils.calculateDelegationFees(
+      rawTx.baseFee,
+      rawTx.gasPrice,
+      rawTx.gasLimit
+    )
+    rawTx.currencyNetworkOfFees =
+      rawTx.currencyNetworkOfFees || metaTxFees.currencyNetworkOfFees
+
+    return rawTx
   }
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {
@@ -387,17 +402,11 @@ export class IdentityWallet implements TLWallet {
       nonce: rawTx.nonce.toString(),
       to: rawTx.to,
       value: rawTx.value.toString(),
-      baseFee: rawTx.delegationFees
-        ? rawTx.delegationFees.baseFee.toString()
-        : '0',
-      gasPrice: rawTx.delegationFees
-        ? rawTx.delegationFees.gasPrice.toString()
-        : '0',
-      gasLimit: '0',
-      feeRecipient: '0x' + '0'.repeat(40),
-      currencyNetworkOfFees: rawTx.delegationFees
-        ? rawTx.delegationFees.currencyNetworkOfFees
-        : zeroAddress,
+      baseFee: rawTx.baseFee ? rawTx.baseFee.toString() : '0',
+      gasPrice: rawTx.gasPrice ? rawTx.gasPrice.toString() : '0',
+      gasLimit: rawTx.gasLimit ? rawTx.gasLimit.toString() : '0',
+      feeRecipient: zeroAddress,
+      currencyNetworkOfFees: rawTx.currencyNetworkOfFees || zeroAddress,
       timeLimit: '0',
       operationType: 0
     }
