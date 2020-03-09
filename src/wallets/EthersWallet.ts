@@ -17,7 +17,8 @@ import {
   EthersWalletData,
   MetaTransactionFees,
   RawTxObject,
-  Signature
+  Signature,
+  TransactionStatusObject
 } from '../typings'
 
 /**
@@ -272,6 +273,17 @@ export class EthersWallet implements TLWallet {
     rawTx.nonce = nonce
 
     return rawTx
+  }
+
+  public async getTxStatus(
+    tx: string | RawTxObject
+  ): Promise<TransactionStatusObject> {
+    if (typeof tx !== 'string') {
+      throw new Error(
+        'Cannot provide RawTxObject to get tx status with ethers wallet.'
+      )
+    }
+    return this.provider.getTxStatus(tx)
   }
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {

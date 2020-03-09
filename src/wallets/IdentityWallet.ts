@@ -17,7 +17,8 @@ import {
   MetaTransaction,
   MetaTransactionFees,
   RawTxObject,
-  Signature
+  Signature,
+  TransactionStatusObject
 } from '../typings'
 
 import utils from '../utils'
@@ -341,11 +342,14 @@ export class IdentityWallet implements TLWallet {
     return this.provider.getMetaTxFees(metaTx)
   }
 
-  public async getTxStatus(rawTx: RawTxObject) {
-    const metaTransactionHash = await this.hashMetaTransaction(
-      this.buildMetaTransaction(rawTx)
-    )
-    return this.provider.getMetaTxStatus(this.address, metaTransactionHash)
+  public async getTxStatus(
+    tx: string | RawTxObject
+  ): Promise<TransactionStatusObject> {
+    const txHash =
+      typeof tx === 'string'
+        ? tx
+        : await this.hashMetaTransaction(this.buildMetaTransaction(tx))
+    return this.provider.getMetaTxStatus(this.address, txHash)
   }
 
   /**

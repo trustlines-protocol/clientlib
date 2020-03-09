@@ -4,6 +4,7 @@ import {
   MetaTransactionFees,
   MetaTransactionStatus,
   ReconnectingWSOptions,
+  TransactionStatusObject,
   TxInfos
 } from '../typings'
 
@@ -23,6 +24,7 @@ export interface TLProvider {
     reconnectingOptions?: ReconnectingWSOptions
   ): any
   getTxInfos(userAddress: string): Promise<TxInfos>
+  getTxStatus(txHash: string): Promise<TransactionStatusObject>
   getIdentityNonce(userAddress: string): Promise<number>
   getMetaTxFees(metaTransaction: MetaTransaction): Promise<MetaTransactionFees>
   getMetaTxStatus(

@@ -174,50 +174,6 @@ describe('e2e', () => {
         expect(postSecondBalance.value).to.equal('1')
       })
 
-      it('should get successful transaction status', async () => {
-        const rawTx: RawTxObject = {
-          data: '0x',
-          from: identityWallet.address,
-          nonce: 1,
-          to: identityWallet.address,
-          value: 0
-        }
-
-        const txFees = await identityWallet.getMetaTxFees(rawTx)
-        rawTx.delegationFees = {
-          baseFee: txFees.baseFee,
-          gasPrice: txFees.gasPrice,
-          currencyNetworkOfFees: txFees.currencyNetworkOfFees
-        }
-
-        await identityWallet.confirm(rawTx)
-        await wait()
-        const txStatus = await identityWallet.getTxStatus(rawTx)
-        expect(txStatus.status).to.equal(TransactionStatus.Success)
-      })
-
-      it('should get failed transaction status', async () => {
-        const rawTx: RawTxObject = {
-          data: '0x',
-          from: identityWallet.address,
-          nonce: 1,
-          to: identityWallet.address,
-          value: 1
-        }
-
-        const txFees = await identityWallet.getMetaTxFees(rawTx)
-        rawTx.delegationFees = {
-          baseFee: txFees.baseFee,
-          gasPrice: txFees.gasPrice,
-          currencyNetworkOfFees: txFees.currencyNetworkOfFees
-        }
-
-        await identityWallet.confirm(rawTx)
-        await wait()
-        const txStatus = await identityWallet.getTxStatus(rawTx)
-        expect(txStatus.status).to.equal(TransactionStatus.Failure)
-      })
-
       it('should get a path in a currency network', async () => {
         const [user1, user2] = await createAndLoadUsers([
           trustlinesNetwork,

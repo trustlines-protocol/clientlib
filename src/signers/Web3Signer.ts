@@ -10,6 +10,7 @@ import {
   MetaTransactionFees,
   RawTxObject,
   Signature,
+  TransactionStatusObject,
   TxInfos
 } from '../typings'
 
@@ -138,6 +139,12 @@ export class Web3Signer implements TLSigner {
     rawTx.baseFee = new BigNumber(0)
     rawTx.totalFee = new BigNumber(rawTx.gasPrice).multipliedBy(rawTx.gasLimit)
     return rawTx
+  }
+
+  public async getTxStatus(
+    tx: string | RawTxObject
+  ): Promise<TransactionStatusObject> {
+    throw new Error('Not implemented yet.')
   }
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {

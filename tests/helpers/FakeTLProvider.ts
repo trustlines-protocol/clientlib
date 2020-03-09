@@ -22,6 +22,7 @@ import {
   MetaTransactionStatus,
   ReconnectingWSOptions,
   TransactionStatus,
+  TransactionStatusObject,
   TxInfos
 } from '../../src/typings'
 
@@ -162,6 +163,10 @@ export class FakeTLProvider implements TLProvider {
     identityAddress: string,
     metaTransactionHash: string
   ): Promise<MetaTransactionStatus> {
+    return { status: TransactionStatus.Success }
+  }
+
+  public async getTxStatus(txHash: string): Promise<TransactionStatusObject> {
     return { status: TransactionStatus.Success }
   }
 

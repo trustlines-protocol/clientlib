@@ -13,7 +13,8 @@ import {
   FAKE_AMOUNT,
   FAKE_SIGNED_MSG_HASH,
   FAKE_TX_HASH,
-  FAKE_TX_INFOS
+  FAKE_TX_INFOS,
+  FAKE_TX_STATUS_OBJECT
 } from '../Fixtures'
 
 /**
@@ -71,6 +72,10 @@ export class FakeTLSigner implements TLSigner {
 
   public getTxInfos(userAddress: string): Promise<TxInfos> {
     return Promise.resolve(FAKE_TX_INFOS)
+  }
+
+  public async getTxStatus(tx: string | RawTxObject) {
+    return Promise.resolve(FAKE_TX_STATUS_OBJECT)
   }
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {

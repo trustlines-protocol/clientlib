@@ -12,6 +12,7 @@ import {
   DelegationFeesInternal,
   MetaTransactionFees,
   RawTxObject,
+  TransactionStatusObject,
   TxFeesAmounts,
   TxObjectInternal,
   TxOptionsInternal
@@ -132,6 +133,16 @@ export class Transaction {
    */
   public async confirm(rawTx: RawTxObject): Promise<string> {
     return this.signer.confirm(rawTx)
+  }
+
+  /**
+   * Get the status of a sent tx either via txHash or via rawTx for a meta-tx
+   * @param tx the hash of the transaction / meta-tx or raw transaction object from which a meta-tx was built.
+   */
+  public async getTxStatus(
+    tx: string | RawTxObject
+  ): Promise<TransactionStatusObject> {
+    return this.signer.getTxStatus(tx)
   }
 
   /**
