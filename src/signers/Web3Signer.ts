@@ -5,6 +5,7 @@ import { TLSigner } from './TLSigner'
 
 import * as utils from '../utils'
 
+import { utils as ethersUtils } from 'ethers/ethers'
 import {
   Amount,
   MetaTransactionFees,
@@ -113,6 +114,14 @@ export class Web3Signer implements TLSigner {
     }
     const msgHashBytes = ethers.utils.arrayify(msgHash)
     return this.signMessage(msgHashBytes)
+  }
+
+  /**
+   * Returns the hash of the signed transaction for given rawTx with loaded user
+   * @param rawTx
+   */
+  public async hashTx(rawTx: RawTxObject): Promise<string> {
+    throw new Error('Not implemented yet.')
   }
 
   public async getTxInfos(userAddress: string): Promise<TxInfos> {

@@ -5,6 +5,7 @@ import 'mocha'
 import BigNumber from 'bignumber.js'
 import { TLNetwork } from '../../src/TLNetwork'
 import { RawTxObject, TransactionStatus } from '../../src/typings'
+import { EthersWallet } from '../../src/wallets/EthersWallet'
 import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 import {
   createAndLoadUsers,
@@ -41,7 +42,7 @@ describe('e2e', () => {
         await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
       })
 
-      describe('Transaction status', () => {
+      describe('#Transaction status', () => {
         it('should get successful transaction status via txHash', async () => {
           const { rawTx } = await transaction.prepareValueTransaction(
             user1.address,
@@ -52,13 +53,25 @@ describe('e2e', () => {
 
           if (testParameter.walletType === 'Identity') {
             // We should use the metaTxHash and not the enveloping tx hash returned by confirm
-            const identityWallet = (await tl1.signer) as IdentityWallet
+            const identityWallet = tl1.signer as IdentityWallet
             txHash = await identityWallet.hashMetaTransaction(
               identityWallet.buildMetaTransaction(rawTx)
             )
           }
 
           const txStatus = await transaction.getTxStatus(txHash)
+
+          expect(txStatus.status).to.equal(TransactionStatus.Success)
+        })
+
+        it('should get successful transaction status via rawTx', async () => {
+          const { rawTx } = await transaction.prepareValueTransaction(
+            user1.address,
+            user2.address,
+            new BigNumber(1)
+          )
+          await transaction.confirm(rawTx)
+          const txStatus = await transaction.getTxStatus(rawTx)
 
           expect(txStatus.status).to.equal(TransactionStatus.Success)
         })
@@ -79,19 +92,6 @@ describe('e2e', () => {
                 : await transaction.getTxStatus(txHash)
 
             expect(txStatus.status).to.equal(TransactionStatus.Failure)
-          })
-
-          it('should get successful transaction status via rawTx', async () => {
-            // TODO: getting the tx status via rawTx only available for identity for now, need to implement it for ethers
-            const { rawTx } = await transaction.prepareValueTransaction(
-              user1.address,
-              user2.address,
-              new BigNumber(1)
-            )
-            await transaction.confirm(rawTx)
-            const txStatus = await transaction.getTxStatus(rawTx)
-
-            expect(txStatus.status).to.equal(TransactionStatus.Success)
           })
         }
       })

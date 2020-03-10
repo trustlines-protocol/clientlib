@@ -196,7 +196,19 @@ export class EthersWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    const signedTransaction = await this.walletFromEthers.sign({
+    const signedTransaction = await this.signTx(rawTx)
+    return this.provider.sendSignedTransaction(signedTransaction)
+  }
+
+  /**
+   * Takes a raw transaction object and signs it RLP encoded with the loaded user
+   * @param rawTx
+   */
+  public async signTx(rawTx: RawTxObject): Promise<string> {
+    if (!this.walletFromEthers) {
+      throw new Error('No wallet loaded.')
+    }
+    return this.walletFromEthers.sign({
       data: rawTx.data,
       gasLimit: ethersUtils.bigNumberify(
         rawTx.gasLimit instanceof BigNumber
@@ -214,7 +226,17 @@ export class EthersWallet implements TLWallet {
         rawTx.value instanceof BigNumber ? rawTx.value.toString() : rawTx.value
       )
     })
-    return this.provider.sendSignedTransaction(signedTransaction)
+  }
+
+  /**
+   * Returns the hash of the signed transaction for given rawTx with loaded user
+   * @param rawTx
+   */
+  public async hashTx(rawTx: RawTxObject): Promise<string> {
+    if (!this.walletFromEthers) {
+      throw new Error('No wallet loaded.')
+    }
+    return ethersUtils.keccak256(await this.signTx(rawTx))
   }
 
   /////////////
@@ -278,12 +300,8 @@ export class EthersWallet implements TLWallet {
   public async getTxStatus(
     tx: string | RawTxObject
   ): Promise<TransactionStatusObject> {
-    if (typeof tx !== 'string') {
-      throw new Error(
-        'Cannot provide RawTxObject to get tx status with ethers wallet.'
-      )
-    }
-    return this.provider.getTxStatus(tx)
+    const txHash = typeof tx === 'string' ? tx : await this.hashTx(tx)
+    return this.provider.getTxStatus(txHash)
   }
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {

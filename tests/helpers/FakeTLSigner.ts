@@ -70,6 +70,10 @@ export class FakeTLSigner implements TLSigner {
     this.errors[functionName] = true
   }
 
+  public async hashTx(rawTx: RawTxObject): Promise<string> {
+    return Promise.resolve(FAKE_TX_HASH)
+  }
+
   public getTxInfos(userAddress: string): Promise<TxInfos> {
     return Promise.resolve(FAKE_TX_INFOS)
   }

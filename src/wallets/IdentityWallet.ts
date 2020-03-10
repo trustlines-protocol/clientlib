@@ -261,6 +261,18 @@ export class IdentityWallet implements TLWallet {
     return this.provider.sendSignedMetaTransaction(metaTransaction)
   }
 
+  /**
+   * Return the meta-tx hash for given raw transaction for loaded user
+   * @param rawTx
+   */
+  public async hashTx(rawTx: RawTxObject): Promise<string> {
+    if (!this.walletFromEthers) {
+      throw new Error('No wallet loaded.')
+    }
+
+    return this.hashMetaTransaction(this.buildMetaTransaction(rawTx))
+  }
+
   public async hashMetaTransaction(
     metaTransaction: MetaTransaction
   ): Promise<string> {
@@ -345,10 +357,7 @@ export class IdentityWallet implements TLWallet {
   public async getTxStatus(
     tx: string | RawTxObject
   ): Promise<TransactionStatusObject> {
-    const txHash =
-      typeof tx === 'string'
-        ? tx
-        : await this.hashMetaTransaction(this.buildMetaTransaction(tx))
+    const txHash = typeof tx === 'string' ? tx : await this.hashTx(tx)
     return this.provider.getMetaTxStatus(this.address, txHash)
   }
 
