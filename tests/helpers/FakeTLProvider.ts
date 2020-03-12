@@ -15,6 +15,7 @@ import {
   FAKE_USER_ADDRESSES
 } from '../Fixtures'
 
+import { AddressZero } from 'ethers/constants'
 import {
   Amount,
   MetaTransaction,
@@ -155,6 +156,7 @@ export class FakeTLProvider implements TLProvider {
     return {
       baseFee: '0',
       gasPrice: '0',
+      feeRecipient: AddressZero,
       currencyNetworkOfFees: metaTransaction.currencyNetworkOfFees
     }
   }

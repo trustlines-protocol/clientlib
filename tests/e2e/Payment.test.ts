@@ -3,6 +3,7 @@ import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
+import { AddressZero } from 'ethers/constants'
 import { TLNetwork } from '../../src/TLNetwork'
 import { FeePayer, PathRaw, TLWalletData } from '../../src/typings'
 import utils from '../../src/utils'
@@ -190,6 +191,20 @@ describe('e2e', () => {
               expectedGasLimit
             )
 
+            expect(preparedPayment.txFees).to.have.all.keys(
+              'gasPrice',
+              'gasLimit',
+              'baseFee',
+              'totalFee',
+              'feeRecipient',
+              'currencyNetworkOfFees'
+            )
+            expect(preparedPayment.txFees.feeRecipient).to.not.equal(
+              AddressZero
+            )
+            expect(preparedPayment.txFees.currencyNetworkOfFees).to.not.equal(
+              AddressZero
+            )
             expect(preparedPayment.txFees.totalFee.raw).to.equal(
               delegationFeeRaw.toString(),
               'Incorrect delegationFees raw'
@@ -203,9 +218,6 @@ describe('e2e', () => {
               'Incorrect delegationFees decimals'
             )
             expect(preparedPayment.txFees.baseFee.raw).to.equal('1')
-            expect(preparedPayment.txFees.currencyNetworkOfFees).to.not.equal(
-              '0x' + '0'.repeat(40)
-            )
             expect(preparedPayment.txFees.gasPrice.raw).to.equal('1000')
             expect(preparedPayment.txFees.gasLimit.raw).to.equal(
               expectedGasLimit.toString()
@@ -221,6 +233,10 @@ describe('e2e', () => {
 
             const expectedGasLimit = tl1.payment.calculateTransferGasLimit(2)
 
+            expect(preparedPayment).to.not.have.keys(
+              'feeRecipient',
+              'currencyNetworkOfFees'
+            )
             expect(preparedPayment.txFees.gasPrice.raw).to.equal('0')
             expect(preparedPayment.txFees.totalFee.raw).to.equal('0')
             expect(preparedPayment.txFees.totalFee.value).to.equal('0')

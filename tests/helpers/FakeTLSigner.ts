@@ -86,6 +86,7 @@ export class FakeTLSigner implements TLSigner {
     return {
       baseFee: '0',
       gasPrice: '0',
+      feeRecipient: '',
       currencyNetworkOfFees: ''
     }
   }

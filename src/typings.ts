@@ -258,6 +258,7 @@ export interface RawTxObject {
   gasLimit?: number | string | BigNumber
   gasPrice?: number | string | BigNumber
   totalFee?: number | string | BigNumber
+  feeRecipient?: string
   currencyNetworkOfFees?: string
 }
 
@@ -282,6 +283,7 @@ export interface MetaTransaction {
 export interface MetaTransactionFees {
   baseFee: string
   gasPrice: string
+  feeRecipient: string
   currencyNetworkOfFees: string
 }
 
@@ -349,6 +351,7 @@ export interface TxFeesAmounts {
   gasLimit: Amount
   baseFee: Amount
   totalFee: Amount
+  feeRecipient?: string
   currencyNetworkOfFees?: string
 }
 
