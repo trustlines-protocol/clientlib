@@ -95,6 +95,7 @@ export class FakeTLSigner implements TLSigner {
     rawTx.nonce = rawTx.nonce || 1
     rawTx.gasPrice = rawTx.gasPrice || new BigNumber(1)
     rawTx.baseFee = rawTx.baseFee || new BigNumber(1)
+    rawTx.feeRecipient = rawTx.feeRecipient || undefined
     rawTx.currencyNetworkOfFees = rawTx.currencyNetworkOfFees || undefined
     rawTx.totalFee = new BigNumber(1)
     return rawTx
