@@ -165,6 +165,7 @@ export class Transaction {
       gasLimit: utils.formatToAmount(rawTx.gasLimit, 0),
       baseFee: utils.formatToAmount(rawTx.baseFee, feeDecimals),
       totalFee: utils.formatToAmount(rawTx.totalFee, feeDecimals),
+      feeRecipient: rawTx.feeRecipient || undefined,
       currencyNetworkOfFees: rawTx.currencyNetworkOfFees || undefined
     }
   }

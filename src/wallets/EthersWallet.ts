@@ -308,6 +308,7 @@ export class EthersWallet implements TLWallet {
     return {
       baseFee: '0',
       gasPrice: '0',
+      feeRecipient: '',
       currencyNetworkOfFees: ''
     }
   }

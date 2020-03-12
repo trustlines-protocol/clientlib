@@ -65,21 +65,10 @@ export class RelayProvider extends Provider implements TLProvider {
         metaTransaction
       }
     )
-    let baseFee = '0'
-    let gasPrice = '0'
-    let currencyNetworkOfFees = '0x' + '0'.repeat(40)
-    if (potentialDelegationFees.length) {
-      // For now just get the first possible fee given by the relay server
-      // Could be changed later to show the possible fees to the user and let it decide
-      baseFee = potentialDelegationFees[0].baseFee
-      gasPrice = potentialDelegationFees[0].gasPrice
-      currencyNetworkOfFees = potentialDelegationFees[0].currencyNetworkOfFees
+    if (potentialDelegationFees.length === 0) {
+      throw new Error('This relay provider does not accept any fees.')
     }
-    return {
-      baseFee,
-      gasPrice,
-      currencyNetworkOfFees
-    }
+    return potentialDelegationFees[0]
   }
 
   public async getMetaTxStatus(

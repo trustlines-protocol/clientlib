@@ -20,12 +20,10 @@ import {
   wait
 } from '../Fixtures'
 
-import { FeePayer, RawTxObject, TransactionStatus } from '../../src/typings'
-import utils from '../../src/utils'
+import { FeePayer, RawTxObject } from '../../src/typings'
 
 import { TLNetwork } from '../../src/TLNetwork'
 
-import { id } from 'ethers/utils'
 import { TLProvider } from '../../src/providers/TLProvider'
 
 chai.use(chaiAsPromised)
@@ -240,7 +238,8 @@ describe('e2e', () => {
         expect(metaTransactionFees).to.have.all.keys(
           'baseFee',
           'gasPrice',
-          'currencyNetworkOfFees'
+          'currencyNetworkOfFees',
+          'feeRecipient'
         )
         expect(metaTransactionFees.baseFee).to.equal('1')
         expect(metaTransactionFees.gasPrice).to.equal('1000')

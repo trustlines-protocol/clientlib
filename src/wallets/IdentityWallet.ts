@@ -341,6 +341,7 @@ export class IdentityWallet implements TLWallet {
       rawTx.gasPrice,
       rawTx.gasLimit
     )
+    rawTx.feeRecipient = rawTx.feeRecipient || metaTxFees.feeRecipient
     rawTx.currencyNetworkOfFees =
       rawTx.currencyNetworkOfFees || metaTxFees.currencyNetworkOfFees
 
