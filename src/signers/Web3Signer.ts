@@ -5,11 +5,13 @@ import { TLSigner } from './TLSigner'
 
 import * as utils from '../utils'
 
+import { utils as ethersUtils } from 'ethers/ethers'
 import {
   Amount,
   MetaTransactionFees,
   RawTxObject,
   Signature,
+  TransactionStatusObject,
   TxInfos
 } from '../typings'
 
@@ -114,6 +116,14 @@ export class Web3Signer implements TLSigner {
     return this.signMessage(msgHashBytes)
   }
 
+  /**
+   * Returns the hash of the signed transaction for given rawTx with loaded user
+   * @param rawTx
+   */
+  public async hashTx(rawTx: RawTxObject): Promise<string> {
+    throw new Error('Not implemented yet.')
+  }
+
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
     // The bigNumber returned from ethers is not the same one we use in TxInfos
     // I get strings and convert them to BigNumber later
@@ -138,6 +148,12 @@ export class Web3Signer implements TLSigner {
     rawTx.baseFee = new BigNumber(0)
     rawTx.totalFee = new BigNumber(rawTx.gasPrice).multipliedBy(rawTx.gasLimit)
     return rawTx
+  }
+
+  public async getTxStatus(
+    tx: string | RawTxObject
+  ): Promise<TransactionStatusObject> {
+    throw new Error('Not implemented yet.')
   }
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {

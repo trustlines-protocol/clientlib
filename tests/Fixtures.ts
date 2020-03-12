@@ -18,6 +18,8 @@ import {
   RawTxObject,
   TLNetworkConfig,
   TLWalletData,
+  TransactionStatus,
+  TransactionStatusObject,
   TxObjectInternal
 } from '../src/typings'
 
@@ -441,6 +443,10 @@ export const FAKE_TX_INFOS = {
   balance: new BigNumber('2000000'),
   gasPrice: new BigNumber('2000000'),
   nonce: 12
+}
+
+export const FAKE_TX_STATUS_OBJECT: TransactionStatusObject = {
+  status: TransactionStatus.Success
 }
 
 export const FAKE_WEB3_TX_INFOS = {

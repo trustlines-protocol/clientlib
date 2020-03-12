@@ -382,6 +382,21 @@ export enum FeePayer {
   Receiver = 'receiver'
 }
 
+export enum TransactionStatus {
+  Success = 'success',
+  Failure = 'failure',
+  Pending = 'pending',
+  NotFound = 'not found'
+}
+
+export interface MetaTransactionStatus {
+  status: TransactionStatus
+}
+
+export interface TransactionStatusObject {
+  status: TransactionStatus
+}
+
 export function isFeePayerValue(feePayer: string) {
   if (
     Object.keys(FeePayer)

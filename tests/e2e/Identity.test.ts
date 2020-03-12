@@ -20,11 +20,12 @@ import {
   wait
 } from '../Fixtures'
 
-import { FeePayer, RawTxObject } from '../../src/typings'
+import { FeePayer, RawTxObject, TransactionStatus } from '../../src/typings'
 import utils from '../../src/utils'
 
 import { TLNetwork } from '../../src/TLNetwork'
 
+import { id } from 'ethers/utils'
 import { TLProvider } from '../../src/providers/TLProvider'
 
 chai.use(chaiAsPromised)

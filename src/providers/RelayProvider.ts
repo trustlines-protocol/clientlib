@@ -9,6 +9,8 @@ import {
   Amount,
   MetaTransaction,
   MetaTransactionFees,
+  MetaTransactionStatus,
+  TransactionStatusObject,
   TxInfos,
   TxInfosRaw
 } from '../typings'
@@ -78,6 +80,23 @@ export class RelayProvider extends Provider implements TLProvider {
       gasPrice,
       currencyNetworkOfFees
     }
+  }
+
+  public async getMetaTxStatus(
+    identityAddress: string,
+    metaTransactionHash: string
+  ): Promise<MetaTransactionStatus> {
+    return this.fetchEndpoint<TransactionStatusObject>(
+      `/identities/${identityAddress}/meta-transactions/${metaTransactionHash}/status`
+    )
+  }
+
+  public async getTxStatus(
+    transactionHash: string
+  ): Promise<TransactionStatusObject> {
+    return this.fetchEndpoint<TransactionStatusObject>(
+      `/transactions/${transactionHash}/status`
+    )
   }
 
   /**
