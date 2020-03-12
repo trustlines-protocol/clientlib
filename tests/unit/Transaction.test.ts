@@ -60,8 +60,9 @@ describe('unit', () => {
           'gasLimit',
           'gasPrice',
           'baseFee',
-          'currencyNetworkOfFees',
           'totalFee',
+          'feeRecipient',
+          'currencyNetworkOfFees',
           'nonce'
         ])
         assert.equal(rawTxObject.rawTx.from, USER_ADDRESS)
@@ -75,8 +76,9 @@ describe('unit', () => {
         assert.hasAllKeys(rawTxObject.txFees, [
           'totalFee',
           'baseFee',
-          'currencyNetworkOfFees',
           'gasLimit',
+          'feeRecipient',
+          'currencyNetworkOfFees',
           'gasPrice'
         ])
         assert.equal(rawTxObject.txFees.totalFee.decimals, 18)
@@ -115,6 +117,7 @@ describe('unit', () => {
           'gasLimit',
           'gasPrice',
           'baseFee',
+          'feeRecipient',
           'currencyNetworkOfFees',
           'totalFee',
           'nonce'
@@ -155,6 +158,7 @@ describe('unit', () => {
           'gasPrice',
           'gasLimit',
           'totalFee',
+          'feeRecipient',
           'currencyNetworkOfFees'
         ])
         assert.isString(rawTxObject.txFees.currencyNetworkOfFees)
@@ -186,6 +190,7 @@ describe('unit', () => {
           'gasLimit',
           'gasPrice',
           'baseFee',
+          'feeRecipient',
           'currencyNetworkOfFees',
           'totalFee',
           'nonce'
@@ -200,6 +205,7 @@ describe('unit', () => {
         assert.hasAllKeys(rawTxObject.txFees, [
           'totalFee',
           'baseFee',
+          'feeRecipient',
           'currencyNetworkOfFees',
           'gasLimit',
           'gasPrice'
@@ -241,6 +247,7 @@ describe('unit', () => {
           'gasLimit',
           'gasPrice',
           'baseFee',
+          'feeRecipient',
           'currencyNetworkOfFees',
           'totalFee',
           'nonce'
@@ -280,6 +287,7 @@ describe('unit', () => {
           'gasPrice',
           'gasLimit',
           'totalFee',
+          'feeRecipient',
           'currencyNetworkOfFees'
         ])
         assert.isString(rawTxObject.txFees.currencyNetworkOfFees)
