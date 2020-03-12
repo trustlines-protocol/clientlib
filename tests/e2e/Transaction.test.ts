@@ -4,15 +4,12 @@ import 'mocha'
 
 import BigNumber from 'bignumber.js'
 import { TLNetwork } from '../../src/TLNetwork'
-import { RawTxObject, TransactionStatus } from '../../src/typings'
-import { EthersWallet } from '../../src/wallets/EthersWallet'
+import { TransactionStatus } from '../../src/typings'
 import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 import {
   createAndLoadUsers,
   deployIdentities,
-  parametrizedTLNetworkConfig,
-  setTrustlines,
-  wait
+  parametrizedTLNetworkConfig
 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
@@ -76,24 +73,16 @@ describe('e2e', () => {
           expect(txStatus.status).to.equal(TransactionStatus.Success)
         })
 
-        if (testParameter.walletType === 'Identity') {
-          it('should get failed transaction status', async () => {
-            // Could not achieve to relay a failing transaction easily since the relay will reply with `Status 409 | There was an error while relaying this transaction`
-            // So only test this with identity
-            const { rawTx } = await transaction.prepareValueTransaction(
-              user1.address,
-              user2.address,
-              new BigNumber(10000000000000000000)
-            )
-            const txHash = await transaction.confirm(rawTx)
-            const txStatus =
-              testParameter.walletType === 'Identity'
-                ? await transaction.getTxStatus(rawTx)
-                : await transaction.getTxStatus(txHash)
+        it('should get not found transaction status for not confirmed transaction', async () => {
+          const { rawTx } = await transaction.prepareValueTransaction(
+            user1.address,
+            user2.address,
+            new BigNumber(1)
+          )
+          const txStatus = await transaction.getTxStatus(rawTx)
 
-            expect(txStatus.status).to.equal(TransactionStatus.Failure)
-          })
-        }
+          expect(txStatus.status).to.equal(TransactionStatus.NotFound)
+        })
       })
     })
   })
