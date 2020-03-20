@@ -21,6 +21,7 @@ import {
   DelegationFeesObject,
   ExchangeCancelEventRaw,
   ExchangeFillEventRaw,
+  FeePayer,
   ProviderUrl,
   ReconnectingWSOptions
 } from './typings'
@@ -258,6 +259,10 @@ export const formatToDelegationFeesInternal = (
     },
     currencyNetworkOfFees
   }
+}
+
+export const formatToFeePayer = (feePayer: string): FeePayer => {
+  return feePayer === 'sender' ? FeePayer.Sender : FeePayer.Receiver
 }
 
 /**
@@ -514,6 +519,7 @@ export default {
   convertToDelegationFees,
   createLink,
   fetchUrl,
+  formatToFeePayer,
   formatEndpoint,
   formatEvent,
   formatExchangeEvent,
