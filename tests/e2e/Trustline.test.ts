@@ -895,7 +895,6 @@ describe('e2e', () => {
             'counterParty',
             'currencyNetwork',
             'user',
-            'address',
             'balance',
             'given',
             'id',

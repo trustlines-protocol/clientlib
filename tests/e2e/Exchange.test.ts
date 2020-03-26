@@ -439,7 +439,7 @@ describe('e2e', () => {
               // TODO get balance of dummy token
             ]).then(([makerTrustlines]) => {
               makerTLBefore = makerTrustlines.find(
-                tl => tl.address === tl1.user.address
+                tl => tl.counterParty === tl1.user.address
               )
               tokenBalanceBefore = 0
               done()
@@ -460,7 +460,7 @@ describe('e2e', () => {
                 // TODO get dummy token balance
               ]).then(([makerTrustlines]) => {
                 const makerTLAfter = makerTrustlines.find(
-                  tl => tl.address === tl1.user.address
+                  tl => tl.counterParty === tl1.user.address
                 )
                 const tokenBalanceAfter = 1
                 const makerBalanceDelta = Math.abs(
