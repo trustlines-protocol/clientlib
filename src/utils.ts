@@ -8,7 +8,10 @@ import { Observer } from 'rxjs/Observer'
 import JsonRPC from 'simple-jsonrpc-js'
 import NodeWebSocket from 'ws'
 
-import { GAS_COST_IDENTITY_OVERHEAD, GAS_LIMIT_MULTIPLIER } from './Transaction'
+import {
+  GAS_LIMIT_IDENTITY_OVERHEAD,
+  GAS_LIMIT_MULTIPLIER
+} from './Transaction'
 import {
   Amount,
   AmountInternal,
@@ -303,19 +306,6 @@ export const calculateDelegationFees = (
   )
 }
 
-const GAS_COST_TRANSFER_BASE = new BigNumber(48000)
-const GAS_COST_TRANSFER_PER_MEDIATOR = new BigNumber(18000)
-
-export const calculateTransferGasLimit = (pathLength: number): BigNumber => {
-  // Values taken from the contracts repository gas tests
-  const mediators = pathLength - 2
-  return GAS_COST_TRANSFER_BASE.plus(
-    GAS_COST_TRANSFER_PER_MEDIATOR.multipliedBy(mediators)
-  )
-    .plus(GAS_COST_IDENTITY_OVERHEAD)
-    .multipliedBy(GAS_LIMIT_MULTIPLIER)
-}
-
 // This constant is taken from the identity contracts where the gas price is divided before used in fee calculation
 export const DELEGATION_GAS_PRICE_DIVISOR = 1_000_000
 
@@ -517,7 +507,6 @@ export default {
   calcValue,
   calculateDelegationFees,
   calculateDelegationFeesAmount,
-  calculateTransferGasLimit,
   checkAddress,
   convertEthToWei,
   convertToAmount,

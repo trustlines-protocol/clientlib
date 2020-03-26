@@ -4,7 +4,7 @@ import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
 import { TLProvider } from './providers/TLProvider'
 import {
-  GAS_COST_IDENTITY_OVERHEAD,
+  GAS_LIMIT_IDENTITY_OVERHEAD,
   GAS_LIMIT_MULTIPLIER,
   Transaction
 } from './Transaction'
@@ -35,16 +35,24 @@ import {
 // TODO: the gas limit for updating a TL could actually be lower than this depending on the situation.
 // TODO: Move the responsibility of filling the default gas limit to wallet since it should know whether to use the
 // TODO: identity overhead or not?
-const UPDATE_TRUSTLINE_GAS_COST = new BigNumber(315_000)
-  .plus(GAS_COST_IDENTITY_OVERHEAD)
+const UPDATE_TRUSTLINE_GAS_LIMIT = new BigNumber(361_000)
+  .plus(GAS_LIMIT_IDENTITY_OVERHEAD)
   .multipliedBy(GAS_LIMIT_MULTIPLIER)
   .integerValue(BigNumber.ROUND_DOWN)
-const CANCEL_TRUSTLINE_GAS_COST = new BigNumber(19_000)
-  .plus(GAS_COST_IDENTITY_OVERHEAD)
+const CANCEL_TRUSTLINE_GAS_LIMIT = new BigNumber(40_000)
+  .plus(GAS_LIMIT_IDENTITY_OVERHEAD)
   .multipliedBy(GAS_LIMIT_MULTIPLIER)
   .integerValue(BigNumber.ROUND_DOWN)
-const CLOSE_TRUSTLINE_GAS_COST = new BigNumber(55_000)
-  .plus(GAS_COST_IDENTITY_OVERHEAD)
+const CLOSE_TRUSTLINE_NO_TRANSFER_GAS_LIMIT = new BigNumber(107_000)
+  .plus(GAS_LIMIT_IDENTITY_OVERHEAD)
+  .multipliedBy(GAS_LIMIT_MULTIPLIER)
+  .integerValue(BigNumber.ROUND_DOWN)
+const CLOSE_TRUSTLINE_TRANSFER_GAS_LIMIT_OVERHEAD = new BigNumber(26_000)
+  .multipliedBy(GAS_LIMIT_MULTIPLIER)
+  .integerValue(BigNumber.ROUND_DOWN)
+const CLOSE_TRUSTLINE_TRANSFER_GAS_LIMIT_OVERHEAD_PER_MEDIATOR = new BigNumber(
+  34_000
+)
   .multipliedBy(GAS_LIMIT_MULTIPLIER)
   .integerValue(BigNumber.ROUND_DOWN)
 
@@ -195,7 +203,7 @@ export class Trustline {
       {
         gasLimit: gasLimit
           ? new BigNumber(gasLimit)
-          : UPDATE_TRUSTLINE_GAS_COST,
+          : UPDATE_TRUSTLINE_GAS_LIMIT,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
@@ -268,7 +276,7 @@ export class Trustline {
       {
         gasLimit: gasLimit
           ? new BigNumber(gasLimit)
-          : CANCEL_TRUSTLINE_GAS_COST,
+          : CANCEL_TRUSTLINE_GAS_LIMIT,
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
@@ -448,14 +456,12 @@ export class Trustline {
     // Determine which close function to call with which arguments.
     let closeFuncName
     let closeFuncArgs
-    let estimatedGasCost
 
     // If estimated value to be transferred for closing the trustline is
     // ZERO, a triangulated transfer is NOT needed.
     if (value.raw === '0') {
       closeFuncName = 'closeTrustline'
       closeFuncArgs = [counterpartyAddress]
-      estimatedGasCost = CLOSE_TRUSTLINE_GAS_COST
     } else {
       // If there is no path with enough capacity for triangulation throw.
       if (path.length === 0) {
@@ -467,9 +473,6 @@ export class Trustline {
         utils.convertToHexString(new BigNumber(maxFees.raw)),
         path
       ]
-      estimatedGasCost = CLOSE_TRUSTLINE_GAS_COST.plus(
-        utils.calculateTransferGasLimit(path.length)
-      )
     }
 
     // Prepare the interaction with the contract.
@@ -480,7 +483,9 @@ export class Trustline {
       closeFuncName,
       closeFuncArgs,
       {
-        gasLimit: gasLimit ? new BigNumber(gasLimit) : estimatedGasCost,
+        gasLimit: gasLimit
+          ? new BigNumber(gasLimit)
+          : this.calculateCloseTrustlineGasLimit(path.length),
         gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
       }
     )
@@ -574,5 +579,18 @@ export class Trustline {
       ),
       received: utils.formatToAmount(trustline.received, networkDecimals)
     }
+  }
+
+  private calculateCloseTrustlineGasLimit(pathLength: number): BigNumber {
+    if (pathLength === 0) {
+      return CLOSE_TRUSTLINE_NO_TRANSFER_GAS_LIMIT
+    }
+
+    const mediators = pathLength - 2
+    return CLOSE_TRUSTLINE_NO_TRANSFER_GAS_LIMIT.plus(
+      CLOSE_TRUSTLINE_TRANSFER_GAS_LIMIT_OVERHEAD_PER_MEDIATOR.multipliedBy(
+        mediators
+      )
+    ).plus(CLOSE_TRUSTLINE_TRANSFER_GAS_LIMIT_OVERHEAD)
   }
 }
