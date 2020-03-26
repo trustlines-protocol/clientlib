@@ -527,7 +527,8 @@ export interface IdentityWalletData extends TLWalletData {
 // TRUSTLINE
 export interface TrustlineObject {
   id: string
-  address: string
+  user: string
+  counterParty: string
   balance: Amount
   given: Amount
   received: Amount
@@ -541,7 +542,8 @@ export interface TrustlineObject {
 
 export interface TrustlineRaw {
   id: string
-  address: string
+  user: string
+  counterParty: string
   balance: string
   given: string
   received: string
