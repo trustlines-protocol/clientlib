@@ -3,7 +3,11 @@ import { BigNumber } from 'bignumber.js'
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
 import { TLProvider } from './providers/TLProvider'
-import { Transaction } from './Transaction'
+import {
+  GAS_LIMIT_IDENTITY_OVERHEAD,
+  GAS_LIMIT_MULTIPLIER,
+  Transaction
+} from './Transaction'
 import { User } from './User'
 
 import utils from './utils'
@@ -20,6 +24,15 @@ import {
   RawTxObject,
   TxObject
 } from './typings'
+
+// Values taken from the contracts repository gas tests
+const TRANSFER_BASE_GAS_LIMIT = new BigNumber(61_000)
+  .plus(GAS_LIMIT_IDENTITY_OVERHEAD)
+  .multipliedBy(GAS_LIMIT_MULTIPLIER)
+  .integerValue(BigNumber.ROUND_DOWN)
+const TRANSFER_GAS_LIMIT_OVERHEAD_PER_MEDIATOR = new BigNumber(34_000)
+  .multipliedBy(GAS_LIMIT_MULTIPLIER)
+  .integerValue(BigNumber.ROUND_DOWN)
 
 /**
  * The Payment class contains all payment related functions. This includes trustline transfers and TLC transfers.
@@ -115,7 +128,7 @@ export class Payment {
         {
           gasLimit: gasLimit
             ? new BigNumber(gasLimit)
-            : utils.calculateTransferGasLimit(path.length),
+            : this.calculateTransferGasLimit(path.length),
           gasPrice: gasPrice ? new BigNumber(gasPrice) : undefined
         }
       )
@@ -292,5 +305,12 @@ export class Payment {
       amount: utils.formatToAmount(result.capacity, networkDecimals),
       path: result.path
     }
+  }
+
+  public calculateTransferGasLimit(pathLength: number): BigNumber {
+    const mediators = pathLength - 2
+    return TRANSFER_BASE_GAS_LIMIT.plus(
+      TRANSFER_GAS_LIMIT_OVERHEAD_PER_MEDIATOR.multipliedBy(mediators)
+    )
   }
 }

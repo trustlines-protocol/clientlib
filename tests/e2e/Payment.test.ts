@@ -183,7 +183,7 @@ describe('e2e', () => {
               2.25
             )
 
-            const expectedGasLimit = utils.calculateTransferGasLimit(2)
+            const expectedGasLimit = tl1.payment.calculateTransferGasLimit(2)
             const delegationFeeRaw = utils.calculateDelegationFees(
               1,
               1_000,
@@ -219,7 +219,7 @@ describe('e2e', () => {
               2.25
             )
 
-            const expectedGasLimit = utils.calculateTransferGasLimit(2)
+            const expectedGasLimit = tl1.payment.calculateTransferGasLimit(2)
 
             expect(preparedPayment.txFees.gasPrice.raw).to.equal('0')
             expect(preparedPayment.txFees.totalFee.raw).to.equal('0')
