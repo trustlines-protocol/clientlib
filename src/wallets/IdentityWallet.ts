@@ -18,12 +18,15 @@ import {
   MetaTransactionFees,
   RawTxObject,
   Signature,
-  TransactionStatusObject
+  TransactionStatusObject,
+  TxFeesRaw,
+  TxObjectRaw
 } from '../typings'
 
 import utils from '../utils'
 
 import BigNumber from 'bignumber.js'
+import { AddressZero } from 'ethers/constants'
 
 // This is the proxy initcode without the address of the owner but with added 0s so that we only need to append the address to it
 const initcodeWithPadding =
@@ -329,7 +332,7 @@ export class IdentityWallet implements TLWallet {
     return metaTransactionHash
   }
 
-  public async fillFeesAndNonce(rawTx: RawTxObject): Promise<RawTxObject> {
+  public async prepareTransaction(rawTx: RawTxObject): Promise<TxObjectRaw> {
     rawTx.nonce = await this.provider.getIdentityNonce(this.address)
 
     const metaTxFees = await this.getMetaTxFees(rawTx)
@@ -341,11 +344,28 @@ export class IdentityWallet implements TLWallet {
       rawTx.gasPrice,
       rawTx.gasLimit
     )
-    rawTx.feeRecipient = rawTx.feeRecipient || metaTxFees.feeRecipient
-    rawTx.currencyNetworkOfFees =
-      rawTx.currencyNetworkOfFees || metaTxFees.currencyNetworkOfFees
 
-    return rawTx
+    const txFees = {
+      gasPrice: rawTx.gasPrice,
+      gasLimit: rawTx.gasLimit,
+      baseFee: rawTx.baseFee,
+      totalFee: rawTx.totalFee,
+      feeRecipient: rawTx.feeRecipient || metaTxFees.feeRecipient,
+      currencyNetworkOfFees:
+        rawTx.currencyNetworkOfFees || metaTxFees.currencyNetworkOfFees
+    }
+
+    rawTx.feeRecipient =
+      rawTx.feeRecipient || metaTxFees.feeRecipient || AddressZero
+    rawTx.currencyNetworkOfFees =
+      rawTx.currencyNetworkOfFees ||
+      metaTxFees.currencyNetworkOfFees ||
+      AddressZero
+
+    return {
+      rawTx,
+      txFees
+    }
   }
 
   public async getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees> {

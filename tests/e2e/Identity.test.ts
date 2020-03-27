@@ -129,7 +129,7 @@ describe('e2e', () => {
           value: 0
         }
 
-        rawTx = await identityWallet.fillFeesAndNonce(rawTx)
+        rawTx = (await identityWallet.prepareTransaction(rawTx)).rawTx
 
         const transactionHash = await identityWallet.confirm(rawTx)
         assert.isString(transactionHash)

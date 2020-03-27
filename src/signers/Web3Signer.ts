@@ -12,7 +12,8 @@ import {
   RawTxObject,
   Signature,
   TransactionStatusObject,
-  TxInfos
+  TxInfos,
+  TxObjectRaw
 } from '../typings'
 
 /**
@@ -141,13 +142,25 @@ export class Web3Signer implements TLSigner {
     return { balance, gasPrice, nonce }
   }
 
-  public async fillFeesAndNonce(rawTx: RawTxObject): Promise<RawTxObject> {
+  public async prepareTransaction(rawTx: RawTxObject): Promise<TxObjectRaw> {
     const { gasPrice, nonce } = await this.getTxInfos(this.address)
-    rawTx.gasPrice = gasPrice
-    rawTx.nonce = nonce
+
+    rawTx.gasPrice = rawTx.gasPrice || gasPrice
     rawTx.baseFee = new BigNumber(0)
     rawTx.totalFee = new BigNumber(rawTx.gasPrice).multipliedBy(rawTx.gasLimit)
-    return rawTx
+    rawTx.nonce = nonce
+
+    const txFees = {
+      gasPrice: rawTx.gasPrice,
+      gasLimit: rawTx.gasLimit,
+      baseFee: rawTx.baseFee,
+      totalFee: rawTx.totalFee
+    }
+
+    return {
+      rawTx,
+      txFees
+    }
   }
 
   public async getTxStatus(

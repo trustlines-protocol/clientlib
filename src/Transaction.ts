@@ -14,6 +14,7 @@ import {
   RawTxObject,
   TransactionStatusObject,
   TxFeesAmounts,
+  TxFeesRaw,
   TxObjectInternal,
   TxOptionsInternal
 } from './typings'
@@ -72,7 +73,7 @@ export class Transaction {
     const abi = new ethers.utils.Interface(
       TrustlinesContractsAbi[contractName].abi
     )
-    let rawTx: RawTxObject = {
+    const rawTx: RawTxObject = {
       data: abi.functions[functionName].encode(args),
       from: userAddress,
       to: contractAddress,
@@ -83,11 +84,11 @@ export class Transaction {
       value: options.value || new BigNumber(0)
     }
 
-    rawTx = await this.signer.fillFeesAndNonce(rawTx)
+    const preparedTx = await this.signer.prepareTransaction(rawTx)
 
     return {
-      txFees: await this.formatTxFeesToAmount(rawTx),
-      rawTx
+      txFees: await this.formatTxFeesToAmount(preparedTx.txFees),
+      rawTx: preparedTx.rawTx
     }
   }
 
@@ -108,8 +109,7 @@ export class Transaction {
     rawValue: BigNumber,
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    // The gas limit for the value transaction has to be higher than 21_000 because of identity contract overhead
-    let rawTx: RawTxObject = {
+    const rawTx: RawTxObject = {
       from: senderAddress,
       to: receiverAddress,
       gasLimit: options.gasLimit || GAS_LIMIT_VALUE_TRANSACTION,
@@ -119,11 +119,11 @@ export class Transaction {
       value: rawValue
     }
 
-    rawTx = await this.signer.fillFeesAndNonce(rawTx)
+    const preparedTx = await this.signer.prepareTransaction(rawTx)
 
     return {
-      txFees: await this.formatTxFeesToAmount(rawTx),
-      rawTx
+      txFees: await this.formatTxFeesToAmount(preparedTx.txFees),
+      rawTx: preparedTx.rawTx
     }
   }
 
@@ -146,27 +146,27 @@ export class Transaction {
   }
 
   /**
-   * Formats the tx fees in raw tx and finds the currency network decimals to use in case of meta-tx fees
-   * @param rawTx
+   * Formats the tx fees and finds the currency network decimals to use in case of meta-tx fees
+   * @param txFees
    */
   private async formatTxFeesToAmount(
-    rawTx: RawTxObject
+    txFees: TxFeesRaw
   ): Promise<TxFeesAmounts> {
     // 18 decimals for regular tx fees in ether
     let feeDecimals = ETH_DECIMALS
-    if (rawTx.currencyNetworkOfFees) {
+    if (txFees.currencyNetworkOfFees) {
       feeDecimals = (await this.currencyNetwork.getDecimals(
-        rawTx.currencyNetworkOfFees
+        txFees.currencyNetworkOfFees
       )).networkDecimals
     }
 
     return {
-      gasPrice: utils.formatToAmount(rawTx.gasPrice, feeDecimals),
-      gasLimit: utils.formatToAmount(rawTx.gasLimit, 0),
-      baseFee: utils.formatToAmount(rawTx.baseFee, feeDecimals),
-      totalFee: utils.formatToAmount(rawTx.totalFee, feeDecimals),
-      feeRecipient: rawTx.feeRecipient || undefined,
-      currencyNetworkOfFees: rawTx.currencyNetworkOfFees || undefined
+      gasPrice: utils.formatToAmount(txFees.gasPrice, feeDecimals),
+      gasLimit: utils.formatToAmount(txFees.gasLimit, 0),
+      baseFee: utils.formatToAmount(txFees.baseFee, feeDecimals),
+      totalFee: utils.formatToAmount(txFees.totalFee, feeDecimals),
+      feeRecipient: txFees.feeRecipient || undefined,
+      currencyNetworkOfFees: txFees.currencyNetworkOfFees || undefined
     }
   }
 }
