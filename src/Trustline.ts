@@ -490,7 +490,6 @@ export class Trustline {
       }
     )
 
-    // Value taken from contracts gas tests
     return {
       txFees,
       maxFees,

@@ -248,6 +248,11 @@ export interface TxObjectInternal {
   txFees: TxFeesAmounts
 }
 
+export interface TxObjectRaw {
+  rawTx: RawTxObject
+  txFees: TxFeesRaw
+}
+
 export interface RawTxObject {
   from: string
   to?: string
@@ -344,6 +349,15 @@ export interface TxInfos {
    * Transaction count of given user address
    */
   nonce: number
+}
+
+export interface TxFeesRaw {
+  gasPrice: number | string | BigNumber
+  gasLimit: number | string | BigNumber
+  baseFee: number | string | BigNumber
+  totalFee: number | string | BigNumber
+  feeRecipient?: string
+  currencyNetworkOfFees?: string
 }
 
 export interface TxFeesAmounts {

@@ -3,7 +3,8 @@ import {
   MetaTransactionFees,
   RawTxObject,
   Signature,
-  TransactionStatusObject
+  TransactionStatusObject,
+  TxObjectRaw
 } from '../typings'
 
 /**
@@ -16,7 +17,7 @@ export interface TLSigner {
   signMessage(message: string | ArrayLike<number>): Promise<Signature>
   hashTx(rawTx: RawTxObject): Promise<string>
   confirm(rawTx: RawTxObject): Promise<string>
-  fillFeesAndNonce(rawTx: RawTxObject): Promise<RawTxObject>
+  prepareTransaction(rawTx: RawTxObject): Promise<TxObjectRaw>
   getTxStatus(txHash: string | RawTxObject): Promise<TransactionStatusObject>
   getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees>
 }

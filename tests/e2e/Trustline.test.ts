@@ -988,9 +988,8 @@ describe('e2e', () => {
             'path'
           ])
           expect(closeTx.path.length).to.equal(0)
-          expect(closeTx.txFees).to.have.all.keys([
+          expect(closeTx.txFees).to.contain.keys([
             'baseFee',
-            'currencyNetworkOfFees',
             'gasPrice',
             'gasLimit',
             'totalFee'
@@ -1086,9 +1085,8 @@ describe('e2e', () => {
             'path'
           ])
           expect(closeTx.path).to.include(tl3.user.address)
-          expect(closeTx.txFees).to.have.all.keys([
+          expect(closeTx.txFees).to.contain.keys([
             'baseFee',
-            'currencyNetworkOfFees',
             'gasPrice',
             'gasLimit',
             'totalFee'

@@ -5,7 +5,8 @@ import {
   MetaTransactionFees,
   RawTxObject,
   Signature,
-  TxInfos
+  TxInfos,
+  TxObjectRaw
 } from '../../src/typings'
 
 import { BigNumber } from 'bignumber.js'
@@ -88,6 +89,29 @@ export class FakeTLSigner implements TLSigner {
       gasPrice: '0',
       feeRecipient: '',
       currencyNetworkOfFees: ''
+    }
+  }
+
+  public async prepareTransaction(rawTx: RawTxObject): Promise<TxObjectRaw> {
+    rawTx.nonce = rawTx.nonce || 1
+    rawTx.gasPrice = rawTx.gasPrice || new BigNumber(1)
+    rawTx.baseFee = rawTx.baseFee || new BigNumber(1)
+    rawTx.feeRecipient = rawTx.feeRecipient || undefined
+    rawTx.currencyNetworkOfFees = rawTx.currencyNetworkOfFees || undefined
+    rawTx.totalFee = new BigNumber(1)
+
+    const txFees = {
+      gasPrice: rawTx.gasPrice,
+      gasLimit: rawTx.gasLimit,
+      baseFee: rawTx.baseFee,
+      totalFee: rawTx.totalFee,
+      currencyNetworkOfFees: rawTx.currencyNetworkOfFees || undefined,
+      feeRecipient: rawTx.feeRecipient || undefined
+    }
+
+    return {
+      rawTx,
+      txFees
     }
   }
 
