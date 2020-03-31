@@ -194,6 +194,12 @@ export interface PaymentRequestMessage extends Message {
   user: string
 }
 
+export interface PaymentRequestDeclineMessage {
+  type: string
+  nonce: number
+  subject?: string
+}
+
 export interface UsernameMessage extends Message {
   username: string
 }

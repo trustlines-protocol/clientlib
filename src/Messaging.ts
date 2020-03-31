@@ -9,6 +9,7 @@ import utils from './utils'
 
 import {
   DecimalsOptions,
+  PaymentRequestDeclineMessage,
   PaymentRequestMessage,
   ReconnectingWSOptions,
   UsernameMessage
@@ -77,6 +78,30 @@ export class Messaging {
       direction: 'sent',
       user: await this.user.getAddress()
     }
+  }
+
+  /**
+   * Sends a payment request decline message to given `counterParty` and returns created message.
+   * @param counterPartyAddress Address of counter party.
+   * @param nonce Nonce of the payment request to decline.
+   * @param subject Optional subject of decline message.
+   */
+  public async paymentRequestDecline(
+    counterPartyAddress: string,
+    nonce: number,
+    subject?: string
+  ): Promise<PaymentRequestDeclineMessage> {
+    const type = 'PaymentRequestDecline'
+    const message = {
+      type,
+      nonce,
+      subject
+    }
+    await this.provider.postToEndpoint(`messages/${counterPartyAddress}`, {
+      type,
+      message: JSON.stringify(message)
+    })
+    return message
   }
 
   /**

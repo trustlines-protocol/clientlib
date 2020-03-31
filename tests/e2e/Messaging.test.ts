@@ -56,6 +56,19 @@ describe('e2e', () => {
         })
       })
 
+      describe('#paymentRequestDecline()', () => {
+        it('should return sent decline', async () => {
+          const declineMessage = await tl1.messaging.paymentRequestDecline(
+            tl2.user.address,
+            10,
+            'test subject'
+          )
+          expect(declineMessage.type).to.equal('PaymentRequestDecline')
+          expect(declineMessage.nonce).to.equal(10)
+          expect(declineMessage.subject).to.equal('test subject')
+        })
+      })
+
       describe('#sendUsernameToCounterparty()', () => {
         it('should return sent username message', async () => {
           const sentUsernameMessage = await tl1.messaging.sendUsernameToCounterparty(
@@ -81,11 +94,17 @@ describe('e2e', () => {
             .messageStream()
             .subscribe(message => messages.push(message))
           await wait()
-          await tl2.messaging.paymentRequest(
+          const paymentRequest = await tl2.messaging.paymentRequest(
             network.address,
             user1.address,
             '250',
             'Hello'
+          )
+          await wait()
+          await tl1.messaging.paymentRequestDecline(
+            user1.address,
+            paymentRequest.nonce,
+            'decline subject'
           )
           await wait()
           await tl2.messaging.sendUsernameToCounterparty(
@@ -96,7 +115,7 @@ describe('e2e', () => {
         })
 
         it('should receive all messages', () => {
-          expect(messages).to.have.lengthOf(3)
+          expect(messages).to.have.lengthOf(4)
         })
 
         it('should receive payment requests', async () => {
@@ -112,15 +131,22 @@ describe('e2e', () => {
           expect(messages[1]).to.have.property('subject', 'Hello')
         })
 
+        it('should receive payment requests decline', async () => {
+          expect(messages[2]).to.have.property('type', 'PaymentRequestDecline')
+          expect(messages[2].timestamp).to.be.a('number')
+          expect(messages[2].nonce).to.be.a('number')
+          expect(messages[2]).to.have.property('subject', 'decline subject')
+        })
+
         it('should receive username', async () => {
-          expect(messages[2]).to.include({
+          expect(messages[3]).to.include({
             type: 'Username',
             from: user2.address,
             to: user1.address,
             username: 'John Doe',
             direction: 'received'
           })
-          expect(messages[2].timestamp).to.be.a('number')
+          expect(messages[3].timestamp).to.be.a('number')
         })
 
         after(async () => {
