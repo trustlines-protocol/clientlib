@@ -18,9 +18,9 @@ import {
 import { CurrencyNetwork } from './CurrencyNetwork'
 
 /**
- * The Information class contains all methods related to retrieving processed infos about a user's trustlines.
+ * The Interests class contains methods related to getting accrued interests for trustlines or users.
  */
-export class Information {
+export class Interests {
   private provider: TLProvider
   private user: User
   private currencyNetwork: CurrencyNetwork

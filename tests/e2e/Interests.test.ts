@@ -13,13 +13,13 @@ import {
   wait
 } from '../Fixtures'
 
-import { Information } from '../../src/Information'
+import { Interests } from '../../src/Interests'
 
 chai.use(chaiAsPromised)
 
 describe('e2e', () => {
   parametrizedTLNetworkConfig.forEach(testParameter => {
-    describe(`Information for wallet type: ${testParameter.walletType}`, () => {
+    describe(`Interests for wallet type: ${testParameter.walletType}`, () => {
       const { expect } = chai
 
       const config = testParameter.config
@@ -29,13 +29,13 @@ describe('e2e', () => {
       let user1
       let user2
       let network
-      let information
+      let interests
 
       before(async () => {
         ;[network] = await tl1.currencyNetwork.getAll()
         // create new users
         ;[user1, user2] = await createAndLoadUsers([tl1, tl2])
-        information = new Information({
+        interests = new Interests({
           user: tl1.user,
           currencyNetwork: tl1.currencyNetwork,
           provider: tl1.relayProvider
@@ -108,7 +108,7 @@ describe('e2e', () => {
         })
 
         it('should return list of accrued interests for user', async () => {
-          const userAccruedInterests = await information.getUserAccruedInterests(
+          const userAccruedInterests = await interests.getUserAccruedInterests(
             network.address
           )
           expect(userAccruedInterests).to.be.an('Array')
@@ -131,7 +131,7 @@ describe('e2e', () => {
         })
 
         it('should return list of accrued interests for trustline', async () => {
-          const trustlineAccruedInterests = await information.getTrustlineAccruedInterests(
+          const trustlineAccruedInterests = await interests.getTrustlineAccruedInterests(
             network.address,
             user2.address
           )
