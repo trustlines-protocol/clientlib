@@ -94,28 +94,6 @@ export class Information {
     )
   }
 
-  public async getTransferInformation(
-    txHash: string,
-    options: {
-      decimalsOptions?: DecimalsOptions
-    } = {}
-  ): Promise<TransferInformation> {
-    const baseUrl = `/transfers/${txHash}`
-
-    const transferInformation = await this.provider.fetchEndpoint<
-      TransferInformationRaw
-    >(baseUrl)
-    const { networkDecimals } = await this.currencyNetwork.getDecimals(
-      transferInformation.currencyNetwork,
-      options.decimalsOptions || {}
-    )
-
-    return this.formatTransferInformationRaw(
-      transferInformation,
-      networkDecimals
-    )
-  }
-
   private formatTrustlineAccruedInterestsRaw(
     trustlineAccruedInterestsRaw: TrustlineAccruedInterestsRaw,
     networkDecimals: number,
@@ -147,25 +125,6 @@ export class Information {
         interestRateDecimals
       ),
       timestamp: accruedInterests.timestamp
-    }
-  }
-
-  private formatTransferInformationRaw(
-    transferInformation: TransferInformationRaw,
-    networkDecimals: number
-  ): TransferInformation {
-    return {
-      path: transferInformation.path,
-      currencyNetwork: transferInformation.currencyNetwork,
-      value: utils.formatToAmount(transferInformation.value, networkDecimals),
-      feePayer: utils.formatToFeePayer(transferInformation.feePayer),
-      totalFees: utils.formatToAmount(
-        transferInformation.totalFees,
-        networkDecimals
-      ),
-      feesPaid: transferInformation.feesPaid.map(feesPaidRaw =>
-        utils.formatToAmount(feesPaidRaw, networkDecimals)
-      )
     }
   }
 }
