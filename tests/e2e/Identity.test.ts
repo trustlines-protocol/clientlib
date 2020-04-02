@@ -15,7 +15,6 @@ import {
   identityFactoryAddress,
   identityImplementationAddress,
   TL_WALLET_DATA_KEYS,
-  tlNetworkConfig,
   tlNetworkConfigIdentity,
   wait
 } from '../Fixtures'

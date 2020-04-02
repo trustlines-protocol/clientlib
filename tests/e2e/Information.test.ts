@@ -10,13 +10,10 @@ import {
   extraData,
   parametrizedTLNetworkConfig,
   requestEth,
-  setTrustlines,
-  tlNetworkConfig,
   wait
 } from '../Fixtures'
 
 import { Information } from '../../src/Information'
-import { FeePayer } from '../../src/typings'
 
 chai.use(chaiAsPromised)
 
@@ -25,30 +22,30 @@ describe('e2e', () => {
     describe(`Information for wallet type: ${testParameter.walletType}`, () => {
       const { expect } = chai
 
-      const tl1 = new TLNetwork(tlNetworkConfig)
-      const tl2 = new TLNetwork(tlNetworkConfig)
-      const tl3 = new TLNetwork(tlNetworkConfig)
+      const config = testParameter.config
+
+      const tl1 = new TLNetwork(config)
+      const tl2 = new TLNetwork(config)
       let user1
       let user2
-      let user3
       let network
       let information
 
       before(async () => {
         ;[network] = await tl1.currencyNetwork.getAll()
         // create new users
-        ;[user1, user2, user3] = await createAndLoadUsers([tl1, tl2, tl3])
+        ;[user1, user2] = await createAndLoadUsers([tl1, tl2])
         information = new Information({
           user: tl1.user,
           currencyNetwork: tl1.currencyNetwork,
           provider: tl1.relayProvider
         })
-        await deployIdentities([tl1, tl2, tl3])
+        await deployIdentities([tl1, tl2])
         // request ETH
-        await requestEth([tl1, tl2, tl3])
+        await requestEth([tl1, tl2])
         await wait()
 
-        const trustlines = [[tl1, tl2], [tl2, tl3]]
+        const trustlines = [[tl1, tl2]]
         // Establish all trustlines
         for (const trustline of trustlines) {
           // Get the both users for this trustline.
@@ -152,65 +149,6 @@ describe('e2e', () => {
             'decimals'
           )
           expect(accruedInterest.timestamp).to.be.a('number')
-        })
-      })
-
-      describe('#getTransferInformation()', () => {
-        it('should return information for transfer', async () => {
-          // make a transfer
-          const transferValue = 1000
-          const transfer = await tl1.payment.prepare(
-            network.address,
-            user3.address,
-            transferValue,
-            { extraData }
-          )
-          const txHash = await tl1.payment.confirm(transfer.rawTx)
-          await wait()
-
-          const transferInformation = await information.getTransferInformation(
-            txHash
-          )
-          expect(transferInformation).to.have.all.keys(
-            'path',
-            'currencyNetwork',
-            'value',
-            'feePayer',
-            'totalFees',
-            'feesPaid'
-          )
-          expect(transferInformation.path).to.be.an('Array')
-          expect(transferInformation.path).to.deep.equal([
-            user1.address,
-            user2.address,
-            user3.address
-          ])
-          expect(transferInformation.currencyNetwork).to.equal(network.address)
-          expect(transferInformation.value).to.have.keys(
-            'raw',
-            'value',
-            'decimals'
-          )
-          expect(transferInformation.value.value).to.equal(
-            transferValue.toString()
-          )
-          expect(transferInformation.feePayer).to.equal(FeePayer.Sender)
-          expect(transferInformation.totalFees).to.have.keys(
-            'raw',
-            'value',
-            'decimals'
-          )
-          expect(transferInformation.totalFees.value).to.equal('1.0011')
-          expect(transferInformation.feesPaid).to.be.an('Array')
-          expect(transferInformation.feesPaid.length).to.equal(1)
-          expect(transferInformation.feesPaid[0]).to.have.keys(
-            'raw',
-            'value',
-            'decimals'
-          )
-          expect(transferInformation.feesPaid[0].value).to.equal(
-            transferInformation.totalFees.value
-          )
         })
       })
     })

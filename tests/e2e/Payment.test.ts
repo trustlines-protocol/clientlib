@@ -12,6 +12,7 @@ import {
   deployIdentities,
   extraData,
   parametrizedTLNetworkConfig,
+  requestEth,
   wait
 } from '../Fixtures'
 
@@ -23,40 +24,59 @@ describe('e2e', () => {
       const { expect } = chai
 
       const config = testParameter.config
-
       const tl1 = new TLNetwork(config)
       const tl2 = new TLNetwork(config)
+      const tl3 = new TLNetwork(config)
       let user1
       let user2
+      let user3
       let network
 
       before(async () => {
-        // set network and load users
-        ;[[network], [user1, user2]] = await Promise.all([
-          tl1.currencyNetwork.getAll(),
-          createAndLoadUsers([tl1, tl2])
-        ])
-        await deployIdentities([tl1, tl2])
-        // make sure users have eth
-        await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
-        // wait for tx to be mined
+        ;[network] = await tl1.currencyNetwork.getAll()
+        // create new users
+        ;[user1, user2, user3] = await createAndLoadUsers([tl1, tl2, tl3])
+        await deployIdentities([tl1, tl2, tl3])
+        // request ETH
+        await requestEth([tl1, tl2, tl3])
         await wait()
-        // set up trustlines
-        const [tx1, tx2] = await Promise.all([
-          tl1.trustline.prepareUpdate(
+
+        const trustlines = [[tl1, tl2], [tl2, tl3]]
+        // Establish all trustlines
+        for (const trustline of trustlines) {
+          // Get the both users for this trustline.
+          const [a, b] = trustline
+
+          // Prepare trustline update transaction from a to b.
+          const { rawTx: rawUpdateTx } = await a.trustline.prepareUpdate(
             network.address,
-            user2.address,
+            b.user.address,
             1000,
-            500
-          ),
-          tl2.trustline.prepareUpdate(network.address, user1.address, 500, 1000)
-        ])
-        await Promise.all([
-          tl1.trustline.confirm(tx1.rawTx),
-          tl2.trustline.confirm(tx2.rawTx)
-        ])
-        // wait for tx to be mined
-        await wait()
+            1000,
+            {
+              interestRateGiven: 1,
+              interestRateReceived: 1
+            }
+          )
+
+          // Prepare trustline accept transaction from b to a.
+          const { rawTx: rawAcceptTx } = await b.trustline.prepareAccept(
+            network.address,
+            a.user.address,
+            1000,
+            1000,
+            {
+              interestRateGiven: 1,
+              interestRateReceived: 1
+            }
+          )
+
+          // Sign and relay prepared transactions.
+          a.trustline.confirm(rawUpdateTx)
+          b.trustline.confirm(rawAcceptTx)
+          // wait for txs to be mined
+          await wait()
+        }
       })
 
       describe('#getTransferPathInfo()', () => {
@@ -93,7 +113,7 @@ describe('e2e', () => {
             network.address,
             user1.address,
             user2.address,
-            1000
+            2000
           )
           expect(pathObj.maxFees).to.have.keys('decimals', 'raw', 'value')
           expect(pathObj.maxFees.raw).to.equal('0')
@@ -316,6 +336,66 @@ describe('e2e', () => {
         })
       })
 
+      describe('#getTransferInformation()', () => {
+        it('should return information for transfer', async () => {
+          // make a transfer
+          const transferValue = 123
+          const transfer = await tl1.payment.prepare(
+            network.address,
+            user3.address,
+            transferValue,
+            {
+              extraData
+            }
+          )
+          const txHash = await tl1.payment.confirm(transfer.rawTx)
+          await wait()
+
+          const transferInformation = await tl1.payment.getTransferInformation(
+            txHash
+          )
+          expect(transferInformation).to.have.all.keys(
+            'path',
+            'currencyNetwork',
+            'value',
+            'feePayer',
+            'totalFees',
+            'feesPaid'
+          )
+          expect(transferInformation.path).to.be.an('Array')
+          expect(transferInformation.path).to.deep.equal([
+            user1.address,
+            user2.address,
+            user3.address
+          ])
+          expect(transferInformation.currencyNetwork).to.equal(network.address)
+          expect(transferInformation.value).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(transferInformation.value.value).to.equal(
+            transferValue.toString()
+          )
+          expect(transferInformation.feePayer).to.equal(FeePayer.Sender)
+          expect(transferInformation.totalFees).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(transferInformation.feesPaid).to.be.an('Array')
+          expect(transferInformation.feesPaid.length).to.equal(1)
+          expect(transferInformation.feesPaid[0]).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(transferInformation.feesPaid[0].value).to.equal(
+            transferInformation.totalFees.value
+          )
+        })
+      })
+
       describe('#prepareEth()', () => {
         it('should prepare tx for eth transfer', async () => {
           await expect(
@@ -344,39 +424,6 @@ describe('e2e', () => {
       })
 
       describe('Maximum spendable amount', () => {
-        const tl3 = new TLNetwork(config)
-        let user3WalletData: TLWalletData
-
-        before(async () => {
-          user3WalletData = await tl3.user.create()
-          await tl3.user.loadFrom(user3WalletData)
-          await tl3.user.deployIdentity()
-          // make sure users have eth
-          await tl3.user.requestEth()
-          // set up trustlines
-          const [tx1, tx2] = await Promise.all([
-            tl2.trustline.prepareUpdate(
-              network.address,
-              user3WalletData.address,
-              300,
-              200
-            ),
-            tl3.trustline.prepareUpdate(
-              network.address,
-              user2.address,
-              200,
-              300
-            )
-          ])
-
-          await Promise.all([
-            tl2.trustline.confirm(tx1.rawTx),
-            tl3.trustline.confirm(tx2.rawTx)
-          ])
-          // wait for tx to be mined
-          await wait()
-        })
-
         describe('#getMaxAmountAndPathInNetwork()', () => {
           it('should return the path and the amount for adjacent users', async () => {
             const result = await tl1.payment.getMaxAmountAndPathInNetwork(
@@ -390,7 +437,7 @@ describe('e2e', () => {
           it('should return the path and the amount for non-adjacent users', async () => {
             const result = await tl1.payment.getMaxAmountAndPathInNetwork(
               network.address,
-              user3WalletData.address
+              tl3.user.address
             )
             expect(result.path.length).to.eq(3)
             expect(result.amount).to.have.keys('decimals', 'raw', 'value')

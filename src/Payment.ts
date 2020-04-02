@@ -13,6 +13,7 @@ import { User } from './User'
 import utils from './utils'
 
 import {
+  DecimalsOptions,
   EventFilterOptions,
   FeePayer,
   isFeePayerValue,
@@ -22,6 +23,8 @@ import {
   PaymentOptions,
   PaymentTxObject,
   RawTxObject,
+  TransferInformation,
+  TransferInformationRaw,
   TxObject
 } from './typings'
 
@@ -312,5 +315,46 @@ export class Payment {
     return TRANSFER_BASE_GAS_LIMIT.plus(
       TRANSFER_GAS_LIMIT_OVERHEAD_PER_MEDIATOR.multipliedBy(mediators)
     )
+  }
+
+  public async getTransferInformation(
+    txHash: string,
+    options: {
+      decimalsOptions?: DecimalsOptions
+    } = {}
+  ): Promise<TransferInformation> {
+    const baseUrl = `/transfers/${txHash}`
+
+    const transferInformation = await this.provider.fetchEndpoint<
+      TransferInformationRaw
+    >(baseUrl)
+    const { networkDecimals } = await this.currencyNetwork.getDecimals(
+      transferInformation.currencyNetwork,
+      options.decimalsOptions || {}
+    )
+
+    return this.formatTransferInformationRaw(
+      transferInformation,
+      networkDecimals
+    )
+  }
+
+  private formatTransferInformationRaw(
+    transferInformation: TransferInformationRaw,
+    networkDecimals: number
+  ): TransferInformation {
+    return {
+      path: transferInformation.path,
+      currencyNetwork: transferInformation.currencyNetwork,
+      value: utils.formatToAmount(transferInformation.value, networkDecimals),
+      feePayer: utils.formatToFeePayer(transferInformation.feePayer),
+      totalFees: utils.formatToAmount(
+        transferInformation.totalFees,
+        networkDecimals
+      ),
+      feesPaid: transferInformation.feesPaid.map(feesPaidRaw =>
+        utils.formatToAmount(feesPaidRaw, networkDecimals)
+      )
+    }
   }
 }
