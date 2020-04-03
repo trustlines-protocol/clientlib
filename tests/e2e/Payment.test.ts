@@ -336,8 +336,8 @@ describe('e2e', () => {
         })
       })
 
-      describe('#getTransferInformation()', () => {
-        it('should return information for transfer', async () => {
+      describe('#getTransferDetails()', () => {
+        it('should return details for transfer via transaction hash', async () => {
           // make a transfer
           const transferValue = 123
           const transfer = await tl1.payment.prepare(
@@ -351,10 +351,13 @@ describe('e2e', () => {
           const txHash = await tl1.payment.confirm(transfer.rawTx)
           await wait()
 
-          const transferInformation = await tl1.payment.getTransferInformation(
+          const transferDetailsList = await tl1.payment.getTransferDetailsList({
             txHash
-          )
-          expect(transferInformation).to.have.all.keys(
+          })
+          expect(transferDetailsList).to.be.an('array')
+          expect(transferDetailsList.length).to.equal(1)
+          const transferDetails = transferDetailsList[0]
+          expect(transferDetails).to.have.all.keys(
             'path',
             'currencyNetwork',
             'value',
@@ -362,36 +365,87 @@ describe('e2e', () => {
             'totalFees',
             'feesPaid'
           )
-          expect(transferInformation.path).to.be.an('Array')
-          expect(transferInformation.path).to.deep.equal([
+          expect(transferDetails.path).to.be.an('Array')
+          expect(transferDetails.path).to.deep.equal([
             user1.address,
             user2.address,
             user3.address
           ])
-          expect(transferInformation.currencyNetwork).to.equal(network.address)
-          expect(transferInformation.value).to.have.keys(
+          expect(transferDetails.currencyNetwork).to.equal(network.address)
+          expect(transferDetails.value).to.have.keys('raw', 'value', 'decimals')
+          expect(transferDetails.value.value).to.equal(transferValue.toString())
+          expect(transferDetails.feePayer).to.equal(FeePayer.Sender)
+          expect(transferDetails.totalFees).to.have.keys(
             'raw',
             'value',
             'decimals'
           )
-          expect(transferInformation.value.value).to.equal(
-            transferValue.toString()
-          )
-          expect(transferInformation.feePayer).to.equal(FeePayer.Sender)
-          expect(transferInformation.totalFees).to.have.keys(
+          expect(transferDetails.feesPaid).to.be.an('Array')
+          expect(transferDetails.feesPaid.length).to.equal(1)
+          expect(transferDetails.feesPaid[0]).to.have.keys(
             'raw',
             'value',
             'decimals'
           )
-          expect(transferInformation.feesPaid).to.be.an('Array')
-          expect(transferInformation.feesPaid.length).to.equal(1)
-          expect(transferInformation.feesPaid[0]).to.have.keys(
+          expect(transferDetails.feesPaid[0].value).to.equal(
+            transferDetails.totalFees.value
+          )
+        })
+
+        it('should return details for transfer via id', async () => {
+          // make a transfer
+          const transferValue = 123
+          const transfer = await tl1.payment.prepare(
+            network.address,
+            user3.address,
+            transferValue,
+            {
+              extraData
+            }
+          )
+          await tl1.payment.confirm(transfer.rawTx)
+          await wait()
+
+          const transferLogs = await tl1.payment.get(network.address)
+          const lastTransferLog = transferLogs[transferLogs.length - 1]
+
+          const transferDetails = await tl1.payment.getTransferDetails({
+            blockHash: lastTransferLog.blockHash,
+            logIndex: lastTransferLog.logIndex
+          })
+
+          expect(transferDetails).to.have.all.keys(
+            'path',
+            'currencyNetwork',
+            'value',
+            'feePayer',
+            'totalFees',
+            'feesPaid'
+          )
+          expect(transferDetails.path).to.be.an('Array')
+          expect(transferDetails.path).to.deep.equal([
+            user1.address,
+            user2.address,
+            user3.address
+          ])
+          expect(transferDetails.currencyNetwork).to.equal(network.address)
+          expect(transferDetails.value).to.have.keys('raw', 'value', 'decimals')
+          expect(transferDetails.value.value).to.equal(transferValue.toString())
+          expect(transferDetails.feePayer).to.equal(FeePayer.Sender)
+          expect(transferDetails.totalFees).to.have.keys(
             'raw',
             'value',
             'decimals'
           )
-          expect(transferInformation.feesPaid[0].value).to.equal(
-            transferInformation.totalFees.value
+          expect(transferDetails.feesPaid).to.be.an('Array')
+          expect(transferDetails.feesPaid.length).to.equal(1)
+          expect(transferDetails.feesPaid[0]).to.have.keys(
+            'raw',
+            'value',
+            'decimals'
+          )
+          expect(transferDetails.feesPaid[0].value).to.equal(
+            transferDetails.totalFees.value
           )
         })
       })

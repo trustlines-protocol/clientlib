@@ -23,8 +23,9 @@ import {
   PaymentOptions,
   PaymentTxObject,
   RawTxObject,
-  TransferInformation,
-  TransferInformationRaw,
+  TransferDetails,
+  TransferDetailsRaw,
+  TransferIdentifier,
   TxObject
 } from './typings'
 
@@ -317,32 +318,112 @@ export class Payment {
     )
   }
 
-  public async getTransferInformation(
-    txHash: string,
+  /**
+   * Get the transfer details list for given transfer identifier
+   * @param transferIdentifier Used to identify the transfer for which to get the details.
+   * Needs to provide either blockHash and logIndex or txHash
+   * Returns a single transfer detail or throw an error if multiple transfer were identified
+   * @param transferIdentifier.blockHash Block hash of a transfer event
+   * @param transferIdentifier.logIndex Log index of a transfer event
+   * @param transferIdentifier.txHash Transaction hash of a transaction responsible for one or more transfers
+   * @param options Optional network decimals for formatting the transfer value
+   */
+  public async getTransferDetails(
+    transferIdentifier: TransferIdentifier,
     options: {
       decimalsOptions?: DecimalsOptions
     } = {}
-  ): Promise<TransferInformation> {
-    const baseUrl = `/transfers/${txHash}`
-
-    const transferInformation = await this.provider.fetchEndpoint<
-      TransferInformationRaw
-    >(baseUrl)
-    const { networkDecimals } = await this.currencyNetwork.getDecimals(
-      transferInformation.currencyNetwork,
-      options.decimalsOptions || {}
+  ): Promise<TransferDetails> {
+    const transferDetailsList = await this.getTransferDetailsList(
+      transferIdentifier,
+      options
     )
 
-    return this.formatTransferInformationRaw(
-      transferInformation,
-      networkDecimals
+    if (transferDetailsList.length > 1) {
+      throw new Error(
+        `Got multiple transfer information while looking for transfer via transferIdentifier ${transferIdentifier}`
+      )
+    }
+    return transferDetailsList[0]
+  }
+
+  /**
+   * Get the transfer details list for given transfer identifier
+   * @param transferIdentifier Used to identify the transfer for which to get the details.
+   * Needs to provide either blockHash and logIndex or txHash
+   * @param transferIdentifier.blockHash Block hash of a transfer event
+   * @param transferIdentifier.logIndex Log index of a transfer event
+   * @param transferIdentifier.txHash Transaction hash of a transaction responsible for one or more transfers
+   * @param options Optional network decimals for formatting the transfer value
+   */
+  public async getTransferDetailsList(
+    transferIdentifier: TransferIdentifier,
+    options: {
+      decimalsOptions?: DecimalsOptions
+    } = {}
+  ): Promise<TransferDetails[]> {
+    this.validateTransferIdentifier(transferIdentifier)
+
+    const baseUrl = utils.buildUrl(`/transfers/`, {
+      blockHash: transferIdentifier.blockHash,
+      logIndex: transferIdentifier.logIndex,
+      transactionHash: transferIdentifier.txHash
+    })
+
+    const transferDetailsList = await this.provider.fetchEndpoint<
+      TransferDetailsRaw[]
+    >(baseUrl)
+    const DecimalsObjectsList = await Promise.all(
+      transferDetailsList.map(async transferInformation =>
+        this.currencyNetwork.getDecimals(
+          transferInformation.currencyNetwork,
+          options.decimalsOptions || {}
+        )
+      )
+    )
+    const networkDecimalsList = DecimalsObjectsList.map(
+      decimalsObject => decimalsObject.networkDecimals
+    )
+
+    return transferDetailsList.map((transferInformation, index) =>
+      this.formatTransferDetailsRaw(
+        transferInformation,
+        networkDecimalsList[index]
+      )
     )
   }
 
-  private formatTransferInformationRaw(
-    transferInformation: TransferInformationRaw,
+  private validateTransferIdentifier(transferIdentifier: TransferIdentifier) {
+    if (transferIdentifier.txHash !== undefined) {
+      if (
+        transferIdentifier.logIndex !== undefined ||
+        transferIdentifier.blockHash !== undefined
+      ) {
+        throw new Error(
+          'Cannot get transfer details using txHash, and logIndex and blockHash.'
+        )
+      }
+    } else if (transferIdentifier.logIndex !== undefined) {
+      if (transferIdentifier.blockHash === undefined) {
+        throw new Error(
+          'If logIndex is provided, blockHash needs to be provided to identify the transfer.'
+        )
+      }
+    } else if (transferIdentifier.blockHash !== undefined) {
+      throw new Error(
+        'If blockHash is provided, logIndex needs to be provided to identify the transfer.'
+      )
+    } else {
+      throw new Error(
+        'Either transaction hash or block hash and log index need to be provided.'
+      )
+    }
+  }
+
+  private formatTransferDetailsRaw(
+    transferInformation: TransferDetailsRaw,
     networkDecimals: number
-  ): TransferInformation {
+  ): TransferDetails {
     return {
       path: transferInformation.path,
       currencyNetwork: transferInformation.currencyNetwork,
