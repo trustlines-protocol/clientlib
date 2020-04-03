@@ -7,8 +7,6 @@ import {
   AccruedInterestsObject,
   AccruedInterestsRaw,
   DecimalsOptions,
-  TransferInformation,
-  TransferInformationRaw,
   TrustlineAccruedInterestsObject,
   TrustlineAccruedInterestsRaw,
   UserAccruedInterestsObject,

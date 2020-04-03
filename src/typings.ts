@@ -641,7 +641,7 @@ export interface TrustlineAccruedInterestsObject {
   counterparty: string
 }
 
-export interface TransferInformationRaw {
+export interface TransferDetailsRaw {
   path: string[]
   currencyNetwork: string
   value: string
@@ -650,13 +650,19 @@ export interface TransferInformationRaw {
   feesPaid: string[]
 }
 
-export interface TransferInformation {
+export interface TransferDetails {
   path: string[]
   currencyNetwork: string
   value: Amount
   feePayer: FeePayer
   totalFees: Amount
   feesPaid: Amount[]
+}
+
+export interface TransferIdentifier {
+  blockHash?: string
+  logIndex?: number
+  txHash?: string
 }
 
 export type UserAccruedInterestsRaw = TrustlineAccruedInterestsRaw[]
