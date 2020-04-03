@@ -94,6 +94,8 @@ describe('e2e', () => {
         expect(last.amount).to.have.keys('raw', 'value', 'decimals')
         expect(last.amount.value).to.eq('1.5')
         expect(last.extraData).to.eq(extraData)
+        expect(last.logIndex).to.be.a('number')
+        expect(last.blockHash).to.be.a('string')
       })
     })
 
@@ -218,6 +220,8 @@ describe('e2e', () => {
         expect(updateRequestEvents[0].blockNumber).to.be.a('number')
         expect(updateRequestEvents[0].status).to.be.a('string')
         expect(updateRequestEvents[0].transactionId).to.equal(updateTxId)
+        expect(updateRequestEvents[0].blockHash).to.be.a('string')
+        expect(updateRequestEvents[0].logIndex).to.be.a('number')
         expect(updateRequestEvents[0].direction).to.equal('sent')
         expect(updateRequestEvents[0].from).to.equal(tl1.user.address)
         expect(updateRequestEvents[0].to).to.equal(tl2.user.address)
@@ -250,6 +254,8 @@ describe('e2e', () => {
         expect(cancelUpdateEvents[0].blockNumber).to.be.a('number')
         expect(cancelUpdateEvents[0].status).to.be.a('string')
         expect(cancelUpdateEvents[0].transactionId).to.equal(cancelUpdateTxId)
+        expect(cancelUpdateEvents[0].blockHash).to.be.a('string')
+        expect(cancelUpdateEvents[0].logIndex).to.be.a('number')
         expect(cancelUpdateEvents[0].direction).to.equal('sent')
         expect(cancelUpdateEvents[0].from).to.equal(tl1.user.address)
         expect(cancelUpdateEvents[0].to).to.equal(tl2.user.address)
@@ -270,6 +276,8 @@ describe('e2e', () => {
         expect(updateEvents[0].blockNumber).to.be.a('number')
         expect(updateEvents[0].status).to.be.a('string')
         expect(updateEvents[0].transactionId).to.equal(acceptTxId)
+        expect(updateEvents[0].blockHash).to.be.a('string')
+        expect(updateEvents[0].logIndex).to.be.a('number')
         expect(updateEvents[0].direction).to.equal('sent')
         expect(updateEvents[0].from).to.equal(tl1.user.address)
         expect(updateEvents[0].to).to.equal(tl2.user.address)
@@ -304,6 +312,8 @@ describe('e2e', () => {
         expect(tlTransferEvents[0].blockNumber).to.be.a('number')
         expect(tlTransferEvents[0].status).to.be.a('string')
         expect(tlTransferEvents[0].transactionId).to.equal(tlTransferTxId)
+        expect(tlTransferEvents[0].blockHash).to.be.a('string')
+        expect(tlTransferEvents[0].logIndex).to.be.a('number')
         expect(tlTransferEvents[0].from).to.equal(tl1.user.address)
         expect(tlTransferEvents[0].to).to.equal(tl2.user.address)
         expect(tlTransferEvents[0].direction).to.equal('sent')
@@ -330,6 +340,8 @@ describe('e2e', () => {
         expect(depositEvents[0].blockNumber).to.be.a('number')
         expect(depositEvents[0].status).to.be.a('string')
         expect(depositEvents[0].transactionId).to.equal(depositTxId)
+        expect(depositEvents[0].blockHash).to.be.a('string')
+        expect(depositEvents[0].logIndex).to.be.a('number')
         expect(depositEvents[0].from).to.equal(tl1.user.address)
         expect(depositEvents[0].to).to.equal(tl1.user.address)
         expect(depositEvents[0].user).to.equal(tl1.user.address)
@@ -354,6 +366,8 @@ describe('e2e', () => {
         expect(withdrawEvents[0].blockNumber).to.be.a('number')
         expect(withdrawEvents[0].status).to.be.a('string')
         expect(withdrawEvents[0].transactionId).to.equal(withdrawTxId)
+        expect(withdrawEvents[0].blockHash).to.be.a('string')
+        expect(withdrawEvents[0].logIndex).to.be.a('number')
         expect(withdrawEvents[0].from).to.equal(tl1.user.address)
         expect(withdrawEvents[0].to).to.equal(tl1.user.address)
         expect(withdrawEvents[0].user).to.equal(tl1.user.address)
@@ -381,6 +395,8 @@ describe('e2e', () => {
         expect(wethTransferEvents[0].blockNumber).to.be.a('number')
         expect(wethTransferEvents[0].status).to.be.a('string')
         expect(wethTransferEvents[0].transactionId).to.equal(transferTxId)
+        expect(wethTransferEvents[0].blockHash).to.be.a('string')
+        expect(wethTransferEvents[0].logIndex).to.be.a('number')
         expect(wethTransferEvents[0].from).to.equal(tl1.user.address)
         expect(wethTransferEvents[0].to).to.equal(tl2.user.address)
         expect(wethTransferEvents[0].direction).to.equal('sent')
@@ -407,6 +423,8 @@ describe('e2e', () => {
         expect(fillEvents[0].blockNumber).to.be.a('number')
         expect(fillEvents[0].status).to.be.a('string')
         expect(fillEvents[0].transactionId).to.equal(fillTxId)
+        expect(fillEvents[0].blockHash).to.be.a('string')
+        expect(fillEvents[0].logIndex).to.be.a('number')
         expect(fillEvents[0].from).to.equal(tl1.user.address)
         expect(fillEvents[0].to).to.equal(tl2.user.address)
         expect((fillEvents[0] as ExchangeFillEvent).exchangeAddress).to.equal(
@@ -440,6 +458,8 @@ describe('e2e', () => {
         expect(cancelEvents[0].blockNumber).to.be.a('number')
         expect(cancelEvents[0].status).to.be.a('string')
         expect(cancelEvents[0].transactionId).to.equal(cancelTxId)
+        expect(cancelEvents[0].blockHash).to.be.a('string')
+        expect(cancelEvents[0].logIndex).to.be.a('number')
         expect(cancelEvents[0].from).to.equal(tl1.user.address)
         expect(cancelEvents[0].to).to.equal(tl1.user.address)
         expect(
@@ -529,6 +549,8 @@ describe('e2e', () => {
         expect(transferEvent).to.have.property('counterParty', user2.address)
         expect(transferEvent).to.have.property('user', user1.address)
         expect(transferEvent).to.have.property('extraData', extraData)
+        expect(transferEvent.blockHash).to.be.a('string')
+        expect(transferEvent.logIndex).be.a('number')
 
         const networkBalanceEvent = events.filter(
           event => event.type === 'NetworkBalance'
@@ -644,6 +666,8 @@ describe('e2e', () => {
           'received.value',
           '4002'
         )
+        expect(trustlineRequestEvent.blockHash).to.be.a('string')
+        expect(trustlineRequestEvent.logIndex).to.be.a('number')
       })
 
       after(async () => {
@@ -707,6 +731,8 @@ describe('e2e', () => {
         expect(trustlineUpdateCancelEvent.counterParty).to.equal(user1.address)
         expect(trustlineUpdateCancelEvent.user).to.equal(user2.address)
         expect(trustlineUpdateCancelEvent.direction).to.equal('sent')
+        expect(trustlineUpdateCancelEvent.blockHash).to.be.a('string')
+        expect(trustlineUpdateCancelEvent.logIndex).to.be.a('number')
       })
 
       after(async () => {
