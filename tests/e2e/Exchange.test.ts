@@ -327,6 +327,8 @@ describe('e2e', () => {
         'blockNumber',
         'status',
         'transactionId',
+        'blockHash',
+        'logIndex',
         'from',
         'to',
         'direction'

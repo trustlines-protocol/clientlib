@@ -111,6 +111,8 @@ export interface BlockchainEvent {
   blockNumber: number
   status: string
   transactionId: string
+  blockHash: string
+  logIndex: number
 }
 
 export interface TLEvent extends BlockchainEvent {
