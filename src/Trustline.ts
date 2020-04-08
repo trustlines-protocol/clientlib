@@ -13,6 +13,8 @@ import { User } from './User'
 import utils from './utils'
 
 import {
+  AnyNetworkTrustlineEvent,
+  AnyNetworkTrustlineEventRaw,
   ClosePathObject,
   ClosePathRaw,
   CloseTxObject,
@@ -21,7 +23,9 @@ import {
   FeePayer,
   isFeePayerValue,
   NetworkEvent,
-  NetworkTrustlineEvent,
+  NetworkTrustlineBalanceUpdate,
+  NetworkTrustlineCancelEvent,
+  NetworkTrustlineUpdateEvent,
   PaymentOptions,
   RawTxObject,
   TrustlineObject,
@@ -383,8 +387,8 @@ export class Trustline {
   public getRequests(
     networkAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<NetworkTrustlineEvent[]> {
-    return this.event.get<NetworkTrustlineEvent>(networkAddress, {
+  ): Promise<NetworkTrustlineUpdateEvent[]> {
+    return this.event.get<NetworkTrustlineUpdateEvent>(networkAddress, {
       ...filter,
       type: 'TrustlineUpdateRequest'
     })
@@ -398,8 +402,8 @@ export class Trustline {
   public getTrustlineUpdateCancels(
     networkAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<NetworkEvent[]> {
-    return this.event.get<NetworkEvent>(networkAddress, {
+  ): Promise<NetworkTrustlineCancelEvent[]> {
+    return this.event.get<NetworkTrustlineCancelEvent>(networkAddress, {
       ...filter,
       type: 'TrustlineUpdateCancel'
     })
@@ -414,11 +418,60 @@ export class Trustline {
   public getUpdates(
     networkAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<NetworkTrustlineEvent[]> {
-    return this.event.get<NetworkTrustlineEvent>(networkAddress, {
+  ): Promise<NetworkTrustlineUpdateEvent[]> {
+    return this.event.get<NetworkTrustlineUpdateEvent>(networkAddress, {
       ...filter,
       type: 'TrustlineUpdate'
     })
+  }
+
+  /**
+   * Returns trustline balance updates of a specific trustline in a currency network. A balance update
+   * happens, because of interests or because of received, sent or mediated transfers.
+   * @param networkAddress Address of a currency network.
+   * @param counterPartyAddress Address of the counter party of the trustline.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
+   */
+  public getTrustlineBalanceUpdates(
+    networkAddress: string,
+    counterPartyAddress: string,
+    filter: EventFilterOptions = {}
+  ): Promise<NetworkTrustlineBalanceUpdate[]> {
+    return this.getEvents(networkAddress, counterPartyAddress, {
+      ...filter,
+      type: 'BalanceUpdate'
+    }) as Promise<NetworkTrustlineBalanceUpdate[]>
+  }
+
+  /**
+   * Returns all events of a specific trustline in a currency network. These are BalanceUpdate, TrustlineUpdate,
+   * TrustlineUpdateRequest and TrustlineUpdateCancel
+   * @param networkAddress Address of a currency network.
+   * @param counterPartyAddress Address of the counter party of the trustline.
+   * @param filter Event filter object. See `EventFilterOptions` for more information.
+   */
+  public async getEvents(
+    networkAddress: string,
+    counterPartyAddress: string,
+    filter: EventFilterOptions = {}
+  ): Promise<AnyNetworkTrustlineEvent[]> {
+    const endpoint = `networks/${networkAddress}/users/${await this.user.getAddress()}/trustlines/${counterPartyAddress}/events`
+    const parameterUrl = utils.buildUrl(endpoint, filter)
+    const [
+      events,
+      { networkDecimals, interestRateDecimals }
+    ] = await Promise.all([
+      this.provider.fetchEndpoint<AnyNetworkTrustlineEventRaw[]>(parameterUrl),
+      this.currencyNetwork.getDecimals(networkAddress)
+    ])
+
+    return events.map(event =>
+      utils.formatEvent<AnyNetworkTrustlineEvent>(
+        event,
+        networkDecimals,
+        interestRateDecimals
+      )
+    )
   }
 
   /**
