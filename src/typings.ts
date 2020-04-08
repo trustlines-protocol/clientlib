@@ -1,5 +1,4 @@
 import { BigNumber } from 'bignumber.js'
-import { ethers } from 'ethers'
 import { Options as ReconnectingOptions } from 'reconnecting-websocket'
 
 /**
@@ -137,7 +136,7 @@ export interface NetworkTransferEvent extends NetworkEvent {
   extraData: string
 }
 
-export interface NetworkTrustlineEventRaw extends NetworkEvent {
+export interface NetworkTrustlineUpdateEventRaw extends NetworkEvent {
   given: string
   received: string
   interestRateGiven: string
@@ -145,7 +144,7 @@ export interface NetworkTrustlineEventRaw extends NetworkEvent {
   isFrozen: boolean
 }
 
-export interface NetworkTrustlineEvent extends NetworkEvent {
+export interface NetworkTrustlineUpdateEvent extends NetworkEvent {
   given: Amount
   received: Amount
   interestRateGiven: Amount
@@ -156,14 +155,31 @@ export interface NetworkTrustlineEvent extends NetworkEvent {
 export type NetworkTrustlineCancelEventRaw = NetworkEvent
 export type NetworkTrustlineCancelEvent = NetworkEvent
 
+export interface NetworkTrustlineBalanceUpdateRaw extends NetworkEvent {
+  amount: string
+}
+export interface NetworkTrustlineBalanceUpdate extends NetworkEvent {
+  amount: Amount
+}
+
 export type AnyNetworkEvent =
   | NetworkTransferEvent
-  | NetworkTrustlineEvent
+  | NetworkTrustlineUpdateEvent
   | NetworkTrustlineCancelEvent
 export type AnyNetworkEventRaw =
   | NetworkTransferEventRaw
-  | NetworkTrustlineEventRaw
+  | NetworkTrustlineUpdateEventRaw
   | NetworkTrustlineCancelEventRaw
+
+export type AnyNetworkTrustlineEventRaw =
+  | NetworkTrustlineUpdateEventRaw
+  | NetworkTrustlineCancelEventRaw
+  | NetworkTrustlineBalanceUpdateRaw
+
+export type AnyNetworkTrustlineEvent =
+  | NetworkTrustlineUpdateEvent
+  | NetworkTrustlineCancelEvent
+  | NetworkTrustlineBalanceUpdate
 
 export interface TokenEvent extends TLEvent {
   tokenAddress: string

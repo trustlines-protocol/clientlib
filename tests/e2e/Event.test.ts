@@ -9,7 +9,7 @@ import {
   ExchangeFillEvent,
   NetworkDetails,
   NetworkTransferEvent,
-  NetworkTrustlineEvent,
+  NetworkTrustlineUpdateEvent,
   TokenAmountEvent
 } from '../../src/typings'
 
@@ -228,16 +228,16 @@ describe('e2e', () => {
         expect(updateRequestEvents[0].user).to.equal(tl1.user.address)
         expect(updateRequestEvents[0].counterParty).to.equal(tl2.user.address)
         expect(
-          (updateRequestEvents[0] as NetworkTrustlineEvent).networkAddress
+          (updateRequestEvents[0] as NetworkTrustlineUpdateEvent).networkAddress
         ).to.equal(network2.address)
         expect(
-          (updateRequestEvents[0] as NetworkTrustlineEvent).isFrozen
+          (updateRequestEvents[0] as NetworkTrustlineUpdateEvent).isFrozen
         ).to.be.a('boolean')
         expect(
-          (updateRequestEvents[0] as NetworkTrustlineEvent).given
+          (updateRequestEvents[0] as NetworkTrustlineUpdateEvent).given
         ).to.have.keys('raw', 'decimals', 'value')
         expect(
-          (updateRequestEvents[0] as NetworkTrustlineEvent).received
+          (updateRequestEvents[0] as NetworkTrustlineUpdateEvent).received
         ).to.have.keys('raw', 'decimals', 'value')
 
         // events thrown on trustline update cancel
@@ -262,7 +262,7 @@ describe('e2e', () => {
         expect(cancelUpdateEvents[0].user).to.equal(tl1.user.address)
         expect(cancelUpdateEvents[0].counterParty).to.equal(tl2.user.address)
         expect(
-          (cancelUpdateEvents[0] as NetworkTrustlineEvent).networkAddress
+          (cancelUpdateEvents[0] as NetworkTrustlineUpdateEvent).networkAddress
         ).to.equal(network2.address)
 
         // events thrown on trustline update
@@ -284,18 +284,16 @@ describe('e2e', () => {
         expect(updateEvents[0].user).to.equal(tl1.user.address)
         expect(updateEvents[0].counterParty).to.equal(tl2.user.address)
         expect(
-          (updateEvents[0] as NetworkTrustlineEvent).networkAddress
+          (updateEvents[0] as NetworkTrustlineUpdateEvent).networkAddress
         ).to.equal(network2.address)
-        expect((updateEvents[0] as NetworkTrustlineEvent).isFrozen).to.be.a(
-          'boolean'
-        )
-        expect((updateEvents[0] as NetworkTrustlineEvent).given).to.have.keys(
-          'raw',
-          'decimals',
-          'value'
-        )
         expect(
-          (updateEvents[0] as NetworkTrustlineEvent).received
+          (updateEvents[0] as NetworkTrustlineUpdateEvent).isFrozen
+        ).to.be.a('boolean')
+        expect(
+          (updateEvents[0] as NetworkTrustlineUpdateEvent).given
+        ).to.have.keys('raw', 'decimals', 'value')
+        expect(
+          (updateEvents[0] as NetworkTrustlineUpdateEvent).received
         ).to.have.keys('raw', 'decimals', 'value')
 
         // events thrown on trustlines transfer

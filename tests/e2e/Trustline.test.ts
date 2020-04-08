@@ -504,6 +504,68 @@ describe('e2e', () => {
         })
       })
 
+      describe('#getTrustlineBalanceUpdates()', () => {
+        it('should return latest trustline balance update', async () => {
+          await setTrustlines(
+            networkWithoutInterestRates.address,
+            tl1,
+            tl2,
+            100,
+            100
+          )
+
+          const balanceUpdateEventsBefore = await tl1.trustline.getTrustlineBalanceUpdates(
+            networkWithoutInterestRates.address,
+            await tl2.user.getAddress(),
+            { fromBlock: 0 }
+          )
+
+          const transferTx = await tl1.payment.prepare(
+            networkWithoutInterestRates.address,
+            user2.address,
+            1
+          )
+          const txId = await tl1.trustline.confirm(transferTx.rawTx)
+
+          // make sure tx is mined
+          await wait()
+
+          const balanceUpdateEvents = await tl1.trustline.getTrustlineBalanceUpdates(
+            networkWithoutInterestRates.address,
+            await tl2.user.getAddress()
+          )
+
+          expect(balanceUpdateEvents.length).to.be.equal(
+            balanceUpdateEventsBefore.length + 1
+          )
+
+          const latestBalanceUpdate =
+            balanceUpdateEvents[balanceUpdateEvents.length - 1]
+          expect(latestBalanceUpdate.direction).to.equal('sent')
+          expect(latestBalanceUpdate.from).to.equal(user1.address)
+          expect(latestBalanceUpdate.transactionId).to.equal(txId)
+          expect(latestBalanceUpdate.to).to.equal(user2.address)
+          expect(latestBalanceUpdate.blockNumber).to.be.a('number')
+          expect(latestBalanceUpdate.timestamp).to.be.a('number')
+          expect(latestBalanceUpdate.counterParty).to.equal(user2.address)
+          expect(latestBalanceUpdate.user).to.equal(user1.address)
+          expect(latestBalanceUpdate.networkAddress).to.equal(
+            networkWithoutInterestRates.address
+          )
+          expect(latestBalanceUpdate.status).to.be.a('string')
+          expect(latestBalanceUpdate.type).to.equal('BalanceUpdate')
+          expect(latestBalanceUpdate.amount.value).to.equal('-1')
+
+          // Send back to clean up
+          const cleanupTransferTx = await tl2.payment.prepare(
+            networkWithoutInterestRates.address,
+            user1.address,
+            1
+          )
+          await tl2.trustline.confirm(cleanupTransferTx.rawTx)
+        })
+      })
+
       describe('#prepareAccept()', () => {
         it('should prepare accept tx for network WITHOUT interest rates', async () => {
           await expect(
