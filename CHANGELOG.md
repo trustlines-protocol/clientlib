@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.13.0] - 2020-04-15
+
+### Changed
+
+- Transaction fees will now have undefined `currencyNetworkOfFees` when delegation fees are zero instead of `zeroAddress` (BREAKING)
+- Meta transactions will now use `feeRecipient` given by the relay provider (BREAKING)
+- User `user` and `counterparty` instead of `address` for TrustlineObject and TrustlineRaw types.
+  The previous `address` now corresponds to `counterparty` (BREAKING)
+- Use gas limits from contracts tests for transactions and meta transactions
+
+### Added
+
+- Added function to get trustline balance updates `Trustline.getTrustlineBalanceUpdates`
+- Added function to get transfer details `Payment.getTransferDetails` either from tx hash or event identifier: (blockHash, logIndex)
+- Events now include `blockHash` and `logIndex`
+- Added function to decline payment requests `Messaging.paymentRequestDecline`
+- Added function to check for tx status via tx hash or meta-tx status either via enveloping tx-hash or raw-tx `Transaction.getTxStatus`
+
 ## [0.12.1] - 2020-02-20
 
 ### Changed
