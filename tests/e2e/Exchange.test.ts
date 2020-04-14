@@ -235,7 +235,7 @@ describe('e2e', () => {
       let makerTLBefore
       let takerTLBefore
       let order
-      let fillTxId
+      let fillTxHash
 
       before(async () => {
         order = await tl1.exchange.makeOrder(
@@ -255,7 +255,7 @@ describe('e2e', () => {
 
       it('should confirm a signed fill order tx for TL money <-> TL money order', async () => {
         const { rawTx } = await tl2.exchange.prepTakeOrder(order, 0.5)
-        fillTxId = await tl2.exchange.confirm(rawTx)
+        fillTxHash = await tl2.exchange.confirm(rawTx)
         await wait()
         const trustlines = await Promise.all([
           tl2.trustline.get(makerTokenAddress, tl1.user.address),
@@ -280,7 +280,7 @@ describe('e2e', () => {
       it('should return LogFill event', async () => {
         const logs = await tl1.exchange.getLogs(exchangeAddress)
         const [latestLogFill] = logs.filter(
-          ({ transactionId }) => transactionId === fillTxId
+          ({ transactionHash }) => transactionHash === fillTxHash
         )
         expect(latestLogFill.orderHash).to.equal(order.hash)
       })
@@ -288,7 +288,7 @@ describe('e2e', () => {
 
     describe('#prepCancelOrder', () => {
       let order
-      let txId
+      let txHash
 
       before(async () => {
         order = await tl1.exchange.makeOrder(
@@ -299,19 +299,19 @@ describe('e2e', () => {
           2
         )
         const { rawTx } = await tl1.exchange.prepCancelOrder(order, 1)
-        txId = await tl1.exchange.confirm(rawTx)
+        txHash = await tl1.exchange.confirm(rawTx)
         await wait()
       })
 
       it('should return tx hash', async () => {
-        expect(txId).to.be.a('string')
+        expect(txHash).to.be.a('string')
       })
 
       it('should return LogCancel event', async () => {
         const logs = await tl1.exchange.getLogs(exchangeAddress)
         const latestLog = logs[logs.length - 1]
         expect(latestLog.type).to.eq('LogCancel')
-        expect(latestLog.transactionId).to.eq(txId)
+        expect(latestLog.transactionHash).to.eq(txHash)
         expect(latestLog.orderHash).to.eq(order.hash)
       })
     })
@@ -326,7 +326,7 @@ describe('e2e', () => {
         'timestamp',
         'blockNumber',
         'status',
-        'transactionId',
+        'transactionHash',
         'blockHash',
         'logIndex',
         'from',
@@ -342,8 +342,8 @@ describe('e2e', () => {
         'cancelledTakerAmount'
       ])
       let order
-      let fillTxId
-      let cancelTxId
+      let fillTxHash
+      let cancelTxHash
 
       before(async () => {
         order = await tl1.exchange.makeOrder(
@@ -357,12 +357,12 @@ describe('e2e', () => {
           tl2.exchange.prepTakeOrder(order, 1),
           tl1.exchange.prepCancelOrder(order, 1)
         ])
-        const txIds = await Promise.all([
+        const txHashs = await Promise.all([
           tl2.exchange.confirm(fillTx.rawTx),
           tl1.exchange.confirm(cancelTx.rawTx)
         ])
-        fillTxId = txIds[0]
-        cancelTxId = txIds[1]
+        fillTxHash = txHashs[0]
+        cancelTxHash = txHashs[1]
         await wait()
       })
 
@@ -372,10 +372,10 @@ describe('e2e', () => {
         const [fillEvent] = filteredEvents.filter(e => e.type === 'LogFill')
         const [cancelEvent] = filteredEvents.filter(e => e.type === 'LogCancel')
         expect(filteredEvents).to.have.length(2)
-        expect(fillEvent).to.have.keys(fillEventKeys)
-        expect(fillEvent.transactionId).to.equal(fillTxId)
-        expect(cancelEvent).to.have.keys(cancelEventKeys)
-        expect(cancelEvent.transactionId).to.equal(cancelTxId)
+        expect(fillEvent).to.include.all.keys(fillEventKeys)
+        expect(fillEvent.transactionHash).to.equal(fillTxHash)
+        expect(cancelEvent).to.include.all.keys(cancelEventKeys)
+        expect(cancelEvent.transactionHash).to.equal(cancelTxHash)
       })
 
       it('should return LogFill events', async () => {
@@ -386,9 +386,9 @@ describe('e2e', () => {
           e => e.orderHash === order.hash
         )
         expect(filteredEvents).to.have.length(1)
-        expect(filteredEvents[0]).to.have.keys(fillEventKeys)
+        expect(filteredEvents[0]).to.include.all.keys(fillEventKeys)
         expect(filteredEvents[0].type).to.equal('LogFill')
-        expect(filteredEvents[0].transactionId).to.equal(fillTxId)
+        expect(filteredEvents[0].transactionHash).to.equal(fillTxHash)
       })
 
       it('should return LogCancel events', async () => {
@@ -399,9 +399,9 @@ describe('e2e', () => {
           e => e.orderHash === order.hash
         )
         expect(filteredEvents).to.have.length(1)
-        expect(filteredEvents[0]).to.have.keys(cancelEventKeys)
+        expect(filteredEvents[0]).to.include.all.keys(cancelEventKeys)
         expect(filteredEvents[0].type).to.equal('LogCancel')
-        expect(filteredEvents[0].transactionId).to.equal(cancelTxId)
+        expect(filteredEvents[0].transactionHash).to.equal(cancelTxHash)
       })
     })
 
@@ -454,9 +454,9 @@ describe('e2e', () => {
         tl2.exchange
           .prepTakeOrder(latestOrder, 0.5)
           .then(tx => tl2.exchange.confirm(tx.rawTx))
-          .then(txId => {
+          .then(txHash => {
             setTimeout(() => {
-              expect(txId).to.be.a('string')
+              expect(txHash).to.be.a('string')
               Promise.all([
                 tl2.trustline.getAll(makerTokenAddress)
                 // TODO get dummy token balance

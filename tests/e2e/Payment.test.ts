@@ -277,9 +277,9 @@ describe('e2e', () => {
             1,
             { extraData }
           )
-          const txId = await tl1.payment.confirm(rawTx)
+          const txHash = await tl1.payment.confirm(rawTx)
           await wait()
-          expect(txId).to.be.a('string')
+          expect(txHash).to.be.a('string')
           expect(
             (await tl1.trustline.get(network.address, user2.address)).balance
               .value
@@ -294,9 +294,9 @@ describe('e2e', () => {
             1,
             options
           )
-          const txId = await tl1.payment.confirm(rawTx)
+          const txHash = await tl1.payment.confirm(rawTx)
           await wait()
-          expect(txId).to.be.a('string')
+          expect(txHash).to.be.a('string')
         })
       })
 
@@ -331,7 +331,7 @@ describe('e2e', () => {
           expect(latestTransfer.networkAddress).to.be.a('string')
           expect(latestTransfer.status).to.be.a('string')
           expect(latestTransfer.timestamp).to.be.a('number')
-          expect(latestTransfer.transactionId).to.be.a('string')
+          expect(latestTransfer.transactionHash).to.be.a('string')
           expect(latestTransfer.type).to.equal('Transfer')
         })
       })

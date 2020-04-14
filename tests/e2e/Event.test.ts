@@ -100,15 +100,15 @@ describe('e2e', () => {
     })
 
     describe('#getAll()', async () => {
-      let updateTxId
-      let acceptTxId
-      let cancelUpdateTxId
-      let tlTransferTxId
-      let depositTxId
-      let withdrawTxId
-      let transferTxId
-      let fillTxId
-      let cancelTxId
+      let updateTxHash
+      let acceptTxHash
+      let cancelUpdateTxHash
+      let tlTransferTxHash
+      let depositTxHash
+      let withdrawTxHash
+      let transferTxHash
+      let fillTxHash
+      let cancelTxHash
       let order
 
       before(async () => {
@@ -127,13 +127,13 @@ describe('e2e', () => {
           1000,
           500
         )
-        updateTxId = await tl1.trustline.confirm(updateTx.rawTx)
+        updateTxHash = await tl1.trustline.confirm(updateTx.rawTx)
         await wait()
         const cancelUpdateTx = await tl1.trustline.prepareCancelTrustlineUpdate(
           network2.address,
           user2.address
         )
-        cancelUpdateTxId = await tl1.trustline.confirm(cancelUpdateTx.rawTx)
+        cancelUpdateTxHash = await tl1.trustline.confirm(cancelUpdateTx.rawTx)
         await wait()
         const secondUpdateTx = await tl1.trustline.prepareUpdate(
           network2.address,
@@ -149,7 +149,7 @@ describe('e2e', () => {
           500,
           1000
         )
-        acceptTxId = await tl2.trustline.confirm(acceptTx.rawTx)
+        acceptTxHash = await tl2.trustline.confirm(acceptTx.rawTx)
         await wait()
         const tlTransferTx = await tl1.payment.prepare(
           network2.address,
@@ -157,7 +157,7 @@ describe('e2e', () => {
           1,
           { extraData }
         )
-        tlTransferTxId = await tl1.payment.confirm(tlTransferTx.rawTx)
+        tlTransferTxHash = await tl1.payment.confirm(tlTransferTx.rawTx)
         await wait()
 
         // Token events
@@ -165,20 +165,20 @@ describe('e2e', () => {
           ethWrapperAddress,
           0.005
         )
-        depositTxId = await tl1.ethWrapper.confirm(depositTx.rawTx)
+        depositTxHash = await tl1.ethWrapper.confirm(depositTx.rawTx)
         await wait()
         const withdrawTx = await tl1.ethWrapper.prepWithdraw(
           ethWrapperAddress,
           0.001
         )
-        withdrawTxId = await tl1.ethWrapper.confirm(withdrawTx.rawTx)
+        withdrawTxHash = await tl1.ethWrapper.confirm(withdrawTx.rawTx)
         await wait()
         const transferTx = await tl1.ethWrapper.prepTransfer(
           ethWrapperAddress,
           tl2.user.address,
           0.002
         )
-        transferTxId = await tl1.ethWrapper.confirm(transferTx.rawTx)
+        transferTxHash = await tl1.ethWrapper.confirm(transferTx.rawTx)
         await wait()
 
         // Exchange events
@@ -194,12 +194,12 @@ describe('e2e', () => {
           tl1.exchange.prepCancelOrder(order, 1)
         ])
 
-        const exTxIds = await Promise.all([
+        const exTxHashs = await Promise.all([
           tl2.exchange.confirm(fillTx.rawTx),
           tl1.exchange.confirm(cancelTx.rawTx)
         ])
-        fillTxId = exTxIds[0]
-        cancelTxId = exTxIds[1]
+        fillTxHash = exTxHashs[0]
+        cancelTxHash = exTxHashs[1]
         await wait()
       })
 
@@ -208,7 +208,7 @@ describe('e2e', () => {
 
         // events thrown on trustline update request
         const updateRequestEvents = allEvents.filter(
-          ({ transactionId }) => transactionId === updateTxId
+          ({ transactionHash }) => transactionHash === updateTxHash
         )
         // check event TrustlineUpdateRequest
         expect(
@@ -219,7 +219,7 @@ describe('e2e', () => {
         expect(updateRequestEvents[0].timestamp).to.be.a('number')
         expect(updateRequestEvents[0].blockNumber).to.be.a('number')
         expect(updateRequestEvents[0].status).to.be.a('string')
-        expect(updateRequestEvents[0].transactionId).to.equal(updateTxId)
+        expect(updateRequestEvents[0].transactionHash).to.equal(updateTxHash)
         expect(updateRequestEvents[0].blockHash).to.be.a('string')
         expect(updateRequestEvents[0].logIndex).to.be.a('number')
         expect(updateRequestEvents[0].direction).to.equal('sent')
@@ -242,7 +242,7 @@ describe('e2e', () => {
 
         // events thrown on trustline update cancel
         const cancelUpdateEvents = allEvents.filter(
-          ({ transactionId }) => transactionId === cancelUpdateTxId
+          ({ transactionHash }) => transactionHash === cancelUpdateTxHash
         )
         // check event TrustlineUpdateCancel
         expect(
@@ -253,7 +253,9 @@ describe('e2e', () => {
         expect(cancelUpdateEvents[0].timestamp).to.be.a('number')
         expect(cancelUpdateEvents[0].blockNumber).to.be.a('number')
         expect(cancelUpdateEvents[0].status).to.be.a('string')
-        expect(cancelUpdateEvents[0].transactionId).to.equal(cancelUpdateTxId)
+        expect(cancelUpdateEvents[0].transactionHash).to.equal(
+          cancelUpdateTxHash
+        )
         expect(cancelUpdateEvents[0].blockHash).to.be.a('string')
         expect(cancelUpdateEvents[0].logIndex).to.be.a('number')
         expect(cancelUpdateEvents[0].direction).to.equal('sent')
@@ -267,7 +269,7 @@ describe('e2e', () => {
 
         // events thrown on trustline update
         const updateEvents = allEvents.filter(
-          ({ transactionId }) => transactionId === acceptTxId
+          ({ transactionHash }) => transactionHash === acceptTxHash
         )
         // check event TrustlineUpdate
         expect(updateEvents, 'Trustline Update should exist').to.have.length(1)
@@ -275,7 +277,7 @@ describe('e2e', () => {
         expect(updateEvents[0].timestamp).to.be.a('number')
         expect(updateEvents[0].blockNumber).to.be.a('number')
         expect(updateEvents[0].status).to.be.a('string')
-        expect(updateEvents[0].transactionId).to.equal(acceptTxId)
+        expect(updateEvents[0].transactionHash).to.equal(acceptTxHash)
         expect(updateEvents[0].blockHash).to.be.a('string')
         expect(updateEvents[0].logIndex).to.be.a('number')
         expect(updateEvents[0].direction).to.equal('sent')
@@ -298,7 +300,7 @@ describe('e2e', () => {
 
         // events thrown on trustlines transfer
         const tlTransferEvents = allEvents.filter(
-          ({ transactionId }) => transactionId === tlTransferTxId
+          ({ transactionHash }) => transactionHash === tlTransferTxHash
         )
         // check event Trustlines Transfer
         expect(
@@ -309,7 +311,7 @@ describe('e2e', () => {
         expect(tlTransferEvents[0].timestamp).to.be.a('number')
         expect(tlTransferEvents[0].blockNumber).to.be.a('number')
         expect(tlTransferEvents[0].status).to.be.a('string')
-        expect(tlTransferEvents[0].transactionId).to.equal(tlTransferTxId)
+        expect(tlTransferEvents[0].transactionHash).to.equal(tlTransferTxHash)
         expect(tlTransferEvents[0].blockHash).to.be.a('string')
         expect(tlTransferEvents[0].logIndex).to.be.a('number')
         expect(tlTransferEvents[0].from).to.equal(tl1.user.address)
@@ -329,7 +331,7 @@ describe('e2e', () => {
 
         // events thrown on deposit
         const depositEvents = allEvents.filter(
-          ({ transactionId }) => transactionId === depositTxId
+          ({ transactionHash }) => transactionHash === depositTxHash
         )
         // check event Deposit
         expect(depositEvents, 'Deposit should exist').to.have.length(1)
@@ -337,7 +339,7 @@ describe('e2e', () => {
         expect(depositEvents[0].timestamp).to.be.a('number')
         expect(depositEvents[0].blockNumber).to.be.a('number')
         expect(depositEvents[0].status).to.be.a('string')
-        expect(depositEvents[0].transactionId).to.equal(depositTxId)
+        expect(depositEvents[0].transactionHash).to.equal(depositTxHash)
         expect(depositEvents[0].blockHash).to.be.a('string')
         expect(depositEvents[0].logIndex).to.be.a('number')
         expect(depositEvents[0].from).to.equal(tl1.user.address)
@@ -355,7 +357,7 @@ describe('e2e', () => {
 
         // events thrown on withdraw
         const withdrawEvents = allEvents.filter(
-          ({ transactionId }) => transactionId === withdrawTxId
+          ({ transactionHash }) => transactionHash === withdrawTxHash
         )
         // check event Withdraw
         expect(withdrawEvents, 'Withdraw should exist').to.have.length(1)
@@ -363,7 +365,7 @@ describe('e2e', () => {
         expect(withdrawEvents[0].timestamp).to.be.a('number')
         expect(withdrawEvents[0].blockNumber).to.be.a('number')
         expect(withdrawEvents[0].status).to.be.a('string')
-        expect(withdrawEvents[0].transactionId).to.equal(withdrawTxId)
+        expect(withdrawEvents[0].transactionHash).to.equal(withdrawTxHash)
         expect(withdrawEvents[0].blockHash).to.be.a('string')
         expect(withdrawEvents[0].logIndex).to.be.a('number')
         expect(withdrawEvents[0].from).to.equal(tl1.user.address)
@@ -381,8 +383,8 @@ describe('e2e', () => {
 
         // events thrown on wrapped eth transfer
         const wethTransferEvents = allEvents.filter(
-          ({ transactionId, type }) =>
-            transactionId === transferTxId && type === 'Transfer'
+          ({ transactionHash, type }) =>
+            transactionHash === transferTxHash && type === 'Transfer'
         )
         // check event Wrapped ETH Transfer
         expect(wethTransferEvents, 'ETH Transfer should exist').to.have.length(
@@ -392,7 +394,7 @@ describe('e2e', () => {
         expect(wethTransferEvents[0].timestamp).to.be.a('number')
         expect(wethTransferEvents[0].blockNumber).to.be.a('number')
         expect(wethTransferEvents[0].status).to.be.a('string')
-        expect(wethTransferEvents[0].transactionId).to.equal(transferTxId)
+        expect(wethTransferEvents[0].transactionHash).to.equal(transferTxHash)
         expect(wethTransferEvents[0].blockHash).to.be.a('string')
         expect(wethTransferEvents[0].logIndex).to.be.a('number')
         expect(wethTransferEvents[0].from).to.equal(tl1.user.address)
@@ -411,8 +413,8 @@ describe('e2e', () => {
 
         // events thrown on fill order
         const fillEvents = allEvents.filter(
-          ({ transactionId, type }) =>
-            transactionId === fillTxId && type === 'LogFill'
+          ({ transactionHash, type }) =>
+            transactionHash === fillTxHash && type === 'LogFill'
         )
         // check event LogFill
         expect(fillEvents, 'Log Fill should exist').to.have.length(1)
@@ -420,7 +422,7 @@ describe('e2e', () => {
         expect(fillEvents[0].timestamp).to.be.a('number')
         expect(fillEvents[0].blockNumber).to.be.a('number')
         expect(fillEvents[0].status).to.be.a('string')
-        expect(fillEvents[0].transactionId).to.equal(fillTxId)
+        expect(fillEvents[0].transactionHash).to.equal(fillTxHash)
         expect(fillEvents[0].blockHash).to.be.a('string')
         expect(fillEvents[0].logIndex).to.be.a('number')
         expect(fillEvents[0].from).to.equal(tl1.user.address)
@@ -446,8 +448,8 @@ describe('e2e', () => {
 
         // events thrown on cancel order
         const cancelEvents = allEvents.filter(
-          ({ transactionId, type }) =>
-            transactionId === cancelTxId && type === 'LogCancel'
+          ({ transactionHash, type }) =>
+            transactionHash === cancelTxHash && type === 'LogCancel'
         )
         // check event LogCancel
         expect(cancelEvents, 'Log Cancel should exist').to.have.length(1)
@@ -455,7 +457,7 @@ describe('e2e', () => {
         expect(cancelEvents[0].timestamp).to.be.a('number')
         expect(cancelEvents[0].blockNumber).to.be.a('number')
         expect(cancelEvents[0].status).to.be.a('string')
-        expect(cancelEvents[0].transactionId).to.equal(cancelTxId)
+        expect(cancelEvents[0].transactionHash).to.equal(cancelTxHash)
         expect(cancelEvents[0].blockHash).to.be.a('string')
         expect(cancelEvents[0].logIndex).to.be.a('number')
         expect(cancelEvents[0].from).to.equal(tl1.user.address)

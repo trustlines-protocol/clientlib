@@ -260,7 +260,7 @@ describe('e2e', () => {
           expect(latestLog.tokenAddress).to.equal(ethWrapperAddress)
           expect(latestLog.status).to.be.a('string')
           expect(latestLog.timestamp).to.be.a('number')
-          expect(latestLog.transactionId).to.be.a('string')
+          expect(latestLog.transactionHash).to.be.a('string')
           expect(latestLog.type).to.equal('Deposit')
         })
 
@@ -275,7 +275,7 @@ describe('e2e', () => {
           expect(latestLog.tokenAddress).to.equal(ethWrapperAddress)
           expect(latestLog.status).to.be.a('string')
           expect(latestLog.timestamp).to.be.a('number')
-          expect(latestLog.transactionId).to.be.a('string')
+          expect(latestLog.transactionHash).to.be.a('string')
           expect(latestLog.type).to.equal('Withdrawal')
         })
 
@@ -292,7 +292,7 @@ describe('e2e', () => {
           expect(latestLog.to).to.equal(tl2.user.address)
           expect(latestLog.counterParty).to.equal(tl2.user.address)
           expect(latestLog.user).to.equal(tl1.user.address)
-          expect(latestLog.transactionId).to.be.a('string')
+          expect(latestLog.transactionHash).to.be.a('string')
           expect(latestLog.type).to.equal('Transfer')
         })
       })

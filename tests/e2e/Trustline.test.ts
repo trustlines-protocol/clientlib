@@ -129,7 +129,7 @@ describe('e2e', () => {
           await wait()
         })
 
-        it('should return txId for network WITHOUT interest rates', async () => {
+        it('should return txHash for network WITHOUT interest rates', async () => {
           const txWithoutInterestRates = await tl1.trustline.prepareUpdate(
             networkWithoutInterestRates.address,
             user2.address,
@@ -141,7 +141,7 @@ describe('e2e', () => {
           ).to.eventually.be.a('string')
         })
 
-        it('should return txId for network with DEFAULT interest rates', async () => {
+        it('should return txHash for network with DEFAULT interest rates', async () => {
           const txDefaultInterestRates = await tl1.trustline.prepareUpdate(
             networkWithoutInterestRates.address,
             user2.address,
@@ -153,7 +153,7 @@ describe('e2e', () => {
           ).to.eventually.be.a('string')
         })
 
-        it('should return txId for network with CUSTOM interest rates', async () => {
+        it('should return txHash for network with CUSTOM interest rates', async () => {
           const txCustomInterestRates = await tl1.trustline.prepareUpdate(
             networkWithoutInterestRates.address,
             user2.address,
@@ -170,7 +170,7 @@ describe('e2e', () => {
           ).to.eventually.be.a('string')
         })
 
-        it('should return txId for trustline update request with freezing', async () => {
+        it('should return txHash for trustline update request with freezing', async () => {
           const txFreezing = await tl1.trustline.prepareUpdate(
             networkCustomInterestRates.address,
             user2.address,
@@ -213,7 +213,7 @@ describe('e2e', () => {
           await wait()
         })
 
-        it('should return txId for trustline update cancel tx', async () => {
+        it('should return txHash for trustline update cancel tx', async () => {
           const { rawTx } = await tl1.trustline.prepareUpdate(
             networkWithoutInterestRates.address,
             user2.address,
@@ -246,7 +246,7 @@ describe('e2e', () => {
             given,
             received
           )
-          const txId = await tl1.trustline.confirm(rawTx)
+          const txHash = await tl1.trustline.confirm(rawTx)
 
           // make sure tx is mined
           await wait()
@@ -257,7 +257,7 @@ describe('e2e', () => {
           const latestRequest = requests[requests.length - 1]
           expect(latestRequest.direction).to.equal('sent')
           expect(latestRequest.from).to.equal(user1.address)
-          expect(latestRequest.transactionId).to.equal(txId)
+          expect(latestRequest.transactionHash).to.equal(txHash)
           expect(latestRequest.to).to.equal(user2.address)
           expect(latestRequest.blockNumber).to.be.a('number')
           expect(latestRequest.timestamp).to.be.a('number')
@@ -298,7 +298,7 @@ describe('e2e', () => {
             given,
             received
           )
-          const txId = await tl1.trustline.confirm(rawTx)
+          const txHash = await tl1.trustline.confirm(rawTx)
 
           // make sure tx is mined
           await wait()
@@ -309,7 +309,7 @@ describe('e2e', () => {
           const latestRequest = requests[requests.length - 1]
           expect(latestRequest.direction).to.equal('sent')
           expect(latestRequest.from).to.equal(user1.address)
-          expect(latestRequest.transactionId).to.equal(txId)
+          expect(latestRequest.transactionHash).to.equal(txHash)
           expect(latestRequest.to).to.equal(user2.address)
           expect(latestRequest.blockNumber).to.be.a('number')
           expect(latestRequest.timestamp).to.be.a('number')
@@ -359,7 +359,7 @@ describe('e2e', () => {
               isFrozen
             }
           )
-          const txId = await tl1.trustline.confirm(rawTx)
+          const txHash = await tl1.trustline.confirm(rawTx)
 
           // make sure tx is mined
           await wait()
@@ -370,7 +370,7 @@ describe('e2e', () => {
           const latestRequest = requests[requests.length - 1]
           expect(latestRequest.direction).to.equal('sent')
           expect(latestRequest.from).to.equal(user1.address)
-          expect(latestRequest.transactionId).to.equal(txId)
+          expect(latestRequest.transactionHash).to.equal(txHash)
           expect(latestRequest.to).to.equal(user2.address)
           expect(latestRequest.blockNumber).to.be.a('number')
           expect(latestRequest.timestamp).to.be.a('number')
@@ -416,7 +416,7 @@ describe('e2e', () => {
             received,
             { interestRateGiven, interestRateReceived, isFrozen: true }
           )
-          const txId = await tl1.trustline.confirm(rawTx)
+          const txHash = await tl1.trustline.confirm(rawTx)
 
           // make sure tx is mined
           await wait()
@@ -427,7 +427,7 @@ describe('e2e', () => {
           const latestRequest = requests[requests.length - 1]
           expect(latestRequest.direction).to.equal('sent')
           expect(latestRequest.from).to.equal(user1.address)
-          expect(latestRequest.transactionId).to.equal(txId)
+          expect(latestRequest.transactionHash).to.equal(txHash)
           expect(latestRequest.to).to.equal(user2.address)
           expect(latestRequest.blockNumber).to.be.a('number')
           expect(latestRequest.timestamp).to.be.a('number')
@@ -479,7 +479,7 @@ describe('e2e', () => {
             networkWithoutInterestRates.address,
             user2.address
           )
-          const txId = await tl1.trustline.confirm(cancelUpdateTx.rawTx)
+          const txHash = await tl1.trustline.confirm(cancelUpdateTx.rawTx)
 
           // make sure tx is mined
           await wait()
@@ -490,7 +490,7 @@ describe('e2e', () => {
           const latestRequest = requests[requests.length - 1]
           expect(latestRequest.direction).to.equal('sent')
           expect(latestRequest.from).to.equal(user1.address)
-          expect(latestRequest.transactionId).to.equal(txId)
+          expect(latestRequest.transactionHash).to.equal(txHash)
           expect(latestRequest.to).to.equal(user2.address)
           expect(latestRequest.blockNumber).to.be.a('number')
           expect(latestRequest.timestamp).to.be.a('number')
@@ -525,7 +525,7 @@ describe('e2e', () => {
             user2.address,
             1
           )
-          const txId = await tl1.trustline.confirm(transferTx.rawTx)
+          const txHash = await tl1.trustline.confirm(transferTx.rawTx)
 
           // make sure tx is mined
           await wait()
@@ -543,7 +543,7 @@ describe('e2e', () => {
             balanceUpdateEvents[balanceUpdateEvents.length - 1]
           expect(latestBalanceUpdate.direction).to.equal('sent')
           expect(latestBalanceUpdate.from).to.equal(user1.address)
-          expect(latestBalanceUpdate.transactionId).to.equal(txId)
+          expect(latestBalanceUpdate.transactionHash).to.equal(txHash)
           expect(latestBalanceUpdate.to).to.equal(user2.address)
           expect(latestBalanceUpdate.blockNumber).to.be.a('number')
           expect(latestBalanceUpdate.timestamp).to.be.a('number')
@@ -629,9 +629,9 @@ describe('e2e', () => {
         const interestRateReceived = 0.02
         const isFrozen = false
 
-        let acceptTxIdWithoutInterestRates
-        let acceptTxIdDefaultInterestRates
-        let acceptTxIdCustomInterestRates
+        let acceptTxHashWithoutInterestRates
+        let acceptTxHashDefaultInterestRates
+        let acceptTxHashCustomInterestRates
 
         before(async () => {
           const updateTxWithoutInterestRates = await tl1.trustline.prepareUpdate(
@@ -675,7 +675,7 @@ describe('e2e', () => {
             received,
             given
           )
-          acceptTxIdWithoutInterestRates = await tl2.trustline.confirm(
+          acceptTxHashWithoutInterestRates = await tl2.trustline.confirm(
             acceptTxWithoutInterestRates.rawTx
           )
 
@@ -687,7 +687,7 @@ describe('e2e', () => {
             received,
             given
           )
-          acceptTxIdDefaultInterestRates = await tl2.trustline.confirm(
+          acceptTxHashDefaultInterestRates = await tl2.trustline.confirm(
             acceptTxDefaultInterestRates.rawTx
           )
 
@@ -704,7 +704,7 @@ describe('e2e', () => {
               isFrozen
             }
           )
-          acceptTxIdCustomInterestRates = await tl2.trustline.confirm(
+          acceptTxHashCustomInterestRates = await tl2.trustline.confirm(
             acceptTxCustomInterestRates.rawTx
           )
 
@@ -727,8 +727,8 @@ describe('e2e', () => {
             networkWithoutInterestRates.address
           )
           expect(latestUpdate.status).to.be.a('string')
-          expect(latestUpdate.transactionId).to.equal(
-            acceptTxIdWithoutInterestRates
+          expect(latestUpdate.transactionHash).to.equal(
+            acceptTxHashWithoutInterestRates
           )
           expect(latestUpdate.type).to.equal('TrustlineUpdate')
           expect(latestUpdate.received).to.have.keys('raw', 'value', 'decimals')
@@ -766,8 +766,8 @@ describe('e2e', () => {
             networkDefaultInterestRates.address
           )
           expect(latestUpdate.status).to.be.a('string')
-          expect(latestUpdate.transactionId).to.equal(
-            acceptTxIdDefaultInterestRates
+          expect(latestUpdate.transactionHash).to.equal(
+            acceptTxHashDefaultInterestRates
           )
           expect(latestUpdate.type).to.equal('TrustlineUpdate')
           expect(latestUpdate.received).to.have.keys('raw', 'value', 'decimals')
@@ -809,8 +809,8 @@ describe('e2e', () => {
             networkCustomInterestRates.address
           )
           expect(latestUpdate.status).to.be.a('string')
-          expect(latestUpdate.transactionId).to.equal(
-            acceptTxIdCustomInterestRates
+          expect(latestUpdate.transactionHash).to.equal(
+            acceptTxHashCustomInterestRates
           )
           expect(latestUpdate.type).to.equal('TrustlineUpdate')
           expect(latestUpdate.received).to.have.keys('raw', 'value', 'decimals')
@@ -844,7 +844,7 @@ describe('e2e', () => {
         const interestRateReceived = 0.02
         const isFrozen = true
 
-        let acceptTxId
+        let acceptTxHash
 
         before(async () => {
           const updateTx = await tl1.trustline.prepareUpdate(
@@ -869,7 +869,7 @@ describe('e2e', () => {
               isFrozen
             }
           )
-          acceptTxId = await tl2.trustline.confirm(acceptTx.rawTx)
+          acceptTxHash = await tl2.trustline.confirm(acceptTx.rawTx)
 
           await wait()
         })
@@ -921,7 +921,7 @@ describe('e2e', () => {
             networkCustomInterestRates.address
           )
           expect(latestUpdate.status).to.be.a('string')
-          expect(latestUpdate.transactionId).to.equal(acceptTxId)
+          expect(latestUpdate.transactionHash).to.equal(acceptTxHash)
           expect(latestUpdate.type).to.equal('TrustlineUpdate')
           expect(latestUpdate.received).to.have.keys('raw', 'value', 'decimals')
           expect(latestUpdate.received.value).to.eq(received.toString())
@@ -953,7 +953,7 @@ describe('e2e', () => {
             networkWithoutInterestRates.address,
             user2.address
           )
-          expect(trustline).to.have.keys([
+          expect(trustline).to.include.all.keys([
             'counterParty',
             'currencyNetwork',
             'user',
