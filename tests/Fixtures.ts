@@ -305,7 +305,7 @@ export const FAKE_TRANSFER_EVENT = {
   status: 'pending',
   timestamp: 123456789,
   to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  transactionId:
+  transactionHash:
     '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
   type: 'Transfer',
   user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
@@ -325,7 +325,7 @@ export const FAKE_FORMATTED_TRANSFER_EVENT = {
   status: 'pending',
   timestamp: 123456789,
   to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  transactionId:
+  transactionHash:
     '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
   type: 'Transfer',
   user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
@@ -345,7 +345,7 @@ export const FAKE_TRUSTLINE_UPDATE_REQUEST_EVENT = {
   status: 'pending',
   timestamp: 123456789,
   to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  transactionId:
+  transactionHash:
     '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
   type: 'TrustlineUpdateRequest',
   user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
@@ -364,7 +364,7 @@ export const FAKE_TRUSTLINE_UPDATE_EVENT = {
   status: 'pending',
   timestamp: 123456789,
   to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  transactionId:
+  transactionHash:
     '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
   type: 'TrustlineUpdate',
   user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
@@ -379,7 +379,7 @@ export const FAKE_TRUSTLINE_CANCEL_EVENT = {
   status: 'pending',
   timestamp: 123456789,
   to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  transactionId:
+  transactionHash:
     '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
   type: 'TrustlineUpdateCancel',
   user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
@@ -395,7 +395,7 @@ export const FAKE_TOKEN_EVENT = {
   timestamp: 123456789,
   to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
   tokenAddress: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
-  transactionId:
+  transactionHash:
     '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
   type: 'Transfer',
   user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
@@ -414,7 +414,7 @@ export const FAKE_FILL_EVENT = {
   takerTokenAddress: '0xcE2D6f8bc55A61428D32947bC9Bc7F2DE1640B18',
   timestamp: 123456789,
   to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  transactionId:
+  transactionHash:
     '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
   type: 'LogFill',
   user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'
@@ -433,7 +433,7 @@ export const FAKE_CANCEL_EVENT = {
   takerTokenAddress: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
   timestamp: 123456789,
   to: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
-  transactionId:
+  transactionHash:
     '0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b',
   type: 'LogCancel',
   user: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA'

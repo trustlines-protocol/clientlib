@@ -109,7 +109,7 @@ export interface BlockchainEvent {
   timestamp: number
   blockNumber: number
   status: string
-  transactionId: string
+  transactionHash: string
   blockHash: string
   logIndex: number
 }

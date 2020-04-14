@@ -154,8 +154,8 @@ describe('unit', () => {
           100,
           200
         )
-        const txId = await trustline.confirm(rawTx)
-        assert.isString(txId)
+        const txHash = await trustline.confirm(rawTx)
+        assert.isString(txHash)
       })
     })
 
