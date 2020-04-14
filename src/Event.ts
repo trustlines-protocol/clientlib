@@ -69,7 +69,7 @@ export class Event {
     } = {}
   ): Promise<T[]> {
     const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/events`
-    const parameterUrl = utils.buildUrl(baseUrl, filter)
+    const parameterUrl = utils.buildUrl(baseUrl, { query: filter })
     const [
       events,
       { networkDecimals, interestRateDecimals }
@@ -96,7 +96,7 @@ export class Event {
    */
   public async getAll(filter: EventFilterOptions = {}): Promise<AnyEvent[]> {
     const endpoint = `users/${await this.user.getAddress()}/events`
-    const parameterUrl = utils.buildUrl(endpoint, filter)
+    const parameterUrl = utils.buildUrl(endpoint, { query: filter })
     const events = await this.provider.fetchEndpoint<AnyEventRaw[]>(
       parameterUrl
     )

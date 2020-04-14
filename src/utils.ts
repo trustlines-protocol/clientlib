@@ -37,6 +37,8 @@ if (
   BigNumber.config({ CRYPTO: true })
 }
 
+export const defaultBaseUrl = 'trustlines://'
+
 /**
  * Returns a `Promise` with a JSON object from given URL.
  * @param url
@@ -127,41 +129,41 @@ export const websocketStream = (
 /**
  * Encodes URI components and returns a URL.
  * @param baseUrl base URL
- * @param params (optional) parameters for queries
+ * @param options - additional parts of the URL if provided (path and query)
+ *        options.path - the path part of the URL
+ *        options.query - the query part of the URL
  */
-export const buildUrl = (baseUrl: string, params?: any[] | object): string => {
-  if (Array.isArray(params)) {
-    return params.reduce(
+export const buildUrl = (
+  baseUrl: string,
+  options?: { path?: string[]; query?: object }
+): string => {
+  // typescript bug: https://github.com/microsoft/TypeScript/issues/26235
+  const x = options || {}
+  const { path, query } = x
+  baseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+
+  if (Array.isArray(path)) {
+    baseUrl = path.reduce(
       (acc, param, i) =>
-        `${acc}${encodeURIComponent(param)}${
-          i === params.length - 1 ? '' : '/'
-        }`,
-      baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+        `${acc}${encodeURIComponent(param)}${i === path.length - 1 ? '' : '/'}`,
+      baseUrl
     )
   }
-  if (typeof params === 'object') {
-    const paramKeys = Object.keys(params)
-    return paramKeys
-      .filter(key => params[key])
+
+  if (typeof query === 'object') {
+    const paramKeys = Object.keys(query)
+    baseUrl = paramKeys
+      .filter(key => query[key])
       .reduce(
         (acc, paramKey) =>
           `${acc}${
             acc.indexOf('?') === -1 ? '?' : '&'
-          }${paramKey}=${encodeURIComponent(params[paramKey])}`,
+          }${paramKey}=${encodeURIComponent(query[paramKey])}`,
         baseUrl.endsWith('/') ? baseUrl.slice(0, baseUrl.length - 1) : baseUrl
       )
   }
-  return baseUrl
-}
 
-/**
- * Returns a `trustlines://` link.
- * @param params Parameters of link.
- * @param customBase Optional custom base instead of `trustlines://`.
- */
-export const createLink = (params: any[], customBase?: string): string => {
-  const base = customBase || 'trustlines://'
-  return buildUrl(base, params)
+  return baseUrl.endsWith('/') ? baseUrl.slice(0, baseUrl.length - 1) : baseUrl
 }
 
 /**
@@ -517,7 +519,6 @@ export default {
   convertToAmount,
   convertToHexString,
   convertToDelegationFees,
-  createLink,
   fetchUrl,
   formatToFeePayer,
   formatEndpoint,
