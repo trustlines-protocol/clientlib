@@ -95,12 +95,17 @@ export class Payment {
     networkAddress: string,
     receiverAddress: string,
     value: number | string,
-    options: PaymentOptions = {}
+    options: PaymentOptions = {},
+    referenceId: string = ''
   ): Promise<PaymentTxObject> {
     const { gasPrice, gasLimit, networkDecimals, extraData } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
+    const extraDataWithReferenceId = this.extendExtraDataByReferenceId(
+      extraData,
+      referenceId
+    )
     const { path, maxFees, feePayer } = await this.getTransferPathInfo(
       networkAddress,
       await this.user.getAddress(),
@@ -127,7 +132,7 @@ export class Payment {
           ),
           utils.convertToHexString(new BigNumber(maxFees.raw)),
           path,
-          extraData || '0x'
+          extraDataWithReferenceId
         ],
         {
           gasLimit: gasLimit
@@ -436,6 +441,22 @@ export class Payment {
       feesPaid: transferInformation.feesPaid.map(feesPaidRaw =>
         utils.formatToAmount(feesPaidRaw, networkDecimals)
       )
+    }
+  }
+
+  private extendExtraDataByReferenceId(
+    extraData: string,
+    referenceId: string = ''
+  ): string {
+    // TODO:
+    // Implement some useful encoding. This here simply makes sure that the
+    // String concatenations works.
+    if (!extraData && !referenceId) {
+      return '0x'
+    } else if (!extraData) {
+      return referenceId
+    } else {
+      return extraData + referenceId
     }
   }
 }
