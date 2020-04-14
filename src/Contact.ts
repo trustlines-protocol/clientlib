@@ -22,13 +22,15 @@ export class Contact {
    * @param address Address of contact to share.
    * @param username Name of contact to share.
    * @param customBase Optional custom base for link. Default `trustlines://`.
+   * @param queryParams Optional query params for the generated url
    */
   public createLink(
     address: string,
     username: string,
-    customBase?: string
+    customBase?: string,
+    queryParams?: object
   ): string {
     const params = ['contact', address, username]
-    return utils.createLink(params, customBase)
+    return utils.createLink(params, customBase, queryParams)
   }
 }

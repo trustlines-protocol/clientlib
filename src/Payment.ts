@@ -261,23 +261,22 @@ export class Payment {
    * Creates a payment request link.
    * @param networkAddress Address of a currency network.
    * @param amount Requested transfer amount.
-   * @param subject Additional information for payment request.
+   * @param queryParams Additional query params for the generated url
    * @param customBase Optional custom base for link. Default `trustlines://`.
    */
   public async createRequest(
     networkAddress: string,
     amount: number,
-    subject: string,
+    queryParams?: object,
     customBase?: string
   ): Promise<string> {
     const params = [
       'paymentrequest',
       networkAddress,
       await this.user.getAddress(),
-      amount,
-      subject
+      amount
     ]
-    return utils.createLink(params, customBase)
+    return utils.createLink(params, customBase, queryParams)
   }
 
   /**
@@ -364,7 +363,7 @@ export class Payment {
   ): Promise<TransferDetails[]> {
     this.validateTransferIdentifier(transferIdentifier)
 
-    const baseUrl = utils.buildUrl(`/transfers/`, {
+    const baseUrl = utils.buildUrl(`/transfers/`, [], {
       blockHash: transferIdentifier.blockHash,
       logIndex: transferIdentifier.logIndex,
       transactionHash: transferIdentifier.txHash

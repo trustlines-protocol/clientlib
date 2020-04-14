@@ -456,7 +456,7 @@ export class Trustline {
     filter: EventFilterOptions = {}
   ): Promise<AnyNetworkTrustlineEvent[]> {
     const endpoint = `networks/${networkAddress}/users/${await this.user.getAddress()}/trustlines/${counterPartyAddress}/events`
-    const parameterUrl = utils.buildUrl(endpoint, filter)
+    const parameterUrl = utils.buildUrl(endpoint, [], filter)
     const [
       events,
       { networkDecimals, interestRateDecimals }

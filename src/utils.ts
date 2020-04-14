@@ -127,41 +127,53 @@ export const websocketStream = (
 /**
  * Encodes URI components and returns a URL.
  * @param baseUrl base URL
- * @param params (optional) parameters for queries
+ * @param params (optional) path params for the url
+ * @param queryParams (optional) query params for the url
  */
-export const buildUrl = (baseUrl: string, params?: any[] | object): string => {
+export const buildUrl = (
+  baseUrl: string,
+  params?: any[],
+  queryParams?: object
+): string => {
+  baseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
   if (Array.isArray(params)) {
-    return params.reduce(
+    baseUrl = params.reduce(
       (acc, param, i) =>
         `${acc}${encodeURIComponent(param)}${
           i === params.length - 1 ? '' : '/'
         }`,
-      baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+      baseUrl
     )
   }
-  if (typeof params === 'object') {
-    const paramKeys = Object.keys(params)
-    return paramKeys
-      .filter(key => params[key])
+
+  if (typeof queryParams === 'object') {
+    const paramKeys = Object.keys(queryParams)
+    baseUrl = paramKeys
+      .filter(key => queryParams[key])
       .reduce(
         (acc, paramKey) =>
           `${acc}${
             acc.indexOf('?') === -1 ? '?' : '&'
-          }${paramKey}=${encodeURIComponent(params[paramKey])}`,
+          }${paramKey}=${encodeURIComponent(queryParams[paramKey])}`,
         baseUrl.endsWith('/') ? baseUrl.slice(0, baseUrl.length - 1) : baseUrl
       )
   }
-  return baseUrl
+  return baseUrl.endsWith('/') ? baseUrl.slice(0, baseUrl.length - 1) : baseUrl
 }
 
 /**
  * Returns a `trustlines://` link.
  * @param params Parameters of link.
  * @param customBase Optional custom base instead of `trustlines://`.
+ * @param queryParams Option query params for the generated url
  */
-export const createLink = (params: any[], customBase?: string): string => {
+export const createLink = (
+  params: any[],
+  customBase?: string,
+  queryParams?: object
+): string => {
   const base = customBase || 'trustlines://'
-  return buildUrl(base, params)
+  return buildUrl(base, params, queryParams)
 }
 
 /**

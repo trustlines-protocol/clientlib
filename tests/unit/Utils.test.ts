@@ -74,7 +74,7 @@ describe('unit', () => {
           key3: '?'
         }
         const queryUrl = 'http://test.com/api?key1=value1&key2=%20&key3=%3F'
-        assert.equal(utils.buildUrl(base, params), queryUrl)
+        assert.equal(utils.buildUrl(base, [], params), queryUrl)
       })
 
       it('should return query url with encoded params for base http://test.com/api/', () => {
@@ -85,7 +85,7 @@ describe('unit', () => {
           key3: '?'
         }
         const queryUrl = 'http://test.com/api?key1=value1&key2=%20&key3=%3F'
-        assert.equal(utils.buildUrl(base, params), queryUrl)
+        assert.equal(utils.buildUrl(base, [], params), queryUrl)
       })
 
       it('should return query url with encoded params for base trustlines://', () => {
@@ -96,7 +96,7 @@ describe('unit', () => {
           key3: '?'
         }
         const queryUrl = 'trustlines://action?key1=value1&key2=%20&key3=%3F'
-        assert.equal(utils.buildUrl(base, params), queryUrl)
+        assert.equal(utils.buildUrl(base, [], params), queryUrl)
       })
 
       it('should return url with encoded path for http://trustlines', () => {

@@ -203,9 +203,13 @@ export class User {
    * @param username Custom username.
    * @param customBase Optional custom base for link. Default `trustlines://`.
    */
-  public createLink(username: string, customBase?: string): string {
+  public createLink(
+    username: string,
+    customBase?: string,
+    queryParams?: object
+  ): string {
     const params = ['contact', this.address, username]
-    return utils.createLink(params, customBase)
+    return utils.createLink(params, customBase, queryParams)
   }
 
   /**

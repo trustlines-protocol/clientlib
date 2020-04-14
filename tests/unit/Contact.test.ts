@@ -59,6 +59,21 @@ describe('unit', () => {
         )
       })
 
+      it('should create trustlines:// link with query params', async () => {
+        const contactLink = contact.createLink(
+          FAKE_USER_ADDRESSES[0],
+          username,
+          '',
+          { param1: 'param1', param2: 'param2' }
+        )
+        assert.equal(
+          contactLink,
+          `trustlines://contact/${
+            FAKE_USER_ADDRESSES[0]
+          }/${username}?param1=param1&param2=param2`
+        )
+      })
+
       it('should create custom link', async () => {
         const contactLink = contact.createLink(
           FAKE_USER_ADDRESSES[0],

@@ -176,7 +176,7 @@ export class EthWrapper {
     const { type, fromBlock } = filter
     const baseUrl = `tokens/${ethWrapperAddress}/users/${await this.user.getAddress()}/events`
     const events = await this.provider.fetchEndpoint<AnyTokenEventRaw[]>(
-      utils.buildUrl(baseUrl, { type, fromBlock })
+      utils.buildUrl(baseUrl, [], { type, fromBlock })
     )
     return events.map(event => utils.formatEvent(event, ETH_DECIMALS, 0))
   }
