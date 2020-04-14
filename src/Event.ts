@@ -69,7 +69,6 @@ export class Event {
     } = {}
   ): Promise<T[]> {
     const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/events`
-    console.log('wtf', filter)
     const parameterUrl = utils.buildUrl(baseUrl, [], filter)
     const [
       events,
