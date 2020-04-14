@@ -12,6 +12,7 @@ import {
   deployIdentities,
   extraData,
   parametrizedTLNetworkConfig,
+  referenceId,
   requestEth,
   wait
 } from '../Fixtures'
@@ -190,6 +191,27 @@ describe('e2e', () => {
           expect(preparedPayment.feePayer).to.equal(FeePayer.Receiver)
         })
 
+        it('should prepare tx for trustline with reference id', async () => {
+          const preparedPayment = await tl1.payment.prepare(
+            network.address,
+            user2.address,
+            2.25,
+            {
+              extraData
+            },
+            referenceId
+          )
+
+          expect(preparedPayment).to.have.all.keys(
+            'rawTx',
+            'feePayer',
+            'txFees',
+            'maxFees',
+            'path'
+          )
+          expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
+        })
+
         it('should not prepare tx for trustline transfer', async () => {
           await expect(
             tl1.payment.prepare(network.address, user2.address, 2000)
@@ -304,7 +326,8 @@ describe('e2e', () => {
             network.address,
             user2.address,
             1.5,
-            { extraData }
+            { extraData },
+            referenceId
           )
           await tl1.payment.confirm(rawTx)
           await wait()
@@ -323,7 +346,7 @@ describe('e2e', () => {
           expect(latestTransfer.counterParty).to.be.equal(tl2.user.address)
           expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
           expect(latestTransfer.amount.value).to.eq('1.5')
-          expect(latestTransfer.extraData).to.eq(extraData)
+          expect(latestTransfer.extraData).to.eq(extraData + referenceId)
           expect(latestTransfer.blockNumber).to.be.a('number')
           expect(latestTransfer.direction).to.equal('sent')
           expect(latestTransfer.networkAddress).to.be.a('string')

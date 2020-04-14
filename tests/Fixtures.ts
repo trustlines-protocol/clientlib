@@ -58,6 +58,7 @@ export const parametrizedTLNetworkConfig = [
 ]
 
 export const extraData = '0x12ab34ef'
+export const referenceId = '1234'
 
 export async function createAndLoadUsers(tlInstances: TLNetwork[]) {
   return Promise.all(
