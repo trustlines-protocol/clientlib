@@ -41,7 +41,10 @@ export class Interests {
     } = {}
   ): Promise<UserAccruedInterestsObject> {
     const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/interests`
-    const parameterUrl = utils.buildUrl(baseUrl, options.timeWindowOption || {})
+    const parameterUrl = utils.buildUrl(
+      baseUrl,
+      options.timeWindowOption && { query: options.timeWindowOption }
+    )
 
     const [
       userAccruedInterests,
@@ -72,7 +75,10 @@ export class Interests {
     } = {}
   ): Promise<TrustlineAccruedInterestsObject> {
     const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/interests/${counterpartyAddress}`
-    const parameterUrl = utils.buildUrl(baseUrl, options.timeWindowOption || {})
+    const parameterUrl = utils.buildUrl(
+      baseUrl,
+      options.timeWindowOption && { query: options.timeWindowOption }
+    )
 
     const [
       trustlineAccruedInterestsRaw,

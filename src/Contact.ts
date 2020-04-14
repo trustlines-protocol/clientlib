@@ -1,7 +1,7 @@
 import { TLProvider } from './providers/TLProvider'
 import { User } from './User'
 
-import utils from './utils'
+import utils, { defaultBaseUrl } from './utils'
 
 export class Contact {
   private user: User
@@ -20,15 +20,23 @@ export class Contact {
   /**
    * Creates sharable contact link.
    * @param address Address of contact to share.
-   * @param username Name of contact to share.
-   * @param customBase Optional custom base for link. Default `trustlines://`.
+   * @param options Optional
+   *        options[key] - additional params that will be appended
+   *        options.name - optional user name
+   *        options.subject - optional message for the recipient of the request
+   *        options.customBase - Optional custom base for link. Defaults to `trustlines://`.
    */
   public createLink(
     address: string,
-    username: string,
-    customBase?: string
+    options?: {
+      [key: string]: string
+      subject?: string
+      name?: string
+      customBase?: string
+    }
   ): string {
-    const params = ['contact', address, username]
-    return utils.createLink(params, customBase)
+    const path = ['contact', address]
+    const { customBase = defaultBaseUrl, ...rest } = options
+    return utils.buildUrl(customBase, { path, query: rest })
   }
 }
