@@ -78,6 +78,7 @@ export interface PaymentOptions extends TLOptions {
   maximumFees?: number
   feePayer?: FeePayer
   extraData?: string
+  paymentRequestId?: string
 }
 
 export interface TrustlineUpdateOptions extends TLOptions {
