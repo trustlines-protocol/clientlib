@@ -90,21 +90,27 @@ export class Payment {
    * @param options.gasLimit Custom gas limit.
    * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
    * @param options.extraData Extra data that will appear in the Transfer event when successful.
+   * @param options.paymentRequestId Payment request identifier that gets encoded to the extra data.
    */
   public async prepare(
     networkAddress: string,
     receiverAddress: string,
     value: number | string,
-    options: PaymentOptions = {},
-    referenceId: string = ''
+    options: PaymentOptions = {}
   ): Promise<PaymentTxObject> {
-    const { gasPrice, gasLimit, networkDecimals, extraData } = options
+    const {
+      gasPrice,
+      gasLimit,
+      networkDecimals,
+      extraData,
+      paymentRequestId
+    } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
-    const extraDataWithReferenceId = this.extendExtraDataByReferenceId(
+    const extraDataWithPaymentRequestId = this.extendExtraDataByPaymentRequestId(
       extraData,
-      referenceId
+      paymentRequestId
     )
     const { path, maxFees, feePayer } = await this.getTransferPathInfo(
       networkAddress,
@@ -113,6 +119,7 @@ export class Payment {
       value,
       {
         ...options,
+        extraData: extraDataWithPaymentRequestId,
         networkDecimals: decimals.networkDecimals
       }
     )
@@ -132,7 +139,7 @@ export class Payment {
           ),
           utils.convertToHexString(new BigNumber(maxFees.raw)),
           path,
-          extraDataWithReferenceId
+          extraDataWithPaymentRequestId
         ],
         {
           gasLimit: gasLimit
@@ -450,19 +457,19 @@ export class Payment {
     }
   }
 
-  private extendExtraDataByReferenceId(
+  private extendExtraDataByPaymentRequestId(
     extraData: string,
-    referenceId: string = ''
+    paymentRequestId: string = ''
   ): string {
     // TODO:
     // Implement some useful encoding. This here simply makes sure that the
     // String concatenations works.
-    if (!extraData && !referenceId) {
+    if (!extraData && !paymentRequestId) {
       return '0x'
     } else if (!extraData) {
-      return referenceId
+      return paymentRequestId
     } else {
-      return extraData + referenceId
+      return extraData + paymentRequestId
     }
   }
 }
