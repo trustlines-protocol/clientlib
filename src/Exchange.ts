@@ -116,15 +116,17 @@ export class Exchange {
    * @param query.trader Orders where `maker` or `taker` is `trader`.
    */
   public async getOrders(query: OrdersQuery = {}): Promise<SignedOrder[]> {
-    const queryEndpoint = utils.buildUrl(`exchange/orders`, [], {
-      exchangeContractAddress: query.exchangeContractAddress,
-      feeRecipient: query.feeRecipient,
-      maker: query.maker,
-      makerTokenAddress: query.makerTokenAddress,
-      taker: query.taker,
-      takerTokenAddress: query.takerTokenAddress,
-      tokenAddress: query.tokenAddress,
-      trader: query.trader
+    const queryEndpoint = utils.buildUrl(`exchange/orders`, {
+      query: {
+        exchangeContractAddress: query.exchangeContractAddress,
+        feeRecipient: query.feeRecipient,
+        maker: query.maker,
+        makerTokenAddress: query.makerTokenAddress,
+        taker: query.taker,
+        takerTokenAddress: query.takerTokenAddress,
+        tokenAddress: query.tokenAddress,
+        trader: query.trader
+      }
     })
     const orders = await this.provider.fetchEndpoint<SignedOrderRaw[]>(
       queryEndpoint
@@ -168,7 +170,7 @@ export class Exchange {
       })
     ])
     const params = { baseTokenAddress, quoteTokenAddress }
-    const endpoint = utils.buildUrl(`exchange/orderbook`, [], params)
+    const endpoint = utils.buildUrl(`exchange/orderbook`, { query: params })
     const orderbook = await this.provider.fetchEndpoint<OrderbookRaw>(endpoint)
     const { asks, bids } = orderbook
     return {
@@ -432,7 +434,7 @@ export class Exchange {
     filter: EventFilterOptions = {}
   ): Promise<AnyExchangeEvent[]> {
     const baseUrl = `exchange/${exchangeAddress}/users/${await this.user.getAddress()}/events`
-    const parameterUrl = utils.buildUrl(baseUrl, [], filter)
+    const parameterUrl = utils.buildUrl(baseUrl, { query: filter })
     const rawEvents = await this.provider.fetchEndpoint<AnyExchangeEventRaw[]>(
       parameterUrl
     )

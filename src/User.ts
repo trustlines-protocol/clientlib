@@ -4,7 +4,7 @@ import { TLProvider } from './providers/TLProvider'
 import { TLSigner } from './signers/TLSigner'
 import { TLWallet } from './wallets/TLWallet'
 
-import utils from './utils'
+import utils, { defaultBaseUrl } from './utils'
 
 import { Amount, Signature, TLWalletData } from './typings'
 
@@ -200,16 +200,19 @@ export class User {
   /**
    * Returns a shareable link which can be send to other users.
    * Contains username and address.
-   * @param username Custom username.
-   * @param customBase Optional custom base for link. Default `trustlines://`.
+   * @param options - any additional options that we should hang on the URL
+   *        options.customBase - convention for a custom base for the URL
+   *        options.name - convention for a name for the user
+   *        options[key] - any other additional options that should be added to the URL
    */
-  public createLink(
-    username: string,
-    customBase?: string,
-    queryParams?: object
-  ): string {
-    const params = ['contact', this.address, username]
-    return utils.createLink(params, customBase, queryParams)
+  public createLink(options: {
+    [key: string]: string
+    customBase?: string
+    name?: string
+  }): string {
+    const path = ['contact', this.address]
+    const { customBase = defaultBaseUrl, ...rest } = options
+    return utils.buildUrl(customBase, { path, query: rest })
   }
 
   /**

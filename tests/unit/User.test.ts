@@ -192,18 +192,19 @@ describe('unit', () => {
     describe('#createLink()', () => {
       beforeEach(() => init())
 
-      const username = 'testname'
+      const name = 'testname'
 
       it('should create trustlines:// link', async () => {
-        const contactLink = user.createLink(username)
+        const contactLink = user.createLink({ name })
         assert.equal(
           contactLink,
-          `trustlines://contact/${user.address}/${username}`
+          `trustlines://contact/${user.address}?name=${name}`
         )
       })
 
       it('should create trustlines:// link with queryParams', async () => {
-        const contactLink = user.createLink(username, '', {
+        const contactLink = user.createLink({
+          name,
           param1: 'param1',
           param2: 'param2'
         })
@@ -211,15 +212,18 @@ describe('unit', () => {
           contactLink,
           `trustlines://contact/${
             user.address
-          }/${username}?param1=param1&param2=param2`
+          }?name=${name}&param1=param1&param2=param2`
         )
       })
 
       it('should create custom link', async () => {
-        const contactLink = user.createLink(username, 'http://custom.network')
+        const contactLink = user.createLink({
+          name,
+          customBase: 'http://custom.network'
+        })
         assert.equal(
           contactLink,
-          `http://custom.network/contact/${user.address}/${username}`
+          `http://custom.network/contact/${user.address}?name=${name}`
         )
       })
     })

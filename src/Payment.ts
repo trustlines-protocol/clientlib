@@ -10,7 +10,7 @@ import {
 } from './Transaction'
 import { User } from './User'
 
-import utils from './utils'
+import utils, { defaultBaseUrl } from './utils'
 
 import {
   DecimalsOptions,
@@ -260,23 +260,28 @@ export class Payment {
   /**
    * Creates a payment request link.
    * @param networkAddress Address of a currency network.
-   * @param amount Requested transfer amount.
-   * @param queryParams Additional query params for the generated url
-   * @param customBase Optional custom base for link. Default `trustlines://`.
+   * @param options
+   *        options.amount - optional amount for the payment request
+   *        options.customBase - optional customBase for the link
+   *        options[key] - any other additional options that should be added to the URL
    */
   public async createRequest(
     networkAddress: string,
-    amount: number,
-    queryParams?: object,
-    customBase?: string
+    options?: { [key: string]: string; amount?: string; customBase?: string }
   ): Promise<string> {
-    const params = [
+    const { amount = null, customBase = defaultBaseUrl, ...rest } =
+      options || {}
+    const path = [
       'paymentrequest',
       networkAddress,
-      await this.user.getAddress(),
-      amount
+      await this.user.getAddress()
     ]
-    return utils.createLink(params, customBase, queryParams)
+
+    if (amount) {
+      path.push(amount)
+    }
+
+    return utils.buildUrl(customBase, { path, query: rest })
   }
 
   /**
@@ -363,10 +368,12 @@ export class Payment {
   ): Promise<TransferDetails[]> {
     this.validateTransferIdentifier(transferIdentifier)
 
-    const baseUrl = utils.buildUrl(`/transfers/`, [], {
-      blockHash: transferIdentifier.blockHash,
-      logIndex: transferIdentifier.logIndex,
-      transactionHash: transferIdentifier.txHash
+    const baseUrl = utils.buildUrl(`/transfers/`, {
+      query: {
+        blockHash: transferIdentifier.blockHash,
+        logIndex: transferIdentifier.logIndex,
+        transactionHash: transferIdentifier.txHash
+      }
     })
 
     const transferDetailsList = await this.provider.fetchEndpoint<

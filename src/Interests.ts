@@ -43,8 +43,7 @@ export class Interests {
     const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/interests`
     const parameterUrl = utils.buildUrl(
       baseUrl,
-      [],
-      options.timeWindowOption || {}
+      options.timeWindowOption && { query: options.timeWindowOption }
     )
 
     const [
@@ -78,8 +77,7 @@ export class Interests {
     const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/interests/${counterpartyAddress}`
     const parameterUrl = utils.buildUrl(
       baseUrl,
-      [],
-      options.timeWindowOption || {}
+      options.timeWindowOption && { query: options.timeWindowOption }
     )
 
     const [

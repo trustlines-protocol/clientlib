@@ -58,10 +58,23 @@ describe('unit', () => {
     describe('#createLink()', () => {
       beforeEach(() => init())
 
+      it('should create payment request link with network address and no amount', async () => {
+        const paymentRequestLink = await payment.createRequest(
+          FAKE_NETWORK.address
+        )
+
+        const userAddress = await user.getAddress()
+
+        assert.equal(
+          paymentRequestLink,
+          `trustlines://paymentrequest/${FAKE_NETWORK.address}/${userAddress}`
+        )
+      })
+
       it('should create payment request link with network address and amount', async () => {
         const paymentRequestLink = await payment.createRequest(
           FAKE_NETWORK.address,
-          100
+          { amount: '100' }
         )
 
         const userAddress = await user.getAddress()
@@ -77,8 +90,13 @@ describe('unit', () => {
       it('should create payment request link with network address, amount and query params', async () => {
         const paymentRequestLink = await payment.createRequest(
           FAKE_NETWORK.address,
-          100,
-          { subject: 'subject', note: 'my note', username: 'username' }
+
+          {
+            amount: '100',
+            subject: 'subject',
+            note: 'my note',
+            username: 'username'
+          }
         )
 
         const userAddress = await user.getAddress()

@@ -52,37 +52,39 @@ describe('unit', () => {
       const username = 'testname'
 
       it('should create trustlines:// link', async () => {
-        const contactLink = contact.createLink(FAKE_USER_ADDRESSES[0], username)
+        const contactLink = contact.createLink(FAKE_USER_ADDRESSES[0], {
+          name: username
+        })
         assert.equal(
           contactLink,
-          `trustlines://contact/${FAKE_USER_ADDRESSES[0]}/${username}`
+          `trustlines://contact/${FAKE_USER_ADDRESSES[0]}?name=${username}`
         )
       })
 
       it('should create trustlines:// link with query params', async () => {
-        const contactLink = contact.createLink(
-          FAKE_USER_ADDRESSES[0],
-          username,
-          '',
-          { param1: 'param1', param2: 'param2' }
-        )
+        const contactLink = contact.createLink(FAKE_USER_ADDRESSES[0], {
+          name: username,
+          param1: 'param1',
+          param2: 'param2'
+        })
         assert.equal(
           contactLink,
           `trustlines://contact/${
             FAKE_USER_ADDRESSES[0]
-          }/${username}?param1=param1&param2=param2`
+          }?name=${username}&param1=param1&param2=param2`
         )
       })
 
       it('should create custom link', async () => {
-        const contactLink = contact.createLink(
-          FAKE_USER_ADDRESSES[0],
-          username,
-          'http://custom.network'
-        )
+        const contactLink = contact.createLink(FAKE_USER_ADDRESSES[0], {
+          name: username,
+          customBase: 'http://custom.network'
+        })
         assert.equal(
           contactLink,
-          `http://custom.network/contact/${FAKE_USER_ADDRESSES[0]}/${username}`
+          `http://custom.network/contact/${
+            FAKE_USER_ADDRESSES[0]
+          }?name=${username}`
         )
       })
     })
