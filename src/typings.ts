@@ -135,6 +135,7 @@ export interface NetworkTransferEventRaw extends NetworkEvent {
 export interface NetworkTransferEvent extends NetworkEvent {
   amount: Amount
   extraData: string
+  paymentRequestId?: string
 }
 
 export interface NetworkTrustlineUpdateEventRaw extends NetworkEvent {
