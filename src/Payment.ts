@@ -261,7 +261,7 @@ export class Payment {
    * Creates a payment request link.
    * @param networkAddress Address of a currency network.
    * @param options
-   *        options.amount - optional amount for the payment request
+   *        options.amount - optional amount for the payment request in "normal" units (if we request 1€ - the amount should be 1)
    *        options.customBase - optional customBase for the link
    *        options[key] - any other additional options that should be added to the URL
    */
