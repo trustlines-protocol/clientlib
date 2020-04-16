@@ -250,14 +250,19 @@ export class Payment {
    * @param networkAddress Address of currency network.
    * @param filter Event filter object. See [[EventFilterOptions]] for more information.
    */
-  public get(
+  public async get(
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<NetworkTransferEvent[]> {
-    return this.event.get<NetworkTransferEvent>(networkAddress, {
+    const events = await this.event.get<NetworkTransferEvent>(networkAddress, {
       ...filter,
       type: 'Transfer'
     })
+
+    return events.map(event => ({
+      ...event,
+      paymentRequestId: this.parsePaymentRequestIdFromExtraData(event.extraData)
+    }))
   }
 
   /**
@@ -471,5 +476,9 @@ export class Payment {
     } else {
       return extraData + paymentRequestId
     }
+  }
+
+  private parsePaymentRequestIdFromExtraData(extraData: string): string {
+    return extraData
   }
 }

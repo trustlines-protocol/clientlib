@@ -346,6 +346,9 @@ describe('e2e', () => {
           expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
           expect(latestTransfer.amount.value).to.eq('1.5')
           expect(latestTransfer.extraData).to.eq(extraData + paymentRequestId)
+          expect(latestTransfer.paymentRequestId).to.eq(
+            extraData + paymentRequestId
+          )
           expect(latestTransfer.blockNumber).to.be.a('number')
           expect(latestTransfer.direction).to.equal('sent')
           expect(latestTransfer.networkAddress).to.be.a('string')
