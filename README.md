@@ -54,19 +54,26 @@ import { TLNetwork } from 'trustlines-clientlib'
 
 // Instance using a relay connected to the Laika Testnet
 const laika = new TLNetwork({
-  protocol: 'https',
-  wsProtocol: 'wss',
-  host: 'relay0.testnet.trustlines.network',
-  path: '/api/v1'
+  relayUrl: {
+    protocol: 'https',
+    port: '80',
+    host: 'relay0.testnet.trustlines.network',
+    path: '/api/v1'
+  },
+  messagingUrl: {
+    protocol: 'https',
+    port: '80',
+    host: 'relay0.testnet.trustlines.network',
+    path: '/api/v1'
+  }
+
   // ...
 })
 
 // Instance using a relay connected to the TLBC
 const tlbc = new TLNetwork({
-  protocol: 'https',
-  wsProtocol: 'wss',
-  host: '<url>', // TODO There is no public TLBC relay yet
-  path: '/api/v1'
+  relayUrl: 'https://tlbc.relay.anyblock.tools/api/v1',
+  messagingUrl: 'https://messaging.trustlines.app/api/v1'
   // ...
 })
 ```
