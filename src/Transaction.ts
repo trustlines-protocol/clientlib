@@ -160,13 +160,17 @@ export class Transaction {
       )).networkDecimals
     }
 
+    console.log('fees')
+    console.log(txFees.feeRecipient)
+    console.log(txFees.currencyNetworkOfFees)
+
     return {
       gasPrice: utils.formatToAmount(txFees.gasPrice, feeDecimals),
       gasLimit: utils.formatToAmount(txFees.gasLimit, 0),
       baseFee: utils.formatToAmount(txFees.baseFee, feeDecimals),
       totalFee: utils.formatToAmount(txFees.totalFee, feeDecimals),
-      feeRecipient: txFees.feeRecipient || undefined,
-      currencyNetworkOfFees: txFees.currencyNetworkOfFees || undefined
+      feeRecipient: txFees.feeRecipient || null,
+      currencyNetworkOfFees: txFees.currencyNetworkOfFees || null
     }
   }
 }
