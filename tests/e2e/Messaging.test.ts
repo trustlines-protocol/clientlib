@@ -3,6 +3,7 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { TLNetwork } from '../../src/TLNetwork'
+import utils from '../../src/utils'
 import {
   createAndLoadUsers,
   parametrizedTLNetworkConfig,
@@ -50,6 +51,10 @@ describe('e2e', () => {
           expect(sentPaymentRequest.amount.value).to.equal('10')
           expect(sentPaymentRequest.subject).to.equal('test subject')
           expect(sentPaymentRequest.nonce).to.be.a('number')
+          expect(sentPaymentRequest.id).to.be.a('string')
+          expect(utils.convertToHexString(sentPaymentRequest.nonce)).to.equal(
+            sentPaymentRequest.id
+          )
           expect(sentPaymentRequest.counterParty).to.equal(tl2.user.address)
           expect(sentPaymentRequest.direction).to.equal('sent')
           expect(sentPaymentRequest.user).to.equal(tl1.user.address)
@@ -60,11 +65,12 @@ describe('e2e', () => {
         it('should return sent decline', async () => {
           const declineMessage = await tl1.messaging.paymentRequestDecline(
             tl2.user.address,
-            10,
+            '0x10',
             'test subject'
           )
           expect(declineMessage.type).to.equal('PaymentRequestDecline')
-          expect(declineMessage.nonce).to.equal(10)
+          expect(declineMessage.nonce).to.equal(16)
+          expect(declineMessage.id).to.equal('0x10')
           expect(declineMessage.subject).to.equal('test subject')
         })
       })
@@ -103,7 +109,7 @@ describe('e2e', () => {
           await wait()
           await tl1.messaging.paymentRequestDecline(
             user1.address,
-            paymentRequest.nonce,
+            paymentRequest.id,
             'decline subject'
           )
           await wait()

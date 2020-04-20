@@ -429,6 +429,27 @@ export const convertToHexString = (
 }
 
 /**
+ * Return the number representation of the given hex string.
+ * @param hexString
+ */
+export const convertHexStringToNumber = (hexString: string): number => {
+  if (!hexString.startsWith('0x')) {
+    throw new Error('Provided string does not start with "0x".')
+  }
+
+  const bigNumber = new BigNumber(hexString, 16)
+  const convertedNumber = bigNumber.toNumber()
+
+  if (!new BigNumber(convertedNumber).isEqualTo(bigNumber)) {
+    throw new Error(
+      'Can not convert hexString to number with enough precision.'
+    )
+  }
+
+  return convertedNumber
+}
+
+/**
  * Generates a random number with specified decimals.
  * @param decimals Decimals which determine size of generated number.
  */
@@ -519,6 +540,7 @@ export default {
   convertToAmount,
   convertToHexString,
   convertToDelegationFees,
+  convertHexStringToNumber,
   fetchUrl,
   formatToFeePayer,
   formatEndpoint,

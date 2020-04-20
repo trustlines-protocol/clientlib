@@ -209,6 +209,7 @@ export interface PaymentRequestMessage extends Message {
   networkAddress: string
   subject?: string
   nonce: number
+  id: string
   amount: Amount
   counterParty: string
   user: string
@@ -217,6 +218,7 @@ export interface PaymentRequestMessage extends Message {
 export interface PaymentRequestDeclineMessage {
   type: string
   nonce: number
+  id: string
   subject?: string
 }
 
