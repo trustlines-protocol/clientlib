@@ -6,7 +6,7 @@ import 'mocha'
 import { AddressZero } from 'ethers/constants'
 import { TLNetwork } from '../../src/TLNetwork'
 import { FeePayer, PathRaw, TLWalletData } from '../../src/typings'
-import utils from '../../src/utils'
+import utils, { checkAddress } from '../../src/utils'
 import {
   createAndLoadUsers,
   deployIdentities,
@@ -205,11 +205,6 @@ describe('e2e', () => {
             )
 
             const expectedGasLimit = tl1.payment.calculateTransferGasLimit(2)
-            const delegationFeeRaw = utils.calculateDelegationFees(
-              1,
-              1_000,
-              expectedGasLimit
-            )
 
             expect(preparedPayment.txFees).to.have.all.keys(
               'gasPrice',
@@ -222,23 +217,26 @@ describe('e2e', () => {
             expect(preparedPayment.txFees.feeRecipient).to.not.equal(
               AddressZero
             )
+            expect(preparedPayment.txFees.currencyNetworkOfFees).to.satisfy(
+              currencyNetworkOfFees =>
+                currencyNetworkOfFees === null ||
+                checkAddress(currencyNetworkOfFees)
+            )
+
             expect(preparedPayment.txFees.currencyNetworkOfFees).to.not.equal(
               AddressZero
             )
-            expect(preparedPayment.txFees.totalFee.raw).to.equal(
-              delegationFeeRaw.toString(),
-              'Incorrect delegationFees raw'
+
+            expect(preparedPayment.txFees.baseFee).to.have.keys(
+              'decimals',
+              'raw',
+              'value'
             )
-            expect(preparedPayment.txFees.totalFee.value).to.equal(
-              delegationFeeRaw.dividedBy(10_000).toString(),
-              'Incorrect delegationFees value'
+            expect(preparedPayment.txFees.gasPrice).to.have.keys(
+              'decimals',
+              'raw',
+              'value'
             )
-            expect(preparedPayment.txFees.totalFee.decimals).to.equal(
-              4,
-              'Incorrect delegationFees decimals'
-            )
-            expect(preparedPayment.txFees.baseFee.raw).to.equal('1')
-            expect(preparedPayment.txFees.gasPrice.raw).to.equal('1000')
             expect(preparedPayment.txFees.gasLimit.raw).to.equal(
               expectedGasLimit.toString()
             )

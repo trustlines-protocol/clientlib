@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
+import { AddressZero } from 'ethers/constants'
 import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
 
 import { TLProvider } from './providers/TLProvider'
@@ -154,15 +155,15 @@ export class Transaction {
   ): Promise<TxFeesAmounts> {
     // 18 decimals for regular tx fees in ether
     let feeDecimals = ETH_DECIMALS
-    if (txFees.currencyNetworkOfFees) {
+    // Only possible if the currencyNetwork is set and is not the zero address.
+    if (
+      txFees.currencyNetworkOfFees &&
+      txFees.currencyNetworkOfFees !== AddressZero
+    ) {
       feeDecimals = (await this.currencyNetwork.getDecimals(
         txFees.currencyNetworkOfFees
       )).networkDecimals
     }
-
-    console.log('fees')
-    console.log(txFees.feeRecipient)
-    console.log(txFees.currencyNetworkOfFees)
 
     return {
       gasPrice: utils.formatToAmount(txFees.gasPrice, feeDecimals),
@@ -170,7 +171,11 @@ export class Transaction {
       baseFee: utils.formatToAmount(txFees.baseFee, feeDecimals),
       totalFee: utils.formatToAmount(txFees.totalFee, feeDecimals),
       feeRecipient: txFees.feeRecipient || null,
-      currencyNetworkOfFees: txFees.currencyNetworkOfFees || null
+      // TODO remove handling of AddressZero. Only there for backwards compatibility.
+      currencyNetworkOfFees:
+        (txFees.currencyNetworkOfFees !== AddressZero
+          ? txFees.currencyNetworkOfFees
+          : null) || null
     }
   }
 }
