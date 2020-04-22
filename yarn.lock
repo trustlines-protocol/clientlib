@@ -117,6 +117,11 @@
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@machinomy/types-safe-buffer/-/types-safe-buffer-0.0.1.tgz#bf80d94a2cc90b9d8438749aa3542dbf7a1f72b0"
 
+"@msgpack/msgpack@^1.12.1":
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/@msgpack/msgpack/-/msgpack-1.12.1.tgz#aab1084bc33c955501bc0f202099e38304143e0b"
+  integrity sha512-nGwwmkdm3tuLdEkWMIwLBgFBfMFILILxcZIQY0dfqsdboN2iZdKfOYKUOKoa0wXw1FL1PL3yEYGPCXhwodQDTA==
+
 "@samverschueren/stream-to-observable@^0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@samverschueren/stream-to-observable/-/stream-to-observable-0.3.0.tgz#ecdf48d532c58ea477acfcab80348424f8d0662f"

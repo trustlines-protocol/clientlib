@@ -2,6 +2,7 @@ import { Observable } from 'rxjs/Observable'
 import { fromPromise } from 'rxjs/observable/fromPromise'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
+import { decode } from './extraData'
 import { TLProvider } from './providers/TLProvider'
 import { User } from './User'
 
@@ -81,7 +82,9 @@ export class Event {
       )
     ])
     return events.map(event =>
-      utils.formatEvent<T>(event, networkDecimals, interestRateDecimals)
+      processExtraData(
+        utils.formatEvent<T>(event, networkDecimals, interestRateDecimals)
+      )
     )
   }
 
@@ -100,7 +103,9 @@ export class Event {
     const events = await this.provider.fetchEndpoint<AnyEventRaw[]>(
       parameterUrl
     )
-    return this.setDecimalsAndFormat(events)
+    return (await this.setDecimalsAndFormat(events)).map(event =>
+      processExtraData(event)
+    )
   }
 
   /**
@@ -125,7 +130,13 @@ export class Event {
             return this.currencyNetwork
               .getDecimals(event.networkAddress)
               .then(({ networkDecimals, interestRateDecimals }) =>
-                utils.formatEvent(event, networkDecimals, interestRateDecimals)
+                processExtraData(
+                  utils.formatEvent(
+                    event,
+                    networkDecimals,
+                    interestRateDecimals
+                  )
+                )
               )
           } else {
             return Promise.resolve(event)
@@ -239,4 +250,20 @@ export class Event {
       return result
     }, {})
   }
+}
+
+/**
+ * Processes the content of extraData and attaches the content to the event.
+ * @param event
+ */
+function processExtraData(event) {
+  if (event.extraData) {
+    const extraData = decode(event.extraData)
+    if (extraData) {
+      if (extraData.paymentRequestId) {
+        event.paymentRequestId = extraData.paymentRequestId
+      }
+    }
+  }
+  return event
 }

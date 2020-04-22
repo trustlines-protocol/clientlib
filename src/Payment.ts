@@ -2,6 +2,7 @@ import { BigNumber } from 'bignumber.js'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
+import { encode as encodeExtraData } from './extraData'
 import { TLProvider } from './providers/TLProvider'
 import {
   GAS_LIMIT_IDENTITY_OVERHEAD,
@@ -108,10 +109,7 @@ export class Payment {
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
-    const extraDataWithPaymentRequestId = this.extendExtraDataByPaymentRequestId(
-      extraData,
-      paymentRequestId
-    )
+    const encodedExtraData: string = encode({ extraData, paymentRequestId })
     const { path, maxFees, feePayer } = await this.getTransferPathInfo(
       networkAddress,
       await this.user.getAddress(),
@@ -119,7 +117,7 @@ export class Payment {
       value,
       {
         ...options,
-        extraData: extraDataWithPaymentRequestId,
+        extraData: encodedExtraData,
         networkDecimals: decimals.networkDecimals
       }
     )
@@ -139,7 +137,7 @@ export class Payment {
           ),
           utils.convertToHexString(new BigNumber(maxFees.raw)),
           path,
-          extraDataWithPaymentRequestId
+          encodedExtraData
         ],
         {
           gasLimit: gasLimit
@@ -254,15 +252,10 @@ export class Payment {
     networkAddress: string,
     filter: EventFilterOptions = {}
   ): Promise<NetworkTransferEvent[]> {
-    const events = await this.event.get<NetworkTransferEvent>(networkAddress, {
+    return this.event.get<NetworkTransferEvent>(networkAddress, {
       ...filter,
       type: 'Transfer'
     })
-
-    return events.map(event => ({
-      ...event,
-      paymentRequestId: this.parsePaymentRequestIdFromExtraData(event.extraData)
-    }))
   }
 
   /**
@@ -461,24 +454,25 @@ export class Payment {
       )
     }
   }
+}
 
-  private extendExtraDataByPaymentRequestId(
-    extraData: string,
-    paymentRequestId: string = ''
-  ): string {
-    // TODO:
-    // Implement some useful encoding. This here simply makes sure that the
-    // String concatenations works.
-    if (!extraData && !paymentRequestId) {
-      return '0x'
-    } else if (!extraData) {
-      return paymentRequestId
-    } else {
-      return extraData + paymentRequestId
-    }
+function encode({
+  extraData,
+  paymentRequestId
+}: {
+  extraData: string
+  paymentRequestId: string
+}) {
+  if (extraData && paymentRequestId) {
+    throw Error(
+      'Can not encode extraData and paymentRequestId at the same time currently'
+    )
   }
-
-  private parsePaymentRequestIdFromExtraData(extraData: string): string {
+  if (extraData) {
     return extraData
+  } else if (paymentRequestId) {
+    return encodeExtraData({ paymentRequestId })
+  } else {
+    return '0x'
   }
 }

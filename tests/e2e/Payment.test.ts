@@ -197,7 +197,6 @@ describe('e2e', () => {
             user2.address,
             2.25,
             {
-              extraData,
               paymentRequestId
             }
           )
@@ -326,7 +325,7 @@ describe('e2e', () => {
             network.address,
             user2.address,
             1.5,
-            { extraData, paymentRequestId }
+            { paymentRequestId }
           )
           await tl1.payment.confirm(rawTx)
           await wait()
@@ -345,10 +344,8 @@ describe('e2e', () => {
           expect(latestTransfer.counterParty).to.be.equal(tl2.user.address)
           expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
           expect(latestTransfer.amount.value).to.eq('1.5')
-          expect(latestTransfer.extraData).to.eq(extraData + paymentRequestId)
-          expect(latestTransfer.paymentRequestId).to.eq(
-            extraData + paymentRequestId
-          )
+          expect(latestTransfer.extraData).to.be.a('string')
+          expect(latestTransfer.paymentRequestId).to.eq(paymentRequestId)
           expect(latestTransfer.blockNumber).to.be.a('number')
           expect(latestTransfer.direction).to.equal('sent')
           expect(latestTransfer.networkAddress).to.be.a('string')
