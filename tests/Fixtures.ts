@@ -58,7 +58,7 @@ export const parametrizedTLNetworkConfig = [
 ]
 
 export const extraData = '0x12ab34ef'
-export const paymentRequestId = '1234'
+export const paymentRequestId = '0x112233445566778899aa'
 
 export async function createAndLoadUsers(tlInstances: TLNetwork[]) {
   return Promise.all(

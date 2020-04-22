@@ -17,6 +17,7 @@ import {
   createAndLoadUsers,
   deployIdentities,
   extraData,
+  paymentRequestId,
   requestEth,
   setTrustlines,
   tlNetworkConfig,
@@ -155,7 +156,7 @@ describe('e2e', () => {
           network2.address,
           user2.address,
           1,
-          { extraData }
+          { paymentRequestId }
         )
         tlTransferTxHash = await tl1.payment.confirm(tlTransferTx.rawTx)
         await wait()
@@ -326,8 +327,8 @@ describe('e2e', () => {
           (tlTransferEvents[0] as NetworkTransferEvent).amount
         ).to.have.keys('raw', 'decimals', 'value')
         expect(
-          (tlTransferEvents[0] as NetworkTransferEvent).extraData
-        ).to.equal(extraData)
+          (tlTransferEvents[0] as NetworkTransferEvent).paymentRequestId
+        ).to.equal(paymentRequestId)
 
         // events thrown on deposit
         const depositEvents = allEvents.filter(
@@ -516,7 +517,7 @@ describe('e2e', () => {
           network1.address,
           user2.address,
           2.5,
-          { extraData }
+          { paymentRequestId }
         )
         await tl1.payment.confirm(rawTx)
         await wait()
@@ -548,7 +549,10 @@ describe('e2e', () => {
         expect(transferEvent).to.have.property('to', user2.address)
         expect(transferEvent).to.have.property('counterParty', user2.address)
         expect(transferEvent).to.have.property('user', user1.address)
-        expect(transferEvent).to.have.property('extraData', extraData)
+        expect(transferEvent).to.have.property(
+          'paymentRequestId',
+          paymentRequestId
+        )
         expect(transferEvent.blockHash).to.be.a('string')
         expect(transferEvent.logIndex).be.a('number')
 

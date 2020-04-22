@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import JsonRPC from 'simple-jsonrpc-js'
 import NodeWebSocket from 'ws'
+import { decode } from './extraData'
 
 import {
   GAS_LIMIT_IDENTITY_OVERHEAD,
