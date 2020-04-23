@@ -414,7 +414,7 @@ export class IdentityWallet implements TLWallet {
       baseFee: rawTx.baseFee ? rawTx.baseFee.toString() : '0',
       gasPrice: rawTx.gasPrice ? rawTx.gasPrice.toString() : '0',
       gasLimit: rawTx.gasLimit ? rawTx.gasLimit.toString() : '0',
-      feeRecipient: zeroAddress,
+      feeRecipient: rawTx.feeRecipient || zeroAddress,
       currencyNetworkOfFees: rawTx.currencyNetworkOfFees || zeroAddress,
       timeLimit: '0',
       operationType: 0
