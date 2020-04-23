@@ -12,6 +12,7 @@ import {
   Amount,
   DelegationFeesInternal,
   MetaTransactionFees,
+  PaidDelegationFeesRaw,
   RawTxObject,
   TransactionStatusObject,
   TxFeesAmounts,
@@ -147,6 +148,39 @@ export class Transaction {
   }
 
   /**
+   * Get the effective delegation fees via enveloping transaction hash
+   * @param txHash the hash of the transaction in which fees were paid
+   * @returns a list of the delegation fees applied within the transaction paid by loaded user
+   */
+  public async getAppliedDelegationFees(
+    txHash: string
+  ): Promise<TxFeesAmounts[]> {
+    const Url = utils.buildUrl(`/delegation-fees/`, {
+      query: {
+        transactionHash: txHash
+      }
+    })
+
+    let paidFeesList = await this.provider.fetchEndpoint<
+      PaidDelegationFeesRaw[]
+    >(Url)
+    // We might receive fees not paid by the loaded user so we filter them out
+    paidFeesList = paidFeesList.filter(
+      async paidFee => paidFee.feeSender === (await this.signer.getAddress())
+    )
+
+    return Promise.all(
+      paidFeesList.map(async paidFees =>
+        this.formatTxFeesToAmount({
+          totalFee: paidFees.totalFee,
+          feeRecipient: paidFees.feeRecipient,
+          currencyNetworkOfFees: paidFees.currencyNetworkOfFees
+        })
+      )
+    )
+  }
+
+  /**
    * Formats the tx fees and finds the currency network decimals to use in case of meta-tx fees
    * @param txFees
    */
@@ -166,9 +200,18 @@ export class Transaction {
     }
 
     return {
-      gasPrice: utils.formatToAmount(txFees.gasPrice, feeDecimals),
-      gasLimit: utils.formatToAmount(txFees.gasLimit, 0),
-      baseFee: utils.formatToAmount(txFees.baseFee, feeDecimals),
+      gasPrice:
+        txFees.gasPrice !== undefined
+          ? utils.formatToAmount(txFees.gasPrice, feeDecimals)
+          : null,
+      gasLimit:
+        txFees.gasLimit !== undefined
+          ? utils.formatToAmount(txFees.gasLimit, 0)
+          : null,
+      baseFee:
+        txFees.baseFee !== undefined
+          ? utils.formatToAmount(txFees.baseFee, feeDecimals)
+          : null,
       totalFee: utils.formatToAmount(txFees.totalFee, feeDecimals),
       feeRecipient: txFees.feeRecipient || null,
       // TODO remove handling of AddressZero. Only there for backwards compatibility.

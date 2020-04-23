@@ -380,18 +380,18 @@ export interface TxInfos {
 }
 
 export interface TxFeesRaw {
-  gasPrice: number | string | BigNumber
-  gasLimit: number | string | BigNumber
-  baseFee: number | string | BigNumber
+  gasPrice?: number | string | BigNumber
+  gasLimit?: number | string | BigNumber
+  baseFee?: number | string | BigNumber
   totalFee: number | string | BigNumber
   feeRecipient?: string
   currencyNetworkOfFees?: string
 }
 
 export interface TxFeesAmounts {
-  gasPrice: Amount
-  gasLimit: Amount
-  baseFee: Amount
+  gasPrice?: Amount
+  gasLimit?: Amount
+  baseFee?: Amount
   totalFee: Amount
   feeRecipient?: string
   currencyNetworkOfFees?: string
@@ -413,6 +413,13 @@ export interface DelegationFeesRaw {
   baseFee?: number | string | BigNumber
   gasPrice?: number | string | BigNumber
   currencyNetworkOfFees?: string
+}
+
+export interface PaidDelegationFeesRaw {
+  feeSender: string
+  feeRecipient: string
+  totalFee: string
+  currencyNetworkOfFees: string
 }
 
 // PAYMENT
