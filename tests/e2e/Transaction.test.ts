@@ -9,7 +9,8 @@ import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 import {
   createAndLoadUsers,
   deployIdentities,
-  parametrizedTLNetworkConfig
+  parametrizedTLNetworkConfig,
+  wait
 } from '../Fixtures'
 
 chai.use(chaiAsPromised)
@@ -84,6 +85,60 @@ describe('e2e', () => {
           expect(txStatus.status).to.equal(TransactionStatus.NotFound)
         })
       })
+
+      if (testParameter.walletType === 'Identity') {
+        describe('#Delegation Fees', () => {
+          it('should get applied delegation fees for meta-transaction', async () => {
+            const rawTx1 = (await transaction.prepareValueTransaction(
+              user1.address,
+              user2.address,
+              new BigNumber(1)
+            )).rawTx
+            rawTx1.baseFee = '4321'
+            rawTx1.currencyNetworkOfFees = network.address
+            const txHash1 = await transaction.confirm(rawTx1)
+            await wait()
+
+            const rawTx2 = (await transaction.prepareValueTransaction(
+              user1.address,
+              user2.address,
+              new BigNumber(1)
+            )).rawTx
+            rawTx2.baseFee = '1234'
+            rawTx2.currencyNetworkOfFees = network.address
+            const txHash2 = await transaction.confirm(rawTx2)
+            await wait()
+
+            const delegationFeesTx1 = await transaction.getAppliedDelegationFees(
+              txHash1
+            )
+            expect(delegationFeesTx1.length).to.equal(1)
+            const delegationFees1 = delegationFeesTx1[0]
+            expect(delegationFees1.totalFee.raw).to.equal(rawTx1.baseFee)
+            expect(delegationFees1.feeRecipient).to.equal(
+              rawTx1.feeRecipient,
+              'fee recipient does not match'
+            )
+            expect(delegationFees1.currencyNetworkOfFees).to.equal(
+              network.address
+            )
+
+            const delegationFeesTx2 = await transaction.getAppliedDelegationFees(
+              txHash2
+            )
+            expect(delegationFeesTx2.length).to.equal(1)
+            const delegationFees2 = delegationFeesTx2[0]
+            expect(delegationFees2.totalFee.raw).to.equal(rawTx2.baseFee)
+            expect(delegationFees2.feeRecipient).to.equal(
+              rawTx2.feeRecipient,
+              'fee recipient does not match'
+            )
+            expect(delegationFees2.currencyNetworkOfFees).to.equal(
+              network.address
+            )
+          })
+        })
+      }
     })
   })
 })
