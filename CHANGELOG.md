@@ -4,23 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
-## [0.13.0] - 2020-04-15
+## [0.13.0] - 2020-04-23
+
+(requires relay version >=0.15.0)
 
 ### Changed
 
-- Transaction fees will now have undefined `currencyNetworkOfFees` when delegation fees are zero instead of `zeroAddress` (BREAKING)
+- Transaction prepare functions do not return `ethFees` and `delegationFees` anymore, instead they return `txFees` always,
+  which represent the chain coin fees or delegation fees depending on which wallet type was used.
+  The following fields exist: `totalFee`, `baseFee`, `gasLimit`, `gasPrice`, `feeRecipient`(`null`, if not set),
+  `currencyNetworkOfFees`(`null`, if not set). (BREAKING)
+- Transaction fees will now have `null` `currencyNetworkOfFees` when delegation fees are zero instead of `zeroAddress` (BREAKING)
 - Meta transactions will now use `feeRecipient` given by the relay provider (BREAKING)
-- User `user` and `counterparty` instead of `address` for TrustlineObject and TrustlineRaw types.
+- Use `user` and `counterparty` instead of `address` for TrustlineObject and TrustlineRaw types.
   The previous `address` now corresponds to `counterparty` (BREAKING)
 - Use gas limits from contracts tests for transactions and meta transactions
+- Change link schema and api (`X.createLink`) to allow for easier addition of optional data (BREAKING)
 
 ### Added
 
-- Added function to get trustline balance updates `Trustline.getTrustlineBalanceUpdates`
+- Added function to get trustline balance updates `Trustline.getTrustlineBalanceUpdates` (Requires relay server >=v0.15.0)
 - Added function to get transfer details `Payment.getTransferDetails` either from tx hash or event identifier: (blockHash, logIndex)
-- Events now include `blockHash` and `logIndex`
+  (Requires relay server >=v0.15.0)
+- Events now include `blockHash` and `logIndex` (Requires relay server >=v0.15.0)
 - Added function to decline payment requests `Messaging.paymentRequestDecline`
 - Added function to check for tx status via tx hash or meta-tx status either via enveloping tx-hash or raw-tx `Transaction.getTxStatus`
+
+### Deprecated
+
+- `transactionId` on events is deprecated for `transactionHash`. (Based on relay server deprecations)
 
 ## [0.12.1] - 2020-02-20
 
