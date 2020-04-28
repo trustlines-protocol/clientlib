@@ -383,7 +383,8 @@ describe('e2e', () => {
             'value',
             'feePayer',
             'totalFees',
-            'feesPaid'
+            'feesPaid',
+            'extraData'
           )
           expect(transferDetails.path).to.be.an('Array')
           expect(transferDetails.path).to.deep.equal([
@@ -410,6 +411,7 @@ describe('e2e', () => {
           expect(transferDetails.feesPaid[0].value).to.equal(
             transferDetails.totalFees.value
           )
+          expect(transferDetails.extraData).to.equal(extraData)
         })
 
         it('should return details for transfer via id', async () => {
@@ -418,10 +420,7 @@ describe('e2e', () => {
           const transfer = await tl1.payment.prepare(
             network.address,
             user3.address,
-            transferValue,
-            {
-              extraData
-            }
+            transferValue
           )
           await tl1.payment.confirm(transfer.rawTx)
           await wait()
@@ -440,7 +439,8 @@ describe('e2e', () => {
             'value',
             'feePayer',
             'totalFees',
-            'feesPaid'
+            'feesPaid',
+            'extraData'
           )
           expect(transferDetails.path).to.be.an('Array')
           expect(transferDetails.path).to.deep.equal([
@@ -467,6 +467,7 @@ describe('e2e', () => {
           expect(transferDetails.feesPaid[0].value).to.equal(
             transferDetails.totalFees.value
           )
+          expect(transferDetails.extraData).to.equal('0x')
         })
       })
 
