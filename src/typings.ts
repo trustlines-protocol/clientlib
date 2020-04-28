@@ -675,6 +675,7 @@ export interface TransferDetailsRaw {
   feePayer: string
   totalFees: string
   feesPaid: string[]
+  extraData: string
 }
 
 export interface TransferDetails {
@@ -684,6 +685,7 @@ export interface TransferDetails {
   feePayer: FeePayer
   totalFees: Amount
   feesPaid: Amount[]
+  extraData: string
 }
 
 export interface TransferIdentifier {

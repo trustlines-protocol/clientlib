@@ -451,7 +451,8 @@ export class Payment {
       ),
       feesPaid: transferInformation.feesPaid.map(feesPaidRaw =>
         utils.formatToAmount(feesPaidRaw, networkDecimals)
-      )
+      ),
+      extraData: transferInformation.extraData
     }
   }
 }
