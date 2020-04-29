@@ -433,6 +433,7 @@ export interface PaidDelegationFeesRaw {
 // PAYMENT
 export interface PaymentTxObject extends TxObject {
   path: string[]
+  receiverAddress: string
   feePayer: FeePayer
   maxFees: Amount
   messageId?: string

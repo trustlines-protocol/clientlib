@@ -131,7 +131,7 @@ export class FakeTLProvider implements TLProvider {
     functionName: string,
     args: object,
     reconnectingOptions?: ReconnectingWSOptions
-  ) {
+  ): any {
     throw new Error('Method not implemented.')
   }
 
@@ -183,8 +183,8 @@ export class FakeTLProvider implements TLProvider {
     })
   }
 
-  public async getRelayVersion(): Promise<string> {
-    if (this.errors.getRelayVersion) {
+  public async getVersion(): Promise<string> {
+    if (this.errors.getVersion) {
       throw new Error('Mocked error in provider.getRelayVersion()')
     }
     return Promise.resolve('relay/v0.1.0')

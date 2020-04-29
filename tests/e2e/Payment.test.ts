@@ -153,6 +153,7 @@ describe('e2e', () => {
             'txFees',
             'maxFees',
             'path',
+            'receiverAddress',
             'messageId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
@@ -174,6 +175,7 @@ describe('e2e', () => {
             'txFees',
             'maxFees',
             'path',
+            'receiverAddress',
             'messageId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
@@ -194,6 +196,7 @@ describe('e2e', () => {
             'txFees',
             'maxFees',
             'path',
+            'receiverAddress',
             'messageId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Receiver)
@@ -215,6 +218,7 @@ describe('e2e', () => {
             'txFees',
             'maxFees',
             'path',
+            'receiverAddress',
             'messageId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
@@ -341,19 +345,46 @@ describe('e2e', () => {
           expect(txHash).to.be.a('string')
         })
 
-        it('should confirm trustline transfer with message', async () => {
-          const preparedPayment = await tl1.payment.prepare(
-            network.address,
-            user2.address,
-            1
-          )
-          const message = 'testMessage'
-          const txHash = await tl1.payment.confirmPayment(
-            preparedPayment,
-            message
-          )
-          await wait()
-          expect(txHash).to.be.a('string')
+        describe('confirm with message', () => {
+          const messages = []
+          let stream
+          let messageId: string
+          const paymentMessage = 'test message'
+
+          before(async () => {
+            // subscribe tl2 to receive payment message
+            stream = tl2.messaging
+              .messageStream()
+              .subscribe(message => messages.push(message))
+            await wait()
+          })
+
+          it('should confirm trustline transfer with message', async () => {
+            const preparedPayment = await tl1.payment.prepare(
+              network.address,
+              user2.address,
+              1
+            )
+            messageId = preparedPayment.messageId
+            const txHash = await tl1.payment.confirmPayment(
+              preparedPayment,
+              paymentMessage
+            )
+            await wait()
+            expect(txHash).to.be.a('string')
+          })
+
+          it('should receive message sent via confirm', async () => {
+            // We expect to have messages for `WebsocketOpen` and then the payment message
+            expect(messages).to.have.lengthOf(2)
+            expect(messages[1]).to.have.property('type', 'PaymentMessage')
+            expect(messages[1]).to.have.property('messageId', messageId)
+            expect(messages[1]).to.have.property('subject', paymentMessage)
+          })
+
+          after(() => {
+            stream.unsubscribe()
+          })
         })
       })
 
