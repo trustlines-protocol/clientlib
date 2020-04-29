@@ -91,6 +91,19 @@ describe('e2e', () => {
         })
       })
 
+      describe('#paymentMessage()', () => {
+        it('should return sent payment message', async () => {
+          const sentPaymentMessage = await tl1.messaging.paymentMessage(
+            tl2.user.address,
+            '0x10',
+            'test message'
+          )
+          expect(sentPaymentMessage.type).to.equal('PaymentMessage')
+          expect(sentPaymentMessage.messageId).to.equal('0x10')
+          expect(sentPaymentMessage.subject).to.equal('test message')
+        })
+      })
+
       describe('#messageStream()', () => {
         const messages = []
         let stream
@@ -118,10 +131,16 @@ describe('e2e', () => {
             user1.address
           )
           await wait()
+          await tl1.messaging.paymentMessage(
+            user1.address,
+            '0x1234',
+            'payment message'
+          )
+          await wait()
         })
 
         it('should receive all messages', () => {
-          expect(messages).to.have.lengthOf(4)
+          expect(messages).to.have.lengthOf(5)
         })
 
         it('should receive payment requests', async () => {
@@ -153,6 +172,13 @@ describe('e2e', () => {
             direction: 'received'
           })
           expect(messages[3].timestamp).to.be.a('number')
+        })
+
+        it('should receive payment message', async () => {
+          expect(messages[4]).to.have.property('type', 'PaymentMessage')
+          expect(messages[4].timestamp).to.be.a('number')
+          expect(messages[4].messageId).to.be.a('string')
+          expect(messages[4]).to.have.property('subject', 'payment message')
         })
 
         after(async () => {
