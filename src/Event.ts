@@ -260,9 +260,8 @@ function processExtraData(event) {
   if (event.extraData) {
     const extraData = decode(event.extraData)
     if (extraData) {
-      if (extraData.paymentRequestId) {
-        event.paymentRequestId = extraData.paymentRequestId
-      }
+      event.paymentRequestId = extraData.paymentRequestId
+      event.messageId = extraData.messageId
     }
   }
   return event
