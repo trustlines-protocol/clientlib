@@ -224,6 +224,12 @@ export interface PaymentRequestDeclineMessage {
   subject?: string
 }
 
+export interface PaymentMessage {
+  type: string
+  messageId: string
+  subject: string
+}
+
 export interface UsernameMessage extends Message {
   username: string
 }

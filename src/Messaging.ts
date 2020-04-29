@@ -9,6 +9,7 @@ import utils from './utils'
 
 import {
   DecimalsOptions,
+  PaymentMessage,
   PaymentRequestDeclineMessage,
   PaymentRequestMessage,
   ReconnectingWSOptions,
@@ -67,15 +68,14 @@ export class Messaging {
       nonce: randomBigNumber.toNumber(),
       id: utils.convertToHexString(randomBigNumber)
     }
-    await this.provider.postToEndpoint(`messages/${counterPartyAddress}`, {
-      type,
-      message: JSON.stringify({
-        ...paymentRequest,
-        counterParty: await this.user.getAddress(),
-        direction: 'received',
-        user: counterPartyAddress
-      })
-    })
+    const message = {
+      ...paymentRequest,
+      counterParty: await this.user.getAddress(),
+      direction: 'received',
+      user: counterPartyAddress
+    }
+    await this.sendMessage(counterPartyAddress, type, message)
+
     return {
       ...paymentRequest,
       counterParty: counterPartyAddress,
@@ -103,10 +103,28 @@ export class Messaging {
       id: typeof id === 'string' ? id : utils.convertToHexString(id),
       subject
     }
-    await this.provider.postToEndpoint(`messages/${counterPartyAddress}`, {
+    await this.sendMessage(counterPartyAddress, type, message)
+    return message
+  }
+
+  /**
+   * Sends a payment message to given `counterParty` and returns created message.
+   * @param counterPartyAddress Address of counter party.
+   * @param messageId Message id of the payment
+   * @param subject Subject that will be sent to the counterparty
+   */
+  public async paymentMessage(
+    counterPartyAddress: string,
+    messageId: string,
+    subject: string
+  ): Promise<PaymentMessage> {
+    const type = 'PaymentMessage'
+    const message = {
       type,
-      message: JSON.stringify(message)
-    })
+      messageId,
+      subject
+    }
+    await this.sendMessage(counterPartyAddress, type, message)
     return message
   }
 
@@ -166,5 +184,16 @@ export class Messaging {
       ...usernameMessage,
       direction: 'sent'
     }
+  }
+
+  private async sendMessage(
+    counterPartyAddress: string,
+    type: string,
+    message
+  ) {
+    await this.provider.postToEndpoint(`messages/${counterPartyAddress}`, {
+      type,
+      message: JSON.stringify(message)
+    })
   }
 }

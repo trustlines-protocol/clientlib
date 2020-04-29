@@ -66,7 +66,7 @@ describe('unit', () => {
       })
     })
 
-    describe('#getRelayVersion()', () => {
+    describe('#getVersion()', () => {
       beforeEach(() => init())
 
       it('return version of relay', async () => {
