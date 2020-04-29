@@ -30,6 +30,8 @@ import {
   TxObject
 } from './typings'
 
+import { Messaging } from './Messaging'
+
 // Values taken from the contracts repository gas tests
 const TRANSFER_BASE_GAS_LIMIT = new BigNumber(61_000)
   .plus(GAS_LIMIT_IDENTITY_OVERHEAD)
@@ -61,6 +63,7 @@ export class Payment {
   private provider: TLProvider
   private transaction: Transaction
   private user: User
+  private messaging: Messaging
 
   /** @hidden */
   constructor(params: {
@@ -69,12 +72,14 @@ export class Payment {
     transaction: Transaction
     currencyNetwork: CurrencyNetwork
     provider: TLProvider
+    messaging: Messaging
   }) {
     this.event = params.event
     this.user = params.user
     this.transaction = params.transaction
     this.currencyNetwork = params.currencyNetwork
     this.provider = params.provider
+    this.messaging = params.messaging
   }
 
   /**
@@ -163,6 +168,7 @@ export class Payment {
         feePayer,
         maxFees,
         path,
+        receiverAddress,
         rawTx,
         messageId: messageId || null
       }
@@ -286,19 +292,26 @@ export class Payment {
    * and sends the signed transaction as well as the message with messageId
    * Can be directly given a `PaymentTxObject` object as returned by `prepare`
    * @param rawTx Raw transaction object.
-   * @param messageId The messageId returned when preparing a payment with message
-   * @param message The message to be sent
+   * @param receiverAddress Address of the receiver of the message for the payment.
+   * @param messageId The messageId returned when preparing a payment with message.
+   * @param message The message to be sent.
    */
   public async confirmPayment(
-    { rawTx, messageId }: { rawTx: RawTxObject; messageId?: string },
+    {
+      rawTx,
+      receiverAddress,
+      messageId
+    }: { rawTx: RawTxObject; receiverAddress: string; messageId?: string },
     message?: string
   ) {
-    if (message && !messageId) {
-      throw new Error(
-        'Cannot confirm payment prepared without messageId with message.'
-      )
+    if (message) {
+      if (!messageId) {
+        throw new Error(
+          'Cannot use `message` if payment was prepared without `messageId`.'
+        )
+      }
+      await this.messaging.paymentMessage(receiverAddress, messageId, message)
     }
-    // TODO: send message
     return this.transaction.confirm(rawTx)
   }
 

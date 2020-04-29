@@ -205,7 +205,8 @@ export class TLNetwork {
       event: this.event,
       provider: this.relayProvider,
       transaction: this.transaction,
-      user: this.user
+      user: this.user,
+      messaging: this.messaging
     })
     this.exchange = new Exchange({
       currencyNetwork: this.currencyNetwork,

@@ -12,6 +12,7 @@ import { FakeTLProvider } from '../helpers/FakeTLProvider'
 import { FakeTLSigner } from '../helpers/FakeTLSigner'
 import { FakeTLWallet } from '../helpers/FakeTLWallet'
 
+import { Messaging } from '../../src/Messaging'
 import { FAKE_NETWORK } from '../Fixtures'
 import { FakeUser } from '../helpers/FakeUser'
 
@@ -45,13 +46,15 @@ describe('unit', () => {
         signer,
         currencyNetwork
       })
+      const messaging = new Messaging({ currencyNetwork, user, provider })
 
       payment = new Payment({
         event,
         user,
         transaction,
         currencyNetwork,
-        provider
+        provider,
+        messaging
       })
     }
 
