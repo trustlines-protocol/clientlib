@@ -90,8 +90,7 @@ describe('e2e', () => {
           const transfer1 = await tl1.payment.prepare(
             network.address,
             user2.address,
-            1000,
-            { extraData }
+            1000
           )
           await tl1.payment.confirm(transfer1.rawTx)
           await wait()
@@ -100,8 +99,7 @@ describe('e2e', () => {
           const transfer2 = await tl2.payment.prepare(
             network.address,
             user1.address,
-            1000,
-            { extraData }
+            1000
           )
           await tl2.payment.confirm(transfer2.rawTx)
           await wait()

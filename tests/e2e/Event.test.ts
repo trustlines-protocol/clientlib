@@ -71,7 +71,10 @@ describe('e2e', () => {
           network1.address,
           user2.address,
           1.5,
-          { extraData }
+          {
+            extraData,
+            addMessageId: false
+          }
         )
         await tl1.payment.confirm(rawTx)
         await wait()
@@ -329,6 +332,9 @@ describe('e2e', () => {
         expect(
           (tlTransferEvents[0] as NetworkTransferEvent).paymentRequestId
         ).to.equal(paymentRequestId)
+        expect(
+          (tlTransferEvents[0] as NetworkTransferEvent).messageId
+        ).to.equal(null)
 
         // events thrown on deposit
         const depositEvents = allEvents.filter(
@@ -553,6 +559,7 @@ describe('e2e', () => {
           'paymentRequestId',
           paymentRequestId
         )
+        expect(transferEvent).to.have.property('messageId')
         expect(transferEvent.blockHash).to.be.a('string')
         expect(transferEvent.logIndex).be.a('number')
 

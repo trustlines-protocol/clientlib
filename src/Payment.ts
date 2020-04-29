@@ -92,24 +92,36 @@ export class Payment {
    * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
    * @param options.extraData Extra data that will appear in the Transfer event when successful.
    * @param options.paymentRequestId Payment request identifier that gets encoded to the extra data.
+   * @param options.addMessageId Whether a message id should be added to the payment, default to true.
    */
   public async prepare(
     networkAddress: string,
     receiverAddress: string,
     value: number | string,
-    options: PaymentOptions = {}
+    options: PaymentOptions = { addMessageId: true }
   ): Promise<PaymentTxObject> {
     const {
       gasPrice,
       gasLimit,
       networkDecimals,
       extraData,
-      paymentRequestId
+      paymentRequestId,
+      addMessageId
     } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
-    const encodedExtraData: string = encode({ extraData, paymentRequestId })
+    let messageId: string
+    if (addMessageId) {
+      // 19 decimals fit in 64 bits
+      messageId = utils.convertToHexString(utils.generateRandomNumber(19))
+    }
+    const encodedExtraData: string = encode({
+      extraData,
+      paymentRequestId,
+      messageId
+    })
+
     const { path, maxFees, feePayer } = await this.getTransferPathInfo(
       networkAddress,
       await this.user.getAddress(),
@@ -151,7 +163,8 @@ export class Payment {
         feePayer,
         maxFees,
         path,
-        rawTx
+        rawTx,
+        messageId: messageId || null
       }
     } else {
       throw new Error('Could not find a path with enough capacity.')
@@ -262,8 +275,30 @@ export class Payment {
    * Signs a raw transaction object as returned by `prepare`
    * and sends the signed transaction.
    * @param rawTx Raw transaction object.
+   * @deprecated use confirmPayment instead.
    */
   public async confirm(rawTx: RawTxObject): Promise<any> {
+    return this.transaction.confirm(rawTx)
+  }
+
+  /**
+   * Signs the rawTx provided as returned by `prepare`
+   * and sends the signed transaction as well as the message with messageId
+   * Can be directly given a `PaymentTxObject` object as returned by `prepare`
+   * @param rawTx Raw transaction object.
+   * @param messageId The messageId returned when preparing a payment with message
+   * @param message The message to be sent
+   */
+  public async confirmPayment(
+    { rawTx, messageId }: { rawTx: RawTxObject; messageId?: string },
+    message?: string
+  ) {
+    if (message && !messageId) {
+      throw new Error(
+        'Cannot confirm payment prepared without messageId with message.'
+      )
+    }
+    // TODO: send message
     return this.transaction.confirm(rawTx)
   }
 
@@ -459,20 +494,22 @@ export class Payment {
 
 function encode({
   extraData,
-  paymentRequestId
+  paymentRequestId,
+  messageId
 }: {
   extraData: string
   paymentRequestId: string
+  messageId?: string
 }) {
-  if (extraData && paymentRequestId) {
+  if (extraData && (paymentRequestId || messageId)) {
     throw Error(
-      'Can not encode extraData and paymentRequestId at the same time currently'
+      'Can not encode extraData and paymentRequestId or messageId at the same time currently'
     )
   }
   if (extraData) {
     return extraData
-  } else if (paymentRequestId) {
-    return encodeExtraData({ paymentRequestId })
+  } else if (paymentRequestId || messageId) {
+    return encodeExtraData({ paymentRequestId, messageId })
   } else {
     return '0x'
   }

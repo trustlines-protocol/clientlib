@@ -82,7 +82,7 @@ describe('e2e', () => {
 
       describe('#getTransferPathInfo()', () => {
         it('should return sender pays path', async () => {
-          const options = { feePayer: FeePayer.Sender, extraData }
+          const options = { feePayer: FeePayer.Sender }
           const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
             user1.address,
@@ -96,7 +96,7 @@ describe('e2e', () => {
         })
 
         it('should return receiver pays path', async () => {
-          const options = { feePayer: FeePayer.Receiver, extraData }
+          const options = { feePayer: FeePayer.Receiver }
           const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
             user1.address,
@@ -121,8 +121,12 @@ describe('e2e', () => {
           expect(pathObj.path).to.deep.equal([])
         })
 
-        it('should return path using no extra data', async () => {
-          const options = { feePayer: FeePayer.Sender }
+        it('should return path using extra data', async () => {
+          const options = {
+            feePayer: FeePayer.Sender,
+            extraData,
+            addMessageId: false
+          }
           const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
             user1.address,
@@ -141,25 +145,6 @@ describe('e2e', () => {
           const preparedPayment = await tl1.payment.prepare(
             network.address,
             user2.address,
-            2.25,
-            {
-              extraData
-            }
-          )
-          expect(preparedPayment).to.have.all.keys(
-            'rawTx',
-            'feePayer',
-            'txFees',
-            'maxFees',
-            'path'
-          )
-          expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
-        })
-
-        it('should prepare tx for trustline transfer without extraData', async () => {
-          const preparedPayment = await tl1.payment.prepare(
-            network.address,
-            user2.address,
             2.25
           )
           expect(preparedPayment).to.have.all.keys(
@@ -167,13 +152,35 @@ describe('e2e', () => {
             'feePayer',
             'txFees',
             'maxFees',
-            'path'
+            'path',
+            'messageId'
+          )
+          expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
+        })
+
+        it('should prepare tx for trustline transfer with extraData', async () => {
+          const preparedPayment = await tl1.payment.prepare(
+            network.address,
+            user2.address,
+            2.25,
+            {
+              extraData,
+              addMessageId: false
+            }
+          )
+          expect(preparedPayment).to.have.all.keys(
+            'rawTx',
+            'feePayer',
+            'txFees',
+            'maxFees',
+            'path',
+            'messageId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
         })
 
         it('should prepare tx for trustline transferReceiverPays', async () => {
-          const options = { feePayer: FeePayer.Receiver, extraData }
+          const options = { feePayer: FeePayer.Receiver }
 
           const preparedPayment = await tl1.payment.prepare(
             network.address,
@@ -186,7 +193,8 @@ describe('e2e', () => {
             'feePayer',
             'txFees',
             'maxFees',
-            'path'
+            'path',
+            'messageId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Receiver)
         })
@@ -206,7 +214,8 @@ describe('e2e', () => {
             'feePayer',
             'txFees',
             'maxFees',
-            'path'
+            'path',
+            'messageId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
         })
@@ -293,8 +302,7 @@ describe('e2e', () => {
           const { rawTx } = await tl1.payment.prepare(
             network.address,
             user2.address,
-            1,
-            { extraData }
+            1
           )
           const txHash = await tl1.payment.confirm(rawTx)
           await wait()
@@ -305,8 +313,23 @@ describe('e2e', () => {
           ).to.equal('-1')
         })
 
+        it('should confirm trustline transfer with extraData', async () => {
+          const { rawTx } = await tl1.payment.prepare(
+            network.address,
+            user2.address,
+            1,
+            {
+              extraData,
+              addMessageId: false
+            }
+          )
+          const txHash = await tl1.payment.confirm(rawTx)
+          await wait()
+          expect(txHash).to.be.a('string')
+        })
+
         it('should confirm trustline transferReceiverPays', async () => {
-          const options = { feePayer: FeePayer.Receiver, extraData }
+          const options = { feePayer: FeePayer.Receiver }
           const { rawTx } = await tl1.payment.prepare(
             network.address,
             user2.address,
@@ -317,17 +340,38 @@ describe('e2e', () => {
           await wait()
           expect(txHash).to.be.a('string')
         })
+
+        it('should confirm trustline transfer with message', async () => {
+          const preparedPayment = await tl1.payment.prepare(
+            network.address,
+            user2.address,
+            1
+          )
+          const message = 'testMessage'
+          const txHash = await tl1.payment.confirmPayment(
+            preparedPayment,
+            message
+          )
+          await wait()
+          expect(txHash).to.be.a('string')
+        })
       })
 
       describe('#get()', () => {
+        let messageId: string
+
         before(async () => {
-          const { rawTx } = await tl1.payment.prepare(
+          const preparedPayment = await tl1.payment.prepare(
             network.address,
             user2.address,
             1.5,
-            { paymentRequestId }
+            {
+              paymentRequestId,
+              addMessageId: true
+            }
           )
-          await tl1.payment.confirm(rawTx)
+          messageId = preparedPayment.messageId
+          await tl1.payment.confirm(preparedPayment.rawTx)
           await wait()
         })
 
@@ -343,9 +387,10 @@ describe('e2e', () => {
           expect(latestTransfer.user).to.be.equal(tl1.user.address)
           expect(latestTransfer.counterParty).to.be.equal(tl2.user.address)
           expect(latestTransfer.amount).to.have.keys('decimals', 'raw', 'value')
-          expect(latestTransfer.amount.value).to.eq('1.5')
+          expect(latestTransfer.amount.value).to.equal('1.5')
           expect(latestTransfer.extraData).to.be.a('string')
-          expect(latestTransfer.paymentRequestId).to.eq(paymentRequestId)
+          expect(latestTransfer.paymentRequestId).to.equal(paymentRequestId)
+          expect(latestTransfer.messageId).to.equal(messageId)
           expect(latestTransfer.blockNumber).to.be.a('number')
           expect(latestTransfer.direction).to.equal('sent')
           expect(latestTransfer.networkAddress).to.be.a('string')
@@ -365,7 +410,8 @@ describe('e2e', () => {
             user3.address,
             transferValue,
             {
-              extraData
+              extraData,
+              addMessageId: false
             }
           )
           const txHash = await tl1.payment.confirm(transfer.rawTx)
@@ -420,7 +466,8 @@ describe('e2e', () => {
           const transfer = await tl1.payment.prepare(
             network.address,
             user3.address,
-            transferValue
+            transferValue,
+            { extraData, addMessageId: false }
           )
           await tl1.payment.confirm(transfer.rawTx)
           await wait()
@@ -467,7 +514,7 @@ describe('e2e', () => {
           expect(transferDetails.feesPaid[0].value).to.equal(
             transferDetails.totalFees.value
           )
-          expect(transferDetails.extraData).to.equal('0x')
+          expect(transferDetails.extraData).to.equal('0x12ab34ef')
         })
       })
 
@@ -494,7 +541,7 @@ describe('e2e', () => {
           const delta = new BigNumber(afterBalance.value).minus(
             beforeBalance.value
           )
-          expect(delta.toNumber()).to.eq(0.0001)
+          expect(delta.toNumber()).to.equal(0.0001)
         })
       })
 
@@ -505,7 +552,7 @@ describe('e2e', () => {
               network.address,
               user2.address
             )
-            expect(result.path.length).to.eq(2)
+            expect(result.path.length).to.equal(2)
             expect(result.amount).to.have.keys('decimals', 'raw', 'value')
           })
 
@@ -514,7 +561,7 @@ describe('e2e', () => {
               network.address,
               tl3.user.address
             )
-            expect(result.path.length).to.eq(3)
+            expect(result.path.length).to.equal(3)
             expect(result.amount).to.have.keys('decimals', 'raw', 'value')
           })
         })

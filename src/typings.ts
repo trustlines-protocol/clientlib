@@ -79,6 +79,7 @@ export interface PaymentOptions extends TLOptions {
   feePayer?: FeePayer
   extraData?: string
   paymentRequestId?: string
+  addMessageId?: boolean
 }
 
 export interface TrustlineUpdateOptions extends TLOptions {
@@ -136,6 +137,7 @@ export interface NetworkTransferEvent extends NetworkEvent {
   amount: Amount
   extraData: string
   paymentRequestId?: string
+  messageId?: string
 }
 
 export interface NetworkTrustlineUpdateEventRaw extends NetworkEvent {
@@ -427,6 +429,7 @@ export interface PaymentTxObject extends TxObject {
   path: string[]
   feePayer: FeePayer
   maxFees: Amount
+  messageId?: string
 }
 
 export enum FeePayer {

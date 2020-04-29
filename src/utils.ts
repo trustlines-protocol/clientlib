@@ -425,7 +425,13 @@ export const convertToHexString = (
     // Non integers values can not be processed by ethereum
     throw new Error('Can not convert non integer: ' + bigNumber.toString())
   }
-  const hexStr = bigNumber.toString(16)
+  let hexStr = bigNumber.toString(16)
+
+  // bigNumber returns a base 16 number which could have an odd number of character
+  // thus not truly representing bytes, we need to prepend a 0 in that case
+  if (hexStr.length % 2 !== 0) {
+    hexStr = 0 + hexStr
+  }
   return ethUtils.addHexPrefix(hexStr)
 }
 
