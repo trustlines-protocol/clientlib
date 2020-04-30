@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- Use `feeRecipient` as given by the provider instead of zeroAddress for meta-tx
+
+### Added
+
+- Add function to get the delegation fees paid in transaction: `Transaction.getAppliedDelegationFees(txHash)`.
+  It returns a list of all delegation fees applied in transaction with given hash
+  where the fee payer is the loaded user
+
 ## [0.13.0] - 2020-04-23
 
 (requires relay version >=0.15.0)
