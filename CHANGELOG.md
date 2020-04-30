@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Add function to get the delegation fees paid in transaction: `Transaction.getAppliedDelegationFees(txHash)`.
   It returns a list of all delegation fees applied in transaction with given hash
   where the fee payer is the loaded user
+- Add `extraData` to `TransferDetails`, it contains the raw `extraData` that was present in the transfer
+  for which details are returned
 
 ## [0.13.0] - 2020-04-23
 
