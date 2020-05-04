@@ -17,6 +17,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
   where the fee payer is the loaded user
 - Add `extraData` to `TransferDetails`, it contains the raw `extraData` that was present in the transfer
   for which details are returned
+- Add option to `Payment.preparePayment` function `options.addMessageId: boolean = true` that signals whether
+  a messageId should be generated and added to the payment's extraData.
+- Add `messageId` to the returned values of `Payment.preparePayment`
+- Add function `Payment.confirmPayment` to confirm any `PaymentTxObject` returned by `prepare`
+  and potentially send a payment message along with the payment
+
+### Deprecated
+
+- Deprecates function `Payment.confirm`, use `Payment.confirmPayment` instead
 
 ## [0.13.0] - 2020-04-23
 
