@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Add `messageId` to the returned values of `Payment.preparePayment`
 - Add function `Payment.confirmPayment` to confirm any `PaymentTxObject` returned by `prepare`
   and potentially send a payment message along with the payment
+- Add function `Messaging.paymentMessage` to send a payment message for a messageId to a counterparty address
 
 ### Deprecated
 
