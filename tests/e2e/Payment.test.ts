@@ -498,7 +498,10 @@ describe('e2e', () => {
             network.address,
             user3.address,
             transferValue,
-            { extraData, addMessageId: false }
+            {
+              extraData,
+              addMessageId: false
+            }
           )
           await tl1.payment.confirm(transfer.rawTx)
           await wait()

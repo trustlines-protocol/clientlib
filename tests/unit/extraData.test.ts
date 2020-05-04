@@ -25,5 +25,11 @@ describe('unit', () => {
       }
       expect(extraData).to.be.deep.eq(decode(encode(extraData)))
     })
+
+    it('should not get an error when decoding wrongly formed extra data', () => {
+      const encodedExtraData = '0x544c4d501' + '12345678'.repeat(10)
+      const decoded = decode(encodedExtraData)
+      expect(decoded).to.equal(null)
+    })
   })
 })
