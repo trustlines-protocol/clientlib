@@ -30,16 +30,29 @@ export function encode(extraData: ExtraData): string {
 }
 
 export function decode(encodedExtraData: string): ExtraData {
-  if (encodedExtraData.startsWith(MSG_PACK_ID)) {
-    const extraData: ExtraDataEncoding = msgPack.decode(
-      hexToArray(encodedExtraData.slice(MSG_PACK_ID.length))
-    )
-    return {
-      paymentRequestId: arrayToHex(extraData.prId),
-      messageId: arrayToHex(extraData.mgId)
-    }
-  } else {
+  if (!encodedExtraData.startsWith(MSG_PACK_ID)) {
     return null
+  }
+
+  const encodedExtraDataArray = hexToArray(
+    encodedExtraData.slice(MSG_PACK_ID.length)
+  )
+
+  let extraData: ExtraDataEncoding
+  try {
+    extraData = msgPack.decode(encodedExtraDataArray)
+  } catch (error) {
+    if (error instanceof RangeError) {
+      // The encodedExtraData starts with MSG_PACK_ID but does not follow the expected format
+      return null
+    } else {
+      throw error
+    }
+  }
+
+  return {
+    paymentRequestId: arrayToHex(extraData.prId),
+    messageId: arrayToHex(extraData.mgId)
   }
 }
 
