@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
   where the fee payer is the loaded user
 - Add `extraData` to `TransferDetails`, it contains the raw `extraData` that was present in the transfer
   for which details are returned
+- Add `paymentRequestId` and `messageId` to `TransferDetails` corresponding to the decoded `extraData`
 - Add option to `Payment.preparePayment` function `options.addMessageId: boolean = true` that signals whether
   a messageId should be generated and added to the payment's extraData.
 - Add `messageId` to the returned values of `Payment.preparePayment`
