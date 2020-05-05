@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable'
 import { fromPromise } from 'rxjs/observable/fromPromise'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
-import { decode } from './extraData'
+import { decode, processExtraData } from './extraData'
 import { TLProvider } from './providers/TLProvider'
 import { User } from './User'
 
@@ -250,19 +250,4 @@ export class Event {
       return result
     }, {})
   }
-}
-
-/**
- * Processes the content of extraData and attaches the content to the event.
- * @param event
- */
-function processExtraData(event) {
-  if (event.extraData) {
-    const extraData = decode(event.extraData)
-    if (extraData) {
-      event.paymentRequestId = extraData.paymentRequestId
-      event.messageId = extraData.messageId
-    }
-  }
-  return event
 }

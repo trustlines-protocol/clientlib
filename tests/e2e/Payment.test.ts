@@ -441,8 +441,8 @@ describe('e2e', () => {
             user3.address,
             transferValue,
             {
-              extraData,
-              addMessageId: false
+              addMessageId: true,
+              paymentRequestId
             }
           )
           const txHash = await tl1.payment.confirm(transfer.rawTx)
@@ -461,7 +461,9 @@ describe('e2e', () => {
             'feePayer',
             'totalFees',
             'feesPaid',
-            'extraData'
+            'extraData',
+            'paymentRequestId',
+            'messageId'
           )
           expect(transferDetails.path).to.be.an('Array')
           expect(transferDetails.path).to.deep.equal([
@@ -488,7 +490,9 @@ describe('e2e', () => {
           expect(transferDetails.feesPaid[0].value).to.equal(
             transferDetails.totalFees.value
           )
-          expect(transferDetails.extraData).to.equal(extraData)
+          expect(transferDetails.extraData).to.be.a('string')
+          expect(transferDetails.paymentRequestId).to.equal(paymentRequestId)
+          expect(transferDetails.messageId).to.equal(transfer.messageId)
         })
 
         it('should return details for transfer via id', async () => {
@@ -521,7 +525,9 @@ describe('e2e', () => {
             'feePayer',
             'totalFees',
             'feesPaid',
-            'extraData'
+            'extraData',
+            'paymentRequestId',
+            'messageId'
           )
           expect(transferDetails.path).to.be.an('Array')
           expect(transferDetails.path).to.deep.equal([
@@ -549,6 +555,8 @@ describe('e2e', () => {
             transferDetails.totalFees.value
           )
           expect(transferDetails.extraData).to.equal('0x12ab34ef')
+          expect(transferDetails.paymentRequestId).to.be.a('null')
+          expect(transferDetails.messageId).to.be.a('null')
         })
       })
 

@@ -98,6 +98,8 @@ describe('e2e', () => {
         expect(last.amount).to.have.keys('raw', 'value', 'decimals')
         expect(last.amount.value).to.eq('1.5')
         expect(last.extraData).to.eq(extraData)
+        expect(last.messageId).to.be.a('null')
+        expect(last.paymentRequestId).to.be.a('null')
         expect(last.logIndex).to.be.a('number')
         expect(last.blockHash).to.be.a('string')
       })
@@ -108,6 +110,7 @@ describe('e2e', () => {
       let acceptTxHash
       let cancelUpdateTxHash
       let tlTransferTxHash
+      let tlTransferMessageId
       let depositTxHash
       let withdrawTxHash
       let transferTxHash
@@ -161,6 +164,7 @@ describe('e2e', () => {
           1,
           { paymentRequestId }
         )
+        tlTransferMessageId = tlTransferTx.messageId
         tlTransferTxHash = await tl1.payment.confirm(tlTransferTx.rawTx)
         await wait()
 
@@ -307,6 +311,7 @@ describe('e2e', () => {
           ({ transactionHash }) => transactionHash === tlTransferTxHash
         )
         // check event Trustlines Transfer
+        console.log(tlTransferEvents[0])
         expect(
           tlTransferEvents,
           'Trustline Transfer should exist'
@@ -334,7 +339,7 @@ describe('e2e', () => {
         ).to.equal(paymentRequestId)
         expect(
           (tlTransferEvents[0] as NetworkTransferEvent).messageId
-        ).to.equal(null)
+        ).to.equal(tlTransferMessageId)
 
         // events thrown on deposit
         const depositEvents = allEvents.filter(

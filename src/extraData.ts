@@ -73,3 +73,21 @@ function arrayToHex(a): string {
 function hexToArray(h: string) {
   return Buffer.from(remove0xPrefix(h), 'hex')
 }
+
+/**
+ * Processes the content of extraData and attaches the content to the object.
+ * @param object An object potentially having extra data to process
+ */
+export function processExtraData(object) {
+  if (object.extraData !== undefined) {
+    const decodedExtraData = decode(object.extraData)
+
+    object.paymentRequestId = decodedExtraData
+      ? decodedExtraData.paymentRequestId || null
+      : null
+    object.messageId = decodedExtraData
+      ? decodedExtraData.messageId || null
+      : null
+  }
+  return object
+}
