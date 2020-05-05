@@ -2,7 +2,11 @@ import { BigNumber } from 'bignumber.js'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
-import { encode as encodeExtraData } from './extraData'
+import {
+  decode,
+  encode as encodeExtraData,
+  processExtraData
+} from './extraData'
 import { TLProvider } from './providers/TLProvider'
 import {
   GAS_LIMIT_IDENTITY_OVERHEAD,
@@ -488,7 +492,7 @@ export class Payment {
     transferInformation: TransferDetailsRaw,
     networkDecimals: number
   ): TransferDetails {
-    return {
+    const transferDetails = {
       path: transferInformation.path,
       currencyNetwork: transferInformation.currencyNetwork,
       value: utils.formatToAmount(transferInformation.value, networkDecimals),
@@ -502,6 +506,7 @@ export class Payment {
       ),
       extraData: transferInformation.extraData
     }
+    return processExtraData(transferDetails)
   }
 }
 
