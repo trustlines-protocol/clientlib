@@ -294,7 +294,7 @@ export interface RawTxObject {
   to?: string
   value?: number | string | BigNumber
   data?: string
-  nonce?: number
+  nonce?: number | string
   baseFee?: number | string | BigNumber
   gasLimit?: number | string | BigNumber
   gasPrice?: number | string | BigNumber
