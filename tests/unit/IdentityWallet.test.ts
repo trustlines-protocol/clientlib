@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
@@ -25,6 +26,7 @@ import {
 import { MetaTransaction } from '../../src/typings'
 import {
   calculateIdentityAddress,
+  getRandomNonce,
   IdentityWallet
 } from '../../src/wallets/IdentityWallet'
 
@@ -227,6 +229,26 @@ describe('unit', () => {
           IDENTITY_ADDRESS
         )
       })
+    })
+  })
+
+  describe('#getRandomNonce', () => {
+    const minNonce = new BigNumber(2).pow(255).plus(1)
+    const maxNonce = new BigNumber(2).pow(256)
+
+    it('should generate nonce in expected range', () => {
+      // TODO: how to test this properly? Define range as parameter?
+      for (let i = 0; i < 1000; i++) {
+        const nonce = getRandomNonce()
+        assert.isTrue(
+          new BigNumber(nonce).isGreaterThanOrEqualTo(minNonce),
+          'Random nonce is too small'
+        )
+        assert.isTrue(
+          new BigNumber(nonce).isLessThan(maxNonce),
+          'Random nonce is too big'
+        )
+      }
     })
   })
 })

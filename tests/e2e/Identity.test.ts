@@ -81,6 +81,7 @@ describe('e2e', () => {
           identityWallet.address,
           0
         )
+        rawTx.nonce = firstNonce
         await trustlinesNetwork.payment.confirm(rawTx)
 
         const secondNonce = await relayProvider.getIdentityNonce(
