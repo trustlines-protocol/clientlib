@@ -101,13 +101,13 @@ export class Payment {
    * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
    * @param options.extraData Extra data that will appear in the Transfer event when successful.
    * @param options.paymentRequestId Payment request identifier that gets encoded to the extra data.
-   * @param options.addMessageId Whether a message id should be added to the payment, default to true.
+   * @param options.addTransferId Whether a transfer id should be added to the payment, default to true.
    */
   public async prepare(
     networkAddress: string,
     receiverAddress: string,
     value: number | string,
-    options: PaymentOptions = { addMessageId: true }
+    options: PaymentOptions = { addTransferId: true }
   ): Promise<PaymentTxObject> {
     const {
       gasPrice,
@@ -115,20 +115,20 @@ export class Payment {
       networkDecimals,
       extraData,
       paymentRequestId,
-      addMessageId
+      addTransferId
     } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
     })
-    let messageId: string
-    if (addMessageId) {
+    let transferId: string
+    if (addTransferId) {
       // 19 decimals fit in 64 bits
-      messageId = utils.convertToHexString(utils.generateRandomNumber(19))
+      transferId = utils.convertToHexString(utils.generateRandomNumber(19))
     }
     const encodedExtraData: string = encode({
       extraData,
       paymentRequestId,
-      messageId
+      transferId
     })
 
     const { path, maxFees, feePayer } = await this.getTransferPathInfo(
@@ -174,7 +174,7 @@ export class Payment {
         path,
         receiverAddress,
         rawTx,
-        messageId: messageId || null
+        transferId: transferId || null
       }
     } else {
       throw new Error('Could not find a path with enough capacity.')
@@ -293,28 +293,28 @@ export class Payment {
 
   /**
    * Signs the rawTx provided as returned by `prepare`
-   * and sends the signed transaction as well as the message with messageId
+   * and sends the signed transaction as well as the message with transferId
    * Can be directly given a `PaymentTxObject` object as returned by `prepare`
    * @param rawTx Raw transaction object.
    * @param receiverAddress Address of the receiver of the message for the payment.
-   * @param messageId The messageId returned when preparing a payment with message.
+   * @param transferId The transfer id returned when preparing a payment with message.
    * @param message The message to be sent.
    */
   public async confirmPayment(
     {
       rawTx,
       receiverAddress,
-      messageId
-    }: { rawTx: RawTxObject; receiverAddress: string; messageId?: string },
+      transferId
+    }: { rawTx: RawTxObject; receiverAddress: string; transferId?: string },
     message?: string
   ) {
     if (message) {
-      if (!messageId) {
+      if (!transferId) {
         throw new Error(
-          'Cannot use `message` if payment was prepared without `messageId`.'
+          'Cannot use `message` if payment was prepared without `transferId`.'
         )
       }
-      await this.messaging.paymentMessage(receiverAddress, messageId, message)
+      await this.messaging.paymentMessage(receiverAddress, transferId, message)
     }
     return this.transaction.confirm(rawTx)
   }
@@ -513,21 +513,21 @@ export class Payment {
 function encode({
   extraData,
   paymentRequestId,
-  messageId
+  transferId
 }: {
   extraData: string
   paymentRequestId: string
-  messageId?: string
+  transferId?: string
 }) {
-  if (extraData && (paymentRequestId || messageId)) {
+  if (extraData && (paymentRequestId || transferId)) {
     throw Error(
-      'Can not encode extraData and paymentRequestId or messageId at the same time currently'
+      'Can not encode extraData and paymentRequestId or transferId at the same time currently'
     )
   }
   if (extraData) {
     return extraData
-  } else if (paymentRequestId || messageId) {
-    return encodeExtraData({ paymentRequestId, messageId })
+  } else if (paymentRequestId || transferId) {
+    return encodeExtraData({ paymentRequestId, transferId })
   } else {
     return '0x'
   }

@@ -73,7 +73,7 @@ describe('e2e', () => {
           1.5,
           {
             extraData,
-            addMessageId: false
+            addTransferId: false
           }
         )
         await tl1.payment.confirm(rawTx)
@@ -98,7 +98,7 @@ describe('e2e', () => {
         expect(last.amount).to.have.keys('raw', 'value', 'decimals')
         expect(last.amount.value).to.eq('1.5')
         expect(last.extraData).to.eq(extraData)
-        expect(last.messageId).to.be.a('null')
+        expect(last.transferId).to.be.a('null')
         expect(last.paymentRequestId).to.be.a('null')
         expect(last.logIndex).to.be.a('number')
         expect(last.blockHash).to.be.a('string')
@@ -110,7 +110,7 @@ describe('e2e', () => {
       let acceptTxHash
       let cancelUpdateTxHash
       let tlTransferTxHash
-      let tlTransferMessageId
+      let tlTransferTransferId
       let depositTxHash
       let withdrawTxHash
       let transferTxHash
@@ -164,7 +164,7 @@ describe('e2e', () => {
           1,
           { paymentRequestId }
         )
-        tlTransferMessageId = tlTransferTx.messageId
+        tlTransferTransferId = tlTransferTx.transferId
         tlTransferTxHash = await tl1.payment.confirm(tlTransferTx.rawTx)
         await wait()
 
@@ -338,8 +338,8 @@ describe('e2e', () => {
           (tlTransferEvents[0] as NetworkTransferEvent).paymentRequestId
         ).to.equal(paymentRequestId)
         expect(
-          (tlTransferEvents[0] as NetworkTransferEvent).messageId
-        ).to.equal(tlTransferMessageId)
+          (tlTransferEvents[0] as NetworkTransferEvent).transferId
+        ).to.equal(tlTransferTransferId)
 
         // events thrown on deposit
         const depositEvents = allEvents.filter(
@@ -564,7 +564,7 @@ describe('e2e', () => {
           'paymentRequestId',
           paymentRequestId
         )
-        expect(transferEvent).to.have.property('messageId')
+        expect(transferEvent).to.have.property('transferId')
         expect(transferEvent.blockHash).to.be.a('string')
         expect(transferEvent.logIndex).be.a('number')
 

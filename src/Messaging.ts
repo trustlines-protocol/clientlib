@@ -110,18 +110,18 @@ export class Messaging {
   /**
    * Sends a payment message to given `counterParty` and returns created message.
    * @param counterPartyAddress Address of counter party.
-   * @param messageId Message id of the payment
+   * @param transferId Transfer ID of the payment
    * @param subject Subject that will be sent to the counterparty
    */
   public async paymentMessage(
     counterPartyAddress: string,
-    messageId: string,
+    transferId: string,
     subject: string
   ): Promise<PaymentMessage> {
     const type = 'PaymentMessage'
     const message = {
       type,
-      messageId,
+      transferId,
       subject
     }
     await this.sendMessage(counterPartyAddress, type, message)

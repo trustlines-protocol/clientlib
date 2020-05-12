@@ -79,7 +79,7 @@ export interface PaymentOptions extends TLOptions {
   feePayer?: FeePayer
   extraData?: string
   paymentRequestId?: string
-  addMessageId?: boolean
+  addTransferId?: boolean
 }
 
 export interface TrustlineUpdateOptions extends TLOptions {
@@ -137,7 +137,7 @@ export interface NetworkTransferEvent extends NetworkEvent {
   amount: Amount
   extraData: string
   paymentRequestId: string
-  messageId: string
+  transferId: string
 }
 
 export interface NetworkTrustlineUpdateEventRaw extends NetworkEvent {
@@ -226,7 +226,7 @@ export interface PaymentRequestDeclineMessage {
 
 export interface PaymentMessage {
   type: string
-  messageId: string
+  transferId: string
   subject: string
 }
 
@@ -436,7 +436,7 @@ export interface PaymentTxObject extends TxObject {
   receiverAddress: string
   feePayer: FeePayer
   maxFees: Amount
-  messageId?: string
+  transferId?: string
 }
 
 export enum FeePayer {
@@ -697,7 +697,7 @@ export interface TransferDetails {
   feesPaid: Amount[]
   extraData: string
   paymentRequestId: string
-  messageId: string
+  transferId: string
 }
 
 export interface TransferIdentifier {

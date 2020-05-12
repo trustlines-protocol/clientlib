@@ -125,7 +125,7 @@ describe('e2e', () => {
           const options = {
             feePayer: FeePayer.Sender,
             extraData,
-            addMessageId: false
+            addTransferId: false
           }
           const pathObj = await tl1.payment.getTransferPathInfo(
             network.address,
@@ -154,7 +154,7 @@ describe('e2e', () => {
             'maxFees',
             'path',
             'receiverAddress',
-            'messageId'
+            'transferId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
         })
@@ -166,7 +166,7 @@ describe('e2e', () => {
             2.25,
             {
               extraData,
-              addMessageId: false
+              addTransferId: false
             }
           )
           expect(preparedPayment).to.have.all.keys(
@@ -176,7 +176,7 @@ describe('e2e', () => {
             'maxFees',
             'path',
             'receiverAddress',
-            'messageId'
+            'transferId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
         })
@@ -197,7 +197,7 @@ describe('e2e', () => {
             'maxFees',
             'path',
             'receiverAddress',
-            'messageId'
+            'transferId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Receiver)
         })
@@ -219,7 +219,7 @@ describe('e2e', () => {
             'maxFees',
             'path',
             'receiverAddress',
-            'messageId'
+            'transferId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
         })
@@ -324,7 +324,7 @@ describe('e2e', () => {
             1,
             {
               extraData,
-              addMessageId: false
+              addTransferId: false
             }
           )
           const txHash = await tl1.payment.confirm(rawTx)
@@ -348,7 +348,7 @@ describe('e2e', () => {
         describe('confirm with message', () => {
           const messages = []
           let stream
-          let messageId: string
+          let transferId: string
           const paymentMessage = 'test message'
 
           before(async () => {
@@ -365,7 +365,7 @@ describe('e2e', () => {
               user2.address,
               1
             )
-            messageId = preparedPayment.messageId
+            transferId = preparedPayment.transferId
             const txHash = await tl1.payment.confirmPayment(
               preparedPayment,
               paymentMessage
@@ -378,7 +378,7 @@ describe('e2e', () => {
             // We expect to have messages for `WebsocketOpen` and then the payment message
             expect(messages).to.have.lengthOf(2)
             expect(messages[1]).to.have.property('type', 'PaymentMessage')
-            expect(messages[1]).to.have.property('messageId', messageId)
+            expect(messages[1]).to.have.property('transferId', transferId)
             expect(messages[1]).to.have.property('subject', paymentMessage)
           })
 
@@ -389,7 +389,7 @@ describe('e2e', () => {
       })
 
       describe('#get()', () => {
-        let messageId: string
+        let transferId: string
 
         before(async () => {
           const preparedPayment = await tl1.payment.prepare(
@@ -398,10 +398,10 @@ describe('e2e', () => {
             1.5,
             {
               paymentRequestId,
-              addMessageId: true
+              addTransferId: true
             }
           )
-          messageId = preparedPayment.messageId
+          transferId = preparedPayment.transferId
           await tl1.payment.confirm(preparedPayment.rawTx)
           await wait()
         })
@@ -421,7 +421,7 @@ describe('e2e', () => {
           expect(latestTransfer.amount.value).to.equal('1.5')
           expect(latestTransfer.extraData).to.be.a('string')
           expect(latestTransfer.paymentRequestId).to.equal(paymentRequestId)
-          expect(latestTransfer.messageId).to.equal(messageId)
+          expect(latestTransfer.transferId).to.equal(transferId)
           expect(latestTransfer.blockNumber).to.be.a('number')
           expect(latestTransfer.direction).to.equal('sent')
           expect(latestTransfer.networkAddress).to.be.a('string')
@@ -441,7 +441,7 @@ describe('e2e', () => {
             user3.address,
             transferValue,
             {
-              addMessageId: true,
+              addTransferId: true,
               paymentRequestId
             }
           )
@@ -463,7 +463,7 @@ describe('e2e', () => {
             'feesPaid',
             'extraData',
             'paymentRequestId',
-            'messageId'
+            'transferId'
           )
           expect(transferDetails.path).to.be.an('Array')
           expect(transferDetails.path).to.deep.equal([
@@ -492,7 +492,7 @@ describe('e2e', () => {
           )
           expect(transferDetails.extraData).to.be.a('string')
           expect(transferDetails.paymentRequestId).to.equal(paymentRequestId)
-          expect(transferDetails.messageId).to.equal(transfer.messageId)
+          expect(transferDetails.transferId).to.equal(transfer.transferId)
         })
 
         it('should return details for transfer via id', async () => {
@@ -504,7 +504,7 @@ describe('e2e', () => {
             transferValue,
             {
               extraData,
-              addMessageId: false
+              addTransferId: false
             }
           )
           await tl1.payment.confirm(transfer.rawTx)
@@ -527,7 +527,7 @@ describe('e2e', () => {
             'feesPaid',
             'extraData',
             'paymentRequestId',
-            'messageId'
+            'transferId'
           )
           expect(transferDetails.path).to.be.an('Array')
           expect(transferDetails.path).to.deep.equal([
@@ -556,7 +556,7 @@ describe('e2e', () => {
           )
           expect(transferDetails.extraData).to.equal('0x12ab34ef')
           expect(transferDetails.paymentRequestId).to.be.a('null')
-          expect(transferDetails.messageId).to.be.a('null')
+          expect(transferDetails.transferId).to.be.a('null')
         })
       })
 

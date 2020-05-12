@@ -99,7 +99,7 @@ describe('e2e', () => {
             'test message'
           )
           expect(sentPaymentMessage.type).to.equal('PaymentMessage')
-          expect(sentPaymentMessage.messageId).to.equal('0x10')
+          expect(sentPaymentMessage.transferId).to.equal('0x10')
           expect(sentPaymentMessage.subject).to.equal('test message')
         })
       })
@@ -177,7 +177,7 @@ describe('e2e', () => {
         it('should receive payment message', async () => {
           expect(messages[4]).to.have.property('type', 'PaymentMessage')
           expect(messages[4].timestamp).to.be.a('number')
-          expect(messages[4].messageId).to.be.a('string')
+          expect(messages[4].transferId).to.be.a('string')
           expect(messages[4]).to.have.property('subject', 'payment message')
         })
 
