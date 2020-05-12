@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Use `feeRecipient` as given by the provider instead of zeroAddress for meta-tx
+- Use random none generation at the identity wallet for meta transactions
 
 ### Added
 
@@ -17,13 +18,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
   where the fee payer is the loaded user
 - Add `extraData` to `TransferDetails`, it contains the raw `extraData` that was present in the transfer
   for which details are returned
-- Add `paymentRequestId` and `transferId` to `TransferDetails` corresponding to the decoded `extraData`
-- Add option to `Payment.preparePayment` function `options.addTransferId: boolean = true` that signals whether
-  a `transferId` should be generated and added to the payment's extraData.
-- Add `transferId` to the returned values of `Payment.preparePayment`
+- Add `paymentRequestId` and `messageId` to `TransferDetails` corresponding to the decoded `extraData`
+- Add option to `Payment.preparePayment` function `options.addMessageId: boolean = true` that signals whether
+  a messageId should be generated and added to the payment's extraData.
+- Add `messageId` to the returned values of `Payment.preparePayment`
 - Add function `Payment.confirmPayment` to confirm any `PaymentTxObject` returned by `prepare`
   and potentially send a payment message along with the payment
-- Add function `Messaging.paymentMessage` to send a payment message for a `transferId` to a counterparty address
+- Add function `Messaging.paymentMessage` to send a payment message for a messageId to a counterparty address
+- Add optional field to the `TLNetworkConfig` for the nonce mechanism to use
 
 ### Deprecated
 

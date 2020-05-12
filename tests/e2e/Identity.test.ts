@@ -19,7 +19,7 @@ import {
   wait
 } from '../Fixtures'
 
-import { FeePayer, RawTxObject } from '../../src/typings'
+import { FeePayer, NonceMechanism, RawTxObject } from '../../src/typings'
 
 import { TLNetwork } from '../../src/TLNetwork'
 
@@ -143,7 +143,8 @@ describe('e2e', () => {
           tlNetworkConfigIdentity.chainId,
           {
             identityFactoryAddress,
-            identityImplementationAddress
+            identityImplementationAddress,
+            nonceMechanism: NonceMechanism.Random
           }
         )
         const walletData = await secondWallet.create()

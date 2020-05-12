@@ -23,7 +23,7 @@ import {
   USER_1_IDENTITY_WALLET_V1
 } from '../Fixtures'
 
-import { MetaTransaction } from '../../src/typings'
+import { MetaTransaction, NonceMechanism } from '../../src/typings'
 import {
   calculateIdentityAddress,
   getRandomNonce,
@@ -45,7 +45,8 @@ describe('unit', () => {
       fakeTLProvider = new FakeTLProvider()
       identityWallet = new IdentityWallet(fakeTLProvider, FAKE_CHAIN_ID, {
         identityFactoryAddress: IDENTITY_FACTORY_ADDRESS,
-        identityImplementationAddress: IDENTITY_IMPLEMENTATION_ADDRESS
+        identityImplementationAddress: IDENTITY_IMPLEMENTATION_ADDRESS,
+        nonceMechanism: NonceMechanism.Random
       })
     }
 
@@ -227,6 +228,59 @@ describe('unit', () => {
             IDENTITY_OWNER_ADDRESS
           ),
           IDENTITY_ADDRESS
+        )
+      })
+    })
+
+    describe('#getNonce', () => {
+      const config = {
+        identityFactoryAddress: IDENTITY_FACTORY_ADDRESS,
+        identityImplementationAddress: IDENTITY_IMPLEMENTATION_ADDRESS
+      }
+      const randomNonceConfig = {
+        ...config,
+        nonceMechanism: NonceMechanism.Random
+      }
+      const countingNonceConfig = {
+        ...config,
+        nonceMechanism: NonceMechanism.Counting
+      }
+      const foreignNonceConfig = {
+        ...config,
+        nonceMechanism: 'foreign'
+      }
+
+      beforeEach(() => init())
+
+      it('should generate nonce with random mechanism', async () => {
+        const randomIdentityWallet = new IdentityWallet(
+          fakeTLProvider,
+          FAKE_CHAIN_ID,
+          randomNonceConfig
+        )
+        assert.isString(await randomIdentityWallet.getNonce())
+      })
+
+      it('should generate nonce with counting mechanism', async () => {
+        const countingIdentityWallet = new IdentityWallet(
+          fakeTLProvider,
+          FAKE_CHAIN_ID,
+          countingNonceConfig
+        )
+        const walletData = await countingIdentityWallet.create()
+        await countingIdentityWallet.loadFrom(walletData)
+        assert.isString(await countingIdentityWallet.getNonce())
+      })
+
+      it('should fail to generate nonce with foreign mechanism', async () => {
+        const foreignIdentityWallet = new IdentityWallet(
+          fakeTLProvider,
+          FAKE_CHAIN_ID,
+          foreignNonceConfig
+        )
+        assert.isRejected(
+          foreignIdentityWallet.getNonce(),
+          'Can not generate nonce for unknown mechanism: foreign'
         )
       })
     })

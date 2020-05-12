@@ -27,7 +27,7 @@ import {
 
 import utils from './utils'
 
-import { ProviderUrl, TLNetworkConfig } from './typings'
+import { NonceMechanism, ProviderUrl, TLNetworkConfig } from './typings'
 import { IdentityWallet } from './wallets/IdentityWallet'
 
 /**
@@ -141,7 +141,8 @@ export class TLNetwork {
       identityFactoryAddress,
       identityImplementationAddress,
       walletType = WALLET_TYPE_ETHERS,
-      chainId
+      chainId,
+      nonceMechanism = NonceMechanism.Random
     } = config
 
     const defaultUrlParameters: ProviderUrl = {
@@ -164,7 +165,8 @@ export class TLNetwork {
 
     this.setWallet(walletType, this.relayProvider, chainId, {
       identityFactoryAddress,
-      identityImplementationAddress
+      identityImplementationAddress,
+      nonceMechanism
     })
     this.setSigner(web3Provider, this.wallet)
 
@@ -264,14 +266,15 @@ export class TLNetwork {
     walletType: string,
     provider: TLProvider,
     chainId: number,
-    { identityFactoryAddress, identityImplementationAddress }
+    { identityFactoryAddress, identityImplementationAddress, nonceMechanism }
   ): void {
     let wallet: TLWallet
 
     if (walletType === WALLET_TYPE_IDENTITY) {
       wallet = new IdentityWallet(provider, chainId, {
         identityFactoryAddress,
-        identityImplementationAddress
+        identityImplementationAddress,
+        nonceMechanism
       })
     } else if (walletType === WALLET_TYPE_ETHERS) {
       wallet = new EthersWallet(provider)

@@ -33,6 +33,10 @@ export interface TLNetworkConfig {
    * Chain id used in the signature of meta-tx
    */
   chainId?: number
+  /**
+   * Mechanism how to generate nonces for identity meta-tx
+   */
+  nonceMechanism?: NonceMechanism
 }
 
 export interface ProviderUrl {
@@ -584,6 +588,11 @@ export interface EthersWalletData extends TLWalletData {
 export interface IdentityWalletData extends TLWalletData {
   type: WalletTypeIdentity
   meta: TLWalletDataMeta
+}
+
+export enum NonceMechanism {
+  Random = 'random',
+  Counting = 'counting'
 }
 
 // TRUSTLINE

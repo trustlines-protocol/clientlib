@@ -16,6 +16,7 @@ import {
   IdentityWalletData,
   MetaTransaction,
   MetaTransactionFees,
+  NonceMechanism,
   RawTxObject,
   Signature,
   TransactionStatusObject,
@@ -43,16 +44,18 @@ export class IdentityWallet implements TLWallet {
   private identityAddress: string
   private identityFactoryAddress: string
   private identityImplementationAddress: string
+  private nonceMechanism: NonceMechanism
   private chainId: number
   private identityVersion = 1
 
   constructor(
     provider: TLProvider,
     chainId: number,
-    { identityFactoryAddress, identityImplementationAddress }
+    { identityFactoryAddress, identityImplementationAddress, nonceMechanism }
   ) {
     this.identityFactoryAddress = identityFactoryAddress
     this.identityImplementationAddress = identityImplementationAddress
+    this.nonceMechanism = nonceMechanism
     this.provider = provider
     this.chainId = chainId
   }
@@ -337,7 +340,7 @@ export class IdentityWallet implements TLWallet {
   }
 
   public async prepareTransaction(rawTx: RawTxObject): Promise<TxObjectRaw> {
-    rawTx.nonce = getRandomNonce()
+    rawTx.nonce = await this.getNonce() // Must take place before the fee calculation!
 
     const metaTxFees = await this.getMetaTxFees(rawTx)
 
@@ -422,6 +425,22 @@ export class IdentityWallet implements TLWallet {
       currencyNetworkOfFees: rawTx.currencyNetworkOfFees || zeroAddress,
       timeLimit: '0',
       operationType: 0
+    }
+  }
+
+  public async getNonce(): Promise<string> {
+    switch (this.nonceMechanism) {
+      case NonceMechanism.Random:
+        return getRandomNonce()
+
+      case NonceMechanism.Counting:
+        const nonce = await this.provider.getIdentityNonce(this.address)
+        return nonce.toString()
+
+      default:
+        throw new Error(
+          `Can not generate nonce for unknown mechanism: ${this.nonceMechanism}`
+        )
     }
   }
 
