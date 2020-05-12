@@ -271,11 +271,13 @@ export class TLNetwork {
     let wallet: TLWallet
 
     if (walletType === WALLET_TYPE_IDENTITY) {
-      wallet = new IdentityWallet(provider, chainId, {
+      wallet = new IdentityWallet(
+        provider,
+        chainId,
         identityFactoryAddress,
         identityImplementationAddress,
         nonceMechanism
-      })
+      )
     } else if (walletType === WALLET_TYPE_ETHERS) {
       wallet = new EthersWallet(provider)
     } else {

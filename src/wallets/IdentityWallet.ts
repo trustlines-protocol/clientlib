@@ -51,7 +51,9 @@ export class IdentityWallet implements TLWallet {
   constructor(
     provider: TLProvider,
     chainId: number,
-    { identityFactoryAddress, identityImplementationAddress, nonceMechanism }
+    identityFactoryAddress: string,
+    identityImplementationAddress: string,
+    nonceMechanism: NonceMechanism
   ) {
     this.identityFactoryAddress = identityFactoryAddress
     this.identityImplementationAddress = identityImplementationAddress

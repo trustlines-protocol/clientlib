@@ -141,11 +141,9 @@ describe('e2e', () => {
         const secondWallet = new IdentityWallet(
           relayProvider,
           tlNetworkConfigIdentity.chainId,
-          {
-            identityFactoryAddress,
-            identityImplementationAddress,
-            nonceMechanism: NonceMechanism.Random
-          }
+          identityFactoryAddress,
+          identityImplementationAddress,
+          NonceMechanism.Random
         )
         const walletData = await secondWallet.create()
         await secondWallet.loadFrom(walletData)
