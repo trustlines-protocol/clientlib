@@ -163,11 +163,14 @@ export class TLNetwork {
       )
     )
 
-    this.setWallet(walletType, this.relayProvider, chainId, {
+    this.setWallet(
+      walletType,
+      this.relayProvider,
+      chainId,
       identityFactoryAddress,
       identityImplementationAddress,
       nonceMechanism
-    })
+    )
     this.setSigner(web3Provider, this.wallet)
 
     this.currencyNetwork = new CurrencyNetwork(this.relayProvider)
@@ -266,7 +269,9 @@ export class TLNetwork {
     walletType: string,
     provider: TLProvider,
     chainId: number,
-    { identityFactoryAddress, identityImplementationAddress, nonceMechanism }
+    identityFactoryAddress: string,
+    identityImplementationAddress: string,
+    nonceMechanism: NonceMechanism
   ): void {
     let wallet: TLWallet
 
