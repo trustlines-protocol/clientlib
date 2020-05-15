@@ -23,7 +23,7 @@ import {
   USER_1_IDENTITY_WALLET_V1
 } from '../Fixtures'
 
-import { MetaTransaction } from '../../src/typings'
+import { MetaTransaction, NonceMechanism } from '../../src/typings'
 import {
   calculateIdentityAddress,
   getRandomNonce,
@@ -43,10 +43,13 @@ describe('unit', () => {
 
     const init = () => {
       fakeTLProvider = new FakeTLProvider()
-      identityWallet = new IdentityWallet(fakeTLProvider, FAKE_CHAIN_ID, {
-        identityFactoryAddress: IDENTITY_FACTORY_ADDRESS,
-        identityImplementationAddress: IDENTITY_IMPLEMENTATION_ADDRESS
-      })
+      identityWallet = new IdentityWallet(
+        fakeTLProvider,
+        FAKE_CHAIN_ID,
+        IDENTITY_FACTORY_ADDRESS,
+        IDENTITY_IMPLEMENTATION_ADDRESS,
+        NonceMechanism.Random
+      )
     }
 
     describe('#create()', () => {
@@ -228,6 +231,34 @@ describe('unit', () => {
           ),
           IDENTITY_ADDRESS
         )
+      })
+    })
+
+    describe('#getNonce', () => {
+      beforeEach(() => init())
+
+      it('should generate nonce with random mechanism', async () => {
+        const randomIdentityWallet = new IdentityWallet(
+          fakeTLProvider,
+          FAKE_CHAIN_ID,
+          IDENTITY_FACTORY_ADDRESS,
+          IDENTITY_IMPLEMENTATION_ADDRESS,
+          NonceMechanism.Random
+        )
+        assert.isString(await randomIdentityWallet.getNonce())
+      })
+
+      it('should generate nonce with counting mechanism', async () => {
+        const countingIdentityWallet = new IdentityWallet(
+          fakeTLProvider,
+          FAKE_CHAIN_ID,
+          IDENTITY_FACTORY_ADDRESS,
+          IDENTITY_IMPLEMENTATION_ADDRESS,
+          NonceMechanism.Counting
+        )
+        const walletData = await countingIdentityWallet.create()
+        await countingIdentityWallet.loadFrom(walletData)
+        assert.isString(await countingIdentityWallet.getNonce())
       })
     })
   })
