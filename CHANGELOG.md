@@ -31,6 +31,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 - Deprecates function `Payment.confirm`, use `Payment.confirmPayment` instead
 
+### Removed
+
+- Removed the field `nonce` from payment requests and declines, use `id` instead
+
 ## [0.13.0] - 2020-04-23
 
 (requires relay version >=0.15.0)

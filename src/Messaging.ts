@@ -52,9 +52,8 @@ export class Messaging {
       options.decimalsOptions || {}
     )
     const type = 'PaymentRequest'
-    // TODO: remove nonce from payment request and request decline once it is not used anymore and turn up number of decimals
-    // number of decimals had to be turned down to have enough precision for nonce == id
-    const randomBigNumber = utils.generateRandomNumber(15)
+    // 19 decimals make the number fit into 64 bits
+    const id = utils.convertToHexString(utils.generateRandomNumber(19))
     const paymentRequest = {
       type,
       networkAddress,
@@ -65,8 +64,7 @@ export class Messaging {
         decimals.networkDecimals
       ),
       subject,
-      nonce: randomBigNumber.toNumber(),
-      id: utils.convertToHexString(randomBigNumber)
+      id
     }
     const message = {
       ...paymentRequest,
@@ -93,14 +91,13 @@ export class Messaging {
    */
   public async paymentRequestDecline(
     counterPartyAddress: string,
-    id: number | string,
+    id: string,
     subject?: string
   ): Promise<PaymentRequestDeclineMessage> {
     const type = 'PaymentRequestDecline'
     const message = {
       type,
-      nonce: typeof id === 'number' ? id : utils.convertHexStringToNumber(id),
-      id: typeof id === 'string' ? id : utils.convertToHexString(id),
+      id,
       subject
     }
     await this.sendMessage(counterPartyAddress, type, message)
