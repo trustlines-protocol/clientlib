@@ -50,11 +50,7 @@ describe('e2e', () => {
           )
           expect(sentPaymentRequest.amount.value).to.equal('10')
           expect(sentPaymentRequest.subject).to.equal('test subject')
-          expect(sentPaymentRequest.nonce).to.be.a('number')
           expect(sentPaymentRequest.id).to.be.a('string')
-          expect(utils.convertToHexString(sentPaymentRequest.nonce)).to.equal(
-            sentPaymentRequest.id
-          )
           expect(sentPaymentRequest.counterParty).to.equal(tl2.user.address)
           expect(sentPaymentRequest.direction).to.equal('sent')
           expect(sentPaymentRequest.user).to.equal(tl1.user.address)
@@ -69,7 +65,6 @@ describe('e2e', () => {
             'test subject'
           )
           expect(declineMessage.type).to.equal('PaymentRequestDecline')
-          expect(declineMessage.nonce).to.equal(16)
           expect(declineMessage.id).to.equal('0x10')
           expect(declineMessage.subject).to.equal('test subject')
         })
@@ -159,7 +154,7 @@ describe('e2e', () => {
         it('should receive payment requests decline', async () => {
           expect(messages[2]).to.have.property('type', 'PaymentRequestDecline')
           expect(messages[2].timestamp).to.be.a('number')
-          expect(messages[2].nonce).to.be.a('number')
+          expect(messages[2].id).to.be.a('string')
           expect(messages[2]).to.have.property('subject', 'decline subject')
         })
 
