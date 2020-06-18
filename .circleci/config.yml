@@ -230,6 +230,9 @@ workflows:
       - run-end2end-tests:
           requires:
             - build-e2e-image
+          filters:
+            tags:
+              only: /^v.*/
       - build:
           filters:
             tags:
