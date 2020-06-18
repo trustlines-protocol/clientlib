@@ -208,7 +208,10 @@ workflows:
   version: 2
   default:
     jobs:
-      - build-e2e-image
+      - build-e2e-image:
+          filters:
+            tags:
+              only: /^v.*/
       - deploy-latest-e2e-image:
           context: docker-credentials
           requires:
