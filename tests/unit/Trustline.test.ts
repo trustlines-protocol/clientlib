@@ -260,5 +260,45 @@ describe('unit', () => {
         assert.hasAllKeys(closeTx, ['txFees', 'maxFees', 'path', 'rawTx'])
       })
     })
+
+    describe('#buildTrustlineRequestInviteLink()', () => {
+      beforeEach(() => init())
+
+      it('should build a default link', async () => {
+        const link = await trustline.buildTrustlineRequestInviteLink(
+          FAKE_NETWORK.address,
+          {
+            creditlineGiven: 100,
+            creditlineReceived: 100
+          }
+        )
+        assert.equal(
+          link,
+          `trustlines://trustlinerequest/${FAKE_NETWORK.address}/100/100/0/0`
+        )
+      })
+
+      it('should build a link with custom base, interest rates and additional query params', async () => {
+        const link = await trustline.buildTrustlineRequestInviteLink(
+          FAKE_NETWORK.address,
+          {
+            creditlineGiven: 123,
+            creditlineReceived: 321,
+            interestRateGiven: 1.1,
+            interestRateReceived: 2.1
+          },
+          {
+            customBase: 'https://custombase',
+            username: 'SenderUsername'
+          }
+        )
+        assert.equal(
+          link,
+          `https://custombase/trustlinerequest/${
+            FAKE_NETWORK.address
+          }/123/321/1.1/2.1?username=SenderUsername`
+        )
+      })
+    })
   })
 })
