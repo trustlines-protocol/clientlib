@@ -10,7 +10,7 @@ import {
 } from './Transaction'
 import { User } from './User'
 
-import utils, { defaultBaseUrl } from './utils'
+import utils from './utils'
 
 import {
   AnyNetworkTrustlineEvent,
@@ -644,7 +644,7 @@ export class Trustline {
       String(interestRateReceived)
     ]
 
-    return utils.buildUrl(customBase || defaultBaseUrl, { path, query: rest })
+    return utils.buildUrl(customBase, { path, query: rest })
   }
 
   /**
