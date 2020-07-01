@@ -135,7 +135,7 @@ export const websocketStream = (
  *        options.query - the query part of the URL
  */
 export const buildUrl = (
-  baseUrl: string,
+  baseUrl: string = defaultBaseUrl,
   options?: { path?: string[]; query?: object }
 ): string => {
   // typescript bug: https://github.com/microsoft/TypeScript/issues/26235

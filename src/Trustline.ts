@@ -601,6 +601,53 @@ export class Trustline {
   }
 
   /**
+   * Builds an invite link for a trustline request in the format
+   * ```
+   * <BASE_URL>/trustlinerequest/:networkAddress/:creditlineGiven/:creditlineReceived/:interestRateGiven/:interestRateReceived[?:optionalParams]
+   * ```
+   * @param networkAddress Address of currency network.
+   * @param amounts Amounts to use for the trustline request.
+   * @param amounts.creditlineGiven Credit limit set for receiver. Denominated in "normal" units.
+   * @param amounts.creditlineReceived Credit limit set for sender. Denominated in "normal" units.
+   * @param amounts.interestRateGiven Optional interest rate for receiver if allowed in currency network. Denominated in % per year.
+   * @param amounts.interestRateReceived Optional interest rate for sender if allowed in currency network. Denominated in % per year.
+   * @param options Additional options for link creation.
+   * @param options.customBase Optional custom base for link.
+   * @param options[key] Any other additional query param that should added to the trustline request link like `<TRUSTLINE_REQUEST_LINK>?key=value`.
+   */
+  public async buildTrustlineRequestInviteLink(
+    networkAddress: string,
+    amounts: {
+      creditlineGiven: string | number
+      creditlineReceived: string | number
+      interestRateGiven?: string | number
+      interestRateReceived?: string | number
+    },
+    options?: {
+      [key: string]: string
+      customBase?: string
+    }
+  ): Promise<string> {
+    const {
+      creditlineGiven,
+      creditlineReceived,
+      interestRateGiven = '0',
+      interestRateReceived = '0'
+    } = amounts
+    const { customBase, ...rest } = options || {}
+    const path = [
+      'trustlinerequest',
+      networkAddress,
+      String(creditlineGiven),
+      String(creditlineReceived),
+      String(interestRateGiven),
+      String(interestRateReceived)
+    ]
+
+    return utils.buildUrl(customBase, { path, query: rest })
+  }
+
+  /**
    * Formats number values of trustline retrieved from the relay server.
    * @param trustline unformatted trustline
    * @param decimals decimals object of currency network
