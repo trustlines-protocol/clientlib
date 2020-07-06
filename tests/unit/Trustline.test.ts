@@ -272,9 +272,13 @@ describe('unit', () => {
             creditlineReceived: 100
           }
         )
+        const userAddress = await fakeUser.getAddress()
+
         assert.equal(
           link,
-          `trustlines://trustlinerequest/${FAKE_NETWORK.address}/100/100/0/0`
+          `trustlines://trustlinerequest/${
+            FAKE_NETWORK.address
+          }/${userAddress}/100/100/0/0`
         )
       })
 
@@ -292,11 +296,13 @@ describe('unit', () => {
             username: 'SenderUsername'
           }
         )
+        const userAddress = await fakeUser.getAddress()
+
         assert.equal(
           link,
           `https://custombase/trustlinerequest/${
             FAKE_NETWORK.address
-          }/123/321/1.1/2.1?username=SenderUsername`
+          }/${userAddress}/123/321/1.1/2.1?username=SenderUsername`
         )
       })
     })

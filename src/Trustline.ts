@@ -603,7 +603,7 @@ export class Trustline {
   /**
    * Builds an invite link for a trustline request in the format
    * ```
-   * <BASE_URL>/trustlinerequest/:networkAddress/:creditlineGiven/:creditlineReceived/:interestRateGiven/:interestRateReceived[?:optionalParams]
+   * <BASE_URL>/trustlinerequest/:networkAddress/:senderAddress/:creditlineGiven/:creditlineReceived/:interestRateGiven/:interestRateReceived[?:optionalParams]
    * ```
    * @param networkAddress Address of currency network.
    * @param amounts Amounts to use for the trustline request.
@@ -638,6 +638,7 @@ export class Trustline {
     const path = [
       'trustlinerequest',
       networkAddress,
+      await this.user.getAddress(),
       String(creditlineGiven),
       String(creditlineReceived),
       String(interestRateGiven),
