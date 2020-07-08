@@ -3,14 +3,23 @@
 [![npm](https://img.shields.io/npm/v/trustlines-clientlib.svg)](https://www.npmjs.com/package/trustlines-clientlib)
 [![CircleCI branch](https://img.shields.io/circleci/project/github/trustlines-protocol/clientlib/master.svg)](https://circleci.com/gh/trustlines-protocol/clientlib)
 [![Codecov branch](https://img.shields.io/codecov/c/github/trustlines-protocol/clientlib/master.svg)](https://codecov.io/gh/trustlines-protocol/clientlib)
+[![gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/trustlines/community)
 
-A TypeScript/JavaScript library for interacting with the [Trustlines Network Protocol](https://trustlines.network/).
+The clientlib is a component of the [Trustlines Protocol](https://trustlines.foundation/protocol.html).
+The Trustlines Protocol is a set of rules to allow the transfer of value on top of existing trust
+relationships stored on a trustless infrastructure, here a blockchain.
 
-## Installation
+In the technology stack, the clientlib is located on top of a [relay server](https://github.com/trustlines-protocol/relay),
+and a mobile application can be built on top of it.
 
-### Install via package manager
+The goal of the clientlib is to provide a user focused means to interact with Trustlines via a relay server.
+It also provides a means to handle the wallet and key for the user.
+The intent is to make it as easy as possible to build a user interface for Trustlines on top of it.
 
-We publish the trustlines-clientlib to npm as a ES6 module.
+## Get Up and Running
+
+The trustlines-clientlib is published to npm as an ES6 module.
+You can install it using either `npm` or `yarn`.
 
 #### Using npm
 
@@ -24,9 +33,9 @@ $ npm i trustlines-clientlib
 $ yarn add trustlines-clientlib
 ```
 
-### Build from source
+#### Build from source
 
-If you want to build the library from source run
+If you want to build the library from source, you can run:
 
 ```bash
 git clone git@github.com:trustlines-protocol/clientlib.git
@@ -40,14 +49,12 @@ This will create three different builds:
 - CommonJS module in `./lib`
 - Bundled JS injectable into browser in `./_bundles`
 
-## Get started
+#### Example
 
 We assume the usage of the `trustlines-clientlib` ES6 module in the following.
 
-### Configuration
-
-To start using the trustlines-clientlib you first have to configure the [relay server](https://github.com/trustlines-protocol/relay) you want to connect to.
-You can either connect to a local develop relay server or use publicly available ones.
+To start using the trustlines-clientlib you first have to configure the [relay server](https://github.com/trustlines-protocol/relay)
+you want to connect to. You can either connect to a local develop relay server or use publicly available ones.
 
 ```javascript
 import { TLNetwork } from 'trustlines-clientlib'
@@ -78,8 +85,6 @@ const tlbc = new TLNetwork({
 })
 ```
 
-### Example usage
-
 This library is a promise-based library.
 So every asynchronous call will return a native JavaScript promise.
 If an error occurs the library will throw it.
@@ -93,9 +98,9 @@ try {
 }
 ```
 
-### Read our [documentation]() for more
+## Start developing
 
-## Run Tests
+If you want to start developing on the clientlib, make sure you can run the tests:
 
 ```bash
 # All tests
@@ -111,27 +116,33 @@ yarn test:integration
 yarn test:e2e
 ```
 
-### Note on end2end tests
-
-You have to have all components of the trustlines protocol running.
+The end2end tests are used to test how different components of the Trustlines protocol run together.
+You need to have all components up before running them.
 A convenient way to achieve this is by using our [end2end](https://github.com/trustlines-protocol/end2end) setup.
 
-## Documentation
+## Contributing
 
-You can find the documentation for the trustlines-clientlib [here](https://dev.trustlines.network/docs/clientlib/clientlib.html).
-The underlying markdown files of the documentation can be found in this repository under the `./docs` directory.
-To generate the [typedoc](https://typedoc.org/) API reference documentation for this library run `yarn doc`.
+Contributions are highly appreciated, but please check our [contributing guidelines](CONTRIBUTING.md).
 
-## Running injected web3 example
+## Release
 
-To run the example make sure to have [MetaMask](https://metamask.io/) installed and connected to a JSON RPC.
+To release a new version simply run:
 
-```bash
-yarn serve
+```
+yarn bump [patch|minor|major]
 ```
 
-This serves the injected web3 example app on `http://127.0.0.1:8080`. You can find the app under `./examples/injected-web3`.
+This will update the version in the `package.json` file, add a git tag with the updated version to
+the current commit and eventually push to github. Subsequently, CircleCI will publish the tagged version to npm.
+Make sure to update the changelog accordingly.
+
+Note that we also fluidly publish the most recent commit on the `master` branch using [fluid-publish](https://github.com/fluid-project/fluid-publish).
 
 ## Change log
 
 See [CHANGELOG](./CHANGELOG.md)
+
+## Documentation
+
+To generate the [typedoc](https://typedoc.org/) API reference documentation for this library run `yarn doc`.
+This will generate output in the `docs` folder.
