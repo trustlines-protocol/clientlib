@@ -144,5 +144,8 @@ See [CHANGELOG](./CHANGELOG.md)
 
 ## Documentation
 
+You can read more about the clientlib api in the [clientlib-docs](https://trustlines-protocol.github.io/clientlib-docs/)
+page.
+
 To generate the [typedoc](https://typedoc.org/) API reference documentation for this library run `yarn doc`.
 This will generate output in the `docs` folder.
