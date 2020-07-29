@@ -143,7 +143,8 @@ export class Web3Signer implements TLSigner {
   }
 
   public async prepareTransaction(rawTx: RawTxObject): Promise<TxObjectRaw> {
-    const { gasPrice, nonce } = await this.getTxInfos(this.address)
+    const signerAddress = await this.getAddress()
+    const { gasPrice, nonce } = await this.getTxInfos(signerAddress)
 
     rawTx.gasPrice = rawTx.gasPrice || gasPrice
     rawTx.baseFee = new BigNumber(0)

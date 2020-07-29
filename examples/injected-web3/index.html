@@ -1,71 +1,119 @@
 <html>
   <head>
-    <script type="text/javascript" src="/_bundles/trustlines-clientlib.js"></script>
+    <script
+      type="text/javascript"
+      src="/_bundles/trustlines-clientlib.js"
+    ></script>
     <script>
-      const tlNetwork1 = new trustlines.TLNetwork({
-        port: 5000,
-        path: 'api/v1',
-        web3Provider: web3.currentProvider
+      window.addEventListener('load', async () => {
+        // Modern dapp browsers...
+        if (window.ethereum) {
+          window.web3 = new Web3(ethereum)
+          try {
+            await ethereum.enable()
+            init()
+          } catch (error) {
+            alert('User denied account access!')
+          }
+        }
+        // Legacy dapp browsers...
+        else if (window.web3) {
+          window.web3 = new Web3(web3.currentProvider)
+          init()
+        }
+        // Non-dapp browsers...
+        else {
+          alert('Non-Ethereum browser detected.')
+        }
       })
 
-      let address, network
+      let tlNetwork1, address, networks, accountAddress
 
-      tlNetwork1.currencyNetwork.getAll().then(networks => {
-        network = networks[0]
-        document.getElementById("network").innerText = network.address
-      })
+      async function init() {
+        try {
+          tlNetwork1 = new trustlines.TLNetwork({
+            relayUrl: {
+              protocol: 'http',
+              port: '5000',
+              host: 'localhost',
+              path: '/api/v1'
+            },
+            messagingUrl: {
+              protocol: 'http',
+              port: '5000',
+              host: 'localhost',
+              path: '/api/v1'
+            },
+            web3Provider: web3.currentProvider
+          })
 
-      tlNetwork1.signer.getAddress().then(address => {
-        address = address
-        document.getElementById("address").innerText = address
-        tlNetwork1.signer.getTxInfos(address).then(txInfos => {
-          document.getElementById("nonce").innerText = txInfos.nonce
-          document.getElementById("gas-price").innerText = txInfos.gasPrice.toString()
-        })
-      })
+          networks = await tlNetwork1.currencyNetwork.getAll()
+          for (const network of networks) {
+            const select = document.querySelector('#networks')
+            select[select.options.length] = new Option(
+              `${network.abbreviation}: ${network.address}`,
+              network.address,
+              false,
+              false
+            )
+          }
 
-      tlNetwork1.signer.getBalance().then(balance => {
-        document.getElementById("balance").innerText = balance.value
-      })
+          accountAddress = await tlNetwork1.signer.getAddress()
+          document.getElementById('address').innerText = accountAddress
 
-      function signMessage() {
-        const message = document.getElementById("message").value
-        tlNetwork1.signer.signMessage(message).then(signedMsg => {
-          document.getElementById("signed-msg").innerText = "Signed Msg: " + signedMsg.concatSig
-        })
+          const { nonce, gasPrice } = await tlNetwork1.signer.getTxInfos(
+            accountAddress
+          )
+          document.getElementById('nonce').innerText = nonce
+          document.getElementById('gas-price').innerText = gasPrice.toString()
+
+          const balance = await tlNetwork1.signer.getBalance()
+          document.getElementById('balance').innerText = balance.value
+        } catch (error) {
+          console.log(error)
+        }
       }
 
-      function confirm() {
-        tlNetwork1.trustline.prepareUpdate(
-          network.address,
-          document.getElementById("other").value,
-          100,
-          100
-        ).then(tx => {
-          tlNetwork1.trustline.confirm(tx.rawTx).then(hash => {
-            document.getElementById("hash").innerText = hash
-          })
-        })
+      async function signMessage() {
+        try {
+          const message = document.getElementById('message').value
+          const signedMsg = await tlNetwork1.signer.signMessage(message)
+          document.getElementById('signed-msg').innerText =
+            'Signed Msg: ' + signedMsg.concatSig
+        } catch (error) {
+          console.log(error)
+        }
+      }
+
+      async function confirm() {
+        try {
+          const select = document.getElementById('networks')
+          const selectedNetworkAddress = select.selectedOptions[0].value
+          const otherAddress = document.getElementById('other').value
+          const preparedTx = await tlNetwork1.trustline.prepareUpdate(
+            selectedNetworkAddress,
+            otherAddress,
+            100,
+            100
+          )
+          const txHash = await tlNetwork1.trustline.confirm(preparedTx.rawTx)
+          document.getElementById('hash').innerText = 'Tx Hash: ' + txHash
+        } catch (error) {
+          console.log(error)
+        }
       }
     </script>
   </head>
   <body>
     <p>Make sure MetaMask is connected to a JSON RPC.</p>
     <div>
-      Network: <span id="network"></span>
+      Currency Network:
+      <select id="networks"></select>
     </div>
-    <div>
-      Address: <span id="address"></span>
-    </div>
-    <div>
-      Balance: <span id="balance"></span>
-    </div>
-    <div>
-      Nonce: <span id="nonce"></span>
-    </div>
-    <div>
-      Gas price: <span id="gas-price"></span>
-    </div>
+    <div>Account Address: <span id="address"></span></div>
+    <div>Balance: <span id="balance"></span></div>
+    <div>Nonce: <span id="nonce"></span></div>
+    <div>Gas price: <span id="gas-price"></span></div>
     <p></p>
     <div>
       <label for="message">Message to sign: </label>
@@ -77,7 +125,7 @@
     <div>
       <div>Send trustline request of 100 to other party.</div>
       <label for="other">Address of other: </label>
-      <input id="other"/>
+      <input id="other" />
       <button onclick="confirm()">Send</button>
       <div id="hash"></div>
     </div>
