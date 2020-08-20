@@ -10,6 +10,8 @@ import {
 } from './TLWallet'
 import { WalletFromEthers } from './WalletFromEthers'
 
+import { Transaction } from '../Transaction'
+
 import {
   Amount,
   DeployIdentityResponse,
@@ -21,7 +23,9 @@ import {
   Signature,
   TransactionStatusObject,
   TxFeesRaw,
-  TxObjectRaw
+  TxObjectInternal,
+  TxObjectRaw,
+  TxOptionsInternal
 } from '../typings'
 
 import utils from '../utils'
@@ -46,7 +50,7 @@ export class IdentityWallet implements TLWallet {
   private identityImplementationAddress: string
   private nonceMechanism: NonceMechanism
   private chainId: number
-  private identityVersion = 1
+  private metaTransactionVersion = 1
 
   constructor(
     provider: TLProvider,
@@ -416,7 +420,7 @@ export class IdentityWallet implements TLWallet {
       data: rawTx.data || '0x',
       from: rawTx.from,
       chainId: this.chainId,
-      version: this.identityVersion,
+      version: this.metaTransactionVersion,
       nonce: rawTx.nonce.toString(),
       to: rawTx.to,
       value: rawTx.value.toString(),
@@ -444,6 +448,21 @@ export class IdentityWallet implements TLWallet {
           `Can not generate nonce for unknown mechanism: ${this.nonceMechanism}`
         )
     }
+  }
+
+  public async prepareImplementationUpdate(
+    transaction: Transaction,
+    options: TxOptionsInternal = {}
+  ): Promise<TxObjectInternal> {
+    // TODO: maybe check that the implementation actually needs updating?
+    return transaction.prepareContractTransaction(
+      this.address,
+      this.address,
+      'Identity',
+      'changeImplementation',
+      [this.identityImplementationAddress],
+      options
+    )
   }
 
   /**

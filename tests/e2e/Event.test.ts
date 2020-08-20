@@ -311,7 +311,6 @@ describe('e2e', () => {
           ({ transactionHash }) => transactionHash === tlTransferTxHash
         )
         // check event Trustlines Transfer
-        console.log(tlTransferEvents[0])
         expect(
           tlTransferEvents,
           'Trustline Transfer should exist'
