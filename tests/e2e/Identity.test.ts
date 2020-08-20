@@ -19,7 +19,12 @@ import {
   wait
 } from '../Fixtures'
 
-import { FeePayer, NonceMechanism, RawTxObject } from '../../src/typings'
+import {
+  FeePayer,
+  NonceMechanism,
+  RawTxObject,
+  TransactionStatus
+} from '../../src/typings'
 
 import { TLNetwork } from '../../src/TLNetwork'
 
@@ -33,7 +38,7 @@ describe('e2e', () => {
     const { expect } = chai
 
     let relayProvider: TLProvider
-    let identityWallet
+    let identityWallet: IdentityWallet
     let trustlinesNetwork: TLNetwork
     let trustlinesNetwork2: TLNetwork
 
@@ -42,7 +47,7 @@ describe('e2e', () => {
       trustlinesNetwork2 = new TLNetwork(tlNetworkConfigIdentity)
       relayProvider = trustlinesNetwork.relayProvider
 
-      identityWallet = trustlinesNetwork.wallet
+      identityWallet = trustlinesNetwork.wallet as IdentityWallet
     })
 
     describe('Deploy identity', () => {
@@ -62,6 +67,59 @@ describe('e2e', () => {
           trustlinesNetwork.user.deployIdentity(),
           trustlinesNetwork2.user.deployIdentity()
         ])
+      })
+    })
+
+    describe('Update identity', () => {
+      let newIdentityWallet
+
+      before(async () => {
+        // make sure we have a wallet with a proper implementation and deployed identity
+        const walletData = await identityWallet.create()
+        await identityWallet.loadFrom(walletData)
+        await identityWallet.deployIdentity()
+
+        // Use arbitrary address for new implementation
+        const newIdentityImplementation =
+          '0x1234567812345678123456781234567812345678'
+        // create a new identity with a different implementation address
+        newIdentityWallet = new IdentityWallet(
+          relayProvider,
+          tlNetworkConfigIdentity.chainId,
+          tlNetworkConfigIdentity.identityFactoryAddress,
+          newIdentityImplementation,
+          NonceMechanism.Random
+        )
+        await newIdentityWallet.loadFrom(walletData)
+      })
+
+      it('should prepare an update of identity implementation', async () => {
+        const preparedUpdate = await newIdentityWallet.prepareImplementationUpdate(
+          trustlinesNetwork.transaction
+        )
+        expect(preparedUpdate.rawTx).to.have.all.keys([
+          'from',
+          'to',
+          'value',
+          'data',
+          'nonce',
+          'baseFee',
+          'gasLimit',
+          'gasPrice',
+          'totalFee',
+          'feeRecipient',
+          'currencyNetworkOfFees'
+        ])
+      })
+
+      it('should confirm an update of identity implementation', async () => {
+        const preparedUpdate = await newIdentityWallet.prepareImplementationUpdate(
+          trustlinesNetwork.transaction
+        )
+        const txHash = await identityWallet.confirm(preparedUpdate.rawTx)
+        const txStatus = await relayProvider.getTxStatus(txHash)
+
+        expect(txStatus.status).to.equal(TransactionStatus.Success)
       })
     })
 
