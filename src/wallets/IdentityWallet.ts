@@ -160,6 +160,17 @@ export class IdentityWallet implements TLWallet {
     }
   }
 
+  public async isIdentityImplementationUpToDate(): Promise<boolean> {
+    return (
+      (await this.getIdentityImplementationAddress()) ===
+      this.identityImplementationAddress
+    )
+  }
+
+  public async getIdentityImplementationAddress(): Promise<string> {
+    return this.provider.getIdentityImplementationAddress(this.address)
+  }
+
   /**
    * Loads given wallet data of type `identity`.
    * @param walletData Wallet data of type `identity`.

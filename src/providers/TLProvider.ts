@@ -26,6 +26,7 @@ export interface TLProvider {
   getTxInfos(userAddress: string): Promise<TxInfos>
   getTxStatus(txHash: string): Promise<TransactionStatusObject>
   getIdentityNonce(userAddress: string): Promise<number>
+  getIdentityImplementationAddress(userAddress: string): Promise<string>
   getMetaTxFees(metaTransaction: MetaTransaction): Promise<MetaTransactionFees>
   getMetaTxStatus(
     identityAddress: string,
