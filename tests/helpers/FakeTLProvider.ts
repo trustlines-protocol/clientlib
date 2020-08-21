@@ -12,7 +12,8 @@ import {
   FAKE_TX_HASH,
   FAKE_TX_INFOS,
   FAKE_USER,
-  FAKE_USER_ADDRESSES
+  FAKE_USER_ADDRESSES,
+  identityImplementationAddress
 } from '../Fixtures'
 
 import { AddressZero } from 'ethers/constants'
@@ -148,6 +149,12 @@ export class FakeTLProvider implements TLProvider {
 
   public async getIdentityNonce(userAddress: string): Promise<number> {
     return Promise.resolve(123)
+  }
+
+  public async getIdentityImplementationAddress(
+    userAddress: string
+  ): Promise<string> {
+    return Promise.resolve(identityImplementationAddress)
   }
 
   public async getMetaTxFees(
