@@ -72,6 +72,7 @@ describe('e2e', () => {
 
     describe('Update identity', () => {
       let newIdentityWallet
+      let newIdentityImplementation
 
       before(async () => {
         // make sure we have a wallet with a proper implementation and deployed identity
@@ -80,8 +81,7 @@ describe('e2e', () => {
         await identityWallet.deployIdentity()
 
         // Use arbitrary address for new implementation
-        const newIdentityImplementation =
-          '0x1234567812345678123456781234567812345678'
+        newIdentityImplementation = '0x1234567812345678123456781234567812345678'
         // create a new identity with a different implementation address
         newIdentityWallet = new IdentityWallet(
           relayProvider,
@@ -91,6 +91,13 @@ describe('e2e', () => {
           NonceMechanism.Random
         )
         await newIdentityWallet.loadFrom(walletData)
+
+        expect(
+          await newIdentityWallet.getIdentityImplementationAddress()
+        ).to.equal(identityImplementationAddress)
+        expect(
+          await newIdentityWallet.isIdentityImplementationUpToDate()
+        ).to.equal(false)
       })
 
       it('should prepare an update of identity implementation', async () => {
@@ -154,6 +161,13 @@ describe('e2e', () => {
         const balance = await identityWallet.getBalance()
         assert.hasAllKeys(balance, AMOUNT_KEYS)
         expect(balance.value).to.equal('0')
+      })
+
+      it('should get identity implementation address', async () => {
+        const implementationAddress = await identityWallet.getIdentityImplementationAddress()
+        expect(implementationAddress).to.equal(
+          tlNetworkConfigIdentity.identityImplementationAddress
+        )
       })
 
       it('should increase balance of identity contract', async () => {

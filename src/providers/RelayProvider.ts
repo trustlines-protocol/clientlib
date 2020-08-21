@@ -45,10 +45,30 @@ export class RelayProvider extends Provider implements TLProvider {
    * @returns the next nonce that should be used for making a meta-transaction
    */
   public async getIdentityNonce(address: string): Promise<number> {
-    const { identity, nextNonce, balance } = await this.fetchEndpoint<any>(
-      `/identities/${address}`
-    )
+    const {
+      identity,
+      nextNonce,
+      balance,
+      implementationAddress
+    } = await this.fetchEndpoint<any>(`/identities/${address}`)
     return nextNonce
+  }
+
+  /**
+   * Returns implementation address of identity with given address
+   * @param address Address of identity
+   * @returns the implementation address currently in use by the given identity
+   */
+  public async getIdentityImplementationAddress(
+    address: string
+  ): Promise<string> {
+    const {
+      identity,
+      nextNonce,
+      balance,
+      implementationAddress
+    } = await this.fetchEndpoint<any>(`/identities/${address}`)
+    return implementationAddress
   }
 
   /**
