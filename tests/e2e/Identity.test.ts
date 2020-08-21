@@ -14,6 +14,7 @@ import {
   deployIdentities,
   identityFactoryAddress,
   identityImplementationAddress,
+  secondIdentityImplementationAddress,
   TL_WALLET_DATA_KEYS,
   tlNetworkConfigIdentity,
   wait
@@ -72,7 +73,6 @@ describe('e2e', () => {
 
     describe('Update identity', () => {
       let newIdentityWallet
-      let newIdentityImplementation
 
       before(async () => {
         // make sure we have a wallet with a proper implementation and deployed identity
@@ -80,14 +80,12 @@ describe('e2e', () => {
         await identityWallet.loadFrom(walletData)
         await identityWallet.deployIdentity()
 
-        // Use arbitrary address for new implementation
-        newIdentityImplementation = '0x1234567812345678123456781234567812345678'
         // create a new identity with a different implementation address
         newIdentityWallet = new IdentityWallet(
           relayProvider,
           tlNetworkConfigIdentity.chainId,
           tlNetworkConfigIdentity.identityFactoryAddress,
-          newIdentityImplementation,
+          secondIdentityImplementationAddress,
           NonceMechanism.Random
         )
         await newIdentityWallet.loadFrom(walletData)
@@ -127,6 +125,12 @@ describe('e2e', () => {
         const txStatus = await relayProvider.getTxStatus(txHash)
 
         expect(txStatus.status).to.equal(TransactionStatus.Success)
+        expect(
+          await newIdentityWallet.getIdentityImplementationAddress()
+        ).to.equal(secondIdentityImplementationAddress)
+        expect(
+          await newIdentityWallet.isIdentityImplementationUpToDate()
+        ).to.equal(true)
       })
     })
 

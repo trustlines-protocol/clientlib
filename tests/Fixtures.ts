@@ -28,7 +28,11 @@ export const end2endChainId = 17
 export const identityFactoryAddress = identityConfig.identityProxyFactory
 
 export const identityImplementationAddress =
-  identityConfig.identityImplementation
+  identityConfig.identityImplementations[0]
+
+// A valid identity implementation contract with a different address as identityImplementationAddress
+export const secondIdentityImplementationAddress =
+  identityConfig.identityImplementations[1]
 
 export const providerUrl: ProviderUrl = {
   host: process.env.RELAY_HOSTNAME || 'localhost',
