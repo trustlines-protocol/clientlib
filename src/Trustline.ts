@@ -22,7 +22,6 @@ import {
   EventFilterOptions,
   FeePayer,
   isFeePayerValue,
-  NetworkEvent,
   NetworkTrustlineBalanceUpdate,
   NetworkTrustlineCancelEvent,
   NetworkTrustlineUpdateEvent,

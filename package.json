@@ -4,7 +4,7 @@
   "description": "Javascript library for interacting with the trustlines network protocol",
   "main": "lib-esm/TLNetwork.js",
   "scripts": {
-    "build": "tsc && tsc -m es6 --outDir lib-esm && webpack",
+    "build": "node filterContracts/filterContracts.js && tsc && tsc -m es6 --outDir lib-esm && webpack",
     "build:esm": "tsc -m es6 --outDir lib-esm",
     "doc": "typedoc --options tdconfig.json",
     "lint": "tslint -c tslint.json './src/**/**.ts' './tests/**/**.ts'",
