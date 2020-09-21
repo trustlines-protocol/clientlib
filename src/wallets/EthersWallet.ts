@@ -38,6 +38,7 @@ export class EthersWallet implements TLWallet {
   // Accessors //
   ///////////////
 
+  // The address function is a convenient way to access to address in a synchronous method
   public get address(): string {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')

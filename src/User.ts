@@ -39,7 +39,7 @@ export class User {
   }
 
   /**
-   * Checksummed Ethereum address of currently loaded user/wallet.
+   * Checksummed Ethereum address of currently loaded wallet.
    */
   public get address(): string {
     return this.wallet.address
@@ -205,12 +205,12 @@ export class User {
    *        options.name - convention for a name for the user
    *        options[key] - any other additional options that should be added to the URL
    */
-  public createLink(options: {
+  public async createLink(options: {
     [key: string]: string
     customBase?: string
     name?: string
-  }): string {
-    const path = ['contact', this.address]
+  }): Promise<string> {
+    const path = ['contact', await this.getAddress()]
     const { customBase = defaultBaseUrl, ...rest } = options
     return utils.buildUrl(customBase, { path, query: rest })
   }
@@ -222,7 +222,7 @@ export class User {
    */
   public async requestEth(): Promise<string> {
     const options = {
-      body: JSON.stringify({ address: this.address }),
+      body: JSON.stringify({ address: await this.getAddress() }),
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'POST'
     }
