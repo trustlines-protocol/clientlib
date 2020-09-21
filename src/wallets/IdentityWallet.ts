@@ -66,6 +66,7 @@ export class IdentityWallet implements TLWallet {
     this.chainId = chainId
   }
 
+  // The address function is a convenient way to access to address in a synchronous method
   public get address(): string {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')

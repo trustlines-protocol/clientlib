@@ -6,7 +6,6 @@ import { TLWalletData } from '../typings'
  */
 export interface TLWallet extends TLSigner {
   address: string
-  getAddress(): Promise<string>
   showSeed(): Promise<string>
   exportPrivateKey(): Promise<string>
   create(): Promise<TLWalletData>

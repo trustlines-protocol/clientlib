@@ -195,7 +195,7 @@ describe('unit', () => {
       const name = 'testname'
 
       it('should create trustlines:// link', async () => {
-        const contactLink = user.createLink({ name })
+        const contactLink = await user.createLink({ name })
         assert.equal(
           contactLink,
           `trustlines://contact/${user.address}?name=${name}`
@@ -203,7 +203,7 @@ describe('unit', () => {
       })
 
       it('should create trustlines:// link with queryParams', async () => {
-        const contactLink = user.createLink({
+        const contactLink = await user.createLink({
           name,
           param1: 'param1',
           param2: 'param2'
@@ -217,7 +217,7 @@ describe('unit', () => {
       })
 
       it('should create custom link', async () => {
-        const contactLink = user.createLink({
+        const contactLink = await user.createLink({
           name,
           customBase: 'http://custom.network'
         })
