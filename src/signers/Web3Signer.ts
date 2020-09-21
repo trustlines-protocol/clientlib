@@ -5,7 +5,6 @@ import { TLSigner } from './TLSigner'
 
 import * as utils from '../utils'
 
-import { utils as ethersUtils } from 'ethers/ethers'
 import {
   Amount,
   MetaTransactionFees,
@@ -20,8 +19,6 @@ import {
  * The Web3Signer class contains functions for signing transactions with a web3 provider.
  */
 export class Web3Signer implements TLSigner {
-  public address: string
-
   private signer: ethers.providers.JsonRpcSigner
   private web3Provider: ethers.providers.Web3Provider
 

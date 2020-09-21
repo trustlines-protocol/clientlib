@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable'
 import { fromPromise } from 'rxjs/observable/fromPromise'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
-import { decode, processExtraData } from './extraData'
+import { processExtraData } from './extraData'
 import { TLProvider } from './providers/TLProvider'
 import { User } from './User'
 

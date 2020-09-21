@@ -2,11 +2,7 @@ import { BigNumber } from 'bignumber.js'
 
 import { CurrencyNetwork } from './CurrencyNetwork'
 import { Event } from './Event'
-import {
-  decode,
-  encode as encodeExtraData,
-  processExtraData
-} from './extraData'
+import { encode as encodeExtraData, processExtraData } from './extraData'
 import { TLProvider } from './providers/TLProvider'
 import {
   GAS_LIMIT_IDENTITY_OVERHEAD,

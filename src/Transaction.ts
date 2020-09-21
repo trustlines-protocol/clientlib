@@ -6,12 +6,9 @@ import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
 import { TLProvider } from './providers/TLProvider'
 import { TLSigner } from './signers/TLSigner'
 
-import utils, { convertToDelegationFees } from './utils'
+import utils from './utils'
 
 import {
-  Amount,
-  DelegationFeesInternal,
-  MetaTransactionFees,
   PaidDelegationFeesRaw,
   RawTxObject,
   TransactionStatusObject,
