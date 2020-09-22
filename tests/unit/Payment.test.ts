@@ -84,9 +84,7 @@ describe('unit', () => {
 
         assert.equal(
           paymentRequestLink,
-          `trustlines://paymentrequest/${
-            FAKE_NETWORK.address
-          }/${userAddress}/100`
+          `trustlines://paymentrequest/${FAKE_NETWORK.address}/${userAddress}/100`
         )
       })
 
@@ -106,9 +104,7 @@ describe('unit', () => {
 
         assert.equal(
           paymentRequestLink,
-          `trustlines://paymentrequest/${
-            FAKE_NETWORK.address
-          }/${userAddress}/100?subject=subject&note=my%20note&username=username`
+          `trustlines://paymentrequest/${FAKE_NETWORK.address}/${userAddress}/100?subject=subject&note=my%20note&username=username`
         )
       })
     })

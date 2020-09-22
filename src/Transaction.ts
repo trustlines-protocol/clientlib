@@ -191,9 +191,9 @@ export class Transaction {
       txFees.currencyNetworkOfFees &&
       txFees.currencyNetworkOfFees !== AddressZero
     ) {
-      feeDecimals = (await this.currencyNetwork.getDecimals(
-        txFees.currencyNetworkOfFees
-      )).networkDecimals
+      feeDecimals = (
+        await this.currencyNetwork.getDecimals(txFees.currencyNetworkOfFees)
+      ).networkDecimals
     }
 
     return {

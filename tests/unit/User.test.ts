@@ -210,9 +210,7 @@ describe('unit', () => {
         })
         assert.equal(
           contactLink,
-          `trustlines://contact/${
-            user.address
-          }?name=${name}&param1=param1&param2=param2`
+          `trustlines://contact/${user.address}?name=${name}&param1=param1&param2=param2`
         )
       })
 

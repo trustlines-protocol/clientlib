@@ -409,7 +409,9 @@ describe('e2e', () => {
         })
 
         it('should return latest request for trustline update request with freezing', async () => {
-          const { rawTx } = await tl1.trustline.prepareUpdate(
+          const {
+            rawTx
+          } = await tl1.trustline.prepareUpdate(
             networkCustomInterestRates.address,
             user2.address,
             given,
@@ -1091,7 +1093,11 @@ describe('e2e', () => {
 
         before(async () => {
           // Construction of three accounts as clique.
-          const triangle = [[tl1, tl2], [tl2, tl3], [tl3, tl1]]
+          const triangle = [
+            [tl1, tl2],
+            [tl2, tl3],
+            [tl3, tl1]
+          ]
 
           // Establish all trustlines in the triangle.
           for (const trustline of triangle) {

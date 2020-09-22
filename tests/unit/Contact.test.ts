@@ -69,9 +69,7 @@ describe('unit', () => {
         })
         assert.equal(
           contactLink,
-          `trustlines://contact/${
-            FAKE_USER_ADDRESSES[0]
-          }?name=${username}&param1=param1&param2=param2`
+          `trustlines://contact/${FAKE_USER_ADDRESSES[0]}?name=${username}&param1=param1&param2=param2`
         )
       })
 
@@ -82,9 +80,7 @@ describe('unit', () => {
         })
         assert.equal(
           contactLink,
-          `http://custom.network/contact/${
-            FAKE_USER_ADDRESSES[0]
-          }?name=${username}`
+          `http://custom.network/contact/${FAKE_USER_ADDRESSES[0]}?name=${username}`
         )
       })
     })

@@ -89,21 +89,25 @@ describe('e2e', () => {
       if (testParameter.walletType === 'Identity') {
         describe('#Delegation Fees', () => {
           it('should get applied delegation fees for meta-transaction', async () => {
-            const rawTx1 = (await transaction.prepareValueTransaction(
-              user1.address,
-              user2.address,
-              new BigNumber(1)
-            )).rawTx
+            const rawTx1 = (
+              await transaction.prepareValueTransaction(
+                user1.address,
+                user2.address,
+                new BigNumber(1)
+              )
+            ).rawTx
             rawTx1.baseFee = '4321'
             rawTx1.currencyNetworkOfFees = network.address
             const txHash1 = await transaction.confirm(rawTx1)
             await wait()
 
-            const rawTx2 = (await transaction.prepareValueTransaction(
-              user1.address,
-              user2.address,
-              new BigNumber(1)
-            )).rawTx
+            const rawTx2 = (
+              await transaction.prepareValueTransaction(
+                user1.address,
+                user2.address,
+                new BigNumber(1)
+              )
+            ).rawTx
             rawTx2.baseFee = '1234'
             rawTx2.currencyNetworkOfFees = network.address
             const txHash2 = await transaction.confirm(rawTx2)
