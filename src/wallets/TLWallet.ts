@@ -49,16 +49,12 @@ export function verifyWalletData(
 ): void {
   if (walletData.type !== walletType) {
     throw new Error(
-      `The wallet data given is of the wrong type: ${
-        walletData.type
-      }, expected: ${walletType}`
+      `The wallet data given is of the wrong type: ${walletData.type}, expected: ${walletType}`
     )
   }
   if (expectedVersions.indexOf(walletData.version) === -1) {
     throw new Error(
-      `The wallet data version given is not handled: version ${
-        walletData.version
-      }, expected one of: ${expectedVersions}`
+      `The wallet data version given is not handled: version ${walletData.version}, expected one of: ${expectedVersions}`
     )
   }
 }

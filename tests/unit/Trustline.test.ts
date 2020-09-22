@@ -276,9 +276,7 @@ describe('unit', () => {
 
         assert.equal(
           link,
-          `trustlines://trustlinerequest/${
-            FAKE_NETWORK.address
-          }/${userAddress}/100/100/0/0`
+          `trustlines://trustlinerequest/${FAKE_NETWORK.address}/${userAddress}/100/100/0/0`
         )
       })
 
@@ -300,9 +298,7 @@ describe('unit', () => {
 
         assert.equal(
           link,
-          `https://custombase/trustlinerequest/${
-            FAKE_NETWORK.address
-          }/${userAddress}/123/321/1.1/2.1?username=SenderUsername`
+          `https://custombase/trustlinerequest/${FAKE_NETWORK.address}/${userAddress}/123/321/1.1/2.1?username=SenderUsername`
         )
       })
     })

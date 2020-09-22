@@ -132,9 +132,7 @@ export class IdentityWallet implements TLWallet {
     )
     if (this.address !== response.identity) {
       throw new Error(
-        `Delegate did not deploy the right identity contract. Deployed ${
-          response.identity
-        } instead of ${this.address}`
+        `Delegate did not deploy the right identity contract. Deployed ${response.identity} instead of ${this.address}`
       )
     }
 
@@ -503,9 +501,7 @@ export class IdentityWallet implements TLWallet {
   private verifyFromField(rawTx: RawTxObject) {
     if (!(rawTx.from === this.address)) {
       throw new Error(
-        `The from field of the meta-transaction has to match with the address of the identity, from: ${
-          rawTx.from
-        }`
+        `The from field of the meta-transaction has to match with the address of the identity, from: ${rawTx.from}`
       )
     }
   }

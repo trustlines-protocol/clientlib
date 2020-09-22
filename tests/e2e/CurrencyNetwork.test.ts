@@ -9,9 +9,7 @@ chai.use(chaiAsPromised)
 
 describe('e2e', () => {
   parametrizedTLNetworkConfig.forEach(testParameter => {
-    describe(`CurrencyNetwork for wallet type: ${
-      testParameter.walletType
-    }`, () => {
+    describe(`CurrencyNetwork for wallet type: ${testParameter.walletType}`, () => {
       const { expect } = chai
 
       const config = testParameter.config

@@ -42,7 +42,10 @@ describe('e2e', () => {
         await requestEth([tl1, tl2, tl3])
         await wait()
 
-        const trustlines = [[tl1, tl2], [tl2, tl3]]
+        const trustlines = [
+          [tl1, tl2],
+          [tl2, tl3]
+        ]
         // Establish all trustlines
         for (const trustline of trustlines) {
           // Get the both users for this trustline.

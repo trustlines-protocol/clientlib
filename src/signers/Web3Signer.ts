@@ -128,13 +128,15 @@ export class Web3Signer implements TLSigner {
   public async getTxInfos(userAddress: string): Promise<TxInfos> {
     // The bigNumber returned from ethers is not the same one we use in TxInfos
     // I get strings and convert them to BigNumber later
-    const balanceString: string = (await this.web3Provider.getBalance(
-      userAddress
-    )).toString()
+    const balanceString: string = (
+      await this.web3Provider.getBalance(userAddress)
+    ).toString()
     const nonce: number = await this.web3Provider.getTransactionCount(
       userAddress
     )
-    const gasPriceString: string = (await this.web3Provider.getGasPrice()).toString()
+    const gasPriceString: string = (
+      await this.web3Provider.getGasPrice()
+    ).toString()
 
     const gasPrice = new BigNumber(gasPriceString)
     const balance = new BigNumber(balanceString)
