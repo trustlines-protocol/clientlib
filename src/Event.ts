@@ -89,12 +89,13 @@ export class Event {
   }
 
   /**
-   * Returns event logs of loaded user in all currency networks.
+   * Returns event logs of loaded user in all currency networks / EthWrappers / Exchanges.
    * @param filter Event filter object. See [[EventFilterOptions]] for more information.
    * @param filter.type Available event types are:
    *                    CurrencyNetwork -> `Transfer`, `TrustlineUpdateRequest` and `TrustlineUpdate`
    *                    EthWrapper -> `Transfer`, `Deposit` and `Withdrawal`
    *                    Exchange -> `LogFill` and `LogCancel`
+   * @param filter.contractType Available contract types are `CurrencyNetwork`, `Exchange`, `UnwETH`, `Token`
    * @param filter.fromBlock Start of block range for event logs.
    */
   public async getAll(filter: EventFilterOptions = {}): Promise<AnyEvent[]> {
