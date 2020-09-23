@@ -107,6 +107,7 @@ export interface Amount {
 // EVENTS
 export interface EventFilterOptions {
   type?: string
+  contractType?: 'CurrencyNetwork' | 'Exchange' | 'UnwETH' | 'Token'
   fromBlock?: number
 }
 
