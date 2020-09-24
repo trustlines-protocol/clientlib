@@ -95,8 +95,8 @@ const laika = new TLNetwork({
   relayUrl: 'https://relay0.testnet.trustlines.network/api/v1',
   messagingUrl: 'https://relay0.testnet.trustlines.network/api/v1',
   walletType: 'identity',
-  identityFactoryAddress: '0x8D2720877Fa796E3C3B91BB91ad6CfcC07Ea249E',
-  identityImplementationAddress: '0x8BEe92893D3ec62e5B3EBBe4e536A60Fd9AFc9D7'
+  identityFactoryAddress: '0x2862ac3efE938Ac6d2bd466Be4842a777818C473',
+  identityImplementationAddress: '0x0F4f5Af3A6f072A8A38dBbd7a81523C9Cf878df0'
 })
 
 const newIdentityUser = await laika.user.create()
