@@ -1,6 +1,6 @@
 # Trustlines Clientlib
 
-[![npm](https://img.shields.io/npm/v/trustlines-clientlib.svg)](https://www.npmjs.com/package/trustlines-clientlib)
+[![npm](https://img.shields.io/npm/v/@trustlines/trustlines-clientlib.svg)](https://www.npmjs.com/package/@trustlines/trustlines-clientlib)
 [![CircleCI branch](https://img.shields.io/circleci/project/github/trustlines-protocol/clientlib/master.svg)](https://circleci.com/gh/trustlines-protocol/clientlib)
 [![Codecov branch](https://img.shields.io/codecov/c/github/trustlines-protocol/clientlib/master.svg)](https://codecov.io/gh/trustlines-protocol/clientlib)
 [![gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/trustlines/community)
@@ -24,13 +24,13 @@ You can install it using either `npm` or `yarn`.
 #### Using npm
 
 ```bash
-$ npm i trustlines-clientlib
+$ npm i @trustlines/trustlines-clientlib
 ```
 
 #### Using yarn
 
 ```bash
-$ yarn add trustlines-clientlib
+$ yarn add @trustlines/trustlines-clientlib
 ```
 
 #### Build from source
@@ -57,7 +57,7 @@ To start using the trustlines-clientlib you first have to configure the [relay s
 you want to connect to. You can either connect to a local develop relay server or use publicly available ones.
 
 ```javascript
-import { TLNetwork } from 'trustlines-clientlib'
+import { TLNetwork } from '@trustlines/trustlines-clientlib'
 
 // Instance using a relay connected to the Laika Testnet
 const laika = new TLNetwork({
