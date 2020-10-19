@@ -13,39 +13,44 @@ import {
   wait
 } from '../Fixtures'
 
-import { Interests } from '../../src/Interests'
+import { UserInformation } from '../../src/UserInformation'
 
 chai.use(chaiAsPromised)
 
 describe('e2e', () => {
   parametrizedTLNetworkConfig.forEach(testParameter => {
-    describe(`Interests for wallet type: ${testParameter.walletType}`, () => {
+    describe(`User information for wallet type: ${testParameter.walletType}`, () => {
       const { expect } = chai
 
       const config = testParameter.config
 
       const tl1 = new TLNetwork(config)
       const tl2 = new TLNetwork(config)
+      const tl3 = new TLNetwork(config)
       let user1
       let user2
+      let user3
       let network
-      let interests
+      let userInformation
 
       before(async () => {
         ;[network] = await tl1.currencyNetwork.getAll()
         // create new users
-        ;[user1, user2] = await createAndLoadUsers([tl1, tl2])
-        interests = new Interests({
+        ;[user1, user2, user3] = await createAndLoadUsers([tl1, tl2, tl3])
+        userInformation = new UserInformation({
           user: tl1.user,
           currencyNetwork: tl1.currencyNetwork,
           provider: tl1.relayProvider
         })
-        await deployIdentities([tl1, tl2])
+        await deployIdentities([tl1, tl2, tl3])
         // request ETH
-        await requestEth([tl1, tl2])
+        await requestEth([tl1, tl2, tl3])
         await wait()
 
-        const trustlines = [[tl1, tl2]]
+        const trustlines = [
+          [tl1, tl2],
+          [tl1, tl3]
+        ]
         // Establish all trustlines
         for (const trustline of trustlines) {
           // Get the both users for this trustline.
@@ -95,7 +100,7 @@ describe('e2e', () => {
           await tl1.payment.confirm(transfer1.rawTx)
           await wait()
 
-          // apply accrued interests to trustline via transfer
+          // apply accrued userInformation to trustline via transfer
           const transfer2 = await tl2.payment.prepare(
             network.address,
             user1.address,
@@ -106,7 +111,7 @@ describe('e2e', () => {
         })
 
         it('should return list of accrued interests for user', async () => {
-          const userAccruedInterests = await interests.getUserAccruedInterests(
+          const userAccruedInterests = await userInformation.getUserAccruedInterests(
             network.address
           )
           expect(userAccruedInterests).to.be.an('Array')
@@ -129,7 +134,7 @@ describe('e2e', () => {
         })
 
         it('should return list of accrued interests for trustline', async () => {
-          const trustlineAccruedInterests = await interests.getTrustlineAccruedInterests(
+          const trustlineAccruedInterests = await userInformation.getTrustlineAccruedInterests(
             network.address,
             user2.address
           )
@@ -147,6 +152,51 @@ describe('e2e', () => {
             'decimals'
           )
           expect(accruedInterest.timestamp).to.be.a('number')
+        })
+      })
+
+      describe('#getUserEarnedMediationFees()', () => {
+        let txHash
+        let feeValue
+        before(async () => {
+          // Make a transfer user2 -> user1 -> user3 to get mediation fee on user1
+          feeValue = (
+            await tl2.payment.getTransferPathInfo(
+              network.address,
+              user2.address,
+              user3.address,
+              1000
+            )
+          ).maxFees.value
+          const transfer = await tl2.payment.prepare(
+            network.address,
+            user3.address,
+            1000
+          )
+          txHash = await tl2.payment.confirm(transfer.rawTx)
+          await wait()
+        })
+
+        it('should return list of earned mediation fees for user', async () => {
+          const userMediationFees = await userInformation.getUserEarnedMediationFees(
+            network.address
+          )
+          expect(userMediationFees).to.be.have.all.keys([
+            'user',
+            'network',
+            'mediationFees'
+          ])
+          expect(userMediationFees.user).to.equal(user1.address)
+          expect(userMediationFees.network).to.equal(network.address)
+          expect(userMediationFees.mediationFees.length).to.equal(1)
+
+          const mediationFee = userMediationFees.mediationFees[0]
+          expect(mediationFee.from).to.equal(user2.address)
+          expect(mediationFee.to).to.equal(user3.address)
+          expect(mediationFee.value).to.have.keys('raw', 'value', 'decimals')
+          expect(mediationFee.value.value).to.equal(feeValue)
+          expect(mediationFee.transactionHash).to.equal(txHash)
+          expect(mediationFee.timestamp).to.be.a('number')
         })
       })
     })

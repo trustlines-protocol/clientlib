@@ -7,6 +7,10 @@ import {
   AccruedInterestsObject,
   AccruedInterestsRaw,
   DecimalsOptions,
+  EarnedMediationFeesListObject,
+  EarnedMediationFeesListRaw,
+  MediationFeeObject,
+  MediationFeeRaw,
   TrustlineAccruedInterestsObject,
   TrustlineAccruedInterestsRaw,
   UserAccruedInterestsObject,
@@ -16,9 +20,9 @@ import {
 import { CurrencyNetwork } from './CurrencyNetwork'
 
 /**
- * The Interests class contains methods related to getting accrued interests for trustlines or users.
+ * The UserInformation class contains methods related to getting trustlines related information of a user.
  */
-export class Interests {
+export class UserInformation {
   private provider: TLProvider
   private user: User
   private currencyNetwork: CurrencyNetwork
@@ -31,6 +35,39 @@ export class Interests {
     this.user = params.user
     this.provider = params.provider
     this.currencyNetwork = params.currencyNetwork
+  }
+
+  public async getUserEarnedMediationFees(
+    networkAddress: string,
+    options: {
+      timeWindowOption?: { startTime: number; endTime: number }
+      decimalsOptions?: DecimalsOptions
+    } = {}
+  ): Promise<EarnedMediationFeesListObject> {
+    const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/mediation-fees`
+    const parameterUrl = utils.buildUrl(
+      baseUrl,
+      options.timeWindowOption && { query: options.timeWindowOption }
+    )
+
+    const [
+      earnedMediationFeesList,
+      { networkDecimals, interestRateDecimals }
+    ] = await Promise.all([
+      this.provider.fetchEndpoint<EarnedMediationFeesListRaw>(parameterUrl),
+      this.currencyNetwork.getDecimals(
+        networkAddress,
+        options.decimalsOptions || {}
+      )
+    ])
+
+    return {
+      user: earnedMediationFeesList.user,
+      network: earnedMediationFeesList.network,
+      mediationFees: earnedMediationFeesList.mediationFees.map(mediationFee =>
+        this.formatMediationFeeRaw(mediationFee, networkDecimals)
+      )
+    }
   }
 
   public async getUserAccruedInterests(
@@ -96,6 +133,19 @@ export class Interests {
       networkDecimals,
       interestRateDecimals
     )
+  }
+
+  private formatMediationFeeRaw(
+    mediationFeeRaw: MediationFeeRaw,
+    networkDecimals: number
+  ): MediationFeeObject {
+    return {
+      value: utils.formatToAmount(mediationFeeRaw.value, networkDecimals),
+      from: mediationFeeRaw.from,
+      to: mediationFeeRaw.to,
+      transactionHash: mediationFeeRaw.transactionHash,
+      timestamp: mediationFeeRaw.timestamp
+    }
   }
 
   private formatTrustlineAccruedInterestsRaw(
