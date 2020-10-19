@@ -686,6 +686,37 @@ export interface TrustlineAccruedInterestsObject {
   counterparty: string
 }
 
+export type UserAccruedInterestsRaw = TrustlineAccruedInterestsRaw[]
+export type UserAccruedInterestsObject = TrustlineAccruedInterestsObject[]
+
+export interface MediationFeeRaw {
+  value: string
+  from: string
+  to: string
+  transactionHash: string
+  timestamp: number
+}
+
+export interface MediationFeeObject {
+  value: Amount
+  from: string
+  to: string
+  transactionHash: string
+  timestamp: number
+}
+
+export interface EarnedMediationFeesListRaw {
+  user: string
+  network: string
+  mediationFees: MediationFeeRaw[]
+}
+
+export interface EarnedMediationFeesListObject {
+  user: string
+  network: string
+  mediationFees: MediationFeeObject[]
+}
+
 export interface TransferDetailsRaw {
   path: string[]
   currencyNetwork: string
@@ -713,9 +744,6 @@ export interface TransferIdentifier {
   logIndex?: number
   txHash?: string
 }
-
-export type UserAccruedInterestsRaw = TrustlineAccruedInterestsRaw[]
-export type UserAccruedInterestsObject = TrustlineAccruedInterestsObject[]
 
 // EXCHANGE
 export interface Order {
