@@ -31,7 +31,7 @@ describe('e2e', () => {
       let user2
       let user3
       let network
-      let userInformation
+      let userInformation: UserInformation
 
       before(async () => {
         ;[network] = await tl1.currencyNetwork.getAll()
@@ -89,7 +89,7 @@ describe('e2e', () => {
         }
       })
 
-      describe('#getUserAccruedInterests()', () => {
+      describe('#getAccruedInterests()', () => {
         before(async () => {
           // bring imbalance to trustline
           const transfer1 = await tl1.payment.prepare(
@@ -111,7 +111,7 @@ describe('e2e', () => {
         })
 
         it('should return list of accrued interests for user', async () => {
-          const userAccruedInterests = await userInformation.getUserAccruedInterests(
+          const userAccruedInterests = await userInformation.getAccruedInterests(
             network.address
           )
           expect(userAccruedInterests).to.be.an('Array')
@@ -134,7 +134,7 @@ describe('e2e', () => {
         })
 
         it('should return list of accrued interests for trustline', async () => {
-          const trustlineAccruedInterests = await userInformation.getTrustlineAccruedInterests(
+          const trustlineAccruedInterests = await userInformation.getAccruedInterestsOnTrustline(
             network.address,
             user2.address
           )
@@ -155,7 +155,7 @@ describe('e2e', () => {
         })
       })
 
-      describe('#getUserEarnedMediationFees()', () => {
+      describe('#getEarnedMediationFees()', () => {
         let txHash
         let feeValue
         before(async () => {
@@ -178,7 +178,7 @@ describe('e2e', () => {
         })
 
         it('should return list of earned mediation fees for user', async () => {
-          const userMediationFees = await userInformation.getUserEarnedMediationFees(
+          const userMediationFees = await userInformation.getEarnedMediationFees(
             network.address
           )
           expect(userMediationFees).to.be.have.all.keys([

@@ -37,14 +37,15 @@ export class UserInformation {
     this.currencyNetwork = params.currencyNetwork
   }
 
-  public async getUserEarnedMediationFees(
+  public async getEarnedMediationFees(
     networkAddress: string,
     options: {
       timeWindowOption?: { startTime: number; endTime: number }
       decimalsOptions?: DecimalsOptions
     } = {}
   ): Promise<EarnedMediationFeesListObject> {
-    const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/mediation-fees`
+    const userAddress = await this.user.getAddress()
+    const baseUrl = `networks/${networkAddress}/users/${userAddress}/mediation-fees`
     const parameterUrl = utils.buildUrl(
       baseUrl,
       options.timeWindowOption && { query: options.timeWindowOption }
@@ -70,14 +71,15 @@ export class UserInformation {
     }
   }
 
-  public async getUserAccruedInterests(
+  public async getAccruedInterests(
     networkAddress: string,
     options: {
       timeWindowOption?: { startTime: number; endTime: number }
       decimalsOptions?: DecimalsOptions
     } = {}
   ): Promise<UserAccruedInterestsObject> {
-    const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/interests`
+    const userAddress = await this.user.getAddress()
+    const baseUrl = `networks/${networkAddress}/users/${userAddress}/interests`
     const parameterUrl = utils.buildUrl(
       baseUrl,
       options.timeWindowOption && { query: options.timeWindowOption }
@@ -103,7 +105,7 @@ export class UserInformation {
     )
   }
 
-  public async getTrustlineAccruedInterests(
+  public async getAccruedInterestsOnTrustline(
     networkAddress: string,
     counterpartyAddress: string,
     options: {
@@ -111,7 +113,8 @@ export class UserInformation {
       decimalsOptions?: DecimalsOptions
     } = {}
   ): Promise<TrustlineAccruedInterestsObject> {
-    const baseUrl = `networks/${networkAddress}/users/${await this.user.getAddress()}/interests/${counterpartyAddress}`
+    const userAddress = await this.user.getAddress()
+    const baseUrl = `networks/${networkAddress}/users/${userAddress}/interests/${counterpartyAddress}`
     const parameterUrl = utils.buildUrl(
       baseUrl,
       options.timeWindowOption && { query: options.timeWindowOption }
