@@ -59,8 +59,8 @@ describe('e2e', () => {
             20000,
             20000,
             {
-              interestRateGiven: 300,
-              interestRateReceived: 300
+              interestRateGiven: 20,
+              interestRateReceived: 20
             }
           )
 
@@ -71,8 +71,8 @@ describe('e2e', () => {
             20000,
             20000,
             {
-              interestRateGiven: 300,
-              interestRateReceived: 300
+              interestRateGiven: 20,
+              interestRateReceived: 20
             }
           )
 
