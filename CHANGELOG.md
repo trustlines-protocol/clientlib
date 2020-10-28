@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.13.7] - 2020-10-28
+
 ### Changed
 
 - Use `feeRecipient` as given by the provider instead of zeroAddress for meta-tx
