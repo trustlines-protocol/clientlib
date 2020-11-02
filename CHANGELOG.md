@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Rename `Interests.ts` to `UserInformation.ts` and their class and methods accordingly
+
+### Added
+
+- Added function `UserInformation.getEarnedMediationFees()` to get all the mediation fees
+  earned by a user in a network. (requires version of relay 0.19.0)
+
 ## [0.13.7] - 2020-10-28
 
 ### Changed
