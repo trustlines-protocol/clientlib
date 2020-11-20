@@ -4,6 +4,7 @@ import chaiAsPromised from 'chai-as-promised'
 import 'mocha'
 
 import { AddressZero } from 'ethers/constants'
+import { encode } from '../../src/extraData'
 import { TLNetwork } from '../../src/TLNetwork'
 import { FeePayer, PathRaw, TLWalletData } from '../../src/typings'
 import utils, { checkAddress } from '../../src/utils'
@@ -13,6 +14,7 @@ import {
   extraData,
   parametrizedTLNetworkConfig,
   paymentRequestId,
+  remainingData,
   requestEth,
   wait
 } from '../Fixtures'
@@ -182,6 +184,28 @@ describe('e2e', () => {
             'transferId'
           )
           expect(preparedPayment.feePayer).to.equal(FeePayer.Sender)
+        })
+
+        it('should prepare tx for trustline transfer with payment id, request id, and additional data', async () => {
+          const preparedPayment = await tl1.payment.prepare(
+            network.address,
+            user2.address,
+            2.25,
+            {
+              addTransferId: true,
+              paymentRequestId,
+              remainingData
+            }
+          )
+          expect(preparedPayment).to.have.all.keys(
+            'rawTx',
+            'feePayer',
+            'txFees',
+            'maxFees',
+            'path',
+            'receiverAddress',
+            'transferId'
+          )
         })
 
         it('should prepare tx for trustline transferReceiverPays', async () => {
@@ -445,7 +469,8 @@ describe('e2e', () => {
             transferValue,
             {
               addTransferId: true,
-              paymentRequestId
+              paymentRequestId,
+              remainingData
             }
           )
           const txHash = await tl1.payment.confirm(transfer.rawTx)
@@ -466,7 +491,8 @@ describe('e2e', () => {
             'feesPaid',
             'extraData',
             'paymentRequestId',
-            'transferId'
+            'transferId',
+            'remainingData'
           )
           expect(transferDetails.path).to.be.an('Array')
           expect(transferDetails.path).to.deep.equal([
@@ -494,8 +520,16 @@ describe('e2e', () => {
             transferDetails.totalFees.value
           )
           expect(transferDetails.extraData).to.be.a('string')
+          expect(transferDetails.extraData).to.equal(
+            encode({
+              paymentRequestId,
+              transferId: transfer.transferId,
+              remainingData
+            })
+          )
           expect(transferDetails.paymentRequestId).to.equal(paymentRequestId)
           expect(transferDetails.transferId).to.equal(transfer.transferId)
+          expect(transferDetails.remainingData).to.equal(remainingData)
         })
 
         it('should return details for transfer via id', async () => {
@@ -530,7 +564,8 @@ describe('e2e', () => {
             'feesPaid',
             'extraData',
             'paymentRequestId',
-            'transferId'
+            'transferId',
+            'remainingData'
           )
           expect(transferDetails.path).to.be.an('Array')
           expect(transferDetails.path).to.deep.equal([
@@ -560,6 +595,7 @@ describe('e2e', () => {
           expect(transferDetails.extraData).to.equal('0x12ab34ef')
           expect(transferDetails.paymentRequestId).to.be.a('null')
           expect(transferDetails.transferId).to.be.a('null')
+          expect(transferDetails.remainingData).to.be.a('null')
         })
       })
 

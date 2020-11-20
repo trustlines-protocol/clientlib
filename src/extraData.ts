@@ -5,16 +5,18 @@ export const MSG_PACK_ID = '0x544c4d50' // hex encoded "TLMP" (Trustlines Messag
 export interface ExtraData {
   paymentRequestId?: string
   transferId?: string
+  remainingData?: string
 }
 
 interface ExtraDataEncoding {
   prId?: ArrayBufferView
   trId?: ArrayBufferView
+  rest?: ArrayBufferView
 }
 
 export function encode(extraData: ExtraData): string {
-  const { paymentRequestId, transferId } = extraData
-  if (!paymentRequestId && !transferId) {
+  const { paymentRequestId, transferId, remainingData } = extraData
+  if (!paymentRequestId && !transferId && !remainingData) {
     return '0x'
   } else {
     const data: ExtraDataEncoding = {}
@@ -23,6 +25,9 @@ export function encode(extraData: ExtraData): string {
     }
     if (transferId) {
       data.trId = hexToArray(transferId)
+    }
+    if (remainingData) {
+      data.rest = hexToArray(remainingData)
     }
     const enc = msgPack.encode(data)
     return MSG_PACK_ID + remove0xPrefix(arrayToHex(enc))
@@ -52,7 +57,8 @@ export function decode(encodedExtraData: string): ExtraData {
 
   return {
     paymentRequestId: arrayToHex(extraData.prId),
-    transferId: arrayToHex(extraData.trId)
+    transferId: arrayToHex(extraData.trId),
+    remainingData: arrayToHex(extraData.rest)
   }
 }
 
@@ -81,7 +87,9 @@ function hexToArray(h: string) {
 export function processExtraData(object) {
   if (object.extraData !== undefined) {
     const decodedExtraData = decode(object.extraData)
-
+    object.remainingData = decodedExtraData
+      ? decodedExtraData.remainingData || null
+      : null
     object.paymentRequestId = decodedExtraData
       ? decodedExtraData.paymentRequestId || null
       : null

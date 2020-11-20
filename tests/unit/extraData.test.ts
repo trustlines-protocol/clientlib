@@ -18,10 +18,18 @@ describe('unit', () => {
       )
     })
 
+    it('should encode and decode remainingData correctly', () => {
+      const extraData = { remainingData: '0x1234567890abcdef' }
+      expect(extraData.remainingData).to.be.deep.eq(
+        decode(encode(extraData)).remainingData
+      )
+    })
+
     it('should encode and decode combined extra data correctly', () => {
       const extraData = {
         paymentRequestId: '0x1212343456567878',
-        transferId: '0x1234567890abcdef'
+        transferId: '0x1234567890abcdef',
+        remainingData: '0x1234'
       }
       expect(extraData).to.be.deep.eq(decode(encode(extraData)))
     })

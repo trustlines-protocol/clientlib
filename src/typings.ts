@@ -84,6 +84,7 @@ export interface PaymentOptions extends TLOptions {
   extraData?: string
   paymentRequestId?: string
   addTransferId?: boolean
+  remainingData?: string
 }
 
 export interface TrustlineUpdateOptions extends TLOptions {
@@ -143,6 +144,7 @@ export interface NetworkTransferEvent extends NetworkEvent {
   extraData: string
   paymentRequestId: string
   transferId: string
+  remainingData: string
 }
 
 export interface NetworkTrustlineUpdateEventRaw extends NetworkEvent {
@@ -737,6 +739,7 @@ export interface TransferDetails {
   extraData: string
   paymentRequestId: string
   transferId: string
+  remainingData: string
 }
 
 export interface TransferIdentifier {
