@@ -95,9 +95,11 @@ export class Payment {
    * @param options.gasPrice Custom gas price.
    * @param options.gasLimit Custom gas limit.
    * @param options.feePayer Either `sender` or `receiver`. Specifies who pays network fees.
-   * @param options.extraData Extra data that will appear in the Transfer event when successful.
+   * @param options.extraData Extra data that will appear in the Transfer event when successful
+   *                          incompatible with paymentRequestId, addTransferId, and remainingData.
    * @param options.paymentRequestId Payment request identifier that gets encoded to the extra data.
    * @param options.addTransferId Whether a transfer id should be added to the payment, default to true.
+   * @param options.remainingData Additional data that will be encoded in the payment extraData.
    */
   public async prepare(
     networkAddress: string,
@@ -111,7 +113,8 @@ export class Payment {
       networkDecimals,
       extraData,
       paymentRequestId,
-      addTransferId
+      addTransferId,
+      remainingData
     } = options
     const decimals = await this.currencyNetwork.getDecimals(networkAddress, {
       networkDecimals
@@ -124,7 +127,8 @@ export class Payment {
     const encodedExtraData: string = encode({
       extraData,
       paymentRequestId,
-      transferId
+      transferId,
+      remainingData
     })
 
     const { path, maxFees, feePayer } = await this.getTransferPathInfo(
@@ -509,21 +513,23 @@ export class Payment {
 function encode({
   extraData,
   paymentRequestId,
-  transferId
+  transferId,
+  remainingData
 }: {
   extraData: string
   paymentRequestId: string
   transferId?: string
+  remainingData?: string
 }) {
-  if (extraData && (paymentRequestId || transferId)) {
+  if (extraData && (paymentRequestId || transferId || remainingData)) {
     throw Error(
-      'Can not encode extraData and paymentRequestId or transferId at the same time currently'
+      'Can not encode extraData and paymentRequestId or transferId or remainingData at the same time'
     )
   }
   if (extraData) {
     return extraData
-  } else if (paymentRequestId || transferId) {
-    return encodeExtraData({ paymentRequestId, transferId })
+  } else if (paymentRequestId || transferId || remainingData) {
+    return encodeExtraData({ paymentRequestId, transferId, remainingData })
   } else {
     return '0x'
   }

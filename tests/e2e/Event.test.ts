@@ -13,11 +13,13 @@ import {
   TokenAmountEvent
 } from '../../src/typings'
 
+import { encode } from '../../src/extraData'
 import {
   createAndLoadUsers,
   deployIdentities,
   extraData,
   paymentRequestId,
+  remainingData,
   requestEth,
   setTrustlines,
   tlNetworkConfig,
@@ -162,7 +164,7 @@ describe('e2e', () => {
           network2.address,
           user2.address,
           1,
-          { paymentRequestId }
+          { paymentRequestId, addTransferId: true, remainingData }
         )
         tlTransferTransferId = tlTransferTx.transferId
         tlTransferTxHash = await tl1.payment.confirm(tlTransferTx.rawTx)
@@ -334,11 +336,23 @@ describe('e2e', () => {
           (tlTransferEvents[0] as NetworkTransferEvent).amount
         ).to.have.keys('raw', 'decimals', 'value')
         expect(
+          (tlTransferEvents[0] as NetworkTransferEvent).extraData
+        ).to.equal(
+          encode({
+            paymentRequestId,
+            transferId: tlTransferTransferId,
+            remainingData
+          })
+        )
+        expect(
           (tlTransferEvents[0] as NetworkTransferEvent).paymentRequestId
         ).to.equal(paymentRequestId)
         expect(
           (tlTransferEvents[0] as NetworkTransferEvent).transferId
         ).to.equal(tlTransferTransferId)
+        expect(
+          (tlTransferEvents[0] as NetworkTransferEvent).remainingData
+        ).to.equal(remainingData)
 
         // events thrown on deposit
         const depositEvents = allEvents.filter(
