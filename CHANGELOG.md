@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 - Added function `UserInformation.getEarnedMediationFees()` to get all the mediation fees
   earned by a user in a network. (requires version of relay 0.19.0)
+- Added option `options.remainingData` to prepare payment. The `remainingData` will be encoded
+  together with other options in the transfer `extraData`
+- Added field `remainingData` for payment details and transfer events corresponding to the
+  newly added `remainingData` field
 
 ## [0.13.7] - 2020-10-28
 
