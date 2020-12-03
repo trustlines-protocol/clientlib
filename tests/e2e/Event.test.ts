@@ -164,7 +164,11 @@ describe('e2e', () => {
           network2.address,
           user2.address,
           1,
-          { paymentRequestId, addTransferId: true, remainingData }
+          {
+            paymentRequestId,
+            addTransferId: true,
+            remainingData
+          }
         )
         tlTransferTransferId = tlTransferTx.transferId
         tlTransferTxHash = await tl1.payment.confirm(tlTransferTx.rawTx)
