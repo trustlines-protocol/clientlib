@@ -11,6 +11,8 @@ import {
   EarnedMediationFeesListRaw,
   MediationFeeObject,
   MediationFeeRaw,
+  TransferredSumObject,
+  TransferredSumRaw,
   TrustlineAccruedInterestsObject,
   TrustlineAccruedInterestsRaw,
   UserAccruedInterestsObject,
@@ -136,6 +138,41 @@ export class UserInformation {
       networkDecimals,
       interestRateDecimals
     )
+  }
+
+  public async getTotalTransferredSum(
+    networkAddress: string,
+    senderAddress: string,
+    receiverAddress: string,
+    options: {
+      timeWindowOption?: { startTime: number; endTime: number }
+      decimalsOptions?: DecimalsOptions
+    } = {}
+  ): Promise<TransferredSumObject> {
+    const baseUrl = `networks/${networkAddress}/users/${senderAddress}/transferredSums/${receiverAddress}`
+    const parameterUrl = utils.buildUrl(
+      baseUrl,
+      options.timeWindowOption && { query: options.timeWindowOption }
+    )
+
+    const [
+      transferredSumRaw,
+      { networkDecimals, interestRateDecimals }
+    ] = await Promise.all([
+      this.provider.fetchEndpoint<TransferredSumRaw>(parameterUrl),
+      this.currencyNetwork.getDecimals(
+        networkAddress,
+        options.decimalsOptions || {}
+      )
+    ])
+
+    return {
+      value: utils.formatToAmount(transferredSumRaw.value, networkDecimals),
+      sender: transferredSumRaw.sender,
+      receiver: transferredSumRaw.receiver,
+      startTime: transferredSumRaw.startTime,
+      endTime: transferredSumRaw.endTime
+    }
   }
 
   private formatMediationFeeRaw(

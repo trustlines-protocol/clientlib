@@ -181,7 +181,7 @@ describe('e2e', () => {
           const userMediationFees = await userInformation.getEarnedMediationFees(
             network.address
           )
-          expect(userMediationFees).to.be.have.all.keys([
+          expect(userMediationFees).to.have.all.keys([
             'user',
             'network',
             'mediationFees'
@@ -197,6 +197,49 @@ describe('e2e', () => {
           expect(mediationFee.value.value).to.equal(feeValue)
           expect(mediationFee.transactionHash).to.equal(txHash)
           expect(mediationFee.timestamp).to.be.a('number')
+        })
+      })
+
+      describe('#getTotalTransferredSum()', () => {
+        let startTime
+        let endTime
+        const transferValue = 1000
+        before(async () => {
+          startTime = Math.floor(Date.now() / 1000)
+          const transfer = await tl1.payment.prepare(
+            network.address,
+            user2.address,
+            transferValue
+          )
+          await tl1.payment.confirm(transfer.rawTx)
+          await wait()
+          endTime = Math.floor(Date.now() / 1000) + 1
+        })
+
+        it('should get transfered sum in between users', async () => {
+          const transferredSum = await userInformation.getTotalTransferredSum(
+            network.address,
+            user1.address,
+            user2.address,
+            { timeWindowOption: { startTime, endTime } }
+          )
+          expect(transferredSum).to.have.all.keys([
+            'sender',
+            'receiver',
+            'startTime',
+            'endTime',
+            'value'
+          ])
+          expect(transferredSum.sender).to.equal(user1.address)
+          expect(transferredSum.receiver).to.equal(user2.address)
+          expect(transferredSum.startTime).to.equal(startTime)
+          expect(transferredSum.endTime).to.equal(endTime)
+          expect(transferredSum.value).to.have.all.keys([
+            'raw',
+            'value',
+            'decimals'
+          ])
+          expect(transferredSum.value.value).to.equal(transferValue.toString())
         })
       })
     })

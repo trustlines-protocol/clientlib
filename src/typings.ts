@@ -719,6 +719,22 @@ export interface EarnedMediationFeesListObject {
   mediationFees: MediationFeeObject[]
 }
 
+export interface TransferredSumRaw {
+  sender: string
+  receiver: string
+  startTime: number
+  endTime: number
+  value: string
+}
+
+export interface TransferredSumObject {
+  sender: string
+  receiver: string
+  startTime: number
+  endTime: number
+  value: Amount
+}
+
 export interface TransferDetailsRaw {
   path: string[]
   currencyNetwork: string
