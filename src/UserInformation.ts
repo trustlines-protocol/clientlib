@@ -39,6 +39,13 @@ export class UserInformation {
     this.currencyNetwork = params.currencyNetwork
   }
 
+  /**
+   * Get all the mediation fees the loaded user has earned
+   * @param networkAddress the address of the network for which to get the fees
+   * @param options
+   * @param options.timeWindowOption the time window to filter the fees. Has startTime and endTime
+   * @param options.decimalsOptions the decimal options of the currency network to format fee values
+   */
   public async getEarnedMediationFees(
     networkAddress: string,
     options: {
@@ -73,6 +80,14 @@ export class UserInformation {
     }
   }
 
+  /**
+   * Get all the accrued interests the loaded user has earned and paid out
+   * The returned values are positive for earned interests and negative for paid out interests
+   * @param networkAddress the address of the network
+   * @param options
+   * @param options.timeWindowOption the time window to filter the fees. Has startTime and endTime
+   * @param options.decimalsOptions the decimal options of the currency network to format fee values
+   */
   public async getAccruedInterests(
     networkAddress: string,
     options: {
@@ -107,6 +122,15 @@ export class UserInformation {
     )
   }
 
+  /**
+   * Get all the accrued interests the loaded user has earned and paid out on a single trustline
+   * The returned values are positive for earned interests and negative for paid out interests
+   * @param networkAddress the address of the network
+   * @param counterpartyAddress the address of the counterparty of the trustlines
+   * @param options
+   * @param options.timeWindowOption the time window to filter the fees. Has startTime and endTime
+   * @param options.decimalsOptions the decimal options of the currency network to format fee values
+   */
   public async getAccruedInterestsOnTrustline(
     networkAddress: string,
     counterpartyAddress: string,
@@ -140,6 +164,17 @@ export class UserInformation {
     )
   }
 
+  /**
+   * Get the sum of all transfer made in time window and network from sender to receiver
+   * Does take into account transfer from receiver to sender, or any other transfer
+   * The value returned can only be positive
+   * @param networkAddress the address of the network
+   * @param senderAddress the address of the sender of transfers
+   * @param receiverAddress the address of the receiver of transfers
+   * @param options
+   * @param options.timeWindowOption the time window to filter the fees. Has startTime and endTime
+   * @param options.decimalsOptions the decimal options of the currency network to format fee values
+   */
   public async getTotalTransferredSum(
     networkAddress: string,
     senderAddress: string,
