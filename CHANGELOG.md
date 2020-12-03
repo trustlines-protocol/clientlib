@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- Added method `UserInformation.getTotalTransferredSum()` to get the total transferred sum from one
+  user to the other in a time window in a currency network
+
 ## [0.14.0] - 2020-12-08
 
 ### Changed
