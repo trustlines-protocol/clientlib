@@ -70,6 +70,17 @@ describe('e2e', () => {
         })
       })
 
+      describe('#paymentRequestCancel()', () => {
+        it('should return sent cancel', async () => {
+          const cancelMessage = await tl1.messaging.paymentRequestCancel(
+            tl2.user.address,
+            '0x10'
+          )
+          expect(cancelMessage.type).to.equal('PaymentRequestCancel')
+          expect(cancelMessage.id).to.equal('0x10')
+        })
+      })
+
       describe('#sendUsernameToCounterparty()', () => {
         it('should return sent username message', async () => {
           const sentUsernameMessage = await tl1.messaging.sendUsernameToCounterparty(
