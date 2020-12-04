@@ -107,17 +107,20 @@ export class Messaging {
   /**
    * Sends a payment request cancel message to given `counterParty` and returns created message.
    * @param counterPartyAddress Address of counter party.
-   * @param id id of the payment request to decline
+   * @param id id of the payment request to cancel
    * matches either the nonce as a number or id of a payment request as a hex string.
+   * @param subject Optional subject of cancel message.
    */
   public async paymentRequestCancel(
     counterPartyAddress: string,
-    id: string
+    id: string,
+    subject?: string
   ): Promise<PaymentRequestDeclineMessage> {
     const type = 'PaymentRequestCancel'
     const message = {
       type,
-      id
+      id,
+      subject
     }
     await this.sendMessage(counterPartyAddress, type, message)
     return message
