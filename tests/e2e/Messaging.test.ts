@@ -74,10 +74,12 @@ describe('e2e', () => {
         it('should return sent cancel', async () => {
           const cancelMessage = await tl1.messaging.paymentRequestCancel(
             tl2.user.address,
-            '0x10'
+            '0x10',
+            'test subject'
           )
           expect(cancelMessage.type).to.equal('PaymentRequestCancel')
           expect(cancelMessage.id).to.equal('0x10')
+          expect(cancelMessage.subject).to.equal('test subject')
         })
       })
 
