@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.14.0] - 2020-12-08
+
 ### Changed
 
 - Rename `Interests.ts` to `UserInformation.ts` and their class and methods accordingly
@@ -18,6 +20,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
   together with other options in the transfer `extraData`
 - Added field `remainingData` for payment details and transfer events corresponding to the
   newly added `remainingData` field
+- Added method `paymentRequestCancel` to cancel a payment request you already sent to a counterparty.
 
 ## [0.13.7] - 2020-10-28
 
