@@ -636,6 +636,55 @@ describe('e2e', () => {
       })
     })
 
+    describe('#updateMultipleBalancesStream()', () => {
+      const events = []
+      let stream
+
+      before(async () => {
+        // create new users
+        ;[user1, user2] = await createAndLoadUsers([tl1, tl2])
+        await deployIdentities([tl1, tl2])
+        // request ETH
+        await requestEth([tl1, tl2])
+        // set trustlines
+        await setTrustlines(network1.address, tl1, tl2, 100, 200)
+        stream = await tl1.event
+          .updateStream()
+          .subscribe(event => events.push(event))
+
+        let rawTx
+        for (const value of [1, 2, 3]) {
+          rawTx = (
+            await tl1.payment.prepare(network1.address, user2.address, value)
+          ).rawTx
+          await tl1.payment.confirm(rawTx)
+        }
+        await wait()
+      })
+
+      it('should receive correct balance after successive updates', () => {
+        const networkBalanceEvents = events.filter(
+          event => event.type === 'NetworkBalance'
+        )
+        expect(
+          networkBalanceEvents[networkBalanceEvents.length - 1].balance.value
+        ).to.equal('-6')
+
+        const balanceUpdateEvents = events.filter(
+          event => event.type === 'BalanceUpdate'
+        )
+        expect(
+          balanceUpdateEvents[balanceUpdateEvents.length - 1].balance.value
+        ).to.equal('-6')
+      })
+
+      after(async () => {
+        stream.unsubscribe()
+        // make sure stream unsubscribed
+        await wait()
+      })
+    })
+
     describe('#updateStreamTrustlineRequest()', () => {
       const events = []
       let stream
