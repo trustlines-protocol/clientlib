@@ -149,7 +149,7 @@ export class Payment {
       } = await this.transaction.prepareContractTransaction(
         await this.user.getAddress(),
         networkAddress,
-        'CurrencyNetwork',
+        'CurrencyNetworkV2',
         // if no options are set for feePayer, the sender pays the fees.
         feePayer === FeePayer.Receiver ? 'transferReceiverPays' : 'transfer',
         [

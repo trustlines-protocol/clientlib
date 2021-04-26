@@ -10,6 +10,7 @@ import {
   NetworkDetails,
   NetworkTransferEvent,
   NetworkTrustlineUpdateEvent,
+  NetworkTrustlineUpdateRequestEvent,
   TokenAmountEvent
 } from '../../src/typings'
 
@@ -109,6 +110,7 @@ describe('e2e', () => {
 
     describe('#getAll()', async () => {
       let updateTxHash
+      let secondUpdateTxHash
       let acceptTxHash
       let cancelUpdateTxHash
       let tlTransferTxHash
@@ -148,15 +150,17 @@ describe('e2e', () => {
           network2.address,
           user2.address,
           1000,
-          500
+          500,
+          { transfer: -123, interestRateGiven: 10, interestRateReceived: 10 }
         )
-        await tl1.trustline.confirm(secondUpdateTx.rawTx)
+        secondUpdateTxHash = await tl1.trustline.confirm(secondUpdateTx.rawTx)
         await wait()
         const acceptTx = await tl2.trustline.prepareUpdate(
           network2.address,
           user1.address,
           500,
-          1000
+          1000,
+          { transfer: 123, interestRateGiven: 10, interestRateReceived: 10 }
         )
         acceptTxHash = await tl2.trustline.confirm(acceptTx.rawTx)
         await wait()
@@ -220,7 +224,7 @@ describe('e2e', () => {
       it('should return all events', async () => {
         const allEvents = await tl1.event.getAll()
 
-        // events thrown on trustline update request
+        // events thrown on first trustline update request
         const updateRequestEvents = allEvents.filter(
           ({ transactionHash }) => transactionHash === updateTxHash
         )
@@ -253,6 +257,14 @@ describe('e2e', () => {
         expect(
           (updateRequestEvents[0] as NetworkTrustlineUpdateEvent).received
         ).to.have.keys('raw', 'decimals', 'value')
+        expect(
+          (updateRequestEvents[0] as NetworkTrustlineUpdateRequestEvent)
+            .transfer
+        ).to.have.keys('raw', 'decimals', 'value')
+        expect(
+          (updateRequestEvents[0] as NetworkTrustlineUpdateRequestEvent)
+            .transfer.value
+        ).to.equal('0')
 
         // events thrown on trustline update cancel
         const cancelUpdateEvents = allEvents.filter(
@@ -281,36 +293,111 @@ describe('e2e', () => {
           (cancelUpdateEvents[0] as NetworkTrustlineUpdateEvent).networkAddress
         ).to.equal(network2.address)
 
-        // events thrown on trustline update
+        // events thrown on second trustline update request with transfer request
+        const secondUpdateRequestEvents = allEvents.filter(
+          ({ transactionHash }) => transactionHash === secondUpdateTxHash
+        )
+        // check event TrustlineUpdateRequest
+        expect(
+          secondUpdateRequestEvents,
+          'Trustline Update Request should exist'
+        ).to.have.length(1)
+        expect(secondUpdateRequestEvents[0].type).to.equal(
+          'TrustlineUpdateRequest'
+        )
+        expect(secondUpdateRequestEvents[0].timestamp).to.be.a('number')
+        expect(secondUpdateRequestEvents[0].blockNumber).to.be.a('number')
+        expect(secondUpdateRequestEvents[0].status).to.be.a('string')
+        expect(secondUpdateRequestEvents[0].transactionHash).to.equal(
+          secondUpdateTxHash
+        )
+        expect(secondUpdateRequestEvents[0].blockHash).to.be.a('string')
+        expect(secondUpdateRequestEvents[0].logIndex).to.be.a('number')
+        expect(secondUpdateRequestEvents[0].direction).to.equal('sent')
+        expect(secondUpdateRequestEvents[0].from).to.equal(tl1.user.address)
+        expect(secondUpdateRequestEvents[0].to).to.equal(tl2.user.address)
+        expect(secondUpdateRequestEvents[0].user).to.equal(tl1.user.address)
+        expect(secondUpdateRequestEvents[0].counterParty).to.equal(
+          tl2.user.address
+        )
+        expect(
+          (secondUpdateRequestEvents[0] as NetworkTrustlineUpdateEvent)
+            .networkAddress
+        ).to.equal(network2.address)
+        expect(
+          (secondUpdateRequestEvents[0] as NetworkTrustlineUpdateEvent).isFrozen
+        ).to.be.a('boolean')
+        expect(
+          (secondUpdateRequestEvents[0] as NetworkTrustlineUpdateEvent).given
+        ).to.have.keys('raw', 'decimals', 'value')
+        expect(
+          (secondUpdateRequestEvents[0] as NetworkTrustlineUpdateEvent).received
+        ).to.have.keys('raw', 'decimals', 'value')
+        expect(
+          (secondUpdateRequestEvents[0] as NetworkTrustlineUpdateRequestEvent)
+            .transfer
+        ).to.have.keys('raw', 'decimals', 'value')
+        expect(
+          (secondUpdateRequestEvents[0] as NetworkTrustlineUpdateRequestEvent)
+            .transfer.value
+        ).to.equal('-123')
+
+        // events thrown on trustline update accept, first one is a TrustlineUpdate and second one is a Transfer
         const updateEvents = allEvents.filter(
           ({ transactionHash }) => transactionHash === acceptTxHash
         )
+        expect(updateEvents, 'Trustline Update should exist').to.have.length(2)
+        const trustlineUpdateEvent = updateEvents[0]
+        const transferEvent = updateEvents[1]
         // check event TrustlineUpdate
-        expect(updateEvents, 'Trustline Update should exist').to.have.length(1)
-        expect(updateEvents[0].type).to.equal('TrustlineUpdate')
-        expect(updateEvents[0].timestamp).to.be.a('number')
-        expect(updateEvents[0].blockNumber).to.be.a('number')
-        expect(updateEvents[0].status).to.be.a('string')
-        expect(updateEvents[0].transactionHash).to.equal(acceptTxHash)
-        expect(updateEvents[0].blockHash).to.be.a('string')
-        expect(updateEvents[0].logIndex).to.be.a('number')
-        expect(updateEvents[0].direction).to.equal('sent')
-        expect(updateEvents[0].from).to.equal(tl1.user.address)
-        expect(updateEvents[0].to).to.equal(tl2.user.address)
-        expect(updateEvents[0].user).to.equal(tl1.user.address)
-        expect(updateEvents[0].counterParty).to.equal(tl2.user.address)
+        expect(trustlineUpdateEvent.type).to.equal('TrustlineUpdate')
+        expect(trustlineUpdateEvent.timestamp).to.be.a('number')
+        expect(trustlineUpdateEvent.blockNumber).to.be.a('number')
+        expect(trustlineUpdateEvent.status).to.be.a('string')
+        expect(trustlineUpdateEvent.transactionHash).to.equal(acceptTxHash)
+        expect(trustlineUpdateEvent.blockHash).to.be.a('string')
+        expect(trustlineUpdateEvent.logIndex).to.be.a('number')
+        expect(trustlineUpdateEvent.direction).to.equal('sent')
+        expect(trustlineUpdateEvent.from).to.equal(tl1.user.address)
+        expect(trustlineUpdateEvent.to).to.equal(tl2.user.address)
+        expect(trustlineUpdateEvent.user).to.equal(tl1.user.address)
+        expect(trustlineUpdateEvent.counterParty).to.equal(tl2.user.address)
         expect(
-          (updateEvents[0] as NetworkTrustlineUpdateEvent).networkAddress
+          (trustlineUpdateEvent as NetworkTrustlineUpdateEvent).networkAddress
         ).to.equal(network2.address)
         expect(
-          (updateEvents[0] as NetworkTrustlineUpdateEvent).isFrozen
+          (trustlineUpdateEvent as NetworkTrustlineUpdateEvent).isFrozen
         ).to.be.a('boolean')
         expect(
-          (updateEvents[0] as NetworkTrustlineUpdateEvent).given
+          (trustlineUpdateEvent as NetworkTrustlineUpdateEvent).given
         ).to.have.keys('raw', 'decimals', 'value')
         expect(
-          (updateEvents[0] as NetworkTrustlineUpdateEvent).received
+          (trustlineUpdateEvent as NetworkTrustlineUpdateEvent).received
         ).to.have.keys('raw', 'decimals', 'value')
+        // check event Transfer
+        expect(transferEvent.type).to.equal('Transfer')
+        expect(transferEvent.timestamp).to.be.a('number')
+        expect(transferEvent.blockNumber).to.be.a('number')
+        expect(transferEvent.status).to.be.a('string')
+        expect(transferEvent.transactionHash).to.equal(acceptTxHash)
+        expect(transferEvent.blockHash).to.be.a('string')
+        expect(transferEvent.logIndex).to.be.a('number')
+        expect(transferEvent.from).to.equal(tl2.user.address)
+        expect(transferEvent.to).to.equal(tl1.user.address)
+        expect(transferEvent.direction).to.equal('received')
+        expect(transferEvent.user).to.equal(tl1.user.address)
+        expect(transferEvent.counterParty).to.equal(tl2.user.address)
+        expect((transferEvent as NetworkTransferEvent).networkAddress).to.equal(
+          network2.address
+        )
+        expect((transferEvent as NetworkTransferEvent).amount).to.have.keys(
+          'raw',
+          'decimals',
+          'value'
+        )
+        expect((transferEvent as NetworkTransferEvent).amount.value).to.equal(
+          '123'
+        )
 
         // events thrown on trustlines transfer
         const tlTransferEvents = allEvents.filter(
