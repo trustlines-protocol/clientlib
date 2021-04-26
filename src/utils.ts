@@ -332,7 +332,8 @@ export const formatEvent = <T>(
     'leftGiven',
     'leftReceived',
     'interestRateGiven',
-    'interestRateReceived'
+    'interestRateReceived',
+    'transfer'
   ]
   for (const key of keys) {
     if (event[key]) {
@@ -420,14 +421,21 @@ export const convertToHexString = (
     // Non integers values can not be processed by ethereum
     throw new Error('Can not convert non integer: ' + bigNumber.toString())
   }
-  let hexStr = bigNumber.toString(16)
+  const hexStr = bigNumber.toString(16)
 
   // bigNumber returns a base 16 number which could have an odd number of character
   // thus not truly representing bytes, we need to prepend a 0 in that case
-  if (hexStr.length % 2 !== 0) {
-    hexStr = 0 + hexStr
+  if (hexStr.startsWith('-')) {
+    if (hexStr.length % 2 !== 1) {
+      return '-0x0' + hexStr.slice(1)
+    }
+    return '-0x' + hexStr.slice(1)
+  } else {
+    if (hexStr.length % 2 !== 0) {
+      return '0x0' + hexStr
+    }
+    return '0x' + hexStr
   }
-  return ethUtils.addHexPrefix(hexStr)
 }
 
 /**

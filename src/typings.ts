@@ -91,6 +91,7 @@ export interface TrustlineUpdateOptions extends TLOptions {
   interestRateGiven?: number
   interestRateReceived?: number
   isFrozen?: boolean
+  transfer?: number | string
 }
 
 export interface AmountInternal {
@@ -155,12 +156,22 @@ export interface NetworkTrustlineUpdateEventRaw extends NetworkEvent {
   isFrozen: boolean
 }
 
+export interface NetworkTrustlineUpdateRequestEventRaw
+  extends NetworkTrustlineUpdateEventRaw {
+  transfer: string
+}
+
 export interface NetworkTrustlineUpdateEvent extends NetworkEvent {
   given: Amount
   received: Amount
   interestRateGiven: Amount
   interestRateReceived: Amount
   isFrozen: boolean
+}
+
+export interface NetworkTrustlineUpdateRequestEvent
+  extends NetworkTrustlineUpdateEvent {
+  transfer: Amount
 }
 
 export type NetworkTrustlineCancelEventRaw = NetworkEvent
@@ -177,20 +188,24 @@ export type AnyNetworkEvent =
   | NetworkTransferEvent
   | NetworkTrustlineUpdateEvent
   | NetworkTrustlineCancelEvent
+  | NetworkTrustlineUpdateRequestEvent
 export type AnyNetworkEventRaw =
   | NetworkTransferEventRaw
   | NetworkTrustlineUpdateEventRaw
   | NetworkTrustlineCancelEventRaw
+  | NetworkTrustlineUpdateRequestEventRaw
 
 export type AnyNetworkTrustlineEventRaw =
   | NetworkTrustlineUpdateEventRaw
   | NetworkTrustlineCancelEventRaw
   | NetworkTrustlineBalanceUpdateRaw
+  | NetworkTrustlineUpdateRequestEventRaw
 
 export type AnyNetworkTrustlineEvent =
   | NetworkTrustlineUpdateEvent
   | NetworkTrustlineCancelEvent
   | NetworkTrustlineBalanceUpdate
+  | NetworkTrustlineUpdateRequestEvent
 
 export interface TokenEvent extends TLEvent {
   tokenAddress: string

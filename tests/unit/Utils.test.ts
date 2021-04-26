@@ -385,6 +385,10 @@ describe('unit', () => {
         assert.equal(utils.convertToHexString(NUM), NUM_HEX_STR)
       })
 
+      it('should convert negative number to hex', () => {
+        assert.equal(utils.convertToHexString(-NUM), '-' + NUM_HEX_STR)
+      })
+
       it('should throw on float', () => {
         assert.throw(() => utils.convertToHexString(1.23))
       })

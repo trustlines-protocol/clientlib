@@ -25,6 +25,7 @@ import {
   NetworkTrustlineBalanceUpdate,
   NetworkTrustlineCancelEvent,
   NetworkTrustlineUpdateEvent,
+  NetworkTrustlineUpdateRequestEvent,
   PaymentOptions,
   RawTxObject,
   TrustlineObject,
@@ -103,14 +104,16 @@ export class Trustline {
    * @param networkAddress Address of a currency network.
    * @param counterpartyAddress Address of counterparty who receives trustline update request.
    * @param creditlineGiven Proposed creditline limit given by initiator to counterparty,
-   *                        i.e. 1.23 if network has to 2 decimals.
+   *                        e.g. 1.23 if network has 2 decimals.
    * @param creditlineReceived Proposed creditline limit received by initiator from counterparty,
-   *                           i.e. 1.23 if network has to 2 decimals.
+   *                           e.g. 1.23 if network has 2 decimals.
    * @param options Options for creating an `updateTrustline` ethereum transaction.
    *                See type [[TrustlineUpdateOptions]] for more information.
    * @param options.interestRateGiven Proposed interest rate given by initiator to counterparty in % per year.
    * @param options.interestRateReceived Proposed interest rate received by initiator from counterparty in % per year.
    * @param options.isFrozen Whether we propose to freeze the trustline.
+   * @param options.transfer To propose a transfer to be effective upon acceptation of the trustline
+   *                          e.g. 1.23 if network has 2 decimals.
    * @param options.networkDecimals Decimals of currency network can be provided manually if known.
    * @param options.interestRateDecimals Decimals of interest rate in currency network can be provided manually if known.
    * @param options.gasLimit Custom gas limit.
@@ -138,7 +141,8 @@ export class Trustline {
       interestRateDecimals,
       gasLimit,
       gasPrice,
-      isFrozen
+      isFrozen,
+      transfer
     } = options
     const [
       decimals,
@@ -170,7 +174,7 @@ export class Trustline {
       interestRateReceived !== undefined &&
       isFrozen !== undefined
     ) {
-      updateFuncName = 'updateTrustline'
+      updateFuncName = 'updateTrustline(address,uint64,uint64,int16,int16,bool)'
       updateFuncArgs = [
         ...updateFuncArgs,
         utils.convertToHexString(
@@ -185,20 +189,31 @@ export class Trustline {
         ),
         isFrozen
       ]
+      if (transfer !== undefined && transfer !== 0) {
+        updateFuncName =
+          'updateTrustline(address,uint64,uint64,int16,int16,bool,int72)'
+        updateFuncArgs = [
+          ...updateFuncArgs,
+          utils.convertToHexString(
+            utils.calcRaw(transfer, decimals.networkDecimals)
+          )
+        ]
+      }
     } else if (
       interestRateGiven !== undefined ||
       interestRateReceived !== undefined ||
-      isFrozen !== undefined
+      isFrozen !== undefined ||
+      transfer !== undefined
     ) {
       throw new Error(
-        'Invalid input parameters: if any of interestRateGiven, or interestRateReceived is given, both have to be given. If isFrozen is given, both interest rates have to be given.'
+        'Invalid input parameters: if any of interestRateGiven, or interestRateReceived is given, both have to be given. If isFrozen or transfer is given, both interest rates have to be given.'
       )
     }
 
     const { rawTx, txFees } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       networkAddress,
-      'CurrencyNetwork',
+      'CurrencyNetworkV2',
       updateFuncName,
       updateFuncArgs,
       {
@@ -227,6 +242,8 @@ export class Trustline {
    * @param options.interestRateGiven Proposed interest rate given by receiver to initiator in % per year.
    * @param options.interestRateReceived Proposed interest rate received by initiator from receiver in % per year.
    * @param options.isFrozen Whether we propose to freeze the trustline.
+   * @param options.transfer To propose a transfer to be effective upon acceptation of the trustline
+   *                          e.g. 1.23 if network has 2 decimals.
    * @param options.interestRateDecimals Decimals of interest rate in currency network can be provided manually if known.
    * @param options.decimals Decimals of currency network can be provided manually if known.
    * @param options.gasLimit Custom gas limit.
@@ -271,7 +288,7 @@ export class Trustline {
     const { rawTx, txFees } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       networkAddress,
-      'CurrencyNetwork',
+      'CurrencyNetworkV2',
       cancelFuncName,
       cancelFuncArgs,
       {
@@ -384,8 +401,8 @@ export class Trustline {
   public getRequests(
     networkAddress: string,
     filter: EventFilterOptions = {}
-  ): Promise<NetworkTrustlineUpdateEvent[]> {
-    return this.event.get<NetworkTrustlineUpdateEvent>(networkAddress, {
+  ): Promise<NetworkTrustlineUpdateRequestEvent[]> {
+    return this.event.get<NetworkTrustlineUpdateRequestEvent>(networkAddress, {
       ...filter,
       type: 'TrustlineUpdateRequest'
     })
@@ -529,7 +546,7 @@ export class Trustline {
     const { rawTx, txFees } = await this.transaction.prepareContractTransaction(
       await this.user.getAddress(),
       networkAddress,
-      'CurrencyNetwork',
+      'CurrencyNetworkV2',
       closeFuncName,
       closeFuncArgs,
       {

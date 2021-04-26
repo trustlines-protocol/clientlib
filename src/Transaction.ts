@@ -20,6 +20,10 @@ import {
 
 import { CurrencyNetwork } from './CurrencyNetwork'
 
+// Ethers will otherwise warn for every call on `updateTrustline` due to function overloading
+// see https://github.com/ethers-io/ethers.js/issues/407
+ethers.errors.setLogLevel('error')
+
 const ETH_DECIMALS = 18
 export const GAS_LIMIT_MULTIPLIER = 1.2
 // Value taken from the contracts gas tests
