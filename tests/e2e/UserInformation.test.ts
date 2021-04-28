@@ -33,6 +33,8 @@ describe('e2e', () => {
       let network
       let userInformation: UserInformation
 
+      const bigTrustlineValue = 10 ** 10
+
       before(async () => {
         ;[network] = await tl1.currencyNetwork.getAll()
         // create new users
@@ -61,8 +63,8 @@ describe('e2e', () => {
           const { rawTx: rawUpdateTx } = await a.trustline.prepareUpdate(
             network.address,
             b.user.address,
-            20000,
-            20000,
+            bigTrustlineValue,
+            bigTrustlineValue,
             {
               interestRateGiven: 20,
               interestRateReceived: 20
@@ -73,8 +75,8 @@ describe('e2e', () => {
           const { rawTx: rawAcceptTx } = await b.trustline.prepareAccept(
             network.address,
             a.user.address,
-            20000,
-            20000,
+            bigTrustlineValue,
+            bigTrustlineValue,
             {
               interestRateGiven: 20,
               interestRateReceived: 20
@@ -95,7 +97,7 @@ describe('e2e', () => {
           const transfer1 = await tl1.payment.prepare(
             network.address,
             user2.address,
-            1000
+            bigTrustlineValue / 2
           )
           await tl1.payment.confirm(transfer1.rawTx)
           await wait()
@@ -104,7 +106,7 @@ describe('e2e', () => {
           const transfer2 = await tl2.payment.prepare(
             network.address,
             user1.address,
-            1000
+            1
           )
           await tl2.payment.confirm(transfer2.rawTx)
           await wait()
