@@ -91,13 +91,13 @@
   },
   "dependencies": {
     "@msgpack/msgpack": "^1.12.1",
+    "@trustlines/trustlines-contracts-abi": "^2.0.0",
     "bignumber.js": "7.2.1",
     "ethereumjs-util": "^5.2.0",
     "ethers": "^4.0.23",
     "reconnecting-websocket": "^4.1.10",
     "rxjs": "^5.4.1",
     "simple-jsonrpc-js": "0.0.10",
-    "trustlines-contracts-abi": "^1.1.6-dev2.gdad274b",
     "typedoc-plugin-markdown": "^2.2.16",
     "ws": "^6.2.1"
   }

@@ -1,4 +1,4 @@
-import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
+import * as TrustlinesContractsAbi from '@trustlines/trustlines-contracts-abi'
 import { writeFile } from 'fs'
 
 const requiredContracts = ['CurrencyNetwork', 'Exchange', 'Identity', 'UnwEth']
