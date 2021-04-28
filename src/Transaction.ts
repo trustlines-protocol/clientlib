@@ -1,7 +1,7 @@
+import * as TrustlinesContractsAbi from '@trustlines/trustlines-contracts-abi'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 import { AddressZero } from 'ethers/constants'
-import * as TrustlinesContractsAbi from 'trustlines-contracts-abi'
 
 import { TLProvider } from './providers/TLProvider'
 import { TLSigner } from './signers/TLSigner'
