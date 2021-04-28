@@ -122,6 +122,11 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
+"@trustlines/trustlines-contracts-abi@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@trustlines/trustlines-contracts-abi/-/trustlines-contracts-abi-2.0.0.tgz#64463b5ef30442e09cb669851ec3fdefc35ca8df"
+  integrity sha512-3T2jDeJF3ePMFWSbmaV8h0TZKBfbaUY9vQGk5OJybMW8RC8ts65WEFJoik/R+RWWZ932ZSJUxP3p2W8WWh+84Q==
+
 "@types/chai-as-promised@^7.1.0":
   version "7.1.3"
   resolved "https://registry.yarnpkg.com/@types/chai-as-promised/-/chai-as-promised-7.1.3.tgz#779166b90fda611963a3adbfd00b339d03b747bd"
@@ -4679,11 +4684,6 @@ tr46@^1.0.1:
   integrity sha1-qLE/1r/SSJUZZ0zN5VujaTtwbQk=
   dependencies:
     punycode "^2.1.0"
-
-trustlines-contracts-abi@^1.1.6-dev2.gdad274b:
-  version "1.1.6-dev2.gdad274b"
-  resolved "https://registry.yarnpkg.com/trustlines-contracts-abi/-/trustlines-contracts-abi-1.1.6-dev2.gdad274b.tgz#83d9b160fd99e17f026068b864d5b901e0d3a345"
-  integrity sha512-TvvblqXwnwUYByM3ZF24duR43uJuJyXyBMYl59SyCxyQr5mCf6YaYo8cLpISSHD6bao5F3JnCMuiUMfXug7+fw==
 
 ts-node@^7.0.0:
   version "7.0.1"
