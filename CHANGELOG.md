@@ -6,8 +6,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.15.0] - 2021-05-04
+
+### Added
+
 - Added method `UserInformation.getTotalTransferredSum()` to get the total transferred sum from one
   user to the other in a time window in a currency network
+
+### Changed
+
+- Added optional parameter `transfer` to `Trustline.prepareUpdate()` and `Trustline.prepareAccept()` to open
+  a trustline with a transfer request.
+- Added argument `transfer` to trustline update request events corresponding to the requested transfer in the
+  point of view of the initiator of the request
 
 ## [0.14.0] - 2020-12-08
 
