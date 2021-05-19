@@ -41,7 +41,7 @@ describe('e2e', () => {
 
         it('should return registered networks', () => {
           expect(networks).to.have.length.above(0, 'No registered networks')
-          expect(networks[0]).to.have.all.keys(networkInfoKeys)
+          expect(networks[0]).to.contains.keys(networkInfoKeys)
           expect(networks[0].abbreviation).to.be.a('string')
           expect(networks[0].address)
             .to.be.a('string')
@@ -64,7 +64,7 @@ describe('e2e', () => {
       describe('#getInfo()', () => {
         it('should return detailed information of specific currency network', async () => {
           const networkInfo = await currencyNetwork.getInfo(networks[0].address)
-          expect(networkInfo).to.have.all.keys(networkInfoKeys)
+          expect(networkInfo).to.contains.keys(networkInfoKeys)
           expect(networkInfo.abbreviation).to.be.a('string')
           expect(networkInfo.address)
             .to.be.a('string')
