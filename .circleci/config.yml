@@ -95,7 +95,8 @@ jobs:
       DOCKER_REPO: trustlines/e2e
       LOCAL_IMAGE: e2e
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.7
       - checkout
       - run:
           name: Build docker image
@@ -117,7 +118,8 @@ jobs:
       DOCKER_REPO: trustlines/e2e
       LOCAL_IMAGE: e2e
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.7
       - attach_workspace:
           at: "~"
       - run:
@@ -140,7 +142,8 @@ jobs:
       DOCKER_REPO: trustlines/e2e
       LOCAL_IMAGE: e2e
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.7
       - attach_workspace:
           at: "~"
       - run:
@@ -163,7 +166,8 @@ jobs:
       DOCKER_REPO: trustlines/e2e
       LOCAL_IMAGE: e2e
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.7
       - attach_workspace:
           at: "~"
       - run:

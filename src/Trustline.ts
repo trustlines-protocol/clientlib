@@ -144,6 +144,7 @@ export class Trustline {
       isFrozen,
       transfer
     } = options
+
     const [
       decimals,
       { customInterests, defaultInterestRate }
@@ -189,7 +190,16 @@ export class Trustline {
         ),
         isFrozen
       ]
-      if (transfer !== undefined && transfer !== 0) {
+
+      if (typeof transfer === 'string' && isNaN(parseFloat(transfer))) {
+        throw new Error('Transfer is not a number')
+      }
+
+      if (
+        transfer !== undefined &&
+        ((typeof transfer === 'string' && parseFloat(transfer) !== 0) ||
+          (typeof transfer === 'number' && transfer !== 0))
+      ) {
         updateFuncName =
           'updateTrustline(address,uint64,uint64,int16,int16,bool,int72)'
         updateFuncArgs = [

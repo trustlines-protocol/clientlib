@@ -23,9 +23,11 @@ describe('e2e', () => {
       const tl1 = new TLNetwork(config)
       const tl2 = new TLNetwork(config)
       const tl3 = new TLNetwork(config)
+      const tl4 = new TLNetwork(config)
       let user1
       let user2
       let user3
+      let user4
       let networks
       let networkDefaultInterestRates
       let networkCustomInterestRates
@@ -33,11 +35,11 @@ describe('e2e', () => {
 
       before(async () => {
         // set network and load users
-        ;[networks, [user1, user2, user3]] = await Promise.all([
+        ;[networks, [user1, user2, user3, user4]] = await Promise.all([
           tl1.currencyNetwork.getAll(),
-          createAndLoadUsers([tl1, tl2, tl3])
+          createAndLoadUsers([tl1, tl2, tl3, tl4])
         ])
-        await deployIdentities([tl1, tl2, tl3])
+        await deployIdentities([tl1, tl2, tl3, tl4])
         // get network details
         const networksWithDetails = await Promise.all(
           networks.map(network => tl1.currencyNetwork.getInfo(network.address))
@@ -62,7 +64,8 @@ describe('e2e', () => {
         await Promise.all([
           tl1.user.requestEth(),
           tl2.user.requestEth(),
-          tl3.user.requestEth()
+          tl3.user.requestEth(),
+          tl4.user.requestEth()
         ])
         await wait()
       })
@@ -220,6 +223,85 @@ describe('e2e', () => {
           await expect(
             tl1.trustline.confirm(txFreezing.rawTx)
           ).to.eventually.be.a('string')
+        })
+
+        it('should return txHash for trustline update on existing trustline', async () => {
+          const proposeAndAcceptTrustline = async () => {
+            // Create and accept a trustline - start
+            const txFreezing = await tl1.trustline.prepareUpdate(
+              networkCustomInterestRates.address,
+              user4.address,
+              2000,
+              1000,
+              {
+                interestRateGiven: 0.02,
+                interestRateReceived: 0.01,
+                isFrozen: false,
+                transfer: 123
+              }
+            )
+            await expect(
+              tl1.trustline.confirm(txFreezing.rawTx)
+            ).to.eventually.be.a('string')
+
+            const acceptTl = await tl4.trustline.prepareAccept(
+              networkCustomInterestRates.address,
+              user1.address,
+              1000,
+              2000,
+              {
+                interestRateGiven: 0.01,
+                interestRateReceived: 0.02,
+                isFrozen: false,
+                transfer: -123
+              }
+            )
+
+            await tl4.trustline.confirm(acceptTl.rawTx)
+            wait()
+          }
+
+          const proposeUpdateToExistingTrustline = async transfer => {
+            const update = await tl1.trustline.prepareUpdate(
+              networkCustomInterestRates.address,
+              user4.address,
+              2100,
+              1100,
+              {
+                interestRateGiven: 0.02,
+                interestRateReceived: 0.01,
+                isFrozen: false,
+                transfer
+              }
+            )
+
+            const confirmed = await tl1.trustline.confirm(update.rawTx)
+            expect(confirmed).to.be.a('string')
+
+            await wait()
+
+            const txStatus = await tl1.transaction.getTxStatus(update.rawTx)
+
+            return txStatus
+          }
+
+          await proposeAndAcceptTrustline()
+          await expect(
+            proposeUpdateToExistingTrustline('0')
+          ).to.eventually.have.property('status', 'success')
+          await expect(
+            proposeUpdateToExistingTrustline(0)
+          ).to.eventually.have.property('status', 'success')
+          await expect(
+            proposeUpdateToExistingTrustline(123)
+          ).to.eventually.have.property('status', 'failure')
+          await expect(
+            proposeUpdateToExistingTrustline('123')
+          ).to.eventually.have.property('status', 'failure')
+
+          await expect(
+            proposeUpdateToExistingTrustline('')
+          ).to.eventually.be.rejectedWith(Error, 'Transfer is not a number')
         })
       })
 
