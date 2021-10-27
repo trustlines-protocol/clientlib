@@ -14,7 +14,11 @@
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
-  "include": ["./src/TLNetwork.ts", "./src/wallets/IdentityWallet.ts"],
+  "include": [
+    "./src/TLNetwork.ts",
+    "./src/wallets/IdentityWallet.ts",
+    "./src/UserInformation.ts"
+  ],
   "compileOnSave": false,
   "buildOnSave": false
 }
