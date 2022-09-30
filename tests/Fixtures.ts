@@ -4,7 +4,8 @@ import { ethers } from 'ethers'
 import { TLNetwork } from '../src/TLNetwork'
 import {
   WALLET_TYPE_ETHERS,
-  WALLET_TYPE_IDENTITY
+  WALLET_TYPE_IDENTITY,
+  WALLET_TYPE_SAFE
 } from '../src/wallets/TLWallet'
 
 import identityConfig from './e2e-config/addresses.json'
@@ -23,7 +24,10 @@ import {
   TxObjectInternal
 } from '../src/typings'
 
-export const end2endChainId = 17
+export const rpcProvider = new ethers.providers.JsonRpcProvider(
+  'http://localhost:8545'
+)
+export const end2endChainId = 1337
 
 export const identityFactoryAddress = identityConfig.identityProxyFactory
 
@@ -41,6 +45,8 @@ export const providerUrl: ProviderUrl = {
   protocol: 'http'
 }
 
+export const safeProviderUrl: string = 'http://localhost:8001/api'
+
 export const tlNetworkConfig: TLNetworkConfig = {
   relayUrl: providerUrl,
   messagingUrl: providerUrl,
@@ -53,6 +59,16 @@ export const tlNetworkConfigIdentity: TLNetworkConfig = {
   walletType: WALLET_TYPE_IDENTITY,
   identityFactoryAddress: identityConfig.identityProxyFactory,
   identityImplementationAddress: identityConfig.identityImplementation,
+  chainId: end2endChainId
+}
+
+export const tlNetworkConfigSafe: TLNetworkConfig = {
+  relayUrl: providerUrl,
+  messagingUrl: providerUrl,
+  walletType: WALLET_TYPE_SAFE,
+  gnosisSafeL2Address: identityConfig.gnosisSafeL2,
+  gnosisSafeProxyFactoryAddress: identityConfig.gnosisSafeProxyFactory,
+  safeRelayUrl: safeProviderUrl,
   chainId: end2endChainId
 }
 
@@ -456,8 +472,8 @@ export const FAKE_TX_STATUS_OBJECT: TransactionStatusObject = {
 }
 
 export const FAKE_WEB3_TX_INFOS = {
-  balance: new ethers.utils.BigNumber('2000000'),
-  gasPrice: new ethers.utils.BigNumber('2000000'),
+  balance: ethers.BigNumber.from('2000000'),
+  gasPrice: ethers.BigNumber.from('2000000'),
   nonce: 12
 }
 
@@ -534,13 +550,13 @@ export const FAKE_ETHERS_TX_RESPONSE = {
   confirmations: 1,
   data: '0xc0de',
   from: USER_2.address,
-  gasLimit: ethers.utils.bigNumberify('1000000'),
-  gasPrice: ethers.utils.bigNumberify('1000000'),
+  gasLimit: ethers.BigNumber.from('1000000'),
+  gasPrice: ethers.BigNumber.from('1000000'),
   hash: FAKE_TX_HASH,
   nonce: 12,
   raw: FAKE_SIGNED_TX,
   to: USER_1.address,
-  value: ethers.utils.bigNumberify('10000000'),
+  value: ethers.BigNumber.from('10000000'),
   wait: (confirmations?: number) => Promise.resolve(FAKE_ETHERS_TX_RECEIPT)
 }
 

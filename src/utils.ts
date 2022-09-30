@@ -46,9 +46,11 @@ export const fetchUrl = async <T>(
 ): Promise<T> => {
   const response = await fetch(url, options)
   const json = await response.json()
-  if (response.status !== 200) {
+  if (![200, 201, 202].includes(response.status)) {
     throw new Error(
-      `Error fetching ${url} | Status ${response.status} | ${json.message}`
+      `Error fetching ${url} | Status ${response.status} | ${JSON.stringify(
+        json
+      )}`
     )
   } else {
     return json

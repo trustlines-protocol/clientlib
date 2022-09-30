@@ -22,13 +22,16 @@ import { EthersWallet } from './wallets/EthersWallet'
 import {
   TLWallet,
   WALLET_TYPE_ETHERS,
-  WALLET_TYPE_IDENTITY
+  WALLET_TYPE_IDENTITY,
+  WALLET_TYPE_SAFE
 } from './wallets/TLWallet'
 
 import utils from './utils'
 
+import { SafeRelayProvider } from './providers/SafeRelayProvider'
 import { NonceMechanism, ProviderUrl, TLNetworkConfig } from './typings'
 import { IdentityWallet } from './wallets/IdentityWallet'
+import { SafeWallet } from './wallets/SafeWallet'
 
 /**
  * The TLNetwork class is the single entry-point into the trustlines-clientlib.
@@ -63,6 +66,7 @@ export class TLNetwork {
           path: url.path || defaultUrlParameters.path
         })
   }
+
   /**
    * User instance containing all user/keystore related methods.
    */
@@ -128,6 +132,10 @@ export class TLNetwork {
    * @hidden
    */
   public messagingProvider: Provider
+  /**
+   * @hidden
+   */
+  public safeRelayProvider: SafeRelayProvider
 
   /**
    * Initiates a new TLNetwork instance that provides the public interface to trustlines-clientlib.
@@ -137,9 +145,12 @@ export class TLNetwork {
     const {
       relayUrl = {},
       messagingUrl = {},
+      safeRelayUrl = {},
       web3Provider,
       identityFactoryAddress,
       identityImplementationAddress,
+      gnosisSafeL2Address,
+      gnosisSafeProxyFactoryAddress,
       walletType = WALLET_TYPE_ETHERS,
       chainId,
       nonceMechanism = NonceMechanism.Random
@@ -160,15 +171,22 @@ export class TLNetwork {
       new Provider(
         TLNetwork.getApiUrl(messagingUrl, defaultUrlParameters),
         TLNetwork.getWsUrl(messagingUrl, defaultUrlParameters)
+      ),
+      new SafeRelayProvider(
+        TLNetwork.getApiUrl(safeRelayUrl, defaultUrlParameters),
+        TLNetwork.getWsUrl(safeRelayUrl, defaultUrlParameters)
       )
     )
 
     this.setWallet(
       walletType,
       this.relayProvider,
+      this.safeRelayProvider,
       chainId,
       identityFactoryAddress,
       identityImplementationAddress,
+      gnosisSafeL2Address,
+      gnosisSafeProxyFactoryAddress,
       nonceMechanism
     )
     this.setSigner(web3Provider, this.wallet)
@@ -233,13 +251,15 @@ export class TLNetwork {
    */
   public setProviders(
     relayProvider: TLProvider,
-    messagingProvider: Provider
+    messagingProvider: Provider,
+    safeRelayProvider: SafeRelayProvider
   ): void {
     if (!(relayProvider instanceof RelayProvider)) {
       throw new Error('Provider not supported.')
     }
     this.relayProvider = relayProvider
     this.messagingProvider = messagingProvider
+    this.safeRelayProvider = safeRelayProvider
   }
 
   /**
@@ -254,7 +274,8 @@ export class TLNetwork {
       !(
         signer instanceof Web3Signer ||
         signer instanceof EthersWallet ||
-        signer instanceof IdentityWallet
+        signer instanceof IdentityWallet ||
+        signer instanceof SafeWallet
       )
     ) {
       throw new Error('Signer not supported.')
@@ -268,9 +289,12 @@ export class TLNetwork {
   public setWallet(
     walletType: string,
     provider: TLProvider,
+    safeRelayProvider: SafeRelayProvider,
     chainId: number,
     identityFactoryAddress: string,
     identityImplementationAddress: string,
+    gnosisSafeL2Address,
+    gnosisSafeProxyFactoryAddress,
     nonceMechanism: NonceMechanism
   ): void {
     let wallet: TLWallet
@@ -281,6 +305,17 @@ export class TLNetwork {
         chainId,
         identityFactoryAddress,
         identityImplementationAddress,
+        nonceMechanism
+      )
+    } else if (walletType === WALLET_TYPE_SAFE) {
+      wallet = new SafeWallet(
+        provider,
+        safeRelayProvider,
+        chainId,
+        identityFactoryAddress,
+        identityImplementationAddress,
+        gnosisSafeL2Address,
+        gnosisSafeProxyFactoryAddress,
         nonceMechanism
       )
     } else if (walletType === WALLET_TYPE_ETHERS) {

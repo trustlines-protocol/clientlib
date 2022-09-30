@@ -2,6 +2,7 @@ import {
   Amount,
   MetaTransactionFees,
   RawTxObject,
+  SafeTransactionFees,
   Signature,
   TransactionStatusObject,
   TxObjectRaw
@@ -19,5 +20,7 @@ export interface TLSigner {
   confirm(rawTx: RawTxObject): Promise<string>
   prepareTransaction(rawTx: RawTxObject): Promise<TxObjectRaw>
   getTxStatus(txHash: string | RawTxObject): Promise<TransactionStatusObject>
-  getMetaTxFees(rawTx: RawTxObject): Promise<MetaTransactionFees>
+  getMetaTxFees(
+    rawTx: RawTxObject
+  ): Promise<MetaTransactionFees | SafeTransactionFees>
 }

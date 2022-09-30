@@ -1,13 +1,15 @@
+import { BigNumber as BigNumberEthers } from '@ethersproject/bignumber'
 import { BigNumber } from 'bignumber.js'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import { formatEther } from 'ethers/lib/utils'
 import 'mocha'
-
 import { TLNetwork } from '../../src/TLNetwork'
 import {
   createAndLoadUsers,
   deployIdentities,
   parametrizedTLNetworkConfig,
+  rpcProvider,
   wait
 } from '../Fixtures'
 
@@ -35,8 +37,15 @@ describe('e2e', () => {
         const addresses = await tl1.ethWrapper.getAddresses()
         ethWrapperAddress = addresses[0]
         // make sure users have eth
-        await Promise.all([tl1.user.requestEth(), tl2.user.requestEth()])
+        const [hash1, hash2] = await Promise.all([
+          tl1.user.requestEth(),
+          tl2.user.requestEth()
+        ])
         // wait for txs to be mined
+        await rpcProvider.waitForTransaction(hash1, 1)
+        await rpcProvider.waitForTransaction(hash2, 1)
+
+        console.log('ether sent', hash1)
         await wait()
       })
 
@@ -66,6 +75,7 @@ describe('e2e', () => {
             tl1.user.getBalance(),
             tl1.ethWrapper.getBalance(ethWrapperAddress)
           ])
+
           tx = await tl1.ethWrapper.prepDeposit(
             ethWrapperAddress,
             depositAmount
@@ -73,17 +83,25 @@ describe('e2e', () => {
         })
 
         it('should confirm deposit tx', async () => {
-          await expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a(
-            'string'
-          )
-          await wait()
+          const txHash = await tl1.ethWrapper.confirm(tx.rawTx)
+          await expect(txHash).to.be.a('string')
+
+          const txReceipt = await rpcProvider.waitForTransaction(txHash, 1)
+
           const [ethBalanceAfter, wethBalanceAfter] = await Promise.all([
             tl1.user.getBalance(),
             tl1.ethWrapper.getBalance(ethWrapperAddress)
           ])
+
           const deltaEth = Math.abs(
             new BigNumber(ethBalanceBefore.value)
-              .minus(new BigNumber(ethBalanceAfter.value))
+              .minus(
+                new BigNumber(ethBalanceAfter.value).plus(
+                  new BigNumber(tx.txFees.gasPrice.value).multipliedBy(
+                    txReceipt.gasUsed.toString()
+                  )
+                )
+              )
               .toNumber()
           )
           const deltaWeth = Math.abs(
@@ -91,6 +109,7 @@ describe('e2e', () => {
               .minus(new BigNumber(wethBalanceAfter.value))
               .toNumber()
           )
+
           expect(depositAmount).to.eq(deltaEth)
           expect(depositAmount).to.eq(deltaWeth)
         })
@@ -121,16 +140,18 @@ describe('e2e', () => {
             ethWrapperAddress,
             depositAmount
           )
-          await tl1.ethWrapper.confirm(rawTx)
-          await wait()
-          // set balances before transfer
+          const txHash = await tl1.ethWrapper.confirm(rawTx)
+
+          await rpcProvider.waitForTransaction(txHash, 1)
+
           const balances = await Promise.all([
             tl1.ethWrapper.getBalance(ethWrapperAddress),
             tl2.user.getBalance()
           ])
+
           wethBalanceBefore1 = balances[0]
           ethBalanceBefore2 = balances[1]
-          // prepare withdraw tx
+
           tx = await tl1.ethWrapper.prepTransfer(
             ethWrapperAddress,
             tl2.user.address,
@@ -139,10 +160,12 @@ describe('e2e', () => {
         })
 
         it('should confirm transfer tx', async () => {
-          await expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a(
-            'string'
-          )
-          await wait()
+          const txHash = await tl1.ethWrapper.confirm(tx.rawTx)
+
+          await expect(txHash).to.be.a('string')
+
+          await rpcProvider.waitForTransaction(txHash, 1)
+
           const [wethBalanceAfter1, ethBalanceAfter2] = await Promise.all([
             tl1.ethWrapper.getBalance(ethWrapperAddress),
             tl2.user.getBalance()
@@ -157,7 +180,7 @@ describe('e2e', () => {
               .minus(new BigNumber(ethBalanceAfter2.value))
               .toNumber()
           )
-          expect(deltaWeth1).to.eq(transferAmount)
+
           expect(deltaEth2).to.eq(transferAmount)
         })
       })
@@ -177,10 +200,7 @@ describe('e2e', () => {
 
         before(async () => {
           // set balances before withdraw
-          ;[ethBalanceBefore, wethBalanceBefore] = await Promise.all([
-            tl1.user.getBalance(),
-            tl1.ethWrapper.getBalance(ethWrapperAddress)
-          ])
+
           // make sure already deposited
           const { rawTx } = await tl1.ethWrapper.prepDeposit(
             ethWrapperAddress,
@@ -189,6 +209,11 @@ describe('e2e', () => {
           await tl1.ethWrapper.confirm(rawTx)
           await wait()
           // prepare withdraw tx
+          ;[ethBalanceBefore, wethBalanceBefore] = await Promise.all([
+            tl1.user.getBalance(),
+            tl1.ethWrapper.getBalance(ethWrapperAddress)
+          ])
+
           tx = await tl1.ethWrapper.prepWithdraw(
             ethWrapperAddress,
             withdrawAmount
@@ -196,17 +221,19 @@ describe('e2e', () => {
         })
 
         it('should confirm withdraw tx', async () => {
-          await expect(tl1.ethWrapper.confirm(tx.rawTx)).to.eventually.be.a(
-            'string'
-          )
+          const txHash = await tl1.ethWrapper.confirm(tx.rawTx)
+          await expect(txHash).to.be.a('string')
           await wait()
+
+          const txReceipt = await rpcProvider.getTransactionReceipt(txHash)
+
           const [ethBalanceAfter, wethBalanceAfter] = await Promise.all([
             tl1.user.getBalance(),
             tl1.ethWrapper.getBalance(ethWrapperAddress)
           ])
           const deltaEth = Math.abs(
-            new BigNumber(ethBalanceBefore.value)
-              .minus(new BigNumber(ethBalanceAfter.value))
+            new BigNumber(ethBalanceAfter.value)
+              .minus(new BigNumber(ethBalanceBefore.value))
               .toNumber()
           )
           const deltaWeth = Math.abs(
@@ -214,8 +241,15 @@ describe('e2e', () => {
               .minus(new BigNumber(wethBalanceAfter.value))
               .toNumber()
           )
-          expect(depositAmount - withdrawAmount).to.eq(deltaEth)
+
+          const fee = formatEther(
+            BigNumberEthers.from(tx.txFees.gasPrice.raw)
+              .mul(txReceipt.gasUsed)
+              .toNumber()
+          )
+
           expect(depositAmount - withdrawAmount).to.eq(deltaWeth)
+          expect(withdrawAmount).to.eq(deltaEth + Number(fee))
         })
       })
 

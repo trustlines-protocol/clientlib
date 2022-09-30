@@ -32,6 +32,7 @@ export interface TLWallet extends TLSigner {
 export const TL_WALLET_VERSION = 1
 export const WALLET_TYPE_ETHERS = 'ethers'
 export const WALLET_TYPE_IDENTITY = 'identity'
+export const WALLET_TYPE_SAFE = 'safe'
 export const EXPECTED_VERSIONS = [1]
 export const DEFAULT_DERIVATION_PATH = `m/44'/60'/0'/0/0`
 

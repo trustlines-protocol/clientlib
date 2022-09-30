@@ -1,13 +1,18 @@
 import { ethers } from 'ethers'
-
 import {
   DEFAULT_DERIVATION_PATH,
   TL_WALLET_VERSION,
   WALLET_TYPE_ETHERS,
-  WALLET_TYPE_IDENTITY
+  WALLET_TYPE_IDENTITY,
+  WALLET_TYPE_SAFE
 } from './TLWallet'
 
-import { EthersWalletData, IdentityWalletData } from '../typings'
+import { defaultPath } from '@ethersproject/hdnode'
+import {
+  EthersWalletData,
+  IdentityWalletData,
+  SafeWalletData
+} from '../typings'
 
 /**
  * This is a wrapper class for `ethers.Wallet`. It allows us to customize some of the methods provided by
@@ -15,7 +20,7 @@ import { EthersWalletData, IdentityWalletData } from '../typings'
  */
 export class WalletFromEthers extends ethers.Wallet {
   public static fromWalletData(
-    walletData: EthersWalletData | IdentityWalletData
+    walletData: EthersWalletData | IdentityWalletData | SafeWalletData
   ) {
     const { signingKey } = walletData.meta
     const { privateKey, mnemonic } = signingKey
@@ -24,7 +29,7 @@ export class WalletFromEthers extends ethers.Wallet {
 
   public static createRandom() {
     const { privateKey, mnemonic } = super.createRandom()
-    return new this(privateKey, mnemonic)
+    return new this(privateKey, mnemonic.phrase)
   }
 
   public static async fromEncryptedJson(
@@ -37,7 +42,7 @@ export class WalletFromEthers extends ethers.Wallet {
       password,
       progressCallback
     )
-    return new this(privateKey, mnemonic)
+    return new this(privateKey, mnemonic.phrase)
   }
 
   public static fromMnemonic(mnemonic: string) {
@@ -48,7 +53,11 @@ export class WalletFromEthers extends ethers.Wallet {
   constructor(privateKey: string, mnemonic?: string) {
     const signingKeyFromEthers = new ethers.utils.SigningKey(privateKey)
     // @ts-ignore
-    signingKeyFromEthers.mnemonic = mnemonic
+    signingKeyFromEthers.mnemonic = {
+      phrase: mnemonic,
+      path: defaultPath,
+      locale: 'en'
+    }
     // @ts-ignore
     signingKeyFromEthers.path = DEFAULT_DERIVATION_PATH
     super(signingKeyFromEthers)
@@ -61,7 +70,7 @@ export class WalletFromEthers extends ethers.Wallet {
       type: WALLET_TYPE_ETHERS,
       meta: {
         signingKey: {
-          mnemonic: this.mnemonic,
+          mnemonic: this.mnemonic?.phrase,
           privateKey: this.privateKey
         }
       }
@@ -75,7 +84,21 @@ export class WalletFromEthers extends ethers.Wallet {
       type: WALLET_TYPE_IDENTITY,
       meta: {
         signingKey: {
-          mnemonic: this.mnemonic,
+          mnemonic: this.mnemonic?.phrase,
+          privateKey: this.privateKey
+        }
+      }
+    }
+  }
+
+  public toSafeWalletData(safeAddress: string): any {
+    return {
+      address: safeAddress,
+      version: TL_WALLET_VERSION,
+      type: WALLET_TYPE_SAFE,
+      meta: {
+        signingKey: {
+          mnemonic: this.mnemonic?.phrase,
           privateKey: this.privateKey
         }
       }

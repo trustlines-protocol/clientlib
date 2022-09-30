@@ -1,9 +1,10 @@
+import { AddressZero } from '@ethersproject/constants'
 import { BigNumber } from 'bignumber.js'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+
 import 'mocha'
 
-import { AddressZero } from 'ethers/constants'
 import { encode } from '../../src/extraData'
 import { TLNetwork } from '../../src/TLNetwork'
 import { FeePayer, PathRaw, TLWalletData } from '../../src/typings'
@@ -316,9 +317,7 @@ describe('e2e', () => {
               'feeRecipient',
               'currencyNetworkOfFees'
             )
-            expect(preparedPayment.txFees.gasPrice.raw).to.equal('0')
-            expect(preparedPayment.txFees.totalFee.raw).to.equal('0')
-            expect(preparedPayment.txFees.totalFee.value).to.equal('0')
+
             expect(preparedPayment.txFees.totalFee.decimals).to.equal(18)
             expect(preparedPayment.txFees.baseFee.raw).to.equal('0')
             expect(preparedPayment.txFees.gasLimit.raw).to.equal(

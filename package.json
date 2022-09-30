@@ -15,7 +15,7 @@
     "prettier:check": "prettier --check './{src,tests}/**/*.ts'",
     "prettier:big-tabs": "prettier --write --print-width 120 --no-semi --single-quote --tab-width 4  './{src,tests}/**/*.ts'",
     "test": "mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/**/**.test.ts",
-    "test:e2e": "nyc mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
+    "test:e2e": "nyc mocha --timeout 240000 --require isomorphic-fetch -r ts-node/register tests/e2e/**.test.ts",
     "test:integration": "nyc mocha --timeout 5000 --require isomorphic-fetch -r ts-node/register tests/integration/**.test.ts",
     "test:unit": "nyc mocha --timeout 30000 --require isomorphic-fetch -r ts-node/register tests/unit/**.test.ts",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
@@ -90,11 +90,12 @@
     "webpack-cli": "^3.0.8"
   },
   "dependencies": {
+    "@gnosis.pm/safe-core-sdk": "^3.1.1",
     "@msgpack/msgpack": "^1.12.1",
     "@trustlines/trustlines-contracts-abi": "^2.0.0",
     "bignumber.js": "7.2.1",
     "ethereumjs-util": "^5.2.0",
-    "ethers": "^4.0.23",
+    "ethers": "5.7.1",
     "reconnecting-websocket": "^4.1.10",
     "rxjs": "^5.4.1",
     "simple-jsonrpc-js": "0.0.10",
