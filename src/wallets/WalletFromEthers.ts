@@ -8,6 +8,7 @@ import {
 } from './TLWallet'
 
 import { defaultPath } from '@ethersproject/hdnode'
+import { computeAddress } from '@ethersproject/transactions'
 import {
   EthersWalletData,
   IdentityWalletData,
@@ -52,14 +53,23 @@ export class WalletFromEthers extends ethers.Wallet {
 
   constructor(privateKey: string, mnemonic?: string) {
     const signingKeyFromEthers = new ethers.utils.SigningKey(privateKey)
-    // @ts-ignore
-    signingKeyFromEthers.mnemonic = {
-      phrase: mnemonic,
-      path: defaultPath,
-      locale: 'en'
+
+    if (mnemonic) {
+      // @ts-ignore
+      signingKeyFromEthers.mnemonic = {
+        phrase: mnemonic,
+        path: defaultPath,
+        locale: 'en'
+      }
     }
+
     // @ts-ignore
     signingKeyFromEthers.path = DEFAULT_DERIVATION_PATH
+    // @ts-ignore
+    signingKeyFromEthers.address = computeAddress(
+      signingKeyFromEthers.publicKey
+    )
+
     super(signingKeyFromEthers)
   }
 

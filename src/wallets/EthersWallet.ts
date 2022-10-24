@@ -264,7 +264,7 @@ export class EthersWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    return this.walletFromEthers.mnemonic.phrase
+    return this.walletFromEthers.mnemonic?.phrase
   }
 
   /**

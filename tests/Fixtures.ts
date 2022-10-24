@@ -1,3 +1,4 @@
+import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -10,6 +11,10 @@ import {
 
 import identityConfig from './e2e-config/addresses.json'
 
+import {
+  Log,
+  TransactionReceipt
+} from '@ethersproject/abstract-provider/src.ts'
 import {
   Amount,
   EthersWalletData,
@@ -541,12 +546,27 @@ export const FAKE_RAW_TX_OBJECT = {
   value: 10000
 }
 
-export const FAKE_ETHERS_TX_RECEIPT = {
-  byzantium: false
+export const FAKE_ETHERS_TX_RECEIPT: TransactionReceipt = {
+  byzantium: false,
+  to: USER_1.address,
+  from: USER_2.address,
+  type: 2,
+  status: 1,
+  contractAddress: 'a',
+  transactionIndex: 1,
+  gasUsed: ethers.BigNumber.from('1000000'),
+  logs: [],
+  logsBloom: '0x',
+  blockHash: '0x',
+  transactionHash: 'a',
+  blockNumber: 1,
+  confirmations: 1,
+  cumulativeGasUsed: ethers.BigNumber.from('1000000'),
+  effectiveGasPrice: ethers.BigNumber.from('1000000')
 }
 
-export const FAKE_ETHERS_TX_RESPONSE = {
-  chainId: 69,
+export const FAKE_ETHERS_TX_RESPONSE: TransactionResponse = {
+  chainId: 1337,
   confirmations: 1,
   data: '0xc0de',
   from: USER_2.address,
