@@ -3,7 +3,7 @@ import { writeFile } from 'fs'
 
 const requiredContracts = ['CurrencyNetwork', 'Exchange', 'Identity', 'UnwEth']
 const pathContractsModule =
-  'node_modules/trustlines-contracts-abi/contracts.json'
+  'node_modules/@trustlines/trustlines-contracts-abi/contracts.json'
 
 const filteredAbi = Object.fromEntries(
   Object.entries(TrustlinesContractsAbi['default']).filter(([key, value]) =>
