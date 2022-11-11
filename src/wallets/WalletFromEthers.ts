@@ -1,6 +1,7 @@
-import { ethers } from 'ethers'
+import { SigningKey } from '@ethersproject/signing-key'
+import { Wallet } from '@ethersproject/wallet'
+
 import {
-  DEFAULT_DERIVATION_PATH,
   TL_WALLET_VERSION,
   WALLET_TYPE_ETHERS,
   WALLET_TYPE_IDENTITY,
@@ -19,7 +20,7 @@ import {
  * This is a wrapper class for `ethers.Wallet`. It allows us to customize some of the methods provided by
  * `ethers.Wallet`. We also use this to add some conversion methods adapted to our internal types.
  */
-export class WalletFromEthers extends ethers.Wallet {
+export class WalletFromEthers extends Wallet {
   public static fromWalletData(
     walletData: EthersWalletData | IdentityWalletData | SafeWalletData
   ) {
@@ -52,7 +53,7 @@ export class WalletFromEthers extends ethers.Wallet {
   }
 
   constructor(privateKey: string, mnemonic?: string) {
-    const signingKeyFromEthers = new ethers.utils.SigningKey(privateKey)
+    const signingKeyFromEthers = new SigningKey(privateKey)
 
     if (mnemonic) {
       // @ts-ignore
@@ -63,8 +64,6 @@ export class WalletFromEthers extends ethers.Wallet {
       }
     }
 
-    // @ts-ignore
-    signingKeyFromEthers.path = DEFAULT_DERIVATION_PATH
     // @ts-ignore
     signingKeyFromEthers.address = computeAddress(
       signingKeyFromEthers.publicKey

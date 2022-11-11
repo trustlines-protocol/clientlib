@@ -110,7 +110,7 @@ export class SafeWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    return this.provider.getBalance(this.address)
+    return this.safeRelayProvider.getBalance(this.address)
   }
 
   /**
@@ -190,23 +190,24 @@ export class SafeWallet implements TLWallet {
     } catch (e) {
       throw new Error(e)
     }
-
-    // console.log(response)
-
-    // return this.address
   }
 
   public async isIdentityDeployed(): Promise<boolean> {
     // If the identity contract is not deployed, the endpoint to get info will fail
     try {
-      const response = await this.provider.fetchEndpoint<any>(
-        `/identities/${this.address}`
+      const response = await this.safeRelayProvider.fetchEndpoint<any>(
+        `/v1/safes/${this.address}`
       )
+
+      if ([404, 422].includes(response.status)) {
+        return false
+      }
       return true
     } catch (error) {
       if (
-        error.message.includes('Status 404') &&
-        error.message.includes('Contract not found')
+        error.message.includes('Status 422') ||
+        (error.message.includes('Status 404') &&
+          error.message.includes('Contract not found'))
       ) {
         return false
       } else {
@@ -255,11 +256,12 @@ export class SafeWallet implements TLWallet {
       password,
       typeof progressCallback === 'function' && progressCallback
     )
-    const identityAddress = calculateIdentityAddress(
-      this.identityFactoryAddress,
-      walletFromEthers.address
+    const identityAddress = calculateSafeAddress(
+      walletFromEthers.address,
+      this.gnosisSafeL2Address,
+      this.gnosisSafeProxyFactoryAddress
     )
-    return walletFromEthers.toIdentityWalletData(identityAddress)
+    return walletFromEthers.toSafeWalletData(identityAddress)
   }
 
   /**
@@ -268,11 +270,14 @@ export class SafeWallet implements TLWallet {
    */
   public async recoverFromSeed(seed: string): Promise<IdentityWalletData> {
     const walletFromEthers = WalletFromEthers.fromMnemonic(seed)
-    const identityAddress = calculateIdentityAddress(
-      this.identityFactoryAddress,
-      walletFromEthers.address
+
+    const identityAddress = calculateSafeAddress(
+      walletFromEthers.address,
+      this.gnosisSafeL2Address,
+      this.gnosisSafeProxyFactoryAddress
     )
-    return walletFromEthers.toIdentityWalletData(identityAddress)
+
+    return walletFromEthers.toSafeWalletData(identityAddress)
   }
 
   /**
@@ -284,11 +289,12 @@ export class SafeWallet implements TLWallet {
     privateKey: string
   ): Promise<IdentityWalletData> {
     const walletFromEthers = new WalletFromEthers(privateKey)
-    const identityAddress = calculateIdentityAddress(
-      this.identityFactoryAddress,
-      walletFromEthers.address
+    const identityAddress = calculateSafeAddress(
+      walletFromEthers.address,
+      this.gnosisSafeL2Address,
+      this.gnosisSafeProxyFactoryAddress
     )
-    return walletFromEthers.toIdentityWalletData(identityAddress)
+    return walletFromEthers.toSafeWalletData(identityAddress)
   }
 
   /**
@@ -489,10 +495,11 @@ export class SafeWallet implements TLWallet {
   }
 
   public async getTxStatus(
-    tx: string | RawTxObject
+    metaTx: string | RawTxObject
   ): Promise<TransactionStatusObject> {
-    const txHash = typeof tx === 'string' ? tx : await this.hashTx(tx)
-    return this.provider.getMetaTxStatus(this.address, txHash)
+    const txHash =
+      typeof metaTx === 'string' ? metaTx : await this.hashTx(metaTx)
+    return this.safeRelayProvider.getMetaTxStatus(this.address, txHash)
   }
 
   /**
@@ -658,32 +665,4 @@ export function getRandomNonce(): string {
   const random = BigNumberForRandomNonces.random(exponentialMagnitute)
   const nonce = random.multipliedBy(RANDOM_NONCE_RANGE).plus(MIN_RANDOM_NONCE)
   return nonce.integerValue().toString()
-}
-
-// old stuff can be removed:
-const initcodeWithPadding = '0x00'
-
-export function calculateIdentityAddress(
-  factoryAddress: string,
-  ownerAddress: string
-) {
-  if (!isValidAddress(factoryAddress)) {
-    throw new Error(`Invalid factory address: ${factoryAddress}`)
-  }
-  if (!isValidAddress(ownerAddress)) {
-    throw new Error(`Invalid owner address: ${ownerAddress}`)
-  }
-
-  const initCode = initcodeWithPadding + ownerAddress.slice(2)
-  const initCodeHash = ethersUtils.solidityKeccak256(['bytes'], [initCode])
-  // address = keccak256( 0xff ++ address ++ salt ++ keccak256(init_code))[12:]
-  const address =
-    '0x' +
-    ethersUtils
-      .solidityKeccak256(
-        ['bytes1', 'address', 'uint', 'bytes32'],
-        ['0xff', factoryAddress, 0, initCodeHash]
-      )
-      .slice(2 + 2 * 12)
-  return toChecksumAddress(address)
 }

@@ -28,7 +28,7 @@ Logger.setLogLevel(Logger.levels.ERROR)
 const ETH_DECIMALS = 18
 export const GAS_LIMIT_MULTIPLIER = 1.2
 // Value taken from the contracts gas tests
-export const GAS_LIMIT_IDENTITY_OVERHEAD = new BigNumber(27_000)
+export const GAS_LIMIT_IDENTITY_OVERHEAD = new BigNumber(50_000)
 export const GAS_LIMIT_VALUE_TRANSACTION = new BigNumber(21_000)
   .plus(GAS_LIMIT_IDENTITY_OVERHEAD.multipliedBy(GAS_LIMIT_MULTIPLIER))
   .integerValue(BigNumber.ROUND_DOWN)

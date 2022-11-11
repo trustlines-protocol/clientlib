@@ -1,12 +1,12 @@
 import { AddressZero } from '@ethersproject/constants'
-import { ZERO_ADDRESS } from '@gnosis.pm/safe-core-sdk/dist/src/utils/constants'
-import { ethers } from 'ethers'
 import {
+  Amount,
   EstimationResponse,
-  MetaTransaction,
-  MetaTransactionFees,
   SafeMetaTransaction,
-  SafeTransactionFees
+  SafeMultisigTxResponse,
+  SafeTransactionFees,
+  TransactionStatus,
+  TransactionStatusObject
 } from '../typings'
 import utils from '../utils'
 import { Provider } from './Provider'
@@ -104,5 +104,47 @@ export class SafeRelayProvider extends Provider {
   ): Promise<string> {
     const { masterCopy } = await this.fetchEndpoint<any>(`v1/safes/${address}`)
     return masterCopy
+  }
+
+  public async getMetaTxStatus(
+    safeAddress: string,
+    transactionHash: string
+  ): Promise<TransactionStatusObject> {
+    try {
+      const response: SafeMultisigTxResponse = await this.fetchEndpoint(
+        `/v1/safes/${safeAddress}/transactions/?safe_tx_hash=${transactionHash}`
+      )
+
+      if (response.results.length) {
+        const tx = response.results[0]
+        const status = tx.metaTxSuccessful
+        return {
+          status: status ? TransactionStatus.Success : TransactionStatus.Failure
+        }
+      }
+    } catch (e) {
+      if (e.message.includes('Status 404')) {
+        return { status: TransactionStatus.NotFound }
+      }
+      return { status: TransactionStatus.Failure }
+    }
+  }
+
+  /**
+   * Returns balance of given address.
+   * @param address Address to determine balance for.
+   */
+  public async getBalance(address: string): Promise<Amount> {
+    // return utils.formatToAmount(0, 18)
+    try {
+      const response: Array<{
+        tokenAddress: string | null
+        balance: string
+      }> = await this.fetchEndpoint(`/v1/safes/${address}/balances`)
+
+      return utils.formatToAmount(response[0].balance, 18)
+    } catch (e) {
+      return utils.formatToAmount(0, 18)
+    }
   }
 }

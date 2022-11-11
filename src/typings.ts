@@ -973,3 +973,46 @@ export interface SafeSignature {
   r: string
   s: string
 }
+
+interface SafeMultisigTx {
+  to: string
+  ethereumTx: {
+    txHash: string
+    to: string
+    data: string
+    blockNumber: number
+    blockTimestamp: number
+    created: string
+    modified: string
+    gasUsed: number
+    status: number
+    transactionIndex: number
+    gas: string
+    gasPrice: string
+    nonce: number
+    value: string
+    maxFeePerGas: string
+    maxPriorityFeePerGas: string
+    from: string
+  }
+  value: string
+  data: string
+  timestamp: number
+  operation: number
+  safeTxGas: string
+  dataGas: string
+  gasPrice: string
+  refundReceiver: string
+  nonce: number
+  safeTxHash: string
+  txHash: string
+  metaTxSuccessful: boolean
+  transactionHash: string
+}
+
+export interface SafeMultisigTxResponse {
+  count: number
+  next: string
+  previous: string
+  results: SafeMultisigTx[]
+}

@@ -79,7 +79,8 @@ export const tlNetworkConfigSafe: TLNetworkConfig = {
 
 export const parametrizedTLNetworkConfig = [
   { config: tlNetworkConfig, walletType: 'Ethers' },
-  { config: tlNetworkConfigIdentity, walletType: 'Identity' }
+  { config: tlNetworkConfigIdentity, walletType: 'Identity' },
+  { config: tlNetworkConfigSafe, walletType: 'Safe' }
 ]
 
 export const extraData = '0x12ab34ef'

@@ -13,7 +13,6 @@ import {
   identityFactoryAddress,
   identityImplementationAddress,
   TL_WALLET_DATA_KEYS,
-  tlNetworkConfigIdentity,
   tlNetworkConfigSafe,
   wait
 } from '../Fixtures'
@@ -22,6 +21,7 @@ import { FeePayer, NonceMechanism, RawTxObject } from '../../src/typings'
 
 import { TLNetwork } from '../../src/TLNetwork'
 
+import { formatEther, parseUnits } from 'ethers/lib/utils'
 import { SafeRelayProvider } from '../../src/providers/SafeRelayProvider'
 import { TLProvider } from '../../src/providers/TLProvider'
 
@@ -114,8 +114,12 @@ describe('e2e', () => {
         const postBalance = await safeWallet.getBalance()
 
         expect(
-          parseInt(postBalance.value, 10) - parseInt(preBalance.value, 10)
-        ).to.equal(1)
+          formatEther(
+            parseUnits(postBalance.raw, 'wei').sub(
+              parseUnits(preBalance.raw, 'wei')
+            )
+          )
+        ).to.equal('0.01')
       })
     })
 
@@ -156,6 +160,7 @@ describe('e2e', () => {
         )
         const walletData = await secondWallet.create()
         await secondWallet.loadFrom(walletData)
+        await secondWallet.deployIdentity()
 
         await relayProvider.postToEndpoint(`request-ether`, {
           address: safeWallet.address
@@ -166,18 +171,17 @@ describe('e2e', () => {
         const transaction = await trustlinesNetwork.transaction.prepareValueTransaction(
           safeWallet.address,
           secondWallet.address,
-          new BigNumber(1000000000000000000)
+          new BigNumber(1000000000000000)
         )
 
         await safeWallet.confirm(transaction.rawTx)
-        await wait()
 
         const postBalance = await safeWallet.getBalance()
         const postSecondBalance = await secondWallet.getBalance()
 
-        expect(preBalance.value).to.equal('1')
-        expect(postBalance.value).to.equal('0')
-        expect(postSecondBalance.value).to.equal('1')
+        expect(preBalance.value).to.equal('0.01')
+        expect(postBalance.value).to.not.equal('0.01')
+        expect(postSecondBalance.value).to.equal('0.001')
       })
 
       it('should get a path in a currency network', async () => {

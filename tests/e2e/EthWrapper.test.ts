@@ -44,9 +44,6 @@ describe('e2e', () => {
         // wait for txs to be mined
         await rpcProvider.waitForTransaction(hash1, 1)
         await rpcProvider.waitForTransaction(hash2, 1)
-
-        console.log('ether sent', hash1)
-        await wait()
       })
 
       describe('#getAddresses()', () => {
@@ -115,26 +112,17 @@ describe('e2e', () => {
         })
       })
 
-      describe('#prepTransfer()', () => {
-        it('should prepare transfer tx', async () => {
-          await expect(
-            tl1.ethWrapper.prepTransfer(
-              ethWrapperAddress,
-              tl2.user.address,
-              transferAmount
-            )
-          ).to.eventually.have.keys('rawTx', 'txFees')
-        })
-      })
-
-      describe('#confirm() - transfer', () => {
+      describe('Transfer', () => {
         // wrapped eth balance of user 1
         let wethBalanceBefore1
         // eth balance of user 2
         let ethBalanceBefore2
         let tx
 
-        before(async () => {
+        before(async function() {
+          if (['Identity', 'Safe'].includes(testParameter.walletType)) {
+            this.skip()
+          }
           // make sure already deposited
           const { rawTx } = await tl1.ethWrapper.prepDeposit(
             ethWrapperAddress,
@@ -159,7 +147,11 @@ describe('e2e', () => {
           )
         })
 
-        it('should confirm transfer tx', async () => {
+        it('should confirm transfer tx', async function() {
+          if (['Identity', 'Safe'].includes(testParameter.walletType)) {
+            this.skip()
+          }
+
           const txHash = await tl1.ethWrapper.confirm(tx.rawTx)
 
           await expect(txHash).to.be.a('string')
@@ -256,7 +248,10 @@ describe('e2e', () => {
       describe('#getLogs()', () => {
         let logs
 
-        before(async () => {
+        before(async function() {
+          if (['Identity', 'Safe'].includes(testParameter.walletType)) {
+            this.skip()
+          }
           let tx = await tl1.ethWrapper.prepDeposit(
             ethWrapperAddress,
             depositAmount
@@ -313,7 +308,10 @@ describe('e2e', () => {
           expect(latestLog.type).to.equal('Withdrawal')
         })
 
-        it('should return latest transfer log', async () => {
+        it('should return latest transfer log', async function() {
+          if (['Identity', 'Safe'].includes(testParameter.walletType)) {
+            this.skip()
+          }
           const transferLogs = logs.filter(log => log.type === 'Transfer')
           const latestLog = transferLogs[transferLogs.length - 1]
           expect(latestLog.amount).to.have.keys('decimals', 'raw', 'value')
