@@ -30,7 +30,7 @@ import {
 } from '../src/typings'
 
 export const rpcProvider = new ethers.providers.JsonRpcProvider(
-  'http://localhost:8545'
+  process.env.RPC_PROVIDER_URL || 'http://localhost:8545'
 )
 export const end2endChainId = 1337
 
@@ -50,7 +50,8 @@ export const providerUrl: ProviderUrl = {
   protocol: 'http'
 }
 
-export const safeProviderUrl: string = 'http://localhost:8001/api'
+export const safeProviderUrl: string =
+  process.env.SAFE_RELAY_PROVIDER_URL || 'http://localhost:8001/api'
 
 export const tlNetworkConfig: TLNetworkConfig = {
   relayUrl: providerUrl,
