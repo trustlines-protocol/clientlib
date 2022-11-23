@@ -37,6 +37,18 @@ export interface TLNetworkConfig {
    * Mechanism how to generate nonces for identity meta-tx
    */
   nonceMechanism?: NonceMechanism
+  /**
+   * Safe address L2
+   */
+  gnosisSafeL2Address?: string
+  /**
+   * Safe address proxy factory
+   */
+  gnosisSafeProxyFactoryAddress?: string
+  /**
+   * Safe relay url
+   */
+  safeRelayUrl?: string | ProviderUrl
 }
 
 export interface ProviderUrl {
@@ -180,6 +192,7 @@ export type NetworkTrustlineCancelEvent = NetworkEvent
 export interface NetworkTrustlineBalanceUpdateRaw extends NetworkEvent {
   amount: string
 }
+
 export interface NetworkTrustlineBalanceUpdate extends NetworkEvent {
   amount: Amount
 }
@@ -321,6 +334,8 @@ export interface RawTxObject {
   totalFee?: number | string | BigNumber
   feeRecipient?: string
   currencyNetworkOfFees?: string
+  safeTxGas?: number | string | BigNumber
+  baseGas?: number | string | BigNumber
 }
 
 export interface MetaTransaction {
@@ -578,7 +593,8 @@ export interface Signature {
 // WALLET
 export type WalletTypeEthers = 'ethers'
 export type WalletTypeIdentity = 'identity'
-export type WalletType = WalletTypeEthers | WalletTypeIdentity
+export type WalletTypeSafe = 'safe'
+export type WalletType = WalletTypeEthers | WalletTypeIdentity | WalletTypeSafe
 
 export interface TLWalletData {
   version: number
@@ -603,6 +619,11 @@ export interface EthersWalletData extends TLWalletData {
 
 export interface IdentityWalletData extends TLWalletData {
   type: WalletTypeIdentity
+  meta: TLWalletDataMeta
+}
+
+export interface SafeWalletData extends TLWalletData {
+  type: WalletTypeSafe
   meta: TLWalletDataMeta
 }
 
@@ -908,4 +929,90 @@ export interface OrdersQuery {
 
 export type ReconnectingWSOptions = ReconnectingOptions & {
   reconnectOnError?: boolean
+}
+
+// Gnosis Safe
+export interface EstimationResponse {
+  safeTxGas: string
+  baseGas: string
+  dataGas: string
+  operationalGas: string
+  gasPrice: string
+  lastUsedNonce: number | null
+  gasToken: string | null
+  refundReceiver: string
+}
+
+export interface SafeTransactionFees {
+  safeTxGas: string
+  baseGas: string
+  gasPrice: string
+  refundReceiver: string
+  gasToken: string
+}
+
+export interface SafeMetaTransaction {
+  safe: string
+  to: string
+  value: string
+  data: string
+  operation: number
+  gasToken: string
+  safeTxGas: string
+  dataGas: string
+  baseGas: string
+  gasPrice: string
+  refundReceiver: string
+  nonce: string
+  chainId: number
+  signatures?: SafeSignature[]
+}
+
+export interface SafeSignature {
+  v: number
+  r: string
+  s: string
+}
+
+interface SafeMultisigTx {
+  to: string
+  ethereumTx: {
+    txHash: string
+    to: string
+    data: string
+    blockNumber: number
+    blockTimestamp: number
+    created: string
+    modified: string
+    gasUsed: number
+    status: number
+    transactionIndex: number
+    gas: string
+    gasPrice: string
+    nonce: number
+    value: string
+    maxFeePerGas: string
+    maxPriorityFeePerGas: string
+    from: string
+  }
+  value: string
+  data: string
+  timestamp: number
+  operation: number
+  safeTxGas: string
+  dataGas: string
+  gasPrice: string
+  refundReceiver: string
+  nonce: number
+  safeTxHash: string
+  txHash: string
+  metaTxSuccessful: boolean
+  transactionHash: string
+}
+
+export interface SafeMultisigTxResponse {
+  count: number
+  next: string
+  previous: string
+  results: SafeMultisigTx[]
 }

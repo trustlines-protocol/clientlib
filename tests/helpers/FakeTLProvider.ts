@@ -16,7 +16,8 @@ import {
   identityImplementationAddress
 } from '../Fixtures'
 
-import { AddressZero } from 'ethers/constants'
+import { AddressZero } from '@ethersproject/constants'
+
 import {
   Amount,
   MetaTransaction,

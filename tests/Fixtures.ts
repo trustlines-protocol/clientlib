@@ -1,21 +1,24 @@
+import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import { TLNetwork } from '../src/TLNetwork'
 import {
   WALLET_TYPE_ETHERS,
-  WALLET_TYPE_IDENTITY
+  WALLET_TYPE_IDENTITY,
+  WALLET_TYPE_SAFE
 } from '../src/wallets/TLWallet'
 
 import identityConfig from './e2e-config/addresses.json'
 
+import { TransactionReceipt } from '@ethersproject/abstract-provider/src.ts'
 import {
-  Amount,
   EthersWalletData,
   IdentityWalletData,
   MetaTransaction,
   ProviderUrl,
-  RawTxObject,
+  SafeMetaTransaction,
+  SafeWalletData,
   TLNetworkConfig,
   TLWalletData,
   TransactionStatus,
@@ -23,7 +26,10 @@ import {
   TxObjectInternal
 } from '../src/typings'
 
-export const end2endChainId = 17
+export const rpcProvider = new ethers.providers.JsonRpcProvider(
+  process.env.RPC_PROVIDER_URL || 'http://localhost:8545'
+)
+export const end2endChainId = 1337
 
 export const identityFactoryAddress = identityConfig.identityProxyFactory
 
@@ -41,6 +47,9 @@ export const providerUrl: ProviderUrl = {
   protocol: 'http'
 }
 
+export const safeProviderUrl: string =
+  process.env.SAFE_RELAY_PROVIDER_URL || 'http://localhost:8001/api'
+
 export const tlNetworkConfig: TLNetworkConfig = {
   relayUrl: providerUrl,
   messagingUrl: providerUrl,
@@ -56,9 +65,20 @@ export const tlNetworkConfigIdentity: TLNetworkConfig = {
   chainId: end2endChainId
 }
 
+export const tlNetworkConfigSafe: TLNetworkConfig = {
+  relayUrl: providerUrl,
+  messagingUrl: providerUrl,
+  walletType: WALLET_TYPE_SAFE,
+  gnosisSafeL2Address: identityConfig.gnosisSafeL2,
+  gnosisSafeProxyFactoryAddress: identityConfig.gnosisSafeProxyFactory,
+  safeRelayUrl: safeProviderUrl,
+  chainId: end2endChainId
+}
+
 export const parametrizedTLNetworkConfig = [
   { config: tlNetworkConfig, walletType: 'Ethers' },
-  { config: tlNetworkConfigIdentity, walletType: 'Identity' }
+  { config: tlNetworkConfigIdentity, walletType: 'Identity' },
+  { config: tlNetworkConfigSafe, walletType: 'Safe' }
 ]
 
 export const extraData = '0x12ab34ef'
@@ -125,6 +145,8 @@ export const TL_WALLET_DATA: TLWalletData = {
 export const USER_1_ADDRESS = '0xF9fD1DaF400404A62B8cDCb1834317894c714625'
 export const USER_1_IDENTITY_ADDRESS =
   '0x489a79e88fB0412543e09ff892C96c2f0Fdba71b'
+export const USER_1_SAFE_ADDRESS = '0xdbFf6e150bd4407A9b1FB5C1Fd00cf931d9cBB51'
+
 export const USER_1 = {
   address: USER_1_ADDRESS,
   keystore: ETHERS_JSON_KEYSTORE_1,
@@ -134,7 +156,8 @@ export const USER_1 = {
   privateKey:
     '0xf6692380c18c54bba568dcfcb825ae89dafe16cdcea65e68fdf7e85bde5d8bf0',
   derivationPath: `m/44'/60'/0'/0/0`,
-  identityAddress: USER_1_IDENTITY_ADDRESS
+  identityAddress: USER_1_IDENTITY_ADDRESS,
+  safeAddress: USER_1_SAFE_ADDRESS
 }
 
 export const USER_2 = {
@@ -173,6 +196,18 @@ export const USER_1_IDENTITY_WALLET_V1: IdentityWalletData = {
   }
 }
 
+export const USER_1_SAFE_WALLET_V1: SafeWalletData = {
+  address: USER_1.safeAddress,
+  version: 1,
+  type: WALLET_TYPE_SAFE,
+  meta: {
+    signingKey: {
+      privateKey: USER_1.privateKey,
+      mnemonic: USER_1.mnemonic
+    }
+  }
+}
+
 export const IDENTITY_FACTORY_ADDRESS =
   '0x8688966AE53807c273D8B9fCcf667F0A0a91b1d3'
 export const IDENTITY_IMPLEMENTATION_ADDRESS =
@@ -180,6 +215,11 @@ export const IDENTITY_IMPLEMENTATION_ADDRESS =
 export const IDENTITY_OWNER_ADDRESS =
   '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'
 export const IDENTITY_ADDRESS = '0x7025175Ac3537be29f764bbeAB26d5f89b0F49aC'
+
+export const GNOSIS_SAFE_L2_ADDRESS =
+  '0xea56b73C2FbA87D10913DC721396F1d87ed73A66'
+export const GNOSIS_SAFE_PROXY_FACTORY_ADDRESS =
+  '0x74bF4E15576B145dfc51de0484d9553c50DF2645'
 
 export const FAKE_NETWORK = {
   abbreviation: 'CASH',
@@ -222,6 +262,11 @@ export const FAKE_IDENTITY = {
   balance: '1000',
   identity: USER_1_IDENTITY_ADDRESS,
   nextNonce: 10
+}
+
+export const FAKE_SAFE_IDENTITY = {
+  balance: '1000',
+  identity: USER_1_SAFE_ADDRESS
 }
 
 export const FAKE_VALUE_TX_OBJECT_INTERNAL: TxObjectInternal = {
@@ -456,8 +501,8 @@ export const FAKE_TX_STATUS_OBJECT: TransactionStatusObject = {
 }
 
 export const FAKE_WEB3_TX_INFOS = {
-  balance: new ethers.utils.BigNumber('2000000'),
-  gasPrice: new ethers.utils.BigNumber('2000000'),
+  balance: ethers.BigNumber.from('2000000'),
+  gasPrice: ethers.BigNumber.from('2000000'),
   nonce: 12
 }
 
@@ -482,6 +527,22 @@ export const FAKE_META_TX: MetaTransaction = {
   currencyNetworkOfFees: '0x51a240271AB8AB9f9a21C82d9a85396b704E164d'
 }
 
+export const FAKE_SAFE_META_TX: SafeMetaTransaction = {
+  safe: '0x1d86a9c73B3a9E06C44E9f34037dF696035eEc07',
+  to: '0x1d86a9c73B3a9E06C44E9f34037dF696035eEc07',
+  value: '0',
+  data: '0x',
+  operation: 0,
+  safeTxGas: '81000',
+  dataGas: '62848',
+  baseGas: '62848',
+  gasPrice: '0',
+  refundReceiver: '0x0000000000000000000000000000000000000000',
+  nonce: '0',
+  gasToken: '0x0000000000000000000000000000000000000000',
+  chainId: 1337
+}
+
 export const FAKE_META_TX_PRIVATE_KEY =
   '0x0000000000000000000000000000000000000000000000000000000000000001'
 
@@ -489,6 +550,14 @@ export const FAKE_META_TX_PRIVATE_KEY =
 // Obtained by signing with key "0x0000...001"
 export const FAKE_META_TX_SIGNATURE =
   '0x639db755a4e0642c2ec76485cf623c58b635c54f9ce375088fad40a128779d7a060ceb63129eb9681216a844a0577184b1d3266fc6ac00fbbe23e72b592c33c200'
+
+export const FAKE_SAFE_META_TX_SIGNATURE = {
+  r:
+    '32882905447147312423721829729297754640908116400029913929309121288786887478309',
+  s:
+    '13515907526361585337177832427189737749069499577256031954332948087287792352574',
+  v: 28
+}
 
 export const FAKE_TRUSTLINE = {
   address: '0xf8E191d2cd72Ff35CB8F012685A29B31996614EA',
@@ -511,6 +580,7 @@ export const FAKE_CLOSE_PATH_RAW = {
 }
 
 export const FAKE_RELAY_API = 'http://relay.network/api/v1'
+export const FAKE_SAFE_RELAY_API = 'http://safe.relay.network/api'
 
 export const FAKE_SIGNED_MESSAGE =
   '0xea09d6e94e52b48489bd66754c9c02a772f029d4a2f136bba9917ab3042a0474301198d8c2afb71351753436b7e5a420745fed77b6c3089bbcca64113575ec3c1c'
@@ -525,22 +595,37 @@ export const FAKE_RAW_TX_OBJECT = {
   value: 10000
 }
 
-export const FAKE_ETHERS_TX_RECEIPT = {
-  byzantium: false
+export const FAKE_ETHERS_TX_RECEIPT: TransactionReceipt = {
+  byzantium: false,
+  to: USER_1.address,
+  from: USER_2.address,
+  type: 2,
+  status: 1,
+  contractAddress: 'a',
+  transactionIndex: 1,
+  gasUsed: ethers.BigNumber.from('1000000'),
+  logs: [],
+  logsBloom: '0x',
+  blockHash: '0x',
+  transactionHash: 'a',
+  blockNumber: 1,
+  confirmations: 1,
+  cumulativeGasUsed: ethers.BigNumber.from('1000000'),
+  effectiveGasPrice: ethers.BigNumber.from('1000000')
 }
 
-export const FAKE_ETHERS_TX_RESPONSE = {
-  chainId: 69,
+export const FAKE_ETHERS_TX_RESPONSE: TransactionResponse = {
+  chainId: 1337,
   confirmations: 1,
   data: '0xc0de',
   from: USER_2.address,
-  gasLimit: ethers.utils.bigNumberify('1000000'),
-  gasPrice: ethers.utils.bigNumberify('1000000'),
+  gasLimit: ethers.BigNumber.from('1000000'),
+  gasPrice: ethers.BigNumber.from('1000000'),
   hash: FAKE_TX_HASH,
   nonce: 12,
   raw: FAKE_SIGNED_TX,
   to: USER_1.address,
-  value: ethers.utils.bigNumberify('10000000'),
+  value: ethers.BigNumber.from('10000000'),
   wait: (confirmations?: number) => Promise.resolve(FAKE_ETHERS_TX_RECEIPT)
 }
 

@@ -1,3 +1,5 @@
+import { BytesLike } from '@ethersproject/bytes'
+import { AddressZero } from '@ethersproject/constants'
 import { isValidAddress, toChecksumAddress } from 'ethereumjs-util'
 import { utils as ethersUtils } from 'ethers'
 
@@ -22,24 +24,18 @@ import {
   RawTxObject,
   Signature,
   TransactionStatusObject,
-  TxFeesRaw,
   TxObjectInternal,
   TxObjectRaw,
   TxOptionsInternal
 } from '../typings'
 
-import utils from '../utils'
+import utils, { getRandomNonce } from '../utils'
 
 import BigNumber from 'bignumber.js'
-import { AddressZero } from 'ethers/constants'
 
 // This is the proxy initcode without the address of the owner but with added 0s so that we only need to append the address to it
 const initcodeWithPadding =
   '0x608060405234801561001057600080fd5b506040516020806102178339810180604052602081101561003057600080fd5b50506101d6806100416000396000f3fe6080604052600436106100295760003560e01c80635c60da1b1461005c578063d784d4261461008d575b600080546040516001600160a01b0390911691369082376000803683855af43d6000833e808015610058573d83f35b3d83fd5b34801561006857600080fd5b506100716100c2565b604080516001600160a01b039092168252519081900360200190f35b34801561009957600080fd5b506100c0600480360360208110156100b057600080fd5b50356001600160a01b03166100d1565b005b6000546001600160a01b031681565b6000546001600160a01b03161561014957604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152601a60248201527f496d706c656d656e746174696f6e20616c726561647920736574000000000000604482015290519081900360640190fd5b600080546001600160a01b03831673ffffffffffffffffffffffffffffffffffffffff19909116811790915560408051918252517f11135eea714a7c1c3b9aebf3d31bbd295f7e7262960215e086849c191d45bddc9181900360200190a15056fea165627a7a7230582009e814f2e28666ad200a2e809c1fe802a9264c378c39d6c2032706ab340c09a40029000000000000000000000000'
-
-const MIN_RANDOM_NONCE = new BigNumber(2).pow(255).plus(1)
-const MAX_RANDOM_NONCE = new BigNumber(2).pow(256)
-const RANDOM_NONCE_RANGE = MAX_RANDOM_NONCE.minus(MIN_RANDOM_NONCE)
 
 export class IdentityWallet implements TLWallet {
   public provider: TLProvider
@@ -242,7 +238,7 @@ export class IdentityWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    return this.walletFromEthers.mnemonic
+    return this.walletFromEthers.mnemonic.phrase
   }
 
   /**
@@ -267,7 +263,7 @@ export class IdentityWallet implements TLWallet {
     throw new Error('Method not implemented.')
   }
 
-  public async signMessage(message: ethersUtils.Arrayish): Promise<Signature> {
+  public async signMessage(message: BytesLike): Promise<Signature> {
     throw new Error('Method not implemented.')
   }
 
@@ -531,21 +527,4 @@ export function calculateIdentityAddress(
       )
       .slice(2 + 2 * 12)
   return toChecksumAddress(address)
-}
-
-/**
- * Generates a random nonce to use for meta transactions.
- * The nonce fits into the range of ]2^255, 2^256[.
- * This is an alternative to the up counting nonce (]0, 2^255[) without the need
- * to query a [[TLProvider]].
- */
-export function getRandomNonce(): string {
-  const exponentialMagnitute = MAX_RANDOM_NONCE.e + 1
-  const BigNumberForRandomNonces = BigNumber.clone({
-    EXPONENTIAL_AT: exponentialMagnitute,
-    ROUNDING_MODE: BigNumber.ROUND_DOWN
-  })
-  const random = BigNumberForRandomNonces.random(exponentialMagnitute)
-  const nonce = random.multipliedBy(RANDOM_NONCE_RANGE).plus(MIN_RANDOM_NONCE)
-  return nonce.integerValue().toString()
 }

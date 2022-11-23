@@ -62,19 +62,19 @@ export class Web3Signer implements TLSigner {
     }
     const { hash } = await this.signer.sendTransaction({
       data: rawTx.data,
-      gasLimit: ethers.utils.bigNumberify(
+      gasLimit: ethers.BigNumber.from(
         rawTx.gasLimit instanceof BigNumber
           ? rawTx.gasLimit.toString()
           : rawTx.gasLimit
       ),
-      gasPrice: ethers.utils.bigNumberify(
+      gasPrice: ethers.BigNumber.from(
         rawTx.gasPrice instanceof BigNumber
           ? rawTx.gasPrice.toString()
           : rawTx.gasPrice
       ),
       nonce: rawTx.nonce,
       to: rawTx.to,
-      value: ethers.utils.bigNumberify(
+      value: ethers.BigNumber.from(
         rawTx.value instanceof BigNumber ? rawTx.value.toString() : rawTx.value
       )
     })

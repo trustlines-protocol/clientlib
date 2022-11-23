@@ -7,6 +7,7 @@ import {
   createAndLoadUsers,
   deployIdentities,
   parametrizedTLNetworkConfig,
+  rpcProvider,
   setTrustlines,
   wait
 } from '../Fixtures'
@@ -240,10 +241,10 @@ describe('e2e', () => {
                 transfer: 123
               }
             )
-            await expect(
-              tl1.trustline.confirm(txFreezing.rawTx)
-            ).to.eventually.be.a('string')
+            const txHash = await tl1.trustline.confirm(txFreezing.rawTx)
+            await expect(txHash).to.be.a('string')
 
+            await rpcProvider.waitForTransaction(txHash, 1)
             const acceptTl = await tl4.trustline.prepareAccept(
               networkCustomInterestRates.address,
               user1.address,
@@ -257,8 +258,8 @@ describe('e2e', () => {
               }
             )
 
-            await tl4.trustline.confirm(acceptTl.rawTx)
-            wait()
+            const acceptHash = await tl4.trustline.confirm(acceptTl.rawTx)
+            await rpcProvider.waitForTransaction(acceptHash, 1)
           }
 
           const proposeUpdateToExistingTrustline = async transfer => {
@@ -278,7 +279,7 @@ describe('e2e', () => {
             const confirmed = await tl1.trustline.confirm(update.rawTx)
             expect(confirmed).to.be.a('string')
 
-            await wait()
+            await rpcProvider.waitForTransaction(confirmed, 1)
 
             const txStatus = await tl1.transaction.getTxStatus(update.rawTx)
 
@@ -292,16 +293,33 @@ describe('e2e', () => {
           await expect(
             proposeUpdateToExistingTrustline(0)
           ).to.eventually.have.property('status', 'success')
-          await expect(
-            proposeUpdateToExistingTrustline(123)
-          ).to.eventually.have.property('status', 'failure')
-          await expect(
-            proposeUpdateToExistingTrustline('123')
-          ).to.eventually.have.property('status', 'failure')
 
-          await expect(
-            proposeUpdateToExistingTrustline('')
-          ).to.eventually.be.rejectedWith(Error, 'Transfer is not a number')
+          if (testParameter.walletType !== 'Safe') {
+            await expect(
+              proposeUpdateToExistingTrustline(123)
+            ).to.eventually.have.property('status', 'failure')
+
+            await expect(
+              proposeUpdateToExistingTrustline('123')
+            ).to.eventually.have.property('status', 'failure')
+
+            await expect(
+              proposeUpdateToExistingTrustline('')
+            ).to.eventually.be.rejectedWith(Error, 'Transfer is not a number')
+          }
+
+          // The gnosis safe identity estimates the gas needed for a transaction
+          // this estimation is failing for trustlines updates that are invalid,
+          // so we can't send the transaction in the first place because of this
+          if (testParameter.walletType === 'Safe') {
+            await expect(
+              proposeUpdateToExistingTrustline(123)
+            ).to.eventually.be.rejectedWith(Error, 'A trustline already exists')
+
+            await expect(
+              proposeUpdateToExistingTrustline('123')
+            ).to.eventually.be.rejectedWith(Error, 'A trustline already exists')
+          }
         })
       })
 

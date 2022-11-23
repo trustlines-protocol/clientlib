@@ -29,7 +29,7 @@ export class Provider {
   public async postToEndpoint<T>(endpoint: string, data: any): Promise<T> {
     const options = {
       body: JSON.stringify(data),
-      headers: new Headers({ 'Content-Type': 'application/json' }),
+      headers: { 'Content-Type': 'application/json' },
       method: 'POST'
     }
     return this.fetchEndpoint<T>(endpoint, options)

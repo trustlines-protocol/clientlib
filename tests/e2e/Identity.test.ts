@@ -6,8 +6,6 @@ import { BigNumber } from 'bignumber.js'
 
 import { IdentityWallet } from '../../src/wallets/IdentityWallet'
 
-import { RelayProvider } from '../../src/providers/RelayProvider'
-
 import {
   AMOUNT_KEYS,
   createAndLoadUsers,
@@ -29,6 +27,7 @@ import {
 
 import { TLNetwork } from '../../src/TLNetwork'
 
+import { formatEther, parseUnits } from 'ethers/lib/utils'
 import { TLProvider } from '../../src/providers/TLProvider'
 
 chai.use(chaiAsPromised)
@@ -184,8 +183,12 @@ describe('e2e', () => {
         const postBalance = await identityWallet.getBalance()
 
         expect(
-          parseInt(postBalance.value, 10) - parseInt(preBalance.value, 10)
-        ).to.equal(1)
+          formatEther(
+            parseUnits(postBalance.raw, 'wei').sub(
+              parseUnits(preBalance.raw, 'wei')
+            )
+          )
+        ).to.equal('0.01')
       })
     })
 
@@ -233,7 +236,7 @@ describe('e2e', () => {
         const transaction = await trustlinesNetwork.transaction.prepareValueTransaction(
           identityWallet.address,
           secondWallet.address,
-          new BigNumber(1000000000000000000)
+          new BigNumber(1000000000000000)
         )
 
         await identityWallet.confirm(transaction.rawTx)
@@ -242,9 +245,9 @@ describe('e2e', () => {
         const postBalance = await identityWallet.getBalance()
         const postSecondBalance = await secondWallet.getBalance()
 
-        expect(preBalance.value).to.equal('1')
-        expect(postBalance.value).to.equal('0')
-        expect(postSecondBalance.value).to.equal('1')
+        expect(preBalance.value).to.equal('0.01')
+        expect(postBalance.value).to.not.equal('0.01')
+        expect(postSecondBalance.value).to.equal('0.001')
       })
 
       it('should get a path in a currency network', async () => {

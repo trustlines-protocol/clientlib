@@ -1,5 +1,5 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { ethers } from 'ethers'
-
 import {
   FAKE_ETHERS_TX_RESPONSE,
   FAKE_SIGNED_MESSAGE,
@@ -27,8 +27,7 @@ export class FakeWeb3Provider extends ethers.providers.Web3Provider {
   public getSigner(): any {
     return {
       getAddress: async (): Promise<string> => USER_1.address,
-      getBalance: async (): Promise<ethers.utils.BigNumber> =>
-        ethers.utils.bigNumberify('1000000000'),
+      getBalance: async (): Promise<BigNumber> => BigNumber.from('1000000000'),
       sendTransaction: async (): Promise<
         ethers.providers.TransactionResponse
       > => FAKE_ETHERS_TX_RESPONSE,
@@ -36,15 +35,15 @@ export class FakeWeb3Provider extends ethers.providers.Web3Provider {
     }
   }
 
-  public getBalance(addressOrName: string): Promise<ethers.utils.BigNumber> {
-    return Promise.resolve<ethers.utils.BigNumber>(FAKE_WEB3_TX_INFOS.balance)
+  public getBalance(addressOrName: string): Promise<BigNumber> {
+    return Promise.resolve<BigNumber>(FAKE_WEB3_TX_INFOS.balance)
   }
 
   public getTransactionCount(addressOrName: string): Promise<number> {
     return Promise.resolve<number>(FAKE_WEB3_TX_INFOS.nonce)
   }
 
-  public getGasPrice(): Promise<ethers.utils.BigNumber> {
-    return Promise.resolve<ethers.utils.BigNumber>(FAKE_WEB3_TX_INFOS.gasPrice)
+  public getGasPrice(): Promise<BigNumber> {
+    return Promise.resolve<BigNumber>(FAKE_WEB3_TX_INFOS.gasPrice)
   }
 }

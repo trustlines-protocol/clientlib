@@ -1,6 +1,6 @@
+import { BytesLike } from '@ethersproject/bytes'
 import { BigNumber } from 'bignumber.js'
-import { utils as ethersUtils } from 'ethers'
-
+import { ethers, utils as ethersUtils } from 'ethers'
 import { TLProvider } from '../providers/TLProvider'
 import {
   EXPECTED_VERSIONS,
@@ -177,7 +177,7 @@ export class EthersWallet implements TLWallet {
    * Signs given message with loaded wallet.
    * @param message Message to sign.
    */
-  public async signMessage(message: ethersUtils.Arrayish): Promise<Signature> {
+  public async signMessage(message: BytesLike): Promise<Signature> {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
@@ -210,21 +210,21 @@ export class EthersWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    return this.walletFromEthers.sign({
+    return this.walletFromEthers.signTransaction({
       data: rawTx.data,
-      gasLimit: ethersUtils.bigNumberify(
+      gasLimit: ethers.BigNumber.from(
         rawTx.gasLimit instanceof BigNumber
           ? rawTx.gasLimit.toString()
           : rawTx.gasLimit
       ),
-      gasPrice: ethersUtils.bigNumberify(
+      gasPrice: ethers.BigNumber.from(
         rawTx.gasPrice instanceof BigNumber
           ? rawTx.gasPrice.toString()
           : rawTx.gasPrice
       ),
       nonce: rawTx.nonce,
       to: rawTx.to,
-      value: ethersUtils.bigNumberify(
+      value: ethers.BigNumber.from(
         rawTx.value instanceof BigNumber ? rawTx.value.toString() : rawTx.value
       )
     })
@@ -264,7 +264,7 @@ export class EthersWallet implements TLWallet {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
-    return this.walletFromEthers.mnemonic
+    return this.walletFromEthers.mnemonic?.phrase
   }
 
   /**

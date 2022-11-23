@@ -24,9 +24,9 @@ import {
 } from '../Fixtures'
 
 import { MetaTransaction, NonceMechanism } from '../../src/typings'
+import { getRandomNonce } from '../../src/utils'
 import {
   calculateIdentityAddress,
-  getRandomNonce,
   IdentityWallet
 } from '../../src/wallets/IdentityWallet'
 

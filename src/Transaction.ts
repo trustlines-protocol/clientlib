@@ -1,7 +1,8 @@
+import { Interface } from '@ethersproject/abi'
+import { AddressZero } from '@ethersproject/constants'
+import { Logger } from '@ethersproject/logger'
 import * as TrustlinesContractsAbi from '@trustlines/trustlines-contracts-abi'
 import { BigNumber } from 'bignumber.js'
-import { ethers } from 'ethers'
-import { AddressZero } from 'ethers/constants'
 
 import { TLProvider } from './providers/TLProvider'
 import { TLSigner } from './signers/TLSigner'
@@ -22,12 +23,12 @@ import { CurrencyNetwork } from './CurrencyNetwork'
 
 // Ethers will otherwise warn for every call on `updateTrustline` due to function overloading
 // see https://github.com/ethers-io/ethers.js/issues/407
-ethers.errors.setLogLevel('error')
+Logger.setLogLevel(Logger.levels.ERROR)
 
 const ETH_DECIMALS = 18
 export const GAS_LIMIT_MULTIPLIER = 1.2
 // Value taken from the contracts gas tests
-export const GAS_LIMIT_IDENTITY_OVERHEAD = new BigNumber(27_000)
+export const GAS_LIMIT_IDENTITY_OVERHEAD = new BigNumber(50_000)
 export const GAS_LIMIT_VALUE_TRANSACTION = new BigNumber(21_000)
   .plus(GAS_LIMIT_IDENTITY_OVERHEAD.multipliedBy(GAS_LIMIT_MULTIPLIER))
   .integerValue(BigNumber.ROUND_DOWN)
@@ -73,11 +74,9 @@ export class Transaction {
     args: any[],
     options: TxOptionsInternal = {}
   ): Promise<TxObjectInternal> {
-    const abi = new ethers.utils.Interface(
-      TrustlinesContractsAbi[contractName].abi
-    )
+    const abi = new Interface(TrustlinesContractsAbi[contractName].abi)
     const rawTx: RawTxObject = {
-      data: abi.functions[functionName].encode(args),
+      data: abi.encodeFunctionData(functionName, args),
       from: userAddress,
       to: contractAddress,
       gasLimit: options.gasLimit || GAS_LIMIT_DEFAULT_CONTRACT_TRANSACTION,

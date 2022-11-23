@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js'
 import { TLNetwork } from '../../src/TLNetwork'
 import { TransactionStatus } from '../../src/typings'
 import { IdentityWallet } from '../../src/wallets/IdentityWallet'
+import { SafeWallet } from '../../src/wallets/SafeWallet'
 import {
   createAndLoadUsers,
   deployIdentities,
@@ -54,6 +55,14 @@ describe('e2e', () => {
             const identityWallet = tl1.signer as IdentityWallet
             txHash = await identityWallet.hashMetaTransaction(
               identityWallet.buildMetaTransaction(rawTx)
+            )
+          }
+
+          if (testParameter.walletType === 'Safe') {
+            // We should use the metaTxHash and not the enveloping tx hash returned by confirm
+            const safeWallet = tl1.signer as SafeWallet
+            txHash = await safeWallet.hashMetaTransaction(
+              safeWallet.buildMetaTransaction(rawTx)
             )
           }
 
