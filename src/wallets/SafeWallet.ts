@@ -1,27 +1,20 @@
 import { BytesLike } from '@ethersproject/bytes'
 import { AddressZero } from '@ethersproject/constants'
-import {
-  isValidAddress,
-  privateToAddress,
-  toChecksumAddress
-} from 'ethereumjs-util'
+import { privateToAddress, toChecksumAddress } from 'ethereumjs-util'
 import { ethers, utils as ethersUtils } from 'ethers'
 
 import { TLProvider } from '../providers/TLProvider'
+import { Transaction } from '../Transaction'
 import {
   EXPECTED_VERSIONS,
   TLWallet,
   verifyWalletData,
-  WALLET_TYPE_IDENTITY,
   WALLET_TYPE_SAFE
 } from './TLWallet'
 import { WalletFromEthers } from './WalletFromEthers'
 
-import { Transaction } from '../Transaction'
-
 import {
   Amount,
-  IdentityWalletData,
   NonceMechanism,
   RawTxObject,
   SafeMetaTransaction,
@@ -43,10 +36,6 @@ import { getSafeSingletonDeployment } from '@gnosis.pm/safe-deployments'
 
 import { keccak256, solidityKeccak256 } from 'ethers/lib/utils'
 import { SafeRelayProvider } from '../providers/SafeRelayProvider'
-
-const MIN_RANDOM_NONCE = new BigNumber(2).pow(255).plus(1)
-const MAX_RANDOM_NONCE = new BigNumber(2).pow(256)
-const RANDOM_NONCE_RANGE = MAX_RANDOM_NONCE.minus(MIN_RANDOM_NONCE)
 
 export class SafeWallet implements TLWallet {
   public provider: TLProvider
@@ -98,7 +87,7 @@ export class SafeWallet implements TLWallet {
     return this.address
   }
 
-  public async getWalletData(): Promise<IdentityWalletData> {
+  public async getWalletData(): Promise<SafeWalletData> {
     if (!this.walletFromEthers) {
       throw new Error('No wallet loaded.')
     }
@@ -196,7 +185,7 @@ export class SafeWallet implements TLWallet {
     // If the identity contract is not deployed, the endpoint to get info will fail
     try {
       const response = await this.safeRelayProvider.fetchEndpoint<any>(
-        `/v1/safes/${this.address}`
+        `v1/safes/${this.address}`
       )
 
       if ([404, 422].includes(response.status)) {
@@ -250,7 +239,7 @@ export class SafeWallet implements TLWallet {
     serializedEncryptedKeystore: string,
     password: string,
     progressCallback?: (progress: number) => any
-  ): Promise<IdentityWalletData> {
+  ): Promise<SafeWalletData> {
     const walletFromEthers = await WalletFromEthers.fromEncryptedJson(
       serializedEncryptedKeystore,
       password,
@@ -268,7 +257,7 @@ export class SafeWallet implements TLWallet {
    * Recovers wallet data from mnemonic phrase.
    * @param seed Mnemonic seed phrase.
    */
-  public async recoverFromSeed(seed: string): Promise<IdentityWalletData> {
+  public async recoverFromSeed(seed: string): Promise<SafeWalletData> {
     const walletFromEthers = WalletFromEthers.fromMnemonic(seed)
 
     const identityAddress = calculateSafeAddress(
@@ -287,7 +276,7 @@ export class SafeWallet implements TLWallet {
    */
   public async recoverFromPrivateKey(
     privateKey: string
-  ): Promise<IdentityWalletData> {
+  ): Promise<SafeWalletData> {
     const walletFromEthers = new WalletFromEthers(privateKey)
     const identityAddress = calculateSafeAddress(
       walletFromEthers.address,
@@ -509,7 +498,7 @@ export class SafeWallet implements TLWallet {
    * @param progressCallback Optional encryption progress callback.
    */
   public async encryptToSerializedKeystore(
-    walletData: IdentityWalletData,
+    walletData: SafeWalletData,
     password: string,
     progressCallback?: (progress: number) => any
   ): Promise<string> {
@@ -648,21 +637,4 @@ export function calculateSafeAddress(
   const initCode = proxyCreationCode + constructorData.slice(-64)
 
   return getCreate2Address(from, salt, solidityKeccak256(['bytes'], [initCode]))
-}
-
-/**
- * Generates a random nonce to use for meta transactions.
- * The nonce fits into the range of ]2^255, 2^256[.
- * This is an alternative to the up counting nonce (]0, 2^255[) without the need
- * to query a [[TLProvider]].
- */
-export function getRandomNonce(): string {
-  const exponentialMagnitute = MAX_RANDOM_NONCE.e + 1
-  const BigNumberForRandomNonces = BigNumber.clone({
-    EXPONENTIAL_AT: exponentialMagnitute,
-    ROUNDING_MODE: BigNumber.ROUND_DOWN
-  })
-  const random = BigNumberForRandomNonces.random(exponentialMagnitute)
-  const nonce = random.multipliedBy(RANDOM_NONCE_RANGE).plus(MIN_RANDOM_NONCE)
-  return nonce.integerValue().toString()
 }

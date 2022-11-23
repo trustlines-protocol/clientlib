@@ -33,6 +33,10 @@ if (
   BigNumber.config({ CRYPTO: true })
 }
 
+const MIN_RANDOM_NONCE = new BigNumber(2).pow(255).plus(1)
+const MAX_RANDOM_NONCE = new BigNumber(2).pow(256)
+const RANDOM_NONCE_RANGE = MAX_RANDOM_NONCE.minus(MIN_RANDOM_NONCE)
+
 export const defaultBaseUrl = 'trustlines://'
 
 /**
@@ -539,6 +543,23 @@ export const trimUrl = (url: string): string => {
     .join('/')
 }
 
+/**
+ * Generates a random nonce to use for meta transactions.
+ * The nonce fits into the range of ]2^255, 2^256[.
+ * This is an alternative to the up counting nonce (]0, 2^255[) without the need
+ * to query a [[TLProvider]].
+ */
+export function getRandomNonce(): string {
+  const exponentialMagnitute = MAX_RANDOM_NONCE.e + 1
+  const BigNumberForRandomNonces = BigNumber.clone({
+    EXPONENTIAL_AT: exponentialMagnitute,
+    ROUNDING_MODE: BigNumber.ROUND_DOWN
+  })
+  const random = BigNumberForRandomNonces.random(exponentialMagnitute)
+  const nonce = random.multipliedBy(RANDOM_NONCE_RANGE).plus(MIN_RANDOM_NONCE)
+  return nonce.integerValue().toString()
+}
+
 export default {
   buildApiUrl,
   buildWsApiUrl,
@@ -564,5 +585,6 @@ export default {
   generateRandomNumber,
   isURL,
   trimUrl,
-  websocketStream
+  websocketStream,
+  getRandomNonce
 }
