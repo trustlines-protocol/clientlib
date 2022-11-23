@@ -10,6 +10,7 @@ import {
   extraData,
   parametrizedTLNetworkConfig,
   requestEth,
+  rpcProvider,
   wait
 } from '../Fixtures'
 
@@ -99,7 +100,8 @@ describe('e2e', () => {
             user2.address,
             bigTrustlineValue / 2
           )
-          await tl1.payment.confirm(transfer1.rawTx)
+          const txHash = await tl1.payment.confirm(transfer1.rawTx)
+          await rpcProvider.waitForTransaction(txHash, 1)
           await wait()
 
           // apply accrued userInformation to trustline via transfer
@@ -108,7 +110,8 @@ describe('e2e', () => {
             user1.address,
             1
           )
-          await tl2.payment.confirm(transfer2.rawTx)
+          const txHash1 = await tl2.payment.confirm(transfer2.rawTx)
+          await rpcProvider.waitForTransaction(txHash1, 1)
           await wait()
         })
 
