@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.17.0] - 2022-12-10
+
+### Added
+
+- Support for Gnosis Safe wallets
+
 ## [0.15.2] - 2021-10-27
 
 ### Fixed
